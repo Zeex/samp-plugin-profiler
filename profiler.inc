@@ -9,5 +9,5 @@ native Profiler_Stop();
 
 // Set current script's filename (e.g. "gamemodes/lvdm.amx").
 // Call this somehwere before Profiler_Stop() if you want
-// function names instead addresses in the stats table.
+// function names instead of addresses in the stats table.
 native Profiler_SetScriptName(const name[]);
