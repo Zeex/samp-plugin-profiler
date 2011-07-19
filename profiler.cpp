@@ -110,8 +110,6 @@ namespace natives {
             return 0;
         }
 
-        AMX_DBG amxdbg = ::amxDebugInfo[amx];
-
         std::vector<AMXProfilerStat> v = prof->GetStats();
         std::sort(v.begin(), v.end(), ByExecutionTime);
 
@@ -141,6 +139,7 @@ namespace natives {
             if (it->native) {
                 stream << "\t\t<td>" << FindNativeByIndex(amx, it->address) << "</td>\n";
             } else {
+                AMX_DBG amxdbg = ::amxDebugInfo[amx];
                 const char *name;
                 if (dbg_LookupFunction(&amxdbg, it->address, &name) == AMX_ERR_NONE) {
                     stream << "\t\t<td>" << name << "</td>\n";
