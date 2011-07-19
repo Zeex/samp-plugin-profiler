@@ -23,7 +23,6 @@
 #include <platformstl/performance/performance_counter.hpp>
 
 #include <amx/amx.h>
-#include <amx/amxdbg.h>
 
 class AMXFunctionProfile {
 public:
@@ -40,7 +39,7 @@ private:
     void IncreaseCalls();
 
 private:
-    long calls_;
+    platformstl::int64_t calls_;
     platformstl::performance_counter counter_;
     platformstl::performance_counter::interval_type time_;
 };
