@@ -124,7 +124,7 @@ namespace natives {
                << "\t</tr>\n";
 
         // Calculate overall execution time
-        uint64_t totalTime = 0;
+        int64_t totalTime = 0;
         for (std::vector<AMXProfilerStat>::iterator it = v.begin(); it != v.end(); ++it) {
             totalTime += it->executionTime;
         }
