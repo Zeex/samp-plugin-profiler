@@ -1,0 +1,9 @@
+bin
+obj
+*.filters
+*.ncb
+*.sdf
+*.opensdf
+*.user
+*.suo
+*.swp
