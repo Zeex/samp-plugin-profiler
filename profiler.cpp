@@ -117,7 +117,7 @@ namespace natives {
         stream << "<table>\n"
                << "\t<tr>\n"
                << "\t\t<td>Function</td>\n"
-               << "\t\t<td>No. calls</td>\n"
+               << "\t\t<td>Calls</td>\n"
                << "\t\t<td>Time per call</td>\n"
                << "\t\t<td>Overall time, %</td>\n"
                << "\t</tr>\n";
