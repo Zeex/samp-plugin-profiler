@@ -1,13 +1,14 @@
 // SA:MP profiler plugin
 // Copyright (C) 2011 Zeex
 
-// Start performance profiling.
-native Profiler_Start();
+// This function starts a new profiling session.
+// It needs a path to the compiled .amx in order to load debug info from it.
+// Sample paths: gamemodes/lvdm.amx, filterscripts/debugfs.amx, etc.
+native Profiler_Start(const path_to_amx[]);
 
-// Stop prifiling and write statistics to "<server_root>/profiler.txt".
+// Stops prifiling.
 native Profiler_Stop();
 
-// Set current script's filename (e.g. "gamemodes/lvdm.amx").
-// Call this somehwere before Profiler_Stop() if you want
-// function names instead of addresses in the stats table.
-native Profiler_SetScriptName(const name[]);
+// Writes statistics as a simple HTML table to the specified file in server folder.
+// Should not be called when profler is running - only it after Profiler_Stop().
+native Profiler_Print(const filename[]);
