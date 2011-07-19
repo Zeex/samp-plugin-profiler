@@ -130,13 +130,13 @@ int AMXProfiler::Callback(cell index, cell *result, cell *params) {
     return error;  
 }
 
-std::vector<AMXProfilerStat> AMXProfiler::GetStats() const {
-    std::vector<AMXProfilerStat> stats;
+std::vector<AMXFunPerfStats> AMXProfiler::GetStats() const {
+    std::vector<AMXFunPerfStats> stats;
 
     for (std::map<cell, AMXFunPerfCounter>::const_iterator it = functions_.begin();
          it != functions_.end(); ++it)
     {
-        AMXProfilerStat st;
+        AMXFunPerfStats st;
         cell address = it->first;
         st.native = address <= 0;
         st.address = address < 0 ? -address : address;
