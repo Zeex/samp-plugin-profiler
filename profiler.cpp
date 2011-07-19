@@ -77,6 +77,7 @@ namespace natives {
         amxDebugInfo[amx] = amxdbg;
         fclose(fp);
 
+        logprintf("Profiling script %s", path_to_amx);
         amxProfilers[amx]->Run();
 
         return 1;
@@ -86,12 +87,12 @@ namespace natives {
     cell AMX_NATIVE_CALL Profiler_Stop(AMX *amx, cell *params) {
         AMXProfiler *prof = amxProfilers[amx];
 
-        if (!prof->IsRunning()) {
-            return 0;
-        }
-
-        prof->Terminate();
-        return 1;
+        if (prof->IsRunning()) {
+            prof->Terminate();
+            return 1;
+        } 
+        
+        return 0;
     }
 
     // native Profiler_PrintStats(const filename[]);
@@ -174,6 +175,11 @@ PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports() {
 PLUGIN_EXPORT bool PLUGIN_CALL Load(void **pluginData) {
     pAMXFunctions = pluginData[PLUGIN_DATA_AMX_EXPORTS];
     logprintf = (logprintf_t)pluginData[PLUGIN_DATA_LOGPRINTF];
+
+    extern uint16_t * AMXAPI amx_Align16_(uint16_t *v);
+    ((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Align16] = (void*)amx_Align16_;
+    extern uint32_t * AMXAPI amx_Align32_(uint32_t *v);
+    ((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Align32] = (void*)amx_Align32_;
 
     logprintf("  Profiler plugin " VERSION " (built on " __DATE__ ")");  
 
