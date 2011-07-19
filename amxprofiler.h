@@ -24,9 +24,9 @@
 
 #include <amx/amx.h>
 
-class AMXFunctionProfile {
+class AMXFunPerfCounter {
 public:
-    AMXFunctionProfile() : calls_(0), time_(0) {}
+    AMXFunPerfCounter() : calls_(0), time_(0) {}
 
     platformstl::int64_t GetExecutionTime() const;
     platformstl::int64_t GetNumberOfCalls() const;
@@ -85,7 +85,7 @@ private:
     cell currentStackFrame_;
 
     // Per-function data
-    std::map<cell, AMXFunctionProfile> functions_;
+    std::map<cell, AMXFunPerfCounter> functions_;
 };
 
 #endif

@@ -14,24 +14,24 @@
 
 #include "amxprofiler.h"
 
-platformstl::int64_t AMXFunctionProfile::GetExecutionTime() const {
+platformstl::int64_t AMXFunPerfCounter::GetExecutionTime() const {
     return time_;
 }
 
-platformstl::int64_t AMXFunctionProfile::GetNumberOfCalls() const {
+platformstl::int64_t AMXFunPerfCounter::GetNumberOfCalls() const {
     return calls_;
 }
 
-void AMXFunctionProfile::StartCounter() {
+void AMXFunPerfCounter::StartCounter() {
     counter_.start();
 }
 
-void AMXFunctionProfile::StopCounter() {
+void AMXFunPerfCounter::StopCounter() {
     counter_.stop();
     time_ += counter_.get_microseconds();
 }
 
-void AMXFunctionProfile::IncreaseCalls() {
+void AMXFunPerfCounter::IncreaseCalls() {
     calls_++;
 }
 
@@ -119,7 +119,7 @@ int AMXProfiler::DebugHook() {
 }
 
 int AMXProfiler::Callback(cell index, cell *result, cell *params) {
-    AMXFunctionProfile &fun = functions_[-index]; // Note negative index
+    AMXFunPerfCounter &fun = functions_[-index]; // Note negative index
     fun.StartCounter();
 
     int error = callback_(amx_, index, result, params);
@@ -133,7 +133,7 @@ int AMXProfiler::Callback(cell index, cell *result, cell *params) {
 std::vector<AMXProfilerStat> AMXProfiler::GetStats() const {
     std::vector<AMXProfilerStat> stats;
 
-    for (std::map<cell, AMXFunctionProfile>::const_iterator it = functions_.begin();
+    for (std::map<cell, AMXFunPerfCounter>::const_iterator it = functions_.begin();
          it != functions_.end(); ++it)
     {
         AMXProfilerStat st;
