@@ -1,17 +1,24 @@
-#include <algorithm>
-#include <cstdio>
-#include <iomanip>
-#include <iostream>
-#include <numeric>
-#include <vector>
+// Copyright (c) 2011 Zeex
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #include "amxprofiler.h"
 
-AMXFunctionProfile::IntervalType AMXFunctionProfile::GetExecutionTime() const {
+platformstl::int64_t AMXFunctionProfile::GetExecutionTime() const {
     return time_;
 }
 
-AMXFunctionProfile::IntervalType AMXFunctionProfile::GetNumberOfCalls() const {
+platformstl::int64_t AMXFunctionProfile::GetNumberOfCalls() const {
     return calls_;
 }
 
@@ -29,7 +36,11 @@ void AMXFunctionProfile::IncreaseCalls() {
 }
 
 AMXProfiler::AMXProfiler(AMX *amx) 
-    : amx_(amx), running_(false), debugHook_(amx->debug), currentStackFrame_(0)
+    : amx_(amx), 
+      running_(false), 
+      debugHook_(amx->debug), 
+      callback_(amx->callback), 
+      currentStackFrame_(0)
 {  
     amx_SetUserData(amx_, AMX_USERTAG('p', 'r', 'o', 'f'), this);
 }
@@ -44,9 +55,16 @@ static int AMXAPI DebugHook(AMX *amx) {
     return static_cast<AMXProfiler*>(prof)->DebugHook();
 }
 
+static int AMXAPI Callback(AMX *amx, cell index, cell *result, cell *params) {
+    void *prof;
+    amx_GetUserData(amx, AMX_USERTAG('p', 'r', 'o', 'f'), &prof);
+    return static_cast<AMXProfiler*>(prof)->Callback(index, result, params);
+}
+
 void AMXProfiler::Run() {
     functions_.clear();
     amx_SetDebugHook(amx_, ::DebugHook);
+    amx_SetCallback(amx_, ::Callback);
 }
 
 bool AMXProfiler::IsRunning() const {
@@ -55,6 +73,7 @@ bool AMXProfiler::IsRunning() const {
 
 void AMXProfiler::Terminate() {
     amx_SetDebugHook(amx_, debugHook_);
+    amx_SetCallback(amx_, callback_);
 }
 
 // Get address of a CALL by frame
@@ -99,66 +118,33 @@ int AMXProfiler::DebugHook() {
     return AMX_ERR_NONE;  
 }
 
-typedef std::pair<cell, AMXFunctionProfile> KeyValPair;
+int AMXProfiler::Callback(cell index, cell *result, cell *params) {
+    AMXFunctionProfile &fun = functions_[-index]; // Note negative index
+    fun.StartCounter();
 
-static bool ByExecutionTime(const KeyValPair &op1, const KeyValPair &op2) {
-    return op1.second.GetExecutionTime() > op2.second.GetExecutionTime();
+    int error = callback_(amx_, index, result, params);
+
+    fun.StopCounter();
+    fun.IncreaseCalls();
+
+    return error;  
 }
 
-static bool ByNumberOfCalls(const KeyValPair &op1, const KeyValPair &op2) {
-    return op1.second.GetNumberOfCalls() > op2.second.GetNumberOfCalls();
-}
+std::vector<AMXProfilerStat> AMXProfiler::GetStats() const {
+    std::vector<AMXProfilerStat> stats;
 
-static void PrintHorizLine(std::ostream &stream, const std::vector<int> &colWidth) {
-    int width = std::accumulate(colWidth.begin(), colWidth.end(), 0)
-                + colWidth.size() * 2 - 1;
-    stream << '|';
-    stream.fill('-');
-    stream << std::setw(width) << '-';
-    stream.fill(' ');
-    stream << '|' << std::endl;
-}
-
-void AMXProfiler::PrintStats(std::ostream &stream, AMX_DBG *dbg) const {
-    std::vector<KeyValPair> v(functions_.begin(), functions_.end());
-    std::sort(v.begin(), v.end(), ByExecutionTime);
-
-    stream << std::setiosflags(std::ios::left);
-
-    std::vector<int> colWidth;
-    colWidth.push_back(33);
-    colWidth.push_back(20);
-    colWidth.push_back(10);
-
-    PrintHorizLine(stream, colWidth);
-
-    // Table header
-    stream << "| " << std::setw(colWidth[0]) << "Function" 
-              << "| " << std::setw(colWidth[1]) << "Number of calls" 
-              << "| " << std::setw(colWidth[2]) << "Time, %" 
-              << "|" << std::endl;
-
-    PrintHorizLine(stream, colWidth);
-
-    // Calculate overall execution time
-    AMXFunctionProfile::IntervalType totalTime = 0;
-    for (std::vector<KeyValPair>::iterator it = v.begin(); it != v.end(); ++it) {
-        totalTime += it->second.GetExecutionTime();
-    }
-
-    for (std::vector<KeyValPair>::iterator it = v.begin(); it != v.end(); ++it)
+    for (std::map<cell, AMXFunctionProfile>::const_iterator it = functions_.begin();
+         it != functions_.end(); ++it)
     {
-        if (dbg != 0) {
-            const char *name;
-            dbg_LookupFunction(dbg, it->first, &name);
-            stream << "| " << std::setw(colWidth[0]) << name;
-        } else {
-            stream << "| " << std::setw(colWidth[0]) << std::hex << it->first << std::dec;
-        }
-        stream << "| " << std::setw(colWidth[1]) << it->second.GetNumberOfCalls()
-               << "| " << std::setw(colWidth[2]) << std::setprecision(4)
-               << it->second.GetExecutionTime() * 100.0 / totalTime
-               << "|" << std::endl;
-        PrintHorizLine(stream, colWidth);
+        AMXProfilerStat st;
+        cell address = it->first;
+        st.native = address <= 0;
+        st.address = address < 0 ? -address : address;
+        st.numberOfCalls = it->second.GetNumberOfCalls();
+        st.executionTime = it->second.GetExecutionTime();
+        stats.push_back(st);
     }
+
+    return stats;
 }
+
