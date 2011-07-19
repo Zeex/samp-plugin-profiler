@@ -44,7 +44,7 @@ private:
     platformstl::performance_counter::interval_type time_;
 };
 
-struct AMXProfilerStat {
+struct AMXFunPerfStats {
     // Is it a native function?
     bool native; 
     // A function address or native table index 
@@ -64,7 +64,7 @@ public:
     bool IsRunning() const;
     void Terminate();
 
-    std::vector<AMXProfilerStat> GetStats() const;
+    std::vector<AMXFunPerfStats> GetStats() const;
 
     int DebugHook();
     int Callback(cell index, cell *result, cell *params);

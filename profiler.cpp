@@ -28,16 +28,19 @@
 #include "plugin.h"
 #include "version.h"
 
+#include "amx/amx.h"
+#include "amx/amxdbg.h"
+
 extern void *pAMXFunctions;
 
 static std::map<AMX*, AMX_DBG> amxDebugInfo;
 static std::map<AMX*, AMXProfiler*> amxProfilers;
 
-static bool ByExecutionTime(const AMXProfilerStat &op1, const AMXProfilerStat &op2) {
+static bool ByExecutionTime(const AMXFunPerfStats &op1, const AMXFunPerfStats &op2) {
     return op1.executionTime > op2.executionTime;
 }
 
-static bool ByNumberOfCalls(const AMXProfilerStat &op1, const AMXProfilerStat &op2) {
+static bool ByNumberOfCalls(const AMXFunPerfStats &op1, const AMXFunPerfStats &op2) {
     return op1.numberOfCalls > op2.numberOfCalls;
 }
 
@@ -111,7 +114,7 @@ namespace natives {
             return 0;
         }
 
-        std::vector<AMXProfilerStat> v = prof->GetStats();
+        std::vector<AMXFunPerfStats> v = prof->GetStats();
         std::sort(v.begin(), v.end(), ByExecutionTime);
 
         // Table header
@@ -125,11 +128,11 @@ namespace natives {
 
         // Calculate overall execution time
         int64_t totalTime = 0;
-        for (std::vector<AMXProfilerStat>::iterator it = v.begin(); it != v.end(); ++it) {
+        for (std::vector<AMXFunPerfStats>::iterator it = v.begin(); it != v.end(); ++it) {
             totalTime += it->executionTime;
         }
 
-        for (std::vector<AMXProfilerStat>::iterator it = v.begin(); it != v.end(); ++it)
+        for (std::vector<AMXFunPerfStats>::iterator it = v.begin(); it != v.end(); ++it)
         {
             if (it->numberOfCalls <= 0) {
                 continue;
