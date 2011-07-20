@@ -31,11 +31,9 @@ public:
     platformstl::int64_t GetExecutionTime() const;
     platformstl::int64_t GetNumberOfCalls() const;
 
-private:
-    friend class AMXProfiler;
-
     void StartCounter();
     void StopCounter();
+
     void IncreaseCalls();
 
 private:
