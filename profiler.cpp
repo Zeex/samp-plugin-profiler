@@ -154,7 +154,7 @@ namespace natives {
             stream << "\t\t<td>" << it->numberOfCalls << "</td>\n"
                    << "\t\t<td>" << std::fixed << std::setprecision(0)
                                  << it->executionTime * 1.0 / it->numberOfCalls << "</td>\n"
-                   << "\t\t<td>" << std::setprecision(4)
+                   << "\t\t<td>" << std::setprecision(2)
                                  << it->executionTime * 100.0 / totalTime << "</td>\n";
             stream << "\t</tr>\n";
         }
