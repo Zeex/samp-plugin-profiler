@@ -93,7 +93,7 @@ static cell GetCallTarget(AMX *amx, cell callAddr) {
 int AMXProfiler::DebugHook() {
     if (amx_->frm != currentStackFrame_) {
         if (amx_->frm < currentStackFrame_ || currentStackFrame_ == 0) {
-            // Entered function
+            // Entered a function
             cell callAddr = GetCallAddress(amx_, amx_->frm);
             if (callAddr > 0) {
                 cell funcAddr = GetCallTarget(amx_, callAddr);
@@ -101,7 +101,7 @@ int AMXProfiler::DebugHook() {
                 functions_[funcAddr].StartCounter();
             }
         } else if (amx_->frm > currentStackFrame_) {
-            // Left function
+            // Left a function
             cell callAddr = GetCallAddress(amx_, currentStackFrame_);
             if (callAddr > 0) {
                 cell funcAddr = GetCallTarget(amx_, callAddr);
@@ -122,6 +122,11 @@ int AMXProfiler::Callback(cell index, cell *result, cell *params) {
     AMXFunPerfCounter &fun = functions_[-index]; // Note negative index
     fun.StartCounter();
 
+    // Disable SYSREQ.D opcodes
+    amx_->sysreq_d = 0; 
+
+    // Call any previously set AMX callback (must not be null 
+    // so we don't bother checking it)
     int error = callback_(amx_, index, result, params);
 
     fun.StopCounter();
