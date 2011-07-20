@@ -16,7 +16,6 @@
 #define AMXPROFILER_H
 
 #include <map>
-#include <string>
 #include <vector>
 
 #include <platformstl/platformstl.hpp>
