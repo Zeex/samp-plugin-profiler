@@ -118,7 +118,6 @@ namespace natives {
         std::vector<AMXFunPerfStats> v = prof->GetStats();
         std::sort(v.begin(), v.end(), ByExecutionTime);
 
-        // Table header
         stream << "<table>\n"
                << "\t<tr>\n"
                << "\t\t<td>Function</td>\n"
@@ -128,22 +127,24 @@ namespace natives {
                << "\t\t<td>Overall time, %</td>\n"
                << "\t</tr>\n";
 
-        // Calculate overall execution time
-        int64_t totalTime = 0;
+        platformstl::int64_t totalTime = 0;
         for (std::vector<AMXFunPerfStats>::iterator it = v.begin(); it != v.end(); ++it) {
+            std::cout << "totalTime: " << totalTime << std::endl;
             totalTime += it->executionTime;
+            std::cout << "+= " << it->executionTime << std::endl;
         }
+
+        std::cout << "totalTime: " << totalTime << std::endl;
 
         for (std::vector<AMXFunPerfStats>::iterator it = v.begin(); it != v.end(); ++it)
         {
-            if (it->numberOfCalls <= 0) {
-                continue;
-            }
-
             stream << "\t<tr>\n";
 
             if (it->native) {
-                stream << "\t\t<td>" << FindNativeByIndex(amx, it->address) << "</td>\n";
+                const char *name = FindNativeByIndex(amx, it->address);
+                if (name != 0) {
+                    stream << "\t\t<td>" << name << "</td>\n";
+                }
             } else {
                 AMX_DBG amxdbg = ::amxDebugInfo[amx];
                 const char *name;
