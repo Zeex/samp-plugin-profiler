@@ -62,6 +62,7 @@ static int AMXAPI Callback(AMX *amx, cell index, cell *result, cell *params) {
 }
 
 void AMXProfiler::Run() {
+    running_ = true;
     functions_.clear();
     amx_SetDebugHook(amx_, ::DebugHook);
     amx_SetCallback(amx_, ::Callback);
@@ -72,6 +73,7 @@ bool AMXProfiler::IsRunning() const {
 }
 
 void AMXProfiler::Terminate() {
+    running_ = false;
     amx_SetDebugHook(amx_, debugHook_);
     amx_SetCallback(amx_, callback_);
 }
