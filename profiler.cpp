@@ -129,12 +129,8 @@ namespace natives {
 
         platformstl::int64_t totalTime = 0;
         for (std::vector<AMXFunPerfStats>::iterator it = v.begin(); it != v.end(); ++it) {
-            std::cout << "totalTime: " << totalTime << std::endl;
             totalTime += it->executionTime;
-            std::cout << "+= " << it->executionTime << std::endl;
         }
-
-        std::cout << "totalTime: " << totalTime << std::endl;
 
         for (std::vector<AMXFunPerfStats>::iterator it = v.begin(); it != v.end(); ++it)
         {
