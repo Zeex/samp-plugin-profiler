@@ -9,6 +9,6 @@ native Profiler_Start(const path_to_amx[]);
 // Stops prifiling.
 native Profiler_Stop();
 
-// Writes statistics as a simple HTML table to the specified file.
-// Should not be called when profler is running - only after Profiler_Stop().
-native Profiler_Print(const filename[]);
+// Saves perfromance statistics for each function in as an HTML table to the specified file.
+// Should not be called when profler is running.
+native Profiler_PrintStats(const filename[]);
