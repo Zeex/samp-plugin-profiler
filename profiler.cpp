@@ -103,6 +103,7 @@ namespace natives {
         AMXProfiler *prof = amxProfilers[amx];
 
         if (prof->IsRunning()) { 
+            logprintf("Profiler: Can't save stats while running");
             return 0;
         }
 
@@ -123,6 +124,7 @@ namespace natives {
                << "\t\t<td>Function</td>\n"
                << "\t\t<td>Calls</td>\n"
                << "\t\t<td>Time per call</td>\n"
+               << "\t\t<td>Overall time</td>\n"
                << "\t\t<td>Overall time, %</td>\n"
                << "\t</tr>\n";
 
@@ -154,8 +156,9 @@ namespace natives {
             stream << "\t\t<td>" << it->numberOfCalls << "</td>\n"
                    << "\t\t<td>" << std::fixed << std::setprecision(0)
                                  << it->executionTime * 1.0 / it->numberOfCalls << "</td>\n"
+                   << "\t\t<td>" << it->executionTime << "</td>\n"
                    << "\t\t<td>" << std::setprecision(2)
-                                 << it->executionTime * 100.0 / totalTime << "</td>\n";
+                                 << it->executionTime * 100.0L / totalTime << "</td>\n";
             stream << "\t</tr>\n";
         }
         stream << "</table>\n";
@@ -164,10 +167,10 @@ namespace natives {
     }
 
     const AMX_NATIVE_INFO all[] = { 
-        {"Profiler_Start", Profiler_Start},
-        {"Profiler_Stop",  Profiler_Stop},
-        {"Profiler_Print", Profiler_PrintStats},
-        {0,                0}
+        {"Profiler_Start",      Profiler_Start},
+        {"Profiler_Stop",       Profiler_Stop},
+        {"Profiler_PrintStats", Profiler_PrintStats},
+        {0,                     0}
     };
 }
 
