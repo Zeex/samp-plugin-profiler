@@ -121,14 +121,14 @@ int AMXProfiler::DebugHook() {
 }
 
 int AMXProfiler::Callback(cell index, cell *result, cell *params) {
-    AMXFunPerfCounter &fun = functions_[-index]; // Note negative index
+    AMXFunPerfCounter &fun = functions_[-index]; // Notice negative index
     fun.StartCounter();
 
-    // Disable SYSREQ.D opcodes
+    // The default AMX callback (amx_Callback) can replace SYSREQ.C opcodes
+    // with SYSREQ.D for better performance. 
     amx_->sysreq_d = 0; 
 
-    // Call any previously set AMX callback (must not be null 
-    // so we don't bother checking it)
+    // Call any previously set AMX callback (must not be null so we don't check)
     int error = callback_(amx_, index, result, params);
 
     fun.StopCounter();
@@ -143,13 +143,15 @@ std::vector<AMXFunPerfStats> AMXProfiler::GetStats() const {
     for (std::map<cell, AMXFunPerfCounter>::const_iterator it = functions_.begin();
          it != functions_.end(); ++it)
     {
-        AMXFunPerfStats st;
-        cell address = it->first;
-        st.native = address <= 0;
-        st.address = address < 0 ? -address : address;
-        st.numberOfCalls = it->second.GetNumberOfCalls();
-        st.executionTime = it->second.GetExecutionTime();
-        stats.push_back(st);
+        if (it->second.GetNumberOfCalls() > 0) { // Sometimes calls == 0
+            AMXFunPerfStats st;
+            cell address = it->first;
+            st.native = address <= 0;
+            st.address = address < 0 ? -address : address;
+            st.numberOfCalls = it->second.GetNumberOfCalls();
+            st.executionTime = it->second.GetExecutionTime();
+            stats.push_back(st);
+        }
     }
 
     return stats;
