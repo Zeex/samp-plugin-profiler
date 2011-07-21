@@ -155,10 +155,12 @@ namespace natives {
             }
             stream << "\t\t<td>" << it->numberOfCalls << "</td>\n"
                    << "\t\t<td>" << std::fixed << std::setprecision(0)
-                                 << it->executionTime * 1.0 / it->numberOfCalls << "</td>\n"
+                                 << static_cast<double>(it->executionTime) / 
+                                        static_cast<double>(it->numberOfCalls) << "</td>\n"
                    << "\t\t<td>" << it->executionTime << "</td>\n"
                    << "\t\t<td>" << std::setprecision(2)
-                                 << it->executionTime * 100.0L / totalTime << "</td>\n";
+                                 << static_cast<double>(it->executionTime * 100) / 
+                                        static_cast<double>(totalTime) << "</td>\n";
             stream << "\t</tr>\n";
         }
         stream << "</table>\n";
