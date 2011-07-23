@@ -1,10 +1,13 @@
 // SA:MP profiler plugin
 // Copyright (C) 2011 Zeex
 
-// This function starts a new profiling session.
+// Must be called before any other Profiler_* function.
 // It needs a path to the compiled .amx in order to load debug info from it.
 // Sample paths: gamemodes/lvdm.amx, filterscripts/debugfs.amx, etc.
-native Profiler_Start(const path_to_amx[]);
+native Profiler_Init(const path_to_amx[]);
+
+// This function starts a new profiling session.
+native Profiler_Start();
 
 // Stops prifiling.
 native Profiler_Stop();
