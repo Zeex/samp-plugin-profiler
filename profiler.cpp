@@ -177,9 +177,9 @@ namespace natives {
                << "\t<tr>\n"
                << "\t\t<td>Function</td>\n"
                << "\t\t<td>Calls</td>\n"
-               << "\t\t<td>Time per call</td>\n"
-               << "\t\t<td>Overall time</td>\n"
-               << "\t\t<td>Overall time, %</td>\n"
+               << "\t\t<td>Time per call, &#181;s</td>\n"
+               << "\t\t<td>Overall time, &#181;s</td>\n"
+               << "\t\t<td>Overall time, &#037;</td>\n"
                << "\t</tr>\n";
 
         platformstl::int64_t totalTime = 0;
