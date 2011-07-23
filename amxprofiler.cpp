@@ -14,6 +14,18 @@
 
 #include "amxprofiler.h"
 
+static int AMXAPI DebugHook(AMX *amx) {
+    void *prof;
+    amx_GetUserData(amx, AMX_USERTAG('p', 'r', 'o', 'f'), &prof);
+    return static_cast<AMXProfiler*>(prof)->DebugHook();
+}
+
+static int AMXAPI Callback(AMX *amx, cell index, cell *result, cell *params) {
+    void *prof;
+    amx_GetUserData(amx, AMX_USERTAG('p', 'r', 'o', 'f'), &prof);
+    return static_cast<AMXProfiler*>(prof)->Callback(index, result, params);
+}
+
 platformstl::int64_t AMXFunPerfCounter::GetExecutionTime() const {
     return time_;
 }
@@ -39,34 +51,21 @@ AMXProfiler::AMXProfiler(AMX *amx)
     : amx_(amx), 
       running_(false), 
       debugHook_(amx->debug), 
-      callback_(amx->callback), 
-      currentStackFrame_(0)
+      callback_(amx->callback),
+      frame_ (amx_->stp)
 {  
     amx_SetUserData(amx_, AMX_USERTAG('p', 'r', 'o', 'f'), this);
+    amx_SetDebugHook(amx_, ::DebugHook);
 }
 
 AMXProfiler::~AMXProfiler() {
     amx_SetUserData(amx_, AMX_USERTAG('p', 'r', 'o', 'f'), 0);
 }
 
-static int AMXAPI DebugHook(AMX *amx) {
-    void *prof;
-    amx_GetUserData(amx, AMX_USERTAG('p', 'r', 'o', 'f'), &prof);
-    return static_cast<AMXProfiler*>(prof)->DebugHook();
-}
-
-static int AMXAPI Callback(AMX *amx, cell index, cell *result, cell *params) {
-    void *prof;
-    amx_GetUserData(amx, AMX_USERTAG('p', 'r', 'o', 'f'), &prof);
-    return static_cast<AMXProfiler*>(prof)->Callback(index, result, params);
-}
-
 bool AMXProfiler::Run() {
     if (!running_) {
-        currentStackFrame_ = 0;
-        amx_SetDebugHook(amx_, ::DebugHook);
-        amx_SetCallback(amx_, ::Callback);
         running_ = true;
+        amx_SetCallback(amx_, ::Callback);
         return true;
     }
     return false;
@@ -78,71 +77,11 @@ bool AMXProfiler::IsRunning() const {
 
 bool AMXProfiler::Terminate() {
     if (running_) {
-        amx_SetDebugHook(amx_, debugHook_);
-        amx_SetCallback(amx_, callback_);
         running_ = false;
+        amx_SetCallback(amx_, callback_);
         return true;
     }
     return false;
-}
-
-// Get address of a CALL by frame
-static cell GetCallAddress(AMX *amx, cell frame) {
-    AMX_HEADER *hdr = reinterpret_cast<AMX_HEADER*>(amx->base);
-    cell data = reinterpret_cast<cell>(amx->base + hdr->dat);
-    return *(reinterpret_cast<cell*>(data + frame) + 1) - 2*sizeof(cell);
-}
-
-// Get address of callee
-static cell GetCallTarget(AMX *amx, cell callAddr) {
-    AMX_HEADER *hdr = reinterpret_cast<AMX_HEADER*>(amx->base);
-    cell code = reinterpret_cast<cell>(amx->base) + hdr->cod;
-    return *reinterpret_cast<cell*>(callAddr + sizeof(cell) + code) - code;
-}
-
-int AMXProfiler::DebugHook() {
-    if (amx_->frm != currentStackFrame_) {
-        if (amx_->frm < currentStackFrame_ || currentStackFrame_ == 0) {
-            // Entered a function
-            cell callAddr = GetCallAddress(amx_, amx_->frm);
-            if (callAddr > 0) {
-                cell funcAddr = GetCallTarget(amx_, callAddr);
-                functions_[funcAddr].IncreaseCalls();
-                functions_[funcAddr].StartCounter();
-            }
-        } else if (amx_->frm > currentStackFrame_) {
-            // Left a function
-            cell callAddr = GetCallAddress(amx_, currentStackFrame_);
-            if (callAddr > 0) {
-                cell funcAddr = GetCallTarget(amx_, callAddr);
-                functions_[funcAddr].StopCounter();        
-            }
-        }
-        currentStackFrame_ = amx_->frm;
-    }
-
-    if (debugHook_ != 0) {
-        // Others could set their own debug hooks
-        return debugHook_(amx_);
-    }                     
-    return AMX_ERR_NONE;  
-}
-
-int AMXProfiler::Callback(cell index, cell *result, cell *params) {
-    AMXFunPerfCounter &fun = functions_[-index]; // Notice negative index
-    fun.StartCounter();
-
-    // The default AMX callback (amx_Callback) can replace SYSREQ.C opcodes
-    // with SYSREQ.D for better performance. 
-    amx_->sysreq_d = 0; 
-
-    // Call any previously set AMX callback (must not be null so we don't check)
-    int error = callback_(amx_, index, result, params);
-
-    fun.StopCounter();
-    fun.IncreaseCalls();
-
-    return error;  
 }
 
 void AMXProfiler::ResetStats() {
@@ -165,3 +104,64 @@ void AMXProfiler::GetStats(std::vector<AMXFunPerfStats> &stats) const {
     };
 }
 
+int AMXProfiler::DebugHook() {
+    // Check whether current stack frame changed.
+    if (amx_->frm != frame_) {
+        // When a function is called with amx_Exec is possible
+        // that we couldn't detect it has returned (luck of BREAK opcodes).
+        // Pop remaining functions from the call stack.
+        if (!calls_.empty() && amx_->frm > calls_.top().first) {
+            while (!calls_.empty() && calls_.top().first < amx_->frm) {
+                cell address = calls_.top().second;
+                if (running_) {
+                    functions_[address].StopCounter();
+                }
+                calls_.pop();
+            }
+            frame_ = amx_->stp;
+        }
+        if (amx_->frm < frame_) {
+            // Just entered a function body (first BREAK after PROC).
+            // Its address is CIP - 2*sizeof(cell).
+            cell address = amx_->cip - 2*sizeof(cell);
+            calls_.push(std::make_pair(amx_->frm, address));
+            if (running_) {
+                functions_[address].IncreaseCalls();
+                functions_[address].StartCounter();
+            }
+        } else if (amx_->frm > frame_) {
+            // Left a function.
+            // The addres is at the top of the call stack.
+            cell address = calls_.top().second;
+            if (running_) {
+                functions_[address].StopCounter();        
+            }
+            calls_.pop();
+        }
+        frame_ = amx_->frm;
+    }
+
+    if (debugHook_ != 0) {
+        // Others could set their own debug hooks
+        return debugHook_(amx_);
+    }   
+
+    return AMX_ERR_NONE;  
+}
+
+int AMXProfiler::Callback(cell index, cell *result, cell *params) {
+    AMXFunPerfCounter &fun = functions_[-index]; // Notice negative index
+    fun.StartCounter();
+
+    // The default AMX callback (amx_Callback) can replace SYSREQ.C opcodes
+    // with SYSREQ.D for better performance. 
+    amx_->sysreq_d = 0; 
+
+    // Call any previously set AMX callback (must not be null so we don't check)
+    int error = callback_(amx_, index, result, params);
+
+    fun.StopCounter();
+    fun.IncreaseCalls();
+
+    return error;  
+}

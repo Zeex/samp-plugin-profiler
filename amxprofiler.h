@@ -16,6 +16,7 @@
 #define AMXPROFILER_H
 
 #include <map>
+#include <stack>
 #include <vector>
 
 #include <platformstl/platformstl.hpp>
@@ -79,8 +80,10 @@ private:
     AMX_DEBUG debugHook_;
     AMX_CALLBACK callback_;
 
-    // To keep track of stack frame change
-    cell currentStackFrame_;
+    // Keep track of stack frame change
+    cell frame_;
+    // Call stack (first = frm, second = address)
+    std::stack<std::pair<cell, cell> > calls_;
 
     // Per-function data
     std::map<cell, AMXFunPerfCounter> functions_;
