@@ -61,21 +61,30 @@ static int AMXAPI Callback(AMX *amx, cell index, cell *result, cell *params) {
     return static_cast<AMXProfiler*>(prof)->Callback(index, result, params);
 }
 
-void AMXProfiler::Run() {
-    running_ = true;
-    functions_.clear();
-    amx_SetDebugHook(amx_, ::DebugHook);
-    amx_SetCallback(amx_, ::Callback);
+bool AMXProfiler::Run() {
+    if (!running_) {
+        currentStackFrame_ = 0;
+        functions_.clear();
+        amx_SetDebugHook(amx_, ::DebugHook);
+        amx_SetCallback(amx_, ::Callback);
+        running_ = true;
+        return true;
+    }
+    return false;
 }
 
 bool AMXProfiler::IsRunning() const {
     return running_;
 }
 
-void AMXProfiler::Terminate() {
-    running_ = false;
-    amx_SetDebugHook(amx_, debugHook_);
-    amx_SetCallback(amx_, callback_);
+bool AMXProfiler::Terminate() {
+    if (running_) {
+        amx_SetDebugHook(amx_, debugHook_);
+        amx_SetCallback(amx_, callback_);
+        running_ = false;
+        return true;
+    }
+    return false;
 }
 
 // Get address of a CALL by frame
