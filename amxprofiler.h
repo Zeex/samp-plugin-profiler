@@ -61,8 +61,8 @@ public:
     bool IsRunning() const;
     bool Terminate();
 
-    std::vector<AMXFunPerfStats> GetStats() const;
     void ResetStats();
+    void GetStats(std::vector<AMXFunPerfStats> &stats) const;
 
     int DebugHook();
     int Callback(cell index, cell *result, cell *params);

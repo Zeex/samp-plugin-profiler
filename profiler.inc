@@ -12,6 +12,9 @@ native Profiler_Start();
 // Stops prifiling.
 native Profiler_Stop();
 
+// Resets gathered statistics.
+native Profiler_ResetStats();
+
 // Saves perfromance statistics for each function in as an HTML table to the specified file.
 // Should not be called when profler is running.
 native Profiler_PrintStats(const filename[]);

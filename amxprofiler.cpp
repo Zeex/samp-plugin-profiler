@@ -145,12 +145,11 @@ int AMXProfiler::Callback(cell index, cell *result, cell *params) {
     return error;  
 }
 
-std::vector<AMXFunPerfStats> AMXProfiler::GetStats() const {
-    std::vector<AMXFunPerfStats> stats;
 void AMXProfiler::ResetStats() {
     functions_.clear();
 }
 
+void AMXProfiler::GetStats(std::vector<AMXFunPerfStats> &stats) const {
     for (std::map<cell, AMXFunPerfCounter>::const_iterator it = functions_.begin();
          it != functions_.end(); ++it)
     {
@@ -163,8 +162,6 @@ void AMXProfiler::ResetStats() {
             st.executionTime = it->second.GetExecutionTime();
             stats.push_back(st);
         }
-    }
-
-    return stats;
+    };
 }
 
