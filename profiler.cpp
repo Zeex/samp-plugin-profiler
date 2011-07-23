@@ -61,8 +61,8 @@ static const char *FindNativeByIndex(AMX *amx, cell index) {
 
 namespace natives {
     
-    // native Profiler_Start(const path_to_amx[]);
-    cell AMX_NATIVE_CALL Profiler_Start(AMX *amx, cell *params) {
+    // native Profiler_Init(const path_to_amx[]);
+    cell AMX_NATIVE_CALL Profiler_Init(AMX *amx, cell *params) {
         char *path_to_amx;
         amx_StrParam(amx, params[1], path_to_amx);
 
@@ -80,10 +80,19 @@ namespace natives {
         amxDebugInfo[amx] = amxdbg;
         fclose(fp);
 
-        logprintf("Profiling script %s", path_to_amx);
-        amxProfilers[amx]->Run();
-
         return 1;
+    }
+
+    // native Profiler_Start();
+    cell AMX_NATIVE_CALL Profiler_Start(AMX *amx, cell *params) {
+        AMXProfiler *prof = amxProfilers[amx];
+
+        if (!prof->IsRunning()) {
+            amxProfilers[amx]->Run();
+            return 1;
+        }
+
+        return 0;
     }
 
     // native Profiler_Stop();
@@ -166,6 +175,7 @@ namespace natives {
     }
 
     const AMX_NATIVE_INFO all[] = { 
+        {"Profiler_Init",       Profiler_Init},
         {"Profiler_Start",      Profiler_Start},
         {"Profiler_Stop",       Profiler_Stop},
         {"Profiler_PrintStats", Profiler_PrintStats},
