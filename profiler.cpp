@@ -36,12 +36,17 @@ extern void *pAMXFunctions;
 static std::map<AMX*, AMX_DBG> amxDebugInfo;
 static std::map<AMX*, AMXProfiler*> amxProfilers;
 
-static bool ByExecutionTime(const AMXFunPerfStats &op1, const AMXFunPerfStats &op2) {
+static bool OrderByCalls(const AMXFunPerfStats &op1, const AMXFunPerfStats &op2) {
+    return op1.numberOfCalls > op2.numberOfCalls;
+}
+
+static bool OrderByTime(const AMXFunPerfStats &op1, const AMXFunPerfStats &op2) {
     return op1.executionTime > op2.executionTime;
 }
 
-static bool ByNumberOfCalls(const AMXFunPerfStats &op1, const AMXFunPerfStats &op2) {
-    return op1.numberOfCalls > op2.numberOfCalls;
+static bool OrderByTimePerCall(const AMXFunPerfStats &op1, const AMXFunPerfStats &op2) {
+    return static_cast<double>(op1.executionTime) / static_cast<double>(op1.numberOfCalls)
+         > static_cast<double>(op2.executionTime) / static_cast<double>(op2.numberOfCalls);
 }
 
 static const char *FindNativeByIndex(AMX *amx, cell index) {
@@ -60,6 +65,13 @@ static const char *FindNativeByIndex(AMX *amx, cell index) {
 }
 
 namespace natives {
+    
+    enum ProfilerStatsOrder {
+        PROFILER_ORDER_NONE,
+        PROFILER_ORDER_BY_CALLS,
+        PROFILER_ORDER_BY_TIME,
+        PROFILER_ORDER_BY_TIME_PER_CALL
+    };
     
     // native Profiler_Init(const path_to_amx[]);
     cell AMX_NATIVE_CALL Profiler_Init(AMX *amx, cell *params) {
@@ -145,8 +157,21 @@ namespace natives {
             return 0;
         }
 
-        std::vector<AMXFunPerfStats> v = prof->GetStats();
-        std::sort(v.begin(), v.end(), ByExecutionTime);
+        std::vector<AMXFunPerfStats> stats;
+        prof->GetStats(stats);
+
+        ProfilerStatsOrder order = static_cast<ProfilerStatsOrder>(params[2]);
+        switch (order) {
+            case PROFILER_ORDER_BY_CALLS:
+                std::sort(stats.begin(), stats.end(), OrderByCalls);
+                break;
+            case PROFILER_ORDER_BY_TIME:
+                std::sort(stats.begin(), stats.end(), OrderByTime);
+                break;
+            case PROFILER_ORDER_BY_TIME_PER_CALL:
+                std::sort(stats.begin(), stats.end(), OrderByTimePerCall);
+                break;
+        }
 
         stream << "<table>\n"
                << "\t<tr>\n"
@@ -158,12 +183,11 @@ namespace natives {
                << "\t</tr>\n";
 
         platformstl::int64_t totalTime = 0;
-        for (std::vector<AMXFunPerfStats>::iterator it = v.begin(); it != v.end(); ++it) {
+        for (std::vector<AMXFunPerfStats>::iterator it = stats.begin(); it != stats.end(); ++it) {
             totalTime += it->executionTime;
         }        
 
-        for (std::vector<AMXFunPerfStats>::iterator it = v.begin(); it != v.end(); ++it)
-        {
+        for (std::vector<AMXFunPerfStats>::iterator it = stats.begin(); it != stats.end(); ++it) {
             stream << "\t<tr>\n";
 
             if (it->native) {
