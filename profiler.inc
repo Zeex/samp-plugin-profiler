@@ -1,4 +1,4 @@
-// SA:MP profiler plugin
+// SA:MP profiler plugin v1.4
 // Copyright (C) 2011 Zeex
 
 enum ProfilerStatsOrder {
