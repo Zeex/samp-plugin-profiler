@@ -111,7 +111,19 @@ namespace natives {
         return 0;
     }
 
-    // native Profiler_PrintStats(const filename[]);
+    // native Profiler_ResetStats();
+    cell AMX_NATIVE_CALL Profiler_ResetStats(AMX *amx, cell *params) {
+        AMXProfiler *prof = amxProfilers[amx];
+
+        if (!prof->IsRunning()) {
+            prof->ResetStats();
+            return 1;
+        } 
+        
+        return 0;
+    }
+
+    // native Profiler_PrintStats(const filename[], ProfilerStatsOrder:order);
     cell AMX_NATIVE_CALL Profiler_PrintStats(AMX *amx, cell *params) {
         AMXProfiler *prof = amxProfilers[amx];
 
@@ -186,6 +198,7 @@ namespace natives {
         {"Profiler_Init",       Profiler_Init},
         {"Profiler_Start",      Profiler_Start},
         {"Profiler_Stop",       Profiler_Stop},
+        {"Profiler_ResetStats", Profiler_ResetStats},
         {"Profiler_PrintStats", Profiler_PrintStats},
         {0,                     0}
     };

@@ -64,7 +64,6 @@ static int AMXAPI Callback(AMX *amx, cell index, cell *result, cell *params) {
 bool AMXProfiler::Run() {
     if (!running_) {
         currentStackFrame_ = 0;
-        functions_.clear();
         amx_SetDebugHook(amx_, ::DebugHook);
         amx_SetCallback(amx_, ::Callback);
         running_ = true;
@@ -148,6 +147,9 @@ int AMXProfiler::Callback(cell index, cell *result, cell *params) {
 
 std::vector<AMXFunPerfStats> AMXProfiler::GetStats() const {
     std::vector<AMXFunPerfStats> stats;
+void AMXProfiler::ResetStats() {
+    functions_.clear();
+}
 
     for (std::map<cell, AMXFunPerfCounter>::const_iterator it = functions_.begin();
          it != functions_.end(); ++it)

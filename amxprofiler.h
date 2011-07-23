@@ -62,6 +62,7 @@ public:
     bool Terminate();
 
     std::vector<AMXFunPerfStats> GetStats() const;
+    void ResetStats();
 
     int DebugHook();
     int Callback(cell index, cell *result, cell *params);
