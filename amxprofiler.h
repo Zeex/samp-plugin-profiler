@@ -57,9 +57,9 @@ public:
     explicit AMXProfiler(AMX *amx);
     ~AMXProfiler();
 
-    void Run();
+    bool Run();
     bool IsRunning() const;
-    void Terminate();
+    bool Terminate();
 
     std::vector<AMXFunPerfStats> GetStats() const;
 
