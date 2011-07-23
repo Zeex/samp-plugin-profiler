@@ -68,17 +68,21 @@ namespace natives {
 
         FILE *fp = fopen(path_to_amx, "rb");
         if (fp == 0) {
+            logprintf("Profiler: Error opening file %s", path_to_amx);
             return 0;
         }
 
         AMX_DBG amxdbg;
         if (dbg_LoadInfo(&amxdbg, fp) != AMX_ERR_NONE) {
+            logprintf("Profiler: Error loading symbols from %s", path_to_amx);
             fclose(fp);
             return 0;
         }
 
         amxDebugInfo[amx] = amxdbg;
         fclose(fp);
+
+        logprintf("Initialized profiler in %s", path_to_amx);
 
         return 1;
     }
@@ -112,9 +116,14 @@ namespace natives {
         AMXProfiler *prof = amxProfilers[amx];
 
         if (prof->IsRunning()) { 
-            logprintf("Profiler: Can't save stats while running");
             return 0;
         }
+
+        std::map<AMX*, AMX_DBG>::iterator dbgIter = ::amxDebugInfo.find(amx);
+        if (dbgIter == ::amxDebugInfo.end()) {
+            return 0;
+        }
+        AMX_DBG amxdbg = dbgIter->second;
 
         char *filename;
         amx_StrParam(amx, params[1], filename);
@@ -139,7 +148,7 @@ namespace natives {
         platformstl::int64_t totalTime = 0;
         for (std::vector<AMXFunPerfStats>::iterator it = v.begin(); it != v.end(); ++it) {
             totalTime += it->executionTime;
-        }
+        }        
 
         for (std::vector<AMXFunPerfStats>::iterator it = v.begin(); it != v.end(); ++it)
         {
@@ -151,7 +160,6 @@ namespace natives {
                     stream << "\t\t<td>" << name << "</td>\n";
                 }
             } else {
-                AMX_DBG amxdbg = ::amxDebugInfo[amx];
                 const char *name;
                 if (dbg_LookupFunction(&amxdbg, it->address, &name) == AMX_ERR_NONE) {
                     stream << "\t\t<td>" << name << "</td>\n";
