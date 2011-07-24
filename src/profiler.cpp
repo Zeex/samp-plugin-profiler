@@ -328,7 +328,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **pluginData) {
               std::istream_iterator<std::string>(), 
               std::back_inserter(::profiledScripts));
 
-    std::copy(::profiledScripts.begin(), ::profiledScripts.end(), std::ostream_iterator<std::string>(std::cout));
+    //std::copy(::profiledScripts.begin(), ::profiledScripts.end(), std::ostream_iterator<std::string>(std::cout));
 
     // Initialize the name finder
     AmxNameFinder::GetInstance()->AddSearchDir("gamemodes");
@@ -368,8 +368,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
     AmxProfiler *prof = AmxProfiler::Get(amx);
     std::string name = AmxNameFinder::GetInstance()->GetAmxName(amx);
-    printf("AmxUnload %s", name.c_str());
-    if (prof != 0) {
+    if (prof != 0 && !name.empty()) {
         prof->PrintStats(name + std::string(".prof"));
         AmxProfiler::Detach(amx);
     }
