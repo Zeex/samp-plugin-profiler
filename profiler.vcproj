@@ -62,7 +62,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkIncremental="2"
-				ModuleDefinitionFile="profiler.def"
+				ModuleDefinitionFile="src/profiler.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -136,7 +136,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkIncremental="1"
-				ModuleDefinitionFile="profiler.def"
+				ModuleDefinitionFile="src/profiler.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -211,7 +211,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkIncremental="2"
-				ModuleDefinitionFile="profiler.def"
+				ModuleDefinitionFile="src/profiler.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -249,31 +249,23 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\amxalign.c"
+				RelativePath=".\src\amx\amxdbg.c"
 				>
 			</File>
 			<File
-				RelativePath=".\amx\amxdbg.c"
+				RelativePath=".\src\amxplugin.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\amxplugin.cpp"
+				RelativePath=".\src\jump.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\amxprofiler.cpp"
+				RelativePath=".\src\profiler.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\logprintf.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\profiler.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\profiler.def"
+				RelativePath=".\src\profiler.def"
 				>
 			</File>
 		</Filter>
@@ -283,43 +275,39 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\amx\amx.h"
+				RelativePath=".\src\amx\amx.h"
 				>
 			</File>
 			<File
-				RelativePath=".\amx\amxdbg.h"
+				RelativePath=".\src\amx\amxdbg.h"
 				>
 			</File>
 			<File
-				RelativePath=".\amxprofiler.h"
+				RelativePath=".\src\amx\getch.h"
 				>
 			</File>
 			<File
-				RelativePath=".\amx\getch.h"
+				RelativePath=".\src\jump.h"
 				>
 			</File>
 			<File
-				RelativePath=".\logprintf.h"
+				RelativePath=".\src\amx\osdefs.h"
 				>
 			</File>
 			<File
-				RelativePath=".\amx\osdefs.h"
+				RelativePath=".\src\plugin.h"
 				>
 			</File>
 			<File
-				RelativePath=".\plugin.h"
+				RelativePath=".\src\plugincommon.h"
 				>
 			</File>
 			<File
-				RelativePath=".\plugincommon.h"
+				RelativePath=".\src\profiler.h"
 				>
 			</File>
 			<File
-				RelativePath=".\amx\sclinux.h"
-				>
-			</File>
-			<File
-				RelativePath=".\version.h"
+				RelativePath=".\src\amx\sclinux.h"
 				>
 			</File>
 		</Filter>
