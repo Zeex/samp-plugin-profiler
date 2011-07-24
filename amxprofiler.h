@@ -82,6 +82,7 @@ private:
 
     // Keep track of stack frame change
     cell frame_;
+
     // Call stack (first = frm, second = address)
     std::stack<std::pair<cell, cell> > calls_;
 
