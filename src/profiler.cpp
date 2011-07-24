@@ -53,7 +53,7 @@ AmxProfiler::AmxProfiler(AMX *amx, AMX_DBG amxdbg)
       active_(false),
       frame_(amx->stp)
 {
-    // Since PrintStats is done in AmxUnload nad amx->base is already freed before
+    // Since PrintStats is done in AmxUnload and amx->base is already freed before
     // AmxUnload gets called, the native table is not accessible there thus natives' 
     // names must be stored in some global place.
     GetNatives(amx, nativeNames_);
