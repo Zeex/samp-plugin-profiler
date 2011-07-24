@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "amxprofiler.h"
+#include "logprintf.h"
 
 static int AMXAPI DebugHook(AMX *amx) {
     void *prof;
@@ -105,22 +106,46 @@ void AMXProfiler::GetStats(std::vector<AMXFunPerfStats> &stats) const {
 }
 
 int AMXProfiler::DebugHook() {
-    // Check whether current stack frame changed.
+    // Check whether stack frame changed.
     if (amx_->frm != frame_) {
-        // When a function is called with amx_Exec is possible
+#ifdef _DEBUG
+        logprintf("frm changed to %x", amx_->frm);
+#endif
+        // When a function is called with amx_Exec it is possible
         // that we couldn't detect it has returned (luck of BREAK opcodes).
         // Pop remaining functions from the call stack.
-        if (!calls_.empty() && amx_->frm > calls_.top().first) {
-            while (!calls_.empty() && calls_.top().first < amx_->frm) {
+        if (!calls_.empty() && amx_->frm >= calls_.top().first) {
+            while (!calls_.empty() && amx_->frm >= calls_.top().first) {
+                if (amx_->frm == calls_.top().first) {
+                    // Whether to pop the last element depends on whether we have entered
+                    // another function or we're staying in the same one.
+                    // The first is true if there's a PROC opcode 2 cells behind.
+                    AMX_HEADER *hdr = reinterpret_cast<AMX_HEADER*>(amx_->base);
+                    cell op = *reinterpret_cast<cell*>(amx_->base + hdr->cod + amx_->cip - 2*sizeof(cell));
+                    if (op != 46 /* OP_PROC */) {
+                        // OK, nothing new.
+                        break;
+                    }
+                }
                 cell address = calls_.top().second;
                 if (running_) {
                     functions_[address].StopCounter();
                 }
                 calls_.pop();
+#ifdef _DEBUG
+                logprintf("Left(!) %x", address);
+#endif
             }
-            frame_ = amx_->stp;
+            if (calls_.empty()) {
+#ifdef _DEBUG
+                logprintf("calls_.empty()");
+#endif
+                frame_ = amx_->stk;
+            } else {
+                frame_ = calls_.top().first;
+            }
         }
-        if (amx_->frm < frame_) {
+        if (amx_->frm < frame_ || calls_.empty()) {
             // Just entered a function body (first BREAK after PROC).
             // Its address is CIP - 2*sizeof(cell).
             cell address = amx_->cip - 2*sizeof(cell);
@@ -129,6 +154,9 @@ int AMXProfiler::DebugHook() {
                 functions_[address].IncreaseCalls();
                 functions_[address].StartCounter();
             }
+#ifdef _DEBUG
+            logprintf("Entered %x", address);
+#endif
         } else if (amx_->frm > frame_) {
             // Left a function.
             // The addres is at the top of the call stack.
@@ -137,6 +165,9 @@ int AMXProfiler::DebugHook() {
                 functions_[address].StopCounter();        
             }
             calls_.pop();
+#ifdef _DEBUG
+            logprintf("Left %x", address);
+#endif
         }
         frame_ = amx_->frm;
     }

@@ -198,7 +198,7 @@ namespace natives {
             } else {
                 const char *name;
                 if (dbg_LookupFunction(&amxdbg, it->address, &name) == AMX_ERR_NONE) {
-                    stream << "\t\t<td>" << name << "</td>\n";
+                    stream << "\t\t<td>" << name << "@" << std::hex << it->address << std::dec << "</td>\n";
                 } else {
                     stream << "\t\t<td>" << std::hex << it->address << std::dec << "</td>\n";
                 }
