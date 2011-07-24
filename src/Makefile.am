@@ -5,8 +5,6 @@ profiler_la_LDFLAGS = -avoid-version -module -shared
 
 profiler_la_SOURCES =\
 	amx/amxdbg.c\
-	amxalign.c\
 	amxplugin.cpp\
-	amxprofiler.cpp\
-	logprintf.cpp\
+	jump.cpp\
 	profiler.cpp

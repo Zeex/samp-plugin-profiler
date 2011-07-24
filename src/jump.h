@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef LOGPRINTF_H
-#define LOGPRINTF_H
+#ifndef JUMP_H
+#define JUMP_H
 
-typedef void (*logprintf_t)(const char *fmt, ...);
-
-extern logprintf_t logprintf;
+// Modifies code at 'from' to make it JMP to 'to'.
+void SetJump(void *from, void *to);
+void SetJump(void *from, void *to, unsigned char (&oldCode)[5]);
 
 #endif
+
