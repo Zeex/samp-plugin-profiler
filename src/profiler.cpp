@@ -342,26 +342,28 @@ PLUGIN_EXPORT void PLUGIN_CALL Unload() {
 }
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
-    AmxNameFinder::GetInstance()->UpdateCache();
+    AmxNameFinder::GetInstance()->UpdateCache(); // Check if new files were added
     std::string filename = AmxNameFinder::GetInstance()->GetAmxName(amx);
-
-    // Looking up the base name only, i.e. file name + '.' + extenstion
-    if (std::find(::profiledScripts.begin(), 
-                  ::profiledScripts.end(), filename) != ::profiledScripts.end()) 
-    {
-        FILE *fp = fopen(filename.c_str(), "rb");
-        if (fp != 0) {
-            AMX_DBG amxdbg;
-            int error = dbg_LoadInfo(&amxdbg, fp);
-            if (error == AMX_ERR_NONE) {
-                AmxProfiler::Attach(amx, amxdbg);              
-            } else {
-                return error;
-            }
-            fclose(fp);
-        } 
+    if (!filename.empty()) {
+        // Use '/' as directory separator on both Windows and Linux
+        std::replace(filename.begin(), filename.end(), '\\', '/');    
+        if (std::find(::profiledScripts.begin(), 
+                      ::profiledScripts.end(), filename) != ::profiledScripts.end()) 
+        {
+            FILE *fp = fopen(filename.c_str(), "rb");
+            if (fp != 0) {
+                AMX_DBG amxdbg;
+                int error = dbg_LoadInfo(&amxdbg, fp);
+                if (error == AMX_ERR_NONE) {
+                    AmxProfiler::Attach(amx, amxdbg);              
+                } else {
+                    // The server takes care of printing the error message
+                    return error;
+                }
+                fclose(fp);
+            } 
+        }
     }
-
     return AMX_ERR_NONE;
 }
 
