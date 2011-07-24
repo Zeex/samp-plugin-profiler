@@ -17,14 +17,15 @@
 #include <algorithm>
 #include <cstdio>
 #include <cstdlib>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <fstream>
 #include <list>
 #include <numeric>
 #include <string>
 #include <vector>
 
+#include "amxnamefinder.h"
 #include "jump.h"
 #include "plugincommon.h"
 #include "profiler.h"
@@ -32,6 +33,17 @@
 std::map<AMX*, AmxProfiler*> AmxProfiler::instances_;
 
 AmxProfiler::AmxProfiler() {}
+
+static void GetNatives(AMX *amx, std::vector<std::string> &names) {
+    AMX_HEADER *hdr = reinterpret_cast<AMX_HEADER*>(amx->base);
+
+    AMX_FUNCSTUBNT *natives = reinterpret_cast<AMX_FUNCSTUBNT*>(amx->base + hdr->natives);
+    int numNatives = (hdr->libraries - hdr->natives) / hdr->defsize;
+
+    for (int i = 0; i < numNatives; i++) {
+        names.push_back(reinterpret_cast<char*>(amx->base + natives[i].nameofs));
+    }
+}
 
 AmxProfiler::AmxProfiler(AMX *amx, AMX_DBG amxdbg) 
     : amx_(amx),
@@ -41,14 +53,24 @@ AmxProfiler::AmxProfiler(AMX *amx, AMX_DBG amxdbg)
       active_(false),
       frame_(amx->stp)
 {
+    // Since PrintStats is done in AmxUnload nad amx->base is already freed before
+    // AmxUnload gets called, the native table is not accessible there thus natives' 
+    // names must be stored in some global place.
+    GetNatives(amx, nativeNames_);
 }
 
 void AmxProfiler::Attach(AMX *amx, AMX_DBG amxdbg) {
-    instances_[amx] = new AmxProfiler(amx, amxdbg);
+    AmxProfiler *prof = new AmxProfiler(amx, amxdbg);
+    instances_[amx] = prof;
+    prof->Activate();
 }
 
 void AmxProfiler::Detach(AMX *amx) {
-    delete AmxProfiler::Get(amx);
+    AmxProfiler *prof = AmxProfiler::Get(amx);
+    if (prof != 0) {
+        prof->Deactivate();
+        delete prof;
+    }
     instances_.erase(amx);
 }
 
@@ -69,9 +91,11 @@ static int AMXAPI Callback(AMX *amx, cell index, cell *result, cell *params) {
 }
 
 void AmxProfiler::Activate() {
-    active_ = true;
-    amx_SetDebugHook(amx_, ::Debug);
-    amx_SetCallback(amx_, ::Callback);
+    if (!active_) {
+        active_ = true;
+        amx_SetDebugHook(amx_, ::Debug);
+        amx_SetCallback(amx_, ::Callback);
+    }
 }
 
 bool AmxProfiler::IsActive() const {
@@ -79,9 +103,11 @@ bool AmxProfiler::IsActive() const {
 }
 
 void AmxProfiler::Deactivate() {
-    active_ = false;
-    amx_SetDebugHook(amx_, debug_);
-    amx_SetCallback(amx_, callback_);
+    if (active_) {
+        active_ = false;
+        amx_SetDebugHook(amx_, debug_);
+        amx_SetCallback(amx_, callback_);
+    }
 }
 
 void AmxProfiler::ResetStats() {
@@ -104,22 +130,8 @@ static bool ByTimePerCall(const std::pair<cell, AmxPerformanceCounter> &op1,
          > static_cast<double>(op2.second.GetTime()) / static_cast<double>(op2.second.GetCalls());
 }
 
-static const char *GetNativeName(AMX *amx, cell index) {
-    AMX_HEADER *hdr = reinterpret_cast<AMX_HEADER*>(amx->base);
-
-    AMX_FUNCSTUBNT *natives = reinterpret_cast<AMX_FUNCSTUBNT*>(amx->base + hdr->natives);
-    int numNatives = (hdr->libraries - hdr->natives) / hdr->defsize;
-
-    for (int i = 0; i < numNatives; i++) {
-        if (i == index) {
-            return reinterpret_cast<char*>(amx->base + natives[i].nameofs);
-        }
-    }
-    return "<unknown native>";
-}
-
-bool AmxProfiler::PrintStats(const char *filename, StatsPrintOrder order) {
-    std::ofstream stream(filename);
+bool AmxProfiler::PrintStats(const std::string &filename, StatsPrintOrder order) {
+    std::ofstream stream(filename.c_str());
 
     if (stream.is_open()) {
         std::vector<std::pair<cell, AmxPerformanceCounter> > stats(counters_.begin(), 
@@ -162,11 +174,12 @@ bool AmxProfiler::PrintStats(const char *filename, StatsPrintOrder order) {
             stream << "\t<tr>\n";
 
             if (it->first <= 0) {
-                stream << "\t\t<td>" << GetNativeName(amx_, -it->first) << "</td>\n";
+                stream << "\t\t<td>" << nativeNames_[-it->first] << "</td>\n";
             } else {
                 const char *name;
                 if (dbg_LookupFunction(&amxdbg_, it->first, &name) == AMX_ERR_NONE) {
-                    stream << "\t\t<td>" << name << "@" << std::hex << it->first << std::dec << "</td>\n";
+                    //stream << "\t\t<td>" << name << "@" << std::hex << it->first << std::dec << "</td>\n";
+                    stream << "\t\t<td>" << name << "</td>\n";
                 } else {
                     stream << "\t\t<td>" << std::hex << it->first << std::dec << "</td>\n";
                 }
@@ -254,6 +267,16 @@ static int AMXAPI Exec(AMX *amx, cell *retval, int index) {
 
     int error;
 
+    if (index > 0) {
+        char name[33];
+        amx_GetPublic(amx, index, name);
+        printf("Executing %s...\n", name);
+    } else if (index == AMX_EXEC_MAIN) {
+        printf("Executing main...\n");
+    } else if (index == AMX_EXEC_CONT) {
+        printf("Continuing...\n");
+    }
+
     // Check if this script has a profiler attached to it
     AmxProfiler *prof = AmxProfiler::Get(amx);
     if (prof != 0 && prof->IsActive()) {
@@ -278,74 +301,15 @@ int AmxProfiler::Exec(cell *retval, int index) {
     int error = amx_Exec(amx_, retval, index);
 
     counters_[address].Stop();
-    callStack_.pop();
+
+    if (!callStack_.empty()) {
+        callStack_.pop();
+    }
+    if (callStack_.empty()) {
+        frame_ = amx_->stp;
+    }
 
     return error;
-}
-
-namespace natives {
-    
-    // native Profiler_Init(const path_to_amx[]);
-    cell AMX_NATIVE_CALL Profiler_Init(AMX *amx, cell *params) {
-        char *path_to_amx;
-        amx_StrParam(amx, params[1], path_to_amx);
-        if (path_to_amx != 0) {
-            FILE *fp = fopen(path_to_amx, "rb");
-            if (fp != 0) {
-                AMX_DBG amxdbg;
-                if (dbg_LoadInfo(&amxdbg, fp) == AMX_ERR_NONE) {
-                    AmxProfiler::Attach(amx, amxdbg);
-                    return 1;
-                }
-                fclose(fp);
-            } 
-        }
-        return 0;
-    }
-
-    // native Profiler_Start();
-    cell AMX_NATIVE_CALL Profiler_Start(AMX *amx, cell *params) {
-        AmxProfiler *prof = AmxProfiler::Get(amx);
-        if (!prof->IsActive()) {
-            prof->Activate();
-            return 1;
-        } 
-        return 0;
-    }
-
-    // native Profiler_Stop();
-    cell AMX_NATIVE_CALL Profiler_Stop(AMX *amx, cell *params) {
-        AmxProfiler *prof = AmxProfiler::Get(amx);
-        if (prof->IsActive()) {
-            prof->Deactivate();
-            return 1;
-        } 
-        return 0;
-    }
-
-    // native Profiler_ResetStats();
-    cell AMX_NATIVE_CALL Profiler_ResetStats(AMX *amx, cell *params) {
-        AmxProfiler::Get(amx)->ResetStats();
-        return 0;
-    }
-
-    // native Profiler_PrintStats(const filename[], ProfilerStatsOrder:order);
-    cell AMX_NATIVE_CALL Profiler_PrintStats(AMX *amx, cell *params) {
-        char *filename;
-        amx_StrParam(amx, params[1], filename);
-        return AmxProfiler::Get(amx)->PrintStats(filename, static_cast<AmxProfiler::StatsPrintOrder>(params[2]));
-    }
-
-    // native Profiler_Finalize()
-
-    const AMX_NATIVE_INFO all[] = { 
-        {"Profiler_Init",       Profiler_Init},
-        {"Profiler_Start",      Profiler_Start},
-        {"Profiler_Stop",       Profiler_Stop},
-        {"Profiler_ResetStats", Profiler_ResetStats},
-        {"Profiler_PrintStats", Profiler_PrintStats},
-        {0,                     0}
-    };
 }
 
 PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports() {
@@ -357,6 +321,8 @@ extern void *pAMXFunctions;
 // Both x86 and x86-64 are Little Endian
 static void *AMXAPI DummyAmxAlign(void *v) { return v; }
 
+static std::list<std::string> profiledScripts;
+
 PLUGIN_EXPORT bool PLUGIN_CALL Load(void **pluginData) {
     pAMXFunctions = pluginData[PLUGIN_DATA_AMX_EXPORTS];
 
@@ -367,6 +333,17 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **pluginData) {
     ::amx_Exec_addr = reinterpret_cast<uint32_t>((static_cast<void**>(pAMXFunctions))[PLUGIN_AMX_EXPORT_Exec]);
     SetJump(reinterpret_cast<void*>(::amx_Exec_addr), (void*)::Exec, ::amx_Exec_code);
 
+    // Get list of scripts to be profiled
+    std::copy(std::istream_iterator<std::string>(std::ifstream("plugins/profiler.cfg")), 
+              std::istream_iterator<std::string>(), 
+              std::back_inserter(::profiledScripts));
+
+    std::copy(::profiledScripts.begin(), ::profiledScripts.end(), std::ostream_iterator<std::string>(std::cout));
+
+    // Initialize the name finder
+    AmxNameFinder::GetInstance()->AddSearchDir("gamemodes");
+    AmxNameFinder::GetInstance()->AddSearchDir("filterscripts");
+
     return true;
 }
 
@@ -375,10 +352,36 @@ PLUGIN_EXPORT void PLUGIN_CALL Unload() {
 }
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
-    return amx_Register(amx, natives::all, -1);
+    AmxNameFinder::GetInstance()->UpdateCache();
+    std::string filename = AmxNameFinder::GetInstance()->GetAmxName(amx);
+
+    // Looking up the base name only, i.e. file name + '.' + extenstion
+    if (std::find(::profiledScripts.begin(), 
+                  ::profiledScripts.end(), filename) != ::profiledScripts.end()) 
+    {
+        FILE *fp = fopen(filename.c_str(), "rb");
+        if (fp != 0) {
+            AMX_DBG amxdbg;
+            int error = dbg_LoadInfo(&amxdbg, fp);
+            if (error == AMX_ERR_NONE) {
+                AmxProfiler::Attach(amx, amxdbg);              
+            } else {
+                return error;
+            }
+            fclose(fp);
+        } 
+    }
+
+    return AMX_ERR_NONE;
 }
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
-    AmxProfiler::Detach(amx);
+    AmxProfiler *prof = AmxProfiler::Get(amx);
+    std::string name = AmxNameFinder::GetInstance()->GetAmxName(amx);
+    printf("AmxUnload %s", name.c_str());
+    if (prof != 0) {
+        prof->PrintStats(name + std::string(".prof"));
+        AmxProfiler::Detach(amx);
+    }
     return AMX_ERR_NONE;
 }

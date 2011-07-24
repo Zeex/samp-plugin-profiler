@@ -249,11 +249,23 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\src\amx\amxaux.c"
+				>
+			</File>
+			<File
 				RelativePath=".\src\amx\amxdbg.c"
 				>
 			</File>
 			<File
+				RelativePath=".\src\amxnamefinder.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\amxplugin.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\fileutils.cpp"
 				>
 			</File>
 			<File
@@ -279,7 +291,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\amx\amxaux.h"
+				>
+			</File>
+			<File
 				RelativePath=".\src\amx\amxdbg.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\amxnamefinder.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\fileutils.h"
 				>
 			</File>
 			<File
@@ -308,6 +332,10 @@
 			</File>
 			<File
 				RelativePath=".\src\amx\sclinux.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\singleton.h"
 				>
 			</File>
 		</Filter>

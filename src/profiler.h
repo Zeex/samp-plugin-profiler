@@ -19,6 +19,7 @@
 
 #include <map>
 #include <stack>
+#include <string>
 
 #include <platformstl/platformstl.hpp>
 #include <platformstl/performance/performance_counter.hpp>
@@ -80,7 +81,7 @@ public:
     void Deactivate();
 
     void ResetStats();
-    bool PrintStats(const char *filename, StatsPrintOrder order = ORDER_BY_TIME);
+    bool PrintStats(const std::string &filename, StatsPrintOrder order = ORDER_BY_TIME);
 
     int Debug();
     int Callback(cell index, cell *result, cell *params);
@@ -99,6 +100,9 @@ private:
 
     cell frame_;
     std::stack<cell> callStack_;
+
+    std::vector<std::string> nativeNames_;
+
     std::map<ucell, AmxPerformanceCounter> counters_;
 
     static std::map<AMX*, AmxProfiler*> instances_;
