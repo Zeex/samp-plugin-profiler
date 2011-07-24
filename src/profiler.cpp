@@ -267,16 +267,6 @@ static int AMXAPI Exec(AMX *amx, cell *retval, int index) {
 
     int error;
 
-    if (index > 0) {
-        char name[33];
-        amx_GetPublic(amx, index, name);
-        printf("Executing %s...\n", name);
-    } else if (index == AMX_EXEC_MAIN) {
-        printf("Executing main...\n");
-    } else if (index == AMX_EXEC_CONT) {
-        printf("Continuing...\n");
-    }
-
     // Check if this script has a profiler attached to it
     AmxProfiler *prof = AmxProfiler::Get(amx);
     if (prof != 0 && prof->IsActive()) {
