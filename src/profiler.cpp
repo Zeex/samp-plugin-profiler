@@ -205,7 +205,7 @@ bool AmxProfiler::PrintStats(const std::string &filename, StatsPrintOrder order)
 }
 
 int AmxProfiler::Debug() {
-    if (amx_->frm != frame_) {
+    if (amx_->frm != frame_ && frame_ > amx_->hea) {
         if (amx_->frm < frame_) {
             // Probably entered a function body (first BREAK after PROC)
             cell address = amx_->cip - 2*sizeof(cell);
@@ -286,16 +286,19 @@ int AmxProfiler::Exec(cell *retval, int index) {
 
     cell address = publics[index].address;
     callStack_.push(address);
+
+    // Set frame_ to the value which amx_->frm will be set to
+    // during amx_Exec. If we do this Debug() will think that 
+    // the frame stays the same and won't profile this call.
+    frame_ = amx_->stk - 3*sizeof(cell);
+
     counters_[address].Start();
-
     int error = amx_Exec(amx_, retval, index);
-
     counters_[address].Stop();
 
     if (!callStack_.empty()) {
         callStack_.pop();
-    }
-    if (callStack_.empty()) {
+    } else {
         frame_ = amx_->stp;
     }
 
@@ -320,6 +323,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **pluginData) {
     ((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Align16] = (void*)DummyAmxAlign;
     ((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Align32] = (void*)DummyAmxAlign;
 
+    // Hook amx_Execc
     ::amx_Exec_addr = reinterpret_cast<uint32_t>((static_cast<void**>(pAMXFunctions))[PLUGIN_AMX_EXPORT_Exec]);
     SetJump(reinterpret_cast<void*>(::amx_Exec_addr), (void*)::Exec, ::amx_Exec_code);
 
@@ -357,7 +361,6 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
                 if (error == AMX_ERR_NONE) {
                     AmxProfiler::Attach(amx, amxdbg);              
                 } else {
-                    // The server takes care of printing the error message
                     return error;
                 }
                 fclose(fp);
