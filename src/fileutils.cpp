@@ -15,17 +15,18 @@
 #include "fileutils.h"
 
 #include <time.h>
-#include <sys/stat.h>
 
-#if defined WIN32 || defined _WIN32
+#if defined WIN32 || defined _WIN32 || defined __WIN32__
     #include <windows.h>
     #include <sys/types.h>
+    #include <sys/stat.h>
     #if !defined stat
         #define stat _stat
     #endif
 #else
     #include <dirent.h>
     #include <fnmatch.h>
+    #include <sys/stat.h>
 #endif
 
 namespace fileutils {
@@ -54,7 +55,7 @@ time_t GetMoficationTime(const std::string &path) {
 }
 
 void GetFilesInDirectory(const std::string &dir, const std::string &pattern, std::vector<std::string> &result) {
-#if defined WIN32 || defined _WIN32
+#if defined WIN32 || defined _WIN32 || defined __WIN32__
     WIN32_FIND_DATA findFileData;
     HANDLE hFindFile = FindFirstFile((dir + "\\" + pattern).c_str(), &findFileData);
     if (hFindFile != INVALID_HANDLE_VALUE) {
