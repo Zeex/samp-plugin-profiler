@@ -50,8 +50,7 @@ void AmxNameFinder::UpdateCache() {
 }
 
 std::string AmxNameFinder::GetAmxName(AMX_HEADER *amxhdr) const {
-    std::string result;
-  
+    std::string result; 
     for (std::map<std::string, AmxFileData>::const_iterator it = scripts_.begin(); 
          it != scripts_.end(); ++it) 
     {
@@ -62,7 +61,6 @@ std::string AmxNameFinder::GetAmxName(AMX_HEADER *amxhdr) const {
             break;
         }
     }
-
     return result;
 }
 
