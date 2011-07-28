@@ -14,12 +14,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PROFILER_H
-#define PROFILER_H
+#ifndef AMXPROFILER_H
+#define AMXPROFILER_H
 
 #include <map>
 #include <stack>
 #include <string>
+#include <vector>
 
 #include <platformstl/platformstl.hpp>
 #include <platformstl/performance/performance_counter.hpp>
