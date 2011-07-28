@@ -1,6 +1,6 @@
 lib_LTLIBRARIES = profiler.la
 
-profiler_la_CPPFLAGS = -DLINUX -Iamx
+profiler_la_CPPFLAGS = -DLINUX -Isrc/amx
 profiler_la_LDFLAGS = -avoid-version -module -shared
 
 profiler_la_SOURCES =\
