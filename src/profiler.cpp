@@ -54,8 +54,8 @@ AmxProfiler::AmxProfiler(AMX *amx, AMX_DBG amxdbg)
       frame_(amx->stp)
 {
     // Since PrintStats is done in AmxUnload and amx->base is already freed before
-    // AmxUnload gets called, the native table is not accessible there thus natives' 
-    // names must be stored in some global place.
+    // AmxUnload gets called, the native table is not accessible there, thus natives' 
+    // names must be stored manually in another global place.
     GetNatives(amx, nativeNames_);
 }
 
@@ -311,7 +311,7 @@ PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports() {
 
 extern void *pAMXFunctions;
 
-// Both x86 and x86-64 are Little Endian
+// Both x86 and x86-64 are Little Endian...
 static void *AMXAPI DummyAmxAlign(void *v) { return v; }
 
 static std::list<std::string> profiledScripts;
@@ -323,20 +323,20 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **pluginData) {
     ((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Align16] = (void*)DummyAmxAlign;
     ((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Align32] = (void*)DummyAmxAlign;
 
-    // Hook amx_Execc
+    // Hook amx_Exec
     ::amx_Exec_addr = reinterpret_cast<uint32_t>((static_cast<void**>(pAMXFunctions))[PLUGIN_AMX_EXPORT_Exec]);
     SetJump(reinterpret_cast<void*>(::amx_Exec_addr), (void*)::Exec, ::amx_Exec_code);
 
-    // Get list of scripts to be profiled
+    // Get the names of scripts to be profiled
     std::copy(std::istream_iterator<std::string>(std::ifstream("plugins/profiler.cfg")), 
               std::istream_iterator<std::string>(), 
               std::back_inserter(::profiledScripts));
 
-    //std::copy(::profiledScripts.begin(), ::profiledScripts.end(), std::ostream_iterator<std::string>(std::cout));
-
-    // Initialize the name finder
-    AmxNameFinder::GetInstance()->AddSearchDir("gamemodes");
-    AmxNameFinder::GetInstance()->AddSearchDir("filterscripts");
+    // Add SA:MP default directories to the .amx finder sarch path
+    AmxNameFinder *nameFinder = AmxNameFinder::GetInstance();
+    nameFinder->AddSearchDir("gamemodes");
+    nameFinder->AddSearchDir("filterscripts");
+    nameFinder->UpdateCache();
 
     return true;
 }
@@ -346,10 +346,12 @@ PLUGIN_EXPORT void PLUGIN_CALL Unload() {
 }
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
-    AmxNameFinder::GetInstance()->UpdateCache(); // Check if new files were added
-    std::string filename = AmxNameFinder::GetInstance()->GetAmxName(amx);
+    AmxNameFinder *nameFinder = AmxNameFinder::GetInstance();
+    nameFinder->UpdateCache(); 
+
+    // If the name is established, load symbolic info
+    std::string filename = nameFinder->GetAmxName(amx);
     if (!filename.empty()) {
-        // Use '/' as directory separator on both Windows and Linux
         std::replace(filename.begin(), filename.end(), '\\', '/');    
         if (std::find(::profiledScripts.begin(), 
                       ::profiledScripts.end(), filename) != ::profiledScripts.end()) 
@@ -361,21 +363,30 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
                 if (error == AMX_ERR_NONE) {
                     AmxProfiler::Attach(amx, amxdbg);              
                 } else {
+                    // An error occured, no profiler attached
                     return error;
                 }
                 fclose(fp);
             } 
         }
     }
+
     return AMX_ERR_NONE;
 }
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
+    // Get an instance of AmxProfiler attached to the unloading AMX
     AmxProfiler *prof = AmxProfiler::Get(amx);
-    std::string name = AmxNameFinder::GetInstance()->GetAmxName(amx);
-    if (prof != 0 && !name.empty()) {
-        prof->PrintStats(name + std::string(".prof"));
+
+    // Detach profiler
+    if (prof != 0) {
+        // Before doing that, print stats to <amx_file_path>.prof
+        std::string name = AmxNameFinder::GetInstance()->GetAmxName(amx);
+        if (!name.empty()) {
+            prof->PrintStats(name + std::string(".prof"));
+        }
         AmxProfiler::Detach(amx);
     }
+
     return AMX_ERR_NONE;
 }
