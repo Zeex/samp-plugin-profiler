@@ -62,7 +62,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkIncremental="2"
-				ModuleDefinitionFile="src/profiler.def"
+				ModuleDefinitionFile="src/plugin.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -136,7 +136,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkIncremental="1"
-				ModuleDefinitionFile="src/profiler.def"
+				ModuleDefinitionFile="src/plugin.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -211,7 +211,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkIncremental="2"
-				ModuleDefinitionFile="src/profiler.def"
+				ModuleDefinitionFile="src/plugin.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -265,6 +265,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\amxprofiler.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\fileutils.cpp"
 				>
 			</File>
@@ -273,11 +277,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\profiler.cpp"
+				RelativePath=".\src\plugin.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\profiler.def"
+				RelativePath=".\src\plugin.def"
 				>
 			</File>
 		</Filter>
@@ -303,6 +307,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\amxprofiler.h"
+				>
+			</File>
+			<File
 				RelativePath=".\src\fileutils.h"
 				>
 			</File>
@@ -324,10 +332,6 @@
 			</File>
 			<File
 				RelativePath=".\src\plugincommon.h"
-				>
-			</File>
-			<File
-				RelativePath=".\src\profiler.h"
 				>
 			</File>
 			<File

@@ -1,7 +1,6 @@
 AC_PREREQ([2.67])
 AC_INIT([profiler], [2.0])
 AM_INIT_AUTOMAKE([foreign])
-AC_CONFIG_SRCDIR([src/profiler.cpp])
 
 AC_PROG_CXX
 AC_PROG_CC

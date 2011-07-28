@@ -8,6 +8,7 @@ profiler_la_SOURCES =\
 	src/amx/amxdbg.c\
 	src/amxnamefinder.cpp\
 	src/amxplugin.cpp\
+	src/amxprofiler.cpp\
 	src/fileutils.cpp\
 	src/jump.cpp\
-	src/profiler.cpp
+	src/plugin.cpp
