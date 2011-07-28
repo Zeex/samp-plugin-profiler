@@ -330,7 +330,8 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **pluginData) {
     SetJump(reinterpret_cast<void*>(::amx_Exec_addr), (void*)::Exec, ::amx_Exec_code);
 
     // Get the names of scripts to be profiled
-    std::copy(std::istream_iterator<std::string>(std::ifstream("plugins/profiler.cfg")), 
+    std::ifstream config("plugins/profiler.cfg");
+    std::copy(std::istream_iterator<std::string>(config), 
               std::istream_iterator<std::string>(), 
               std::back_inserter(::profiledScripts));
 
