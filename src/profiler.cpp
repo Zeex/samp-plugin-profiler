@@ -17,9 +17,11 @@
 #include <algorithm>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <iterator>
 #include <list>
 #include <numeric>
 #include <string>
