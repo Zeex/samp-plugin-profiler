@@ -14,6 +14,9 @@
 		/>
 	</Platforms>
 	<ToolFiles>
+		<DefaultToolFile
+			FileName="yasm.rules"
+		/>
 	</ToolFiles>
 	<Configurations>
 		<Configuration
@@ -28,6 +31,9 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="YASM"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -104,6 +110,9 @@
 				Name="VCCustomBuildTool"
 			/>
 			<Tool
+				Name="YASM"
+			/>
+			<Tool
 				Name="VCXMLDataGeneratorTool"
 			/>
 			<Tool
@@ -177,6 +186,9 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="YASM"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -261,7 +273,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\amxplugin.cpp"
+				RelativePath=".\src\amxplugin.asm"
 				>
 			</File>
 			<File
@@ -307,6 +319,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\amxplugin.h"
+				>
+			</File>
+			<File
 				RelativePath=".\src\amxprofiler.h"
 				>
 			</File>
@@ -324,14 +340,6 @@
 			</File>
 			<File
 				RelativePath=".\src\amx\osdefs.h"
-				>
-			</File>
-			<File
-				RelativePath=".\src\plugin.h"
-				>
-			</File>
-			<File
-				RelativePath=".\src\plugincommon.h"
 				>
 			</File>
 			<File
