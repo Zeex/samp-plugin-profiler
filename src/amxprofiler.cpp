@@ -18,8 +18,6 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <iterator>
-#include <list>
 #include <numeric>
 
 #include "amxprofiler.h"
