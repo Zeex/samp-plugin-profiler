@@ -19,6 +19,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
+#include <iterator>
 #include <list>
 #include <string>
 
