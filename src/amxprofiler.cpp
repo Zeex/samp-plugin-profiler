@@ -219,15 +219,20 @@ bool AmxProfiler::PrintStats(const std::string &filename, StatsPrintOrder order)
                 if (haveDbg_ && dbg_LookupFunction(&amxdbg_, address, &name) == AMX_ERR_NONE) {
                     stream << "\t\t<td>" << name << "</td>\n";
                 } else {
+                    bool found = false;
                     for (std::vector<AmxProfiler::Function>::iterator pubIt = publics_.begin(); 
                          pubIt != publics_.end(); ++pubIt) 
                     {
                         if (pubIt->address() == address)  {
                             stream << "\t\t<td>" << pubIt->name() << "</td>\n";
+                            found = true;
+                            break;
                         }
                     }
-                    // OK we tried all means but still don't know the name, so we just print the address.
-                    stream << "\t\t<td>" << std::hex << address << std::dec << "</td>\n";
+                    if (!found) {
+                        // OK we tried all means but still don't know the name, so just print the address.
+                        stream << "\t\t<td>" << "0x" << std::hex << address << std::dec << "</td>\n";
+                    }
                 }
             }
 
