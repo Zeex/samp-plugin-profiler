@@ -114,15 +114,16 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
                 int error = dbg_LoadInfo(&amxdbg, fp);
                 if (error == AMX_ERR_NONE) {
                     AmxProfiler::Attach(amx, amxdbg);              
-                } else {
-                    // An error occured, no profiler attached.
-                    return error;
+                    fclose(fp);
+                    return AMX_ERR_NONE;
                 }
                 fclose(fp);
             } 
         }
     }
 
+    // No symbolic info loaded
+    AmxProfiler::Attach(amx);
     return AMX_ERR_NONE;
 }
 
