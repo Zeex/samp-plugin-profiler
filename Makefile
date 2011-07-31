@@ -2,7 +2,7 @@ CC   = gcc
 CXX  = g++
 RM   = rm -vf
 
-CPPFLAGS  = -DLINUX -Isrc/amx -DHAVE_STDINT_H -DHAVE_ALLOCA_H
+CPPFLAGS  = -DLINUX -Isrc/amx -I$(STLSOFT)/include -DHAVE_STDINT_H -DHAVE_ALLOCA_H
 CFLAGS    = -c -Wall 
 CXXFLAGS  = $(CFLAGS)
 LDFLAGS   = -shared -export-dynamic 
