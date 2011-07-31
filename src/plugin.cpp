@@ -75,8 +75,8 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **pluginData) {
     amx_exports[AMX_EXPORTS_ALIGN64] = (void*)DummyAmxAlign; // amx_Align64
 
     // Hook amx_Exec
-    //::amx_Exec_addr = reinterpret_cast<uint32_t>(amx_exports[AMX_EXPORTS_EXEC]);
-    //SetJump(reinterpret_cast<void*>(::amx_Exec_addr), (void*)::Exec, ::amx_Exec_code);
+    ::amx_Exec_addr = reinterpret_cast<uint32_t>(amx_exports[AMX_EXPORTS_EXEC]);
+    SetJump(reinterpret_cast<void*>(::amx_Exec_addr), (void*)::Exec, ::amx_Exec_code);
 
     // Get the names of scripts to be profiled.
     std::ifstream config("plugins/profiler.cfg");
