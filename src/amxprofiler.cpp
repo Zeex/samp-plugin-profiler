@@ -20,6 +20,7 @@
 #include <iostream>
 #include <numeric>
 
+#include "amxplugin.h"
 #include "amxprofiler.h"
 
 #include "amx/amx.h"
@@ -29,6 +30,7 @@ std::map<AMX*, AmxProfiler*> AmxProfiler::instances_;
 
 AmxProfiler::AmxProfiler() {}
 
+// Extracts the names of native functions from the native table.
 static void GetNatives(AMX *amx, std::vector<std::string> &names) {
     AMX_HEADER *hdr = reinterpret_cast<AMX_HEADER*>(amx->base);
 
@@ -40,13 +42,18 @@ static void GetNatives(AMX *amx, std::vector<std::string> &names) {
     }
 }
 
+// Reads from a code section at a given location.
+static inline cell ReadAmxCode(AMX *amx, cell where) {
+    AMX_HEADER *hdr = reinterpret_cast<AMX_HEADER*>(amx->base);
+    return *reinterpret_cast<cell*>(amx->base + hdr->cod + where);
+}
+
 AmxProfiler::AmxProfiler(AMX *amx, AMX_DBG amxdbg) 
     : amx_(amx),
       amxdbg_(amxdbg),
       debug_(amx->debug),
       callback_(amx->callback),
-      active_(false),
-      frame_(amx->stp)
+      active_(false)
 {
     // Since PrintStats is done in AmxUnload and amx->base is already freed before
     // AmxUnload gets called, the native table is not accessible there, thus natives' 
@@ -200,31 +207,38 @@ bool AmxProfiler::PrintStats(const std::string &filename, StatsPrintOrder order)
 }
 
 int AmxProfiler::Debug() {
-    if (amx_->frm != frame_ && frame_ > amx_->hea) {
-        if (amx_->frm < frame_) {
-            // Probably entered a function body (first BREAK after PROC)
-            cell address = amx_->cip - 2*sizeof(cell);
-            // Check if we have a PROC opcode behind us
-            AMX_HEADER *hdr = reinterpret_cast<AMX_HEADER*>(amx_->base);
-            cell op = *reinterpret_cast<cell*>(hdr->cod + amx_->base + address);
-            if (op == 46) {
-                callStack_.push(address);
-                if (active_) {
-                    counters_[address].Start();
-                }
-            } 
-        } else {
-            // Left a function
-            cell address = callStack_.top();
+    // Get previous stack frame.
+    cell prevFrame = amx_->stp;
+    if (!calls_.empty()) {
+        prevFrame = calls_.top().frame();
+    }
+
+    // Check whether current frame is different.
+    if (amx_->frm < prevFrame) {
+        // Probably entered a function body (first BREAK after PROC).
+        cell address = amx_->cip - 2*sizeof(cell);            
+        // Check if we have a PROC opcode behind.
+        if (ReadAmxCode(amx_, address) == 46) {
+            calls_.push(CallInfo(amx_->frm, address));
             if (active_) {
-                counters_[address].Stop();
+                counters_[address].Start();
             }
-            callStack_.pop();
-            if (callStack_.empty()) {
-                frame_ = amx_->stp;
-            }
+            logprintf("==> %x | frame = %x", address, amx_->frm);
         }
-        frame_ = amx_->frm;
+    } else if (amx_->frm > prevFrame) {
+        //if (!calls_.empty()) { 
+            //CallInfo call = calls_.top();
+            //calls_.pop();
+            //if (calls_.top().frame() == amx_->frm) {
+                // Left the function
+                cell address = calls_.top().address();
+                if (active_) {
+                    counters_[address].Stop();
+                }
+                calls_.pop();
+                logprintf("<== %x | frame = %x", address, amx_->frm);
+            //}
+        //}
     }
 
     if (debug_ != 0) {
@@ -240,16 +254,9 @@ int AmxProfiler::Callback(cell index, cell *result, cell *params) {
     // with SYSREQ.D for better performance. 
     amx_->sysreq_d = 0; 
 
-    if (active_) {
-        counters_[-index].Start();; // Notice negative index
-    }
-
-    // Call any previously set AMX callback (must not be null so we don't check)
+    if (active_) counters_[-index].Start();; // Notice negative index
     int error = callback_(amx_, index, result, params);
-
-    if (active_) {
-        counters_[-index].Stop();
-    }
+    if (active_) counters_[-index].Stop();
 
     return error;
 }
@@ -259,22 +266,13 @@ int AmxProfiler::Exec(cell *retval, int index) {
     AMX_FUNCSTUBNT *publics = reinterpret_cast<AMX_FUNCSTUBNT*>(amx_->base + hdr->publics);
 
     cell address = publics[index].address;
-    callStack_.push(address);
+    calls_.push(CallInfo(address, amx_->stk - 3*sizeof(cell)));
 
-    // Set frame_ to the value which amx_->frm will be set to
-    // during amx_Exec. If we do this Debug() will think that 
-    // the frame stays the same and won't profile this call.
-    frame_ = amx_->stk - 3*sizeof(cell);
-
-    counters_[address].Start();
+    if (active_) counters_[address].Start();
     int error = amx_Exec(amx_, retval, index);
-    counters_[address].Stop();
+    if (active_) counters_[address].Stop();
 
-    if (!callStack_.empty()) {
-        callStack_.pop();
-    } else {
-        frame_ = amx_->stp;
-    }
+    calls_.pop();
 
     return error;
 }

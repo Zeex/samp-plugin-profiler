@@ -99,12 +99,29 @@ private:
     AMX_DEBUG     debug_;
     AMX_CALLBACK  callback_;
 
-    cell frame_;
-    std::stack<cell> callStack_;
+    class CallInfo {
+    public:
+        CallInfo(cell frame, cell address) 
+            : frame_(frame), address_(address) 
+        {
+        }
+
+        cell frame() const 
+        { return frame_; }
+
+        cell address() const 
+        { return address_; }
+
+    private:
+        cell frame_;
+        cell address_;
+    };
+
+    std::stack<CallInfo> calls_;
 
     std::vector<std::string> nativeNames_;
 
-    std::map<ucell, AmxPerformanceCounter> counters_;
+    std::map<cell, AmxPerformanceCounter> counters_;
 
     static std::map<AMX*, AmxProfiler*> instances_;
 };
