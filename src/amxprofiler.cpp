@@ -219,26 +219,22 @@ int AmxProfiler::Debug() {
         cell address = amx_->cip - 2*sizeof(cell);            
         // Check if we have a PROC opcode behind.
         if (ReadAmxCode(amx_, address) == 46) {
-            calls_.push(CallInfo(amx_->frm, address));
+            calls_.push(CallInfo(amx_->frm, address, false));
             if (active_) {
                 counters_[address].Start();
             }
-            logprintf("==> %x | frame = %x", address, amx_->frm);
+            //logprintf("==> %x | frame = %x", address, amx_->frm);
         }
     } else if (amx_->frm > prevFrame) {
-        //if (!calls_.empty()) { 
-            //CallInfo call = calls_.top();
-            //calls_.pop();
-            //if (calls_.top().frame() == amx_->frm) {
-                // Left the function
-                cell address = calls_.top().address();
-                if (active_) {
-                    counters_[address].Stop();
-                }
-                calls_.pop();
-                logprintf("<== %x | frame = %x", address, amx_->frm);
-            //}
-        //}
+        if (!calls_.top().entryPoint()) { // entry points are handled by Exec
+            // Left the function
+            cell address = calls_.top().address();
+            if (active_) {
+                counters_[address].Stop();
+            }
+            calls_.pop();
+            //logprintf("<== %x | frame = %x", address, amx_->frm);
+        }
     }
 
     if (debug_ != 0) {
@@ -262,18 +258,28 @@ int AmxProfiler::Callback(cell index, cell *result, cell *params) {
 }
 
 int AmxProfiler::Exec(cell *retval, int index) {
-    AMX_HEADER *hdr = reinterpret_cast<AMX_HEADER*>(amx_->base);
-    AMX_FUNCSTUBNT *publics = reinterpret_cast<AMX_FUNCSTUBNT*>(amx_->base + hdr->publics);
+    if (index >= 0 || index == AMX_EXEC_MAIN) {
+        AMX_HEADER *hdr = reinterpret_cast<AMX_HEADER*>(amx_->base);
+        cell address = 0;
 
-    cell address = publics[index].address;
-    calls_.push(CallInfo(address, amx_->stk - 3*sizeof(cell)));
+        if (index == AMX_EXEC_MAIN) {
+            address = hdr->cip;
+        } else {
+            AMX_FUNCSTUBNT *publics = reinterpret_cast<AMX_FUNCSTUBNT*>(amx_->base + hdr->publics);
+            address = publics[index].address;
+        }
+       
+        calls_.push(CallInfo(amx_->stk - 3*sizeof(cell), address, true));
 
-    if (active_) counters_[address].Start();
-    int error = amx_Exec(amx_, retval, index);
-    if (active_) counters_[address].Stop();
+        if (active_) counters_[address].Start();
+        int error = amx_Exec(amx_, retval, index);
+        if (active_) counters_[address].Stop();
 
-    calls_.pop();
+        calls_.pop();
 
-    return error;
+        return error;
+    } else {
+        return amx_Exec(amx_, retval, index);
+    }
 }
 

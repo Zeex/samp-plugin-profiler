@@ -101,20 +101,20 @@ private:
 
     class CallInfo {
     public:
-        CallInfo(cell frame, cell address) 
-            : frame_(frame), address_(address) 
-        {
-        }
+        CallInfo(cell frame, cell address, bool entryPoint) 
+            : frame_(frame), 
+              address_(address), 
+              entryPoint_(entryPoint) 
+        {}
 
-        cell frame() const 
-        { return frame_; }
-
-        cell address() const 
-        { return address_; }
+        cell frame() const  { return frame_; }
+        cell address() const  { return address_; }
+        bool entryPoint() const { return entryPoint_; }
 
     private:
         cell frame_;
         cell address_;
+        bool entryPoint_;
     };
 
     std::stack<CallInfo> calls_;
