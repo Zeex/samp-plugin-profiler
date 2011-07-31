@@ -20,7 +20,6 @@
 #include <iostream>
 #include <numeric>
 
-#include "amxplugin.h"
 #include "amxprofiler.h"
 
 #include "amx/amx.h"
