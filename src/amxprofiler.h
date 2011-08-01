@@ -72,6 +72,22 @@ public:
         ORDER_BY_TIME_PER_CALL
     };
 
+    class Function {
+    public:
+        Function(cell address, const char *name) 
+            : address_(address),
+              name_(name)
+        {}
+
+        cell address() const { return address_; }
+        std::string name() const { return name_; }
+
+    private:
+        cell address_;
+        std::string name_;
+    };
+
+    static void Attach(AMX *amx);
     static void Attach(AMX *amx, AMX_DBG amxdbg);
     static void Detach(AMX *amx);
 
@@ -90,21 +106,41 @@ public:
 
 private:
     AmxProfiler();
+    AmxProfiler(AMX *amx);
     AmxProfiler(AMX *amx, AMX_DBG amxdbg);
 
     bool active_;
+    bool haveDbg_;
 
     AMX          *amx_;
     AMX_DBG       amxdbg_;
     AMX_DEBUG     debug_;
     AMX_CALLBACK  callback_;
 
-    cell frame_;
-    std::stack<cell> callStack_;
+    class CallInfo {
+    public:
+        CallInfo(cell frame, cell address, bool entryPoint) 
+            : frame_(frame), 
+              address_(address), 
+              entryPoint_(entryPoint) 
+        {}
 
-    std::vector<std::string> nativeNames_;
+        cell frame() const  { return frame_; }
+        cell address() const  { return address_; }
+        bool entryPoint() const { return entryPoint_; }
 
-    std::map<ucell, AmxPerformanceCounter> counters_;
+    private:
+        cell frame_;
+        cell address_;
+        bool entryPoint_;
+    };
+
+    std::stack<CallInfo> calls_;
+
+    std::vector<Function> natives_;
+    std::vector<Function> publics_;
+
+    std::map<cell, AmxPerformanceCounter> counters_;
 
     static std::map<AMX*, AmxProfiler*> instances_;
 };
