@@ -33,7 +33,7 @@
 #define AMX_EXPORTS_ALIGN64 2
 #define AMX_EXPORTS_EXEC    7
 
-extern "C" void **amx_exports; // defined in amxplugin.asm
+extern "C" void **pAMXFunctions; // defined in amxplugin.asm
 
 static std::list<std::string> profiledScripts;
 
@@ -70,12 +70,12 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **pluginData) {
 
     // The server does not export amx_Align* for some reason.
     // They are used in amxdbg.c and amxaux.c, so they must be callable.
-    amx_exports[AMX_EXPORTS_ALIGN16] = (void*)DummyAmxAlign; // amx_Align16
-    amx_exports[AMX_EXPORTS_ALIGN32] = (void*)DummyAmxAlign; // amx_Align32
-    amx_exports[AMX_EXPORTS_ALIGN64] = (void*)DummyAmxAlign; // amx_Align64
+    pAMXFunctions[AMX_EXPORTS_ALIGN16] = (void*)DummyAmxAlign; // amx_Align16
+    pAMXFunctions[AMX_EXPORTS_ALIGN32] = (void*)DummyAmxAlign; // amx_Align32
+    pAMXFunctions[AMX_EXPORTS_ALIGN64] = (void*)DummyAmxAlign; // amx_Align64
 
     // Hook amx_Exec
-    ::amx_Exec_addr = reinterpret_cast<uint32_t>(amx_exports[AMX_EXPORTS_EXEC]);
+    ::amx_Exec_addr = reinterpret_cast<uint32_t>(pAMXFunctions[AMX_EXPORTS_EXEC]);
     SetJump(reinterpret_cast<void*>(::amx_Exec_addr), (void*)::Exec, ::amx_Exec_code);
 
     // Get the names of scripts to be profiled.
