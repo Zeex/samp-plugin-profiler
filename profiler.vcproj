@@ -275,6 +275,14 @@
 			<File
 				RelativePath=".\src\amxplugin.asm"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="YASM"
+						AdditionalOptions="--prefix=_"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\src\amxprofiler.cpp"
