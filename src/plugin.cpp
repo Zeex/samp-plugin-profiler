@@ -21,6 +21,7 @@
 #include <fstream>
 #include <iterator>
 #include <list>
+#include <map>
 #include <string>
 
 #include "amxnamefinder.h"
@@ -34,6 +35,8 @@
 #define AMX_EXPORTS_EXEC    7
 
 extern "C" void **pAMXFunctions; // defined in amxplugin.asm
+
+static std::map<AMX*, AMX_DBG> debugInfo;
 
 static std::list<std::string> profiledScripts;
 
@@ -114,6 +117,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
                 int error = dbg_LoadInfo(&amxdbg, fp);
                 if (error == AMX_ERR_NONE) {
                     AmxProfiler::Attach(amx, amxdbg);              
+                    ::debugInfo[amx] = amxdbg;
                     fclose(fp);
                     return AMX_ERR_NONE;
                 }
@@ -139,6 +143,13 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
             prof->PrintStats(name + std::string(".prof"));
         }
         AmxProfiler::Detach(amx);
+    }
+
+    // Free debug info
+    std::map<AMX*, AMX_DBG>::iterator it = ::debugInfo.find(amx);
+    if (it != ::debugInfo.end()) {
+        dbg_FreeInfo(&it->second);
+        ::debugInfo.erase(it);
     }
 
     return AMX_ERR_NONE;
