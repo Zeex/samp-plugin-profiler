@@ -1,12 +1,9 @@
-CC   = gcc
-CXX  = g++
-CCAS = yasm
-RM   = rm -vf
+CC  = gcc
+CXX = g++
 
 CPPFLAGS  = -DLINUX -Isrc/amx -I$(STLSOFT)/include -DHAVE_STDINT_H -DHAVE_ALLOCA_H
 CFLAGS    = -c -Wall 
-CXXFLAGS  = $(CFLAGS)
-CCASFLAGS = -f elf32
+CXXFLAGS  = -c -Wall
 LDFLAGS   = -shared -export-dynamic 
 
 PLUGIN = profiler
@@ -26,13 +23,8 @@ OBJFILES =\
 
 all: $(OUTFILE)
 
-.SUFFIXES: .o .c .cpp .asm
-
 $(OUTFILE): $(OBJFILES)
 	$(CXX) $(LDFLAGS) -o $@ $^
 
-.asm.o:
-	$(CCAS) $(CCASFLAGS) -o $@ $<
-
 clean:
-	$(RM) *.o $(OUTFILE)
+	rm -vf *.o $(OUTFILE)
