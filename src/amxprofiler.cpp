@@ -30,30 +30,30 @@ std::map<AMX*, AmxProfiler*> AmxProfiler::instances_;
 AmxProfiler::AmxProfiler() {}
 
 // Extracts the names of native functions from the native table.
-static void GetNatives(AMX *amx, std::vector<AmxProfiler::Function> &names) {
+static void GetNatives(AMX *amx, std::vector<AmxProfiler::Function> &natives) {
     AMX_HEADER *hdr = reinterpret_cast<AMX_HEADER*>(amx->base);
-    AMX_FUNCSTUBNT *natives = reinterpret_cast<AMX_FUNCSTUBNT*>(amx->base + hdr->natives);
+    AMX_FUNCSTUBNT *nativeTable = reinterpret_cast<AMX_FUNCSTUBNT*>(amx->base + hdr->natives);
 
     int numberOfNatives;
     amx_NumNatives(amx, &numberOfNatives);
 
     for (int i = 0; i < numberOfNatives; i++) {
-        names.push_back(AmxProfiler::Function(natives[i].address,
-            reinterpret_cast<char*>(amx->base + natives[i].nameofs)));
+        natives.push_back(AmxProfiler::Function(nativeTable[i].address,
+            reinterpret_cast<char*>(amx->base + nativeTable[i].nameofs)));
     }
 }
 
 // Extracts the names of public functions from the native table.
-static void GetPublics(AMX *amx, std::vector<AmxProfiler::Function> &names) {
+static void GetPublics(AMX *amx, std::vector<AmxProfiler::Function> &publics) {
     AMX_HEADER *hdr = reinterpret_cast<AMX_HEADER*>(amx->base);
-    AMX_FUNCSTUBNT *publics = reinterpret_cast<AMX_FUNCSTUBNT*>(amx->base + hdr->publics);
+    AMX_FUNCSTUBNT *publicTable = reinterpret_cast<AMX_FUNCSTUBNT*>(amx->base + hdr->publics);
 
     int numberOfPublics;
     amx_NumPublics(amx, &numberOfPublics);
 
     for (int i = 0; i < numberOfPublics; i++) {
-        names.push_back(AmxProfiler::Function(publics[i].address, 
-            reinterpret_cast<char*>(amx->base + publics[i].nameofs)));
+        publics.push_back(AmxProfiler::Function(publicTable[i].address, 
+            reinterpret_cast<char*>(amx->base + publicTable[i].nameofs)));
     }
 }
 
