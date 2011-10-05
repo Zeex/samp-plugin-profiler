@@ -25,16 +25,11 @@
 #include <string>
 
 #include "amxnamefinder.h"
-#include "amxplugin.h"
 #include "amxprofiler.h"
 #include "jump.h"
+#include "plugin.h"
 
-#define AMX_EXPORTS_ALIGN16 0
-#define AMX_EXPORTS_ALIGN32 1
-#define AMX_EXPORTS_ALIGN64 2
-#define AMX_EXPORTS_EXEC    7
-
-extern "C" void **pAMXFunctions; // defined in amxplugin.asm
+extern void *pAMXFunctions; 
 
 static std::map<AMX*, AMX_DBG> debugInfo;
 
@@ -69,16 +64,16 @@ PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports() {
 }
 
 PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
-    PluginInit(ppData);
+	pAMXFunctions = ppData[PLUGIN_DATA_AMX_EXPORTS];
 
     // The server does not export amx_Align* for some reason.
     // They are used in amxdbg.c and amxaux.c, so they must be callable.
-    pAMXFunctions[AMX_EXPORTS_ALIGN16] = (void*)DummyAmxAlign; // amx_Align16
-    pAMXFunctions[AMX_EXPORTS_ALIGN32] = (void*)DummyAmxAlign; // amx_Align32
-    pAMXFunctions[AMX_EXPORTS_ALIGN64] = (void*)DummyAmxAlign; // amx_Align64
+    ((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Align16] = (void*)DummyAmxAlign; // amx_Align16
+    ((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Align32] = (void*)DummyAmxAlign; // amx_Align32
+    ((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Align64] = (void*)DummyAmxAlign; // amx_Align64
 
     // Hook amx_Exec
-    ::amx_Exec_addr = reinterpret_cast<uint32_t>(pAMXFunctions[AMX_EXPORTS_EXEC]);
+    ::amx_Exec_addr = reinterpret_cast<uint32_t>(((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Exec]);
     SetJump(reinterpret_cast<void*>(::amx_Exec_addr), (void*)::Exec, ::amx_Exec_code);
 
     // Get the names of scripts to be profiled
