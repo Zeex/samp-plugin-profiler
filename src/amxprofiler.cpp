@@ -262,18 +262,12 @@ bool AmxProfiler::PrintStats(const std::string &filename, StatsPrintOrder order)
 }
 
 int AmxProfiler::Debug() {
-	//std::cout << "frame = " << amx_->frm << std::endl;
-
     // Get previous stack frame.
     cell prevFrame = amx_->stp;
 
-    if (!callStack_.empty()) {
-        prevFrame = callStack_.top().frame();
+    if (!call_stack_.empty()) {
+        prevFrame = call_stack_.top().frame();
     }
-
-	//if (amx_->frm != prevFrame) {
-	//	std::cout << "frame changed!" << std::endl;
-	//}
 
     // Check whether current frame is different.
     if (amx_->frm < prevFrame) {
@@ -284,9 +278,9 @@ int AmxProfiler::Debug() {
             EnterFunction(CallInfo(amx_->frm, address, CallInfo::ORDINARY));
         }
     } else if (amx_->frm > prevFrame) {
-        if (callStack_.top().functionType() != CallInfo::PUBLIC) { // entry points are handled by Exec
+        if (call_stack_.top().functionType() != CallInfo::PUBLIC) { // entry points are handled by Exec
             // Left the function
-            cell address = callStack_.top().address();
+            cell address = call_stack_.top().address();
             LeaveFunction(address);
         }
     }
@@ -335,35 +329,24 @@ int AmxProfiler::Exec(cell *retval, int index) {
 }
 
 void AmxProfiler::EnterFunction(const CallInfo &info) {
-	//std::cout << "Entered function @ " << info.address() << std::endl;
-
 	if (active_) {
-		//if (info.functionType() == CallInfo::NATIVE) {
-		//	std::cout << "NATIVE" << std::endl;
-		//} else if (info.functionType() == CallInfo::NATIVE) {
-		//	std::cout << "PUBLIC" << std::endl;
-		//} else {
-		//	std::cout << "ORDINARY" << std::endl;
-		//}
 		PerformanceCounter &counter = counters_[info.address()];
-		if (callStack_.empty()) {
+		if (call_stack_.empty()) {
 			counter.Start();
 		} else {
-			counter.Start(&counters_[callStack_.top().address()]);
+			counter.Start(&counters_[call_stack_.top().address()]);
 		}
 	}
-
-	callStack_.push(info);
+	call_stack_.push(info);
 }
 
 void AmxProfiler::LeaveFunction(cell address) {
 	while (true) {
-		cell topAddress = callStack_.top().address();
-		//std::cout << "Left function @ " << topAddress << std::endl;
+		cell topAddress = call_stack_.top().address();
 		if (active_) {
 			counters_[topAddress].Stop();
 		}
-		callStack_.pop();		
+		call_stack_.pop();		
 		if (topAddress == address) {
 			break;
 		}
@@ -371,8 +354,8 @@ void AmxProfiler::LeaveFunction(cell address) {
 }
 
 bool AmxProfiler::GetLastCall(CallInfo &call) const {
-	if (!callStack_.empty()) {
-		call = callStack_.top();
+	if (!call_stack_.empty()) {
+		call = call_stack_.top();
 		return true;
 	}
 	return false;
