@@ -16,6 +16,7 @@ OBJFILES =\
 	src/fileutils.o\
 	src/jump.o\
 	src/plugin.o\
+	src/perfcounter.o\
 	src/amx/amxaux.o\
 	src/amx/amxdbg.o
 
