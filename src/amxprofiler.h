@@ -22,46 +22,11 @@
 #include <string>
 #include <vector>
 
-#include <platformstl/platformstl.hpp>
-#include <platformstl/performance/performance_counter.hpp>
-
 #include <malloc.h> // _alloca
 
+#include "perfcounter.h"
 #include "amx/amx.h"
 #include "amx/amxdbg.h"
-
-class AmxPerformanceCounter {
-public:
-    AmxPerformanceCounter() 
-        : calls_(0),
-          counter_(),
-          time_(0)  
-    {
-    }
-
-    inline void Start() {
-        calls_++;
-        counter_.start();
-    }
-
-    inline void Stop() {
-        counter_.stop();
-        time_ += counter_.get_microseconds();
-    }
-
-    inline platformstl::int64_t GetCalls() const {
-        return calls_;
-    }
-
-    inline platformstl::int64_t GetTime() const {
-        return time_;
-    }
-
-private:
-    platformstl::int64_t calls_;
-    platformstl::performance_counter counter_;
-    platformstl::performance_counter::interval_type time_;
-};
 
 class AmxProfiler {
 public:
@@ -119,28 +84,38 @@ private:
 
     class CallInfo {
     public:
-        CallInfo(cell frame, cell address, bool entryPoint) 
+		enum FunctionType {
+			NATIVE,
+			PUBLIC,
+			ORDINARY
+		};
+
+        CallInfo(cell frame, cell address, FunctionType functionType) 
             : frame_(frame), 
               address_(address), 
-              entryPoint_(entryPoint) 
+              functionType_(functionType) 
         {}
 
         cell frame() const  { return frame_; }
         cell address() const  { return address_; }
-        bool entryPoint() const { return entryPoint_; }
+		FunctionType functionType() const { return functionType_; }
 
     private:
         cell frame_;
         cell address_;
-        bool entryPoint_;
+        FunctionType functionType_;
     };
 
-    std::stack<CallInfo> calls_;
+	void EnterFunction(const CallInfo &info);
+	void LeaveFunction(cell address);
+	bool GetLastCall(CallInfo &call) const;
+
+    std::stack<CallInfo> callStack_;
 
     std::vector<Function> natives_;
     std::vector<Function> publics_;
 
-    std::map<cell, AmxPerformanceCounter> counters_;
+    std::map<cell, PerformanceCounter> counters_;
 
     static std::map<AMX*, AmxProfiler*> instances_;
 };

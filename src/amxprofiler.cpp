@@ -64,18 +64,18 @@ static inline cell ReadAmxCode(AMX *amx, cell where) {
 }
 
 // Comparison functiosn for different stats sorting modes
-static bool ByCalls(const std::pair<cell, AmxPerformanceCounter> &op1, 
-                         const std::pair<cell, AmxPerformanceCounter> &op2) {
+static bool ByCalls(const std::pair<cell, PerformanceCounter> &op1, 
+                         const std::pair<cell, PerformanceCounter> &op2) {
     return op1.second.GetCalls() > op2.second.GetCalls();
 }
 
-static bool ByTime(const std::pair<cell, AmxPerformanceCounter> &op1, 
-                        const std::pair<cell, AmxPerformanceCounter> &op2) {
+static bool ByTime(const std::pair<cell, PerformanceCounter> &op1, 
+                        const std::pair<cell, PerformanceCounter> &op2) {
     return op1.second.GetTime() > op2.second.GetTime();
 }
 
-static bool ByTimePerCall(const std::pair<cell, AmxPerformanceCounter> &op1, 
-                               const std::pair<cell, AmxPerformanceCounter> &op2) {
+static bool ByTimePerCall(const std::pair<cell, PerformanceCounter> &op1, 
+                               const std::pair<cell, PerformanceCounter> &op2) {
     return static_cast<double>(op1.second.GetTime()) / static_cast<double>(op1.second.GetCalls())
          > static_cast<double>(op2.second.GetTime()) / static_cast<double>(op2.second.GetCalls());
 }
@@ -171,7 +171,7 @@ bool AmxProfiler::PrintStats(const std::string &filename, StatsPrintOrder order)
     std::ofstream stream(filename.c_str());
 
     if (stream.is_open()) {
-        std::vector<std::pair<cell, AmxPerformanceCounter> > stats(counters_.begin(), 
+        std::vector<std::pair<cell, PerformanceCounter> > stats(counters_.begin(), 
                                                      counters_.end());
         switch (order) {
             case ORDER_BY_CALLS:
@@ -199,21 +199,25 @@ bool AmxProfiler::PrintStats(const std::string &filename, StatsPrintOrder order)
 
         platformstl::int64_t totalTime = 0;
 
-        for (std::vector<std::pair<cell, AmxPerformanceCounter> >::iterator it = stats.begin(); 
+        for (std::vector<std::pair<cell, PerformanceCounter> >::iterator it = stats.begin(); 
              it != stats.end(); ++it) 
         {
             totalTime += it->second.GetTime();
         }        
 
-        for (std::vector<std::pair<cell, AmxPerformanceCounter> >::iterator it = stats.begin(); 
+        for (std::vector<std::pair<cell, PerformanceCounter> >::iterator it = stats.begin(); 
              it != stats.end(); ++it) 
         {
             stream << "\t<tr>\n";
 
             cell address = it->first;
-
             if (address <= 0) {
-                stream << "\t\t<td>" << natives_[-address].name() << "</td>\n";
+				AmxProfiler::Function &native = natives_[-address];
+				if (native.name().empty()) {
+					stream << "\t\t<td>" << "unknown native @ " << native.address() << "</td>\n";
+				} else {
+					stream << "\t\t<td>" << natives_[-address].name() << "</td>\n";
+				}
             } else {
                 const char *name = 0;
                 if (haveDbg_ && dbg_LookupFunction(&amxdbg_, address, &name) == AMX_ERR_NONE) {
@@ -236,7 +240,7 @@ bool AmxProfiler::PrintStats(const std::string &filename, StatsPrintOrder order)
                 }
             }
 
-            AmxPerformanceCounter &counter = it->second;
+            PerformanceCounter &counter = it->second;
 
             stream << "\t\t<td>" << counter.GetCalls() << "</td>\n"
                    << "\t\t<td>" << std::fixed << std::setprecision(0)
@@ -258,11 +262,18 @@ bool AmxProfiler::PrintStats(const std::string &filename, StatsPrintOrder order)
 }
 
 int AmxProfiler::Debug() {
+	//std::cout << "frame = " << amx_->frm << std::endl;
+
     // Get previous stack frame.
     cell prevFrame = amx_->stp;
-    if (!calls_.empty()) {
-        prevFrame = calls_.top().frame();
+
+    if (!callStack_.empty()) {
+        prevFrame = callStack_.top().frame();
     }
+
+	//if (amx_->frm != prevFrame) {
+	//	std::cout << "frame changed!" << std::endl;
+	//}
 
     // Check whether current frame is different.
     if (amx_->frm < prevFrame) {
@@ -270,21 +281,13 @@ int AmxProfiler::Debug() {
         cell address = amx_->cip - 2*sizeof(cell);            
         // Check if we have a PROC opcode behind.
         if (ReadAmxCode(amx_, address) == 46) {
-            calls_.push(CallInfo(amx_->frm, address, false));
-            if (active_) {
-                counters_[address].Start();
-            }
-            //logprintf("==> %x | frame = %x", address, amx_->frm);
+            EnterFunction(CallInfo(amx_->frm, address, CallInfo::ORDINARY));
         }
     } else if (amx_->frm > prevFrame) {
-        if (!calls_.top().entryPoint()) { // entry points are handled by Exec
+        if (callStack_.top().functionType() != CallInfo::PUBLIC) { // entry points are handled by Exec
             // Left the function
-            cell address = calls_.top().address();
-            if (active_) {
-                counters_[address].Stop();
-            }
-            calls_.pop();
-            //logprintf("<== %x | frame = %x", address, amx_->frm);
+            cell address = callStack_.top().address();
+            LeaveFunction(address);
         }
     }
 
@@ -301,32 +304,29 @@ int AmxProfiler::Callback(cell index, cell *result, cell *params) {
     // with SYSREQ.D for better performance. 
     amx_->sysreq_d = 0; 
 
-    if (active_) counters_[-index].Start();; // Notice negative index
+	cell address = -index;
+
+	EnterFunction(CallInfo(amx_->frm, address, CallInfo::NATIVE));
     int error = callback_(amx_, index, result, params);
-    if (active_) counters_[-index].Stop();
+	LeaveFunction(address);
 
     return error;
 }
 
-int AmxProfiler::Exec(cell *retval, int index) {
-    if (index >= 0 || index == AMX_EXEC_MAIN) {
+int AmxProfiler::Exec(cell *retval, int index) {	
+    if (index >= 0 || index == AMX_EXEC_MAIN) {		
         AMX_HEADER *hdr = reinterpret_cast<AMX_HEADER*>(amx_->base);
         cell address = 0;
-
         if (index == AMX_EXEC_MAIN) {
             address = hdr->cip;
         } else {
             AMX_FUNCSTUBNT *publics = reinterpret_cast<AMX_FUNCSTUBNT*>(amx_->base + hdr->publics);
             address = publics[index].address;
-        }
-       
-        calls_.push(CallInfo(amx_->stk - 3*sizeof(cell), address, true));
+        }        
 
-        if (active_) counters_[address].Start();
+		EnterFunction(CallInfo(amx_->stk - 3*sizeof(cell), address, CallInfo::PUBLIC));
         int error = amx_Exec(amx_, retval, index);
-        if (active_) counters_[address].Stop();
-
-        calls_.pop();
+		LeaveFunction(address);
 
         return error;
     } else {
@@ -334,3 +334,46 @@ int AmxProfiler::Exec(cell *retval, int index) {
     }
 }
 
+void AmxProfiler::EnterFunction(const CallInfo &info) {
+	//std::cout << "Entered function @ " << info.address() << std::endl;
+
+	if (active_) {
+		//if (info.functionType() == CallInfo::NATIVE) {
+		//	std::cout << "NATIVE" << std::endl;
+		//} else if (info.functionType() == CallInfo::NATIVE) {
+		//	std::cout << "PUBLIC" << std::endl;
+		//} else {
+		//	std::cout << "ORDINARY" << std::endl;
+		//}
+		PerformanceCounter &counter = counters_[info.address()];
+		if (callStack_.empty()) {
+			counter.Start();
+		} else {
+			counter.Start(&counters_[callStack_.top().address()]);
+		}
+	}
+
+	callStack_.push(info);
+}
+
+void AmxProfiler::LeaveFunction(cell address) {
+	while (true) {
+		cell topAddress = callStack_.top().address();
+		//std::cout << "Left function @ " << topAddress << std::endl;
+		if (active_) {
+			counters_[topAddress].Stop();
+		}
+		callStack_.pop();		
+		if (topAddress == address) {
+			break;
+		}
+	}
+}
+
+bool AmxProfiler::GetLastCall(CallInfo &call) const {
+	if (!callStack_.empty()) {
+		call = callStack_.top();
+		return true;
+	}
+	return false;
+}
