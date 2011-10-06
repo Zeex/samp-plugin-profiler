@@ -14,14 +14,11 @@ PerformanceCounter::PerformanceCounter()
 }
 
 PerformanceCounter::~PerformanceCounter() {
-	//std::cout << "counter " << this << " destroyed" << std::endl;
 	Stop();
 }
 
 void PerformanceCounter::Start(PerformanceCounter *parent) {
 	if (!started_) {	
-		//std::cout << "counter " << this << " started" << std::endl;
-
 		if (parent != 0) {
 			parent->child_ = this;
 			parent->Pause();
@@ -39,8 +36,6 @@ void PerformanceCounter::Stop() {
 	if (started_) {
 		counter_.stop();
 		time_ += counter_.get_microseconds();
-
-		//std::cout << "counter " << this << " stopped" << std::endl;
 
 		if (child_ != 0) {
 			child_->Stop();
@@ -62,7 +57,6 @@ void PerformanceCounter::Pause() {
 		counter_.stop();
 		time_ += counter_.get_microseconds();
 		paused_ = true;
-		//std::cout << "counter " << this << " paused" << std::endl;
 	}
 }
 
@@ -70,7 +64,6 @@ void PerformanceCounter::Resume() {
 	if (paused_) {
 		counter_.start();
 		paused_ = false;
-		//std::cout << "counter " << this << " resumed" << std::endl;
 	}
 }
 

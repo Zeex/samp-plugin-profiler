@@ -110,7 +110,7 @@ private:
 	void LeaveFunction(cell address);
 	bool GetLastCall(CallInfo &call) const;
 
-    std::stack<CallInfo> callStack_;
+    std::stack<CallInfo> call_stack_;
 
     std::vector<Function> natives_;
     std::vector<Function> publics_;
