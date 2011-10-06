@@ -1,5 +1,8 @@
 bin
 obj
+Debug
+Release
+ipch
 src/*.o
 *.so
 *.filters
