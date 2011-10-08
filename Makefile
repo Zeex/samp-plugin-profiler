@@ -4,7 +4,7 @@ CXX = g++
 CPPFLAGS  = -DLINUX -Isrc/amx -I$(STLSOFT)/include -DHAVE_STDINT_H -DHAVE_ALLOCA_H
 CFLAGS    = -c -Wall 
 CXXFLAGS  = -c -Wall
-LDFLAGS   = -shared -export-dynamic 
+LDFLAGS   = -shared -export-dynamic -static-libstdc++
 
 PLUGIN = profiler
 OUTFILE = $(PLUGIN).so
