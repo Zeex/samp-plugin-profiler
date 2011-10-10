@@ -34,9 +34,6 @@ extern void *pAMXFunctions;
 // Symbolic info, used for getting function names
 static std::map<AMX*, AMX_DBG> debugInfo;
 
-// List of scripts to be profiled, read from .cfg
-static std::list<std::string> profiledScripts;
-
 // Both x86 and x86-64 are Little Endian...
 static void *AMXAPI DummyAmxAlign(void *v) { return v; }
 
@@ -61,6 +58,20 @@ static int AMXAPI Exec(AMX *amx, cell *retval, int index) {
     return error;
 }
 
+// Returns true if the .amx should be profiled
+static bool WantsProfiler(const std::string &amxName) {
+    std::ifstream config("plugins/profiler.cfg");    
+
+	std::istream_iterator<std::string> begin(config);
+	std::istream_iterator<std::string> end;
+
+	if (std::find(begin, end, amxName) != end) {
+		return true;
+	}
+
+	return false;
+}
+
 PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports() {
     return SUPPORTS_VERSION | SUPPORTS_AMX_NATIVES;
 }
@@ -77,12 +88,6 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
     // Hook amx_Exec
     ::amx_Exec_addr = reinterpret_cast<uint32_t>(((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Exec]);
     SetJump(reinterpret_cast<void*>(::amx_Exec_addr), (void*)::Exec, ::amx_Exec_code);
-
-    // Get the names of scripts to be profiled
-    std::ifstream config("plugins/profiler.cfg");
-    std::copy(std::istream_iterator<std::string>(config), 
-              std::istream_iterator<std::string>(), 
-              std::back_inserter(::profiledScripts));
 
     // Add SA:MP default directories to the .amx finder sarch path
     AmxNameFinder *nameFinder = AmxNameFinder::GetInstance();
@@ -106,9 +111,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
     std::string filename = nameFinder->GetAmxName(amx);
     if (!filename.empty()) {
         std::replace(filename.begin(), filename.end(), '\\', '/');    
-        if (std::find(::profiledScripts.begin(), 
-                      ::profiledScripts.end(), filename) != ::profiledScripts.end()) 
-        {
+        if (WantsProfiler(filename)) {
             FILE *fp = fopen(filename.c_str(), "rb");
             if (fp != 0) {
                 AMX_DBG amxdbg;
