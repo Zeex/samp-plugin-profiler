@@ -28,4 +28,4 @@ $(OUTFILE): $(OBJFILES)
 	$(CXX) $(LDFLAGS) -o $@ $^
 
 clean:
-	rm -vf *.o $(OUTFILE)
+	rm -vf $(OBJFILES) $(OUTFILE)
