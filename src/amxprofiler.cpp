@@ -81,11 +81,11 @@ static bool ByTimePerCall(const std::pair<cell, PerformanceCounter> &op1,
 }
 
 AmxProfiler::AmxProfiler(AMX *amx) 
-    : amx_(amx),
-      debug_(amx->debug),
-      callback_(amx->callback),
-      active_(false),
-      haveDbg_(false)
+    : active_(false)
+    , haveDbg_(false)
+    , amx_(amx)
+    , debug_(amx->debug)
+    , callback_(amx->callback)
 {
     // Since PrintStats is done in AmxUnload and amx->base is already freed before
     // AmxUnload gets called, therefore both native and public tables are not accessible, 
@@ -95,12 +95,12 @@ AmxProfiler::AmxProfiler(AMX *amx)
 }
 
 AmxProfiler::AmxProfiler(AMX *amx, AMX_DBG amxdbg) 
-    : amx_(amx),
-      amxdbg_(amxdbg),
-      debug_(amx->debug),
-      callback_(amx->callback),
-      active_(false),
-      haveDbg_(true)
+    : active_(false)
+    , haveDbg_(false)
+    , amx_(amx)
+    , amxdbg_(amxdbg)
+    , debug_(amx->debug)
+    , callback_(amx->callback)
 {
     GetNatives(amx, natives_);
     GetPublics(amx, publics_);
