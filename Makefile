@@ -2,8 +2,8 @@ CC  = gcc
 CXX = g++
 
 CPPFLAGS  = -DLINUX -Isrc/amx -I$(STLSOFT)/include -DHAVE_STDINT_H -DHAVE_ALLOCA_H
-CFLAGS    = -c -Wall 
-CXXFLAGS  = -c -Wall
+CFLAGS    = -c -Wall -m32
+CXXFLAGS  = -c -Wall -m32
 LDFLAGS   = -shared -export-dynamic -static-libstdc++
 
 PLUGIN = profiler
