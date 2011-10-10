@@ -28,6 +28,10 @@
 #include "amxprofiler.h"
 #include "jump.h"
 #include "plugin.h"
+#include "version.h"
+
+typedef void (*logprintf_t)(const char *format, ...);
+static logprintf_t logprintf;
 
 extern void *pAMXFunctions; 
 
@@ -78,6 +82,7 @@ PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports() {
 
 PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
 	pAMXFunctions = ppData[PLUGIN_DATA_AMX_EXPORTS];
+	logprintf = (logprintf_t)ppData[PLUGIN_DATA_LOGPRINTF];
 
     // The server does not export amx_Align* for some reason.
     // They are used in amxdbg.c and amxaux.c, so they must be callable.
@@ -94,6 +99,8 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
     nameFinder->AddSearchDir("gamemodes");
     nameFinder->AddSearchDir("filterscripts");
     nameFinder->UpdateCache();
+
+	logprintf("  Profiler plugin v" VERSION " is OK.");
 
     return true;
 }
