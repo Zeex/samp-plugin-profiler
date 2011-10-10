@@ -31,8 +31,10 @@
 
 extern void *pAMXFunctions; 
 
+// Symbolic info, used for getting function names
 static std::map<AMX*, AMX_DBG> debugInfo;
 
+// List of scripts to be profiled, read from .cfg
 static std::list<std::string> profiledScripts;
 
 // Both x86 and x86-64 are Little Endian...
@@ -44,7 +46,7 @@ static unsigned char amx_Exec_code[5];
 static int AMXAPI Exec(AMX *amx, cell *retval, int index) {
     memcpy(reinterpret_cast<void*>(::amx_Exec_addr), ::amx_Exec_code, 5);
 
-    int error;
+    int error = AMX_ERR_NONE;
 
     // Check if this script has a profiler attached to it
     AmxProfiler *prof = AmxProfiler::Get(amx);
@@ -96,6 +98,7 @@ PLUGIN_EXPORT void PLUGIN_CALL Unload() {
 }
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
+	// Get the path to the loaded .amx
     AmxNameFinder *nameFinder = AmxNameFinder::GetInstance();
     nameFinder->UpdateCache(); 
 
