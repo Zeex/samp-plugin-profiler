@@ -7,7 +7,7 @@ PerformanceCounter::PerformanceCounter()
 	, paused_(false)
 	, child_(0)
 	, parent_(0)
-    , calls_(0)
+	, calls_(0)
 	, counter_()
 	, time_(0)  
 {
@@ -68,9 +68,9 @@ void PerformanceCounter::Resume() {
 }
 
 platformstl::int64_t PerformanceCounter::GetCalls() const {
-    return calls_;
+	return calls_;
 }
 
 platformstl::int64_t PerformanceCounter::GetTime() const {
-    return time_;
+	return time_;
 }

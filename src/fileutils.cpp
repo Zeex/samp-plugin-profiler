@@ -17,67 +17,67 @@
 #include <time.h>
 
 #if defined WIN32 || defined _WIN32 || defined __WIN32__
-    #include <windows.h>
-    #include <sys/types.h>
-    #include <sys/stat.h>
-    #if !defined stat
-        #define stat _stat
-    #endif
+	#include <windows.h>
+	#include <sys/types.h>
+	#include <sys/stat.h>
+	#if !defined stat
+		#define stat _stat
+	#endif
 #else
-    #include <dirent.h>
-    #include <fnmatch.h>
-    #include <sys/stat.h>
+	#include <dirent.h>
+	#include <fnmatch.h>
+	#include <sys/stat.h>
 #endif
 
 namespace fileutils {
 
 std::string GetBaseName(const std::string &path) {
-    std::string::size_type lastSep = path.find_last_of("/\\");
-    if (lastSep != std::string::npos) {
-        return path.substr(lastSep + 1);
-    }
-    return path;
+	std::string::size_type lastSep = path.find_last_of("/\\");
+	if (lastSep != std::string::npos) {
+		return path.substr(lastSep + 1);
+	}
+	return path;
 }
 
 std::string GetExtenstion(const std::string &path) {
-    std::string ext;
-    std::string::size_type period = path.rfind('.');
-    if (period != std::string::npos) {
-        ext = path.substr(period + 1);;
-    } 
-    return ext;
+	std::string ext;
+	std::string::size_type period = path.rfind('.');
+	if (period != std::string::npos) {
+		ext = path.substr(period + 1);;
+	} 
+	return ext;
 }
 
 time_t GetMoficationTime(const std::string &path) {
-    struct stat attrib;
-    stat(path.c_str(), &attrib);
+	struct stat attrib;
+	stat(path.c_str(), &attrib);
 	return attrib.st_mtime;
 }
 
 void GetFilesInDirectory(const std::string &dir, const std::string &pattern, std::vector<std::string> &result) {
 #if defined WIN32 || defined _WIN32 || defined __WIN32__
-    WIN32_FIND_DATA findFileData;
-    HANDLE hFindFile = FindFirstFile((dir + "\\" + pattern).c_str(), &findFileData);
-    if (hFindFile != INVALID_HANDLE_VALUE) {
-        do {
-            if (!(findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
-                result.push_back(dir + "\\" + findFileData.cFileName);
-            }
-        } while (FindNextFile(hFindFile, &findFileData) != 0);
-        FindClose(hFindFile);
-    }
+	WIN32_FIND_DATA findFileData;
+	HANDLE hFindFile = FindFirstFile((dir + "\\" + pattern).c_str(), &findFileData);
+	if (hFindFile != INVALID_HANDLE_VALUE) {
+		do {
+			if (!(findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+				result.push_back(dir + "\\" + findFileData.cFileName);
+			}
+		} while (FindNextFile(hFindFile, &findFileData) != 0);
+		FindClose(hFindFile);
+	}
 #else
-    DIR *dp;
-    if ((dp = opendir(dir.c_str())) != 0) {
-        struct dirent *dirp;
-        while ((dirp = readdir(dp)) != 0) {
-            if (!fnmatch(pattern.c_str(), dirp->d_name,
-                            FNM_CASEFOLD | FNM_NOESCAPE | FNM_PERIOD)) {
-                result.push_back(dir + "/" + dirp->d_name);
-            }
-        }
-        closedir(dp);
-    }
+	DIR *dp;
+	if ((dp = opendir(dir.c_str())) != 0) {
+		struct dirent *dirp;
+		while ((dirp = readdir(dp)) != 0) {
+			if (!fnmatch(pattern.c_str(), dirp->d_name,
+							FNM_CASEFOLD | FNM_NOESCAPE | FNM_PERIOD)) {
+				result.push_back(dir + "/" + dirp->d_name);
+			}
+		}
+		closedir(dp);
+	}
 #endif
 }
 
