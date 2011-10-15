@@ -6,14 +6,14 @@
 
 class PerformanceCounter {
 public:
-    PerformanceCounter();
+	PerformanceCounter();
 	~PerformanceCounter();
 
-    void Start(PerformanceCounter *parent = 0);
-    void Stop();
+	void Start(PerformanceCounter *parent = 0);
+	void Stop();
 
-    platformstl::int64_t GetCalls() const;
-    platformstl::int64_t GetTime() const;
+	platformstl::int64_t GetCalls() const;
+	platformstl::int64_t GetTime() const;
 
 private:
 	void Pause();
@@ -25,9 +25,9 @@ private:
 	PerformanceCounter *child_;
 	PerformanceCounter *parent_;
 
-    platformstl::int64_t calls_;
-    platformstl::performance_counter counter_;
-    platformstl::performance_counter::interval_type time_;
+	platformstl::int64_t calls_;
+	platformstl::performance_counter counter_;
+	platformstl::performance_counter::interval_type time_;
 };
 
 #endif

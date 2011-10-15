@@ -1,7 +1,7 @@
 LIBRARY	"profiler"
 EXPORTS 
-    Supports
-    Load
-    Unload
-    AmxLoad
-    AmxUnload
+	Supports
+	Load
+	Unload
+	AmxLoad
+	AmxUnload

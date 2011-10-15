@@ -23,26 +23,26 @@
 #include "amx/amx.h"
 
 class AmxNameFinder : public Singleton<AmxNameFinder> {
-    friend class Singleton<AmxNameFinder>;
+	friend class Singleton<AmxNameFinder>;
 public:
-    void AddSearchDir(const std::string &dir);
-    void UpdateCache();
+	void AddSearchDir(const std::string &dir);
+	void UpdateCache();
 
-    std::string GetAmxName(AMX *amx) const;
-    std::string GetAmxName(AMX_HEADER *amxhdr) const;
+	std::string GetAmxName(AMX *amx) const;
+	std::string GetAmxName(AMX_HEADER *amxhdr) const;
 
 private:
-    AmxNameFinder();
+	AmxNameFinder();
 
-    std::list<std::string> searchDirs_;
+	std::list<std::string> searchDirs_;
 
-    struct AmxFileData {
-        AMX    amx;
-        time_t lastModified;
-    };
+	struct AmxFileData {
+		AMX    amx;
+		time_t lastModified;
+	};
 
-    mutable std::map<AMX*, std::string> cachedNames_;
-    std::map<std::string, AmxFileData> scripts_;
+	mutable std::map<AMX*, std::string> cachedNames_;
+	std::map<std::string, AmxFileData> scripts_;
 };
 
 #endif
