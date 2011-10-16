@@ -75,6 +75,12 @@ static bool WantsProfiler(const std::string &amxName) {
 	return false;
 }
 
+static bool HasDebugInfo(AMX *amx) {
+	uint16_t flags;
+	amx_Flags(amx, &flags);
+	return (flags & AMX_FLAG_DEBUG);
+}
+
 PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports() {
 	return SUPPORTS_VERSION | SUPPORTS_AMX_NATIVES;
 }
@@ -119,21 +125,24 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 		std::replace(filename.begin(), filename.end(), '\\', '/');    
 		if (WantsProfiler(filename)) {
 			logprintf("Profiler: Will profile %s", filename.c_str());
-			FILE *fp = fopen(filename.c_str(), "rb");
-			if (fp != 0) {
-				AMX_DBG amxdbg;
-				int error = dbg_LoadInfo(&amxdbg, fp);
-				if (error == AMX_ERR_NONE) {
-					AmxProfiler::Attach(amx, amxdbg);              
-					::debugInfo[amx] = amxdbg;
+			if (HasDebugInfo(amx)) {
+				FILE *fp = fopen(filename.c_str(), "rb");
+				if (fp != 0) {
+					AMX_DBG amxdbg;
+					int error = dbg_LoadInfo(&amxdbg, fp);
+					if (error == AMX_ERR_NONE) {
+						logprintf("Profiler: Read debug symbols from %s", filename.c_str());
+						AmxProfiler::Attach(amx, amxdbg);              
+						::debugInfo[amx] = amxdbg;
+						fclose(fp);
+						return AMX_ERR_NONE;
+					} else {
+						logprintf("Profiler: Error loading symbols from %s (%d)", filename.c_str(), error);
+					}
 					fclose(fp);
-					return AMX_ERR_NONE;
 				} else {
-					logprintf("Profiler: Error loading debug symbols from %s (%d)", filename.c_str(), error);
+					logprintf("Profiler: Couldn't read from %s: %s", filename.c_str(), strerror(errno));
 				}
-				fclose(fp);
-			} else {
-				logprintf("Profiler: Couldn't read from %s: %s", filename.c_str(), strerror(errno));
 			}
 			AmxProfiler::Attach(amx);
 		} 
