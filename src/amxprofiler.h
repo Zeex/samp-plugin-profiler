@@ -52,6 +52,8 @@ public:
 		std::string name_;
 	};
 
+	AmxProfiler(AMX *amx);
+
 	static void Attach(AMX *amx);
 	static void Attach(AMX *amx, AMX_DBG amxdbg);
 	static void Detach(AMX *amx);
@@ -62,6 +64,8 @@ public:
 	bool IsActive() const;
 	void Deactivate();
 
+	void SetDebugInfo(AMX_DBG amxdbg);
+
 	void ResetStats();
 	bool PrintStats(const std::string &filename, StatsPrintOrder order = ORDER_BY_TIME);
 
@@ -71,8 +75,6 @@ public:
 
 private:
 	AmxProfiler();
-	AmxProfiler(AMX *amx);
-	AmxProfiler(AMX *amx, AMX_DBG amxdbg);
 
 	bool active_;
 	bool haveDbg_;

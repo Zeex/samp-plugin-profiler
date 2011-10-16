@@ -94,16 +94,9 @@ AmxProfiler::AmxProfiler(AMX *amx)
 	GetPublics(amx, publics_);
 }
 
-AmxProfiler::AmxProfiler(AMX *amx, AMX_DBG amxdbg) 
-	: active_(false)
-	, haveDbg_(false)
-	, amx_(amx)
-	, amxdbg_(amxdbg)
-	, debug_(amx->debug)
-	, callback_(amx->callback)
-{
-	GetNatives(amx, natives_);
-	GetPublics(amx, publics_);
+void AmxProfiler::SetDebugInfo(AMX_DBG amxdbg) {
+	amxdbg_ = amxdbg;
+	haveDbg_ = true;
 }
 
 void AmxProfiler::Attach(AMX *amx) {
@@ -113,9 +106,8 @@ void AmxProfiler::Attach(AMX *amx) {
 }
 
 void AmxProfiler::Attach(AMX *amx, AMX_DBG amxdbg) {
-	AmxProfiler *prof = new AmxProfiler(amx, amxdbg);
-	instances_[amx] = prof;
-	prof->Activate();
+	Attach(amx);
+	Get(amx)->SetDebugInfo(amxdbg);
 }
 
 void AmxProfiler::Detach(AMX *amx) {
