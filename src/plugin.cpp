@@ -117,12 +117,12 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 	if (!filename.empty()) {
 		std::replace(filename.begin(), filename.end(), '\\', '/');    
 		if (WantsProfiler(filename)) {
+			logprintf("Profiler: Will profile %s", filename.c_str());
 			FILE *fp = fopen(filename.c_str(), "rb");
 			if (fp != 0) {
 				AMX_DBG amxdbg;
 				int error = dbg_LoadInfo(&amxdbg, fp);
 				if (error == AMX_ERR_NONE) {
-					logprintf("Profiler: Attached profiler to %s", filename.c_str());
 					AmxProfiler::Attach(amx, amxdbg);              
 					::debugInfo[amx] = amxdbg;
 					fclose(fp);
@@ -132,15 +132,14 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 				}
 				fclose(fp);
 			} else {
-				logprintf("Profiler: Couldn't open %s: %s", filename.c_str(), strerror(errno));
+				logprintf("Profiler: Couldn't read from %s: %s", filename.c_str(), strerror(errno));
 			}
+			AmxProfiler::Attach(amx);
 		} 
 	} else {
 		logprintf("Profiler: Failed to detect .amx name");
 	}
 
-	// No symbolic info loaded
-	AmxProfiler::Attach(amx);
 	return AMX_ERR_NONE;
 }
 
