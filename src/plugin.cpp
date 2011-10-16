@@ -152,7 +152,9 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 		// Before doing that, print stats to <amx_file_path>.prof
 		std::string name = AmxNameFinder::GetInstance()->GetAmxName(amx);
 		if (!name.empty()) {
-			prof->PrintStats(name + std::string(".prof"));
+			std::string outfile = name + std::string(".prof");
+			logprintf("Profiler: Writing profile to %s", outfile.c_str());
+			prof->PrintStats(outfile);
 		}
 		AmxProfiler::Detach(amx);
 	}
