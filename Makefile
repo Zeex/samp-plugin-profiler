@@ -10,7 +10,7 @@ PLUGIN = profiler
 OUTFILE = $(PLUGIN).so
 
 OBJFILES =\
-	src/amxnamefinder.o\
+	src/amxname.o\
 	src/amxplugin.o\
 	src/amxprofiler.o\
 	src/fileutils.o\

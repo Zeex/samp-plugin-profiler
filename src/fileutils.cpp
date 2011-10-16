@@ -14,10 +14,15 @@
 
 #include "fileutils.h"
 
+#include <time.h>
+
 #if defined WIN32 || defined _WIN32 || defined __WIN32__
 	#include <windows.h>
 	#include <sys/types.h>
 	#include <sys/stat.h>
+	#if !defined stat
+		#define stat _stat
+	#endif
 #else
 	#include <dirent.h>
 	#include <fnmatch.h>
@@ -38,17 +43,15 @@ std::string GetExtenstion(const std::string &path) {
 	std::string ext;
 	std::string::size_type period = path.rfind('.');
 	if (period != std::string::npos) {
-		ext = path.substr(period + 1);
+		ext = path.substr(period + 1);;
 	} 
 	return ext;
 }
 
-std::time_t GetModificationTime(const std::string &path) {
+time_t GetMoficationTime(const std::string &path) {
 	struct stat attrib;
-	if (stat(path.c_str(), &attrib) == 0) {
-		return attrib.st_mtime;
-	}
-	return 0;
+	stat(path.c_str(), &attrib);
+	return attrib.st_mtime;
 }
 
 void GetFilesInDirectory(const std::string &dir, const std::string &pattern, std::vector<std::string> &result) {
