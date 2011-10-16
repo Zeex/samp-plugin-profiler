@@ -82,9 +82,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\amxname.h" />
     <ClInclude Include="src\logprintf.h" />
     <ClInclude Include="src\perfcounter.h" />
-    <ClInclude Include="src\amxnamefinder.h" />
     <ClInclude Include="src\amxprofiler.h" />
     <ClInclude Include="src\amx\amx.h" />
     <ClInclude Include="src\amx\amxaux.h" />
@@ -99,7 +99,7 @@
     <ClInclude Include="src\singleton.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\amxnamefinder.cpp" />
+    <ClCompile Include="src\amxname.cpp" />
     <ClCompile Include="src\amxplugin.cpp" />
     <ClCompile Include="src\amxprofiler.cpp" />
     <ClCompile Include="src\amx\amxaux.c" />

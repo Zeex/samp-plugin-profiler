@@ -18,14 +18,14 @@
 #include <string>
 #include <vector>
 
-#include <ctime>
+#include <time.h>
 
 namespace fileutils {
 
 std::string GetBaseName(const std::string &path);
 std::string GetExtenstion(const std::string &path);
 
-std::time_t GetModificationTime(const std::string &path);
+time_t GetMoficationTime(const std::string &path);
 
 void GetFilesInDirectory(const std::string &dir, const std::string &pattern, std::vector<std::string> &result);
 
