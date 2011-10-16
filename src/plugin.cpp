@@ -27,11 +27,9 @@
 #include "amxnamefinder.h"
 #include "amxprofiler.h"
 #include "jump.h"
+#include "logprintf.h"
 #include "plugin.h"
 #include "version.h"
-
-typedef void (*logprintf_t)(const char *format, ...);
-static logprintf_t logprintf;
 
 extern void *pAMXFunctions; 
 

@@ -15,6 +15,7 @@ OBJFILES =\
 	src/amxprofiler.o\
 	src/fileutils.o\
 	src/jump.o\
+	src/logprintf.o\
 	src/plugin.o\
 	src/perfcounter.o\
 	src/amx/amxaux.o\
