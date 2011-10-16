@@ -15,34 +15,31 @@
 #ifndef AMXNAMEFINDER_H
 #define AMXNAMEFINDER_H
 
+#include <ctime>
 #include <list>
 #include <map>
 #include <string>
 
-#include "singleton.h"
 #include "amx/amx.h"
 
-class AmxNameFinder : public Singleton<AmxNameFinder> {
-	friend class Singleton<AmxNameFinder>;
-public:
-	void AddSearchDir(const std::string &dir);
-	void UpdateCache();
+std::string GetAmxName(AMX_HEADER *amxhdr);
+std::string GetAmxName(AMX *amx);
 
-	std::string GetAmxName(AMX *amx) const;
-	std::string GetAmxName(AMX_HEADER *amxhdr) const;
+class AmxFile {
+public:
+	explicit AmxFile(const std::string &name);
+	~AmxFile();
+
+	const AMX &GetAmx() const { return amx_; }
+	const std::string &GetName() const { return name_; }
+	std::time_t GetModified() const { return modified_; }
 
 private:
-	AmxNameFinder();
+	AmxFile(const AmxFile&);
 
-	std::list<std::string> searchDirs_;
-
-	struct AmxFileData {
-		AMX    amx;
-		time_t lastModified;
-	};
-
-	mutable std::map<AMX*, std::string> cachedNames_;
-	std::map<std::string, AmxFileData> scripts_;
+	AMX amx_;
+	std::string name_;
+	std::time_t modified_;
 };
 
 #endif
