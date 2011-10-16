@@ -15,6 +15,7 @@
 // limitations under the License.
 
 #include <algorithm>
+#include <cerrno>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
