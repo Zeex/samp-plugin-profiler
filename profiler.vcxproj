@@ -82,6 +82,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\logprintf.h" />
     <ClInclude Include="src\perfcounter.h" />
     <ClInclude Include="src\amxnamefinder.h" />
     <ClInclude Include="src\amxprofiler.h" />
@@ -105,6 +106,7 @@
     <ClCompile Include="src\amx\amxdbg.c" />
     <ClCompile Include="src\fileutils.cpp" />
     <ClCompile Include="src\jump.cpp" />
+    <ClCompile Include="src\logprintf.cpp" />
     <ClCompile Include="src\perfcounter.cpp" />
     <ClCompile Include="src\plugin.cpp" />
   </ItemGroup>
