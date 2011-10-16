@@ -25,7 +25,7 @@
 #include <map>
 #include <string>
 
-#include "amxnamefinder.h"
+#include "amxname.h"
 #include "amxprofiler.h"
 #include "jump.h"
 #include "logprintf.h"
@@ -99,12 +99,6 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
 	::amx_Exec_addr = reinterpret_cast<uint32_t>(((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Exec]);
 	SetJump(reinterpret_cast<void*>(::amx_Exec_addr), (void*)::Exec, ::amx_Exec_code);
 
-	// Add SA:MP default directories to the .amx finder sarch path
-	AmxNameFinder *nameFinder = AmxNameFinder::GetInstance();
-	nameFinder->AddSearchDir("gamemodes");
-	nameFinder->AddSearchDir("filterscripts");
-	nameFinder->UpdateCache();
-
 	logprintf("  Profiler plugin v" VERSION " is OK.");
 
 	return true;
@@ -115,12 +109,8 @@ PLUGIN_EXPORT void PLUGIN_CALL Unload() {
 }
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
-	// Get the path to the loaded .amx
-	AmxNameFinder *nameFinder = AmxNameFinder::GetInstance();
-	nameFinder->UpdateCache(); 
-
 	// If the name is established, load symbolic info
-	std::string filename = nameFinder->GetAmxName(amx);
+	std::string filename = GetAmxName(amx);
 	if (!filename.empty()) {
 		std::replace(filename.begin(), filename.end(), '\\', '/');    
 		if (WantsProfiler(filename)) {
@@ -160,7 +150,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 	// Detach profiler
 	if (prof != 0) {
 		// Before doing that, print stats to <amx_file_path>.prof
-		std::string name = AmxNameFinder::GetInstance()->GetAmxName(amx);
+		std::string name = GetAmxName(amx);
 		if (!name.empty()) {
 			std::string outfile = name + std::string(".prof");
 			logprintf("Profiler: Writing profile to %s", outfile.c_str());
