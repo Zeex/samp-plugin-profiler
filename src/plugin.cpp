@@ -128,7 +128,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 					fclose(fp);
 					return AMX_ERR_NONE;
 				} else {
-					logprintf("Profiler: Error while loading symbols from %s (%d)", filename.c_str(), error);
+					logprintf("Profiler: Error loading debug symbols from %s (%d)", filename.c_str(), error);
 				}
 				fclose(fp);
 			} else {
