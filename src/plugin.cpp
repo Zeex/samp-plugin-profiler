@@ -122,14 +122,21 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 				AMX_DBG amxdbg;
 				int error = dbg_LoadInfo(&amxdbg, fp);
 				if (error == AMX_ERR_NONE) {
+					logprintf("Profiler: Attached profiler to %s", filename.c_str());
 					AmxProfiler::Attach(amx, amxdbg);              
 					::debugInfo[amx] = amxdbg;
 					fclose(fp);
 					return AMX_ERR_NONE;
+				} else {
+					logprintf("Profiler: Error while loading symbols from %s (%d)", filename.c_str(), error);
 				}
 				fclose(fp);
-			} 
-		}
+			} else {
+				logprintf("Profiler: Couldn't open %s: %s", filename.c_str(), strerror(errno));
+			}
+		} 
+	} else {
+		logprintf("Profiler: Failed to detect .amx name");
 	}
 
 	// No symbolic info loaded
