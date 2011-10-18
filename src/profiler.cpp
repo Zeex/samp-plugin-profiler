@@ -82,7 +82,6 @@ static bool ByTimePerCall(const std::pair<cell, PerformanceCounter> &op1,
 
 Profiler::Profiler(AMX *amx) 
 	: active_(false)
-	, haveDbg_(false)
 	, amx_(amx)
 	, debug_(amx->debug)
 	, callback_(amx->callback)
@@ -94,9 +93,8 @@ Profiler::Profiler(AMX *amx)
 	GetPublics(amx, publics_);
 }
 
-void Profiler::SetDebugInfo(AMX_DBG amxdbg) {
-	amxdbg_ = amxdbg;
-	haveDbg_ = true;
+void Profiler::SetDebugInfo(const DebugInfo &info) {
+	debugInfo_ = info;
 }
 
 void Profiler::Attach(AMX *amx) {
@@ -105,9 +103,9 @@ void Profiler::Attach(AMX *amx) {
 	prof->Activate();
 }
 
-void Profiler::Attach(AMX *amx, AMX_DBG amxdbg) {
+void Profiler::Attach(AMX *amx, const DebugInfo &debugInfo) {
 	Attach(amx);
-	Get(amx)->SetDebugInfo(amxdbg);
+	Get(amx)->SetDebugInfo(debugInfo);
 }
 
 void Profiler::Detach(AMX *amx) {
@@ -212,8 +210,8 @@ bool Profiler::PrintStats(const std::string &filename, StatsPrintOrder order) {
 				}
 			} else {
 				const char *name = 0;
-				if (haveDbg_ && dbg_LookupFunction(&amxdbg_, address, &name) == AMX_ERR_NONE) {
-					stream << "\t\t<td>" << name << "</td>\n";
+				if (debugInfo_.IsLoaded()) {
+					stream << "\t\t<td>" << debugInfo_.GetFunction(address) << "</td>\n";
 				} else {
 					bool found = false;
 					for (std::vector<Profiler::Function>::iterator pubIt = publics_.begin(); 

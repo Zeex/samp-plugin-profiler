@@ -14,8 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef AMXPROFILER_H
-#define AMXPROFILER_H
+#ifndef PROFILER_H
+#define PROFILER_H
 
 #include <map>
 #include <stack>
@@ -24,7 +24,9 @@
 
 #include <malloc.h> // _alloca
 
+#include "debuginfo.h"
 #include "perfcounter.h"
+
 #include "amx/amx.h"
 #include "amx/amxdbg.h"
 
@@ -55,7 +57,7 @@ public:
 	Profiler(AMX *amx);
 
 	static void Attach(AMX *amx);
-	static void Attach(AMX *amx, AMX_DBG amxdbg);
+	static void Attach(AMX *amx, const DebugInfo &debugInfo);
 	static void Detach(AMX *amx);
 
 	static Profiler *Get(AMX *amx);
@@ -64,7 +66,7 @@ public:
 	bool IsActive() const;
 	void Deactivate();
 
-	void SetDebugInfo(AMX_DBG amxdbg);
+	void SetDebugInfo(const DebugInfo &info);
 
 	void ResetStats();
 	bool PrintStats(const std::string &filename, StatsPrintOrder order = ORDER_BY_TIME);
@@ -77,10 +79,9 @@ private:
 	Profiler();
 
 	bool active_;
-	bool haveDbg_;
 
 	AMX          *amx_;
-	AMX_DBG       amxdbg_;
+	DebugInfo     debugInfo_;
 	AMX_DEBUG     debug_;
 	AMX_CALLBACK  callback_;
 

@@ -26,19 +26,19 @@
 #include <string>
 
 #include "amxname.h"
-#include "profiler.h"
+#include "debuginfo.h"
 #include "jump.h"
 #include "logprintf.h"
 #include "plugin.h"
+#include "profiler.h"
 #include "version.h"
 
 #include "amx/amx.h"
-#include "amx/amxdbg.h"
 
 extern void *pAMXFunctions; 
 
 // Symbolic info, used for getting function names
-static std::map<AMX*, AMX_DBG> debugInfo;
+static std::map<AMX*, DebugInfo> debugInfos;
 
 // Both x86 and x86-64 are Little Endian...
 static void *AMXAPI DummyAmxAlign(void *v) { return v; }
@@ -78,12 +78,6 @@ static bool WantsProfiler(const std::string &amxName) {
 	return false;
 }
 
-static bool HasDebugInfo(AMX *amx) {
-	uint16_t flags;
-	amx_Flags(amx, &flags);
-	return (flags & AMX_FLAG_DEBUG);
-}
-
 PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports() {
 	return SUPPORTS_VERSION | SUPPORTS_AMX_NATIVES;
 }
@@ -121,23 +115,16 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 	std::replace(filename.begin(), filename.end(), '\\', '/');    
 	if (WantsProfiler(filename)) {
 		logprintf("Profiler: Will profile %s", filename.c_str());
-		if (HasDebugInfo(amx)) {
-			FILE *fp = fopen(filename.c_str(), "rb");
-			if (fp != 0) {
-				AMX_DBG amxdbg;
-				int error = dbg_LoadInfo(&amxdbg, fp);
-				if (error == AMX_ERR_NONE) {
-					logprintf("Profiler: Read debug symbols from %s", filename.c_str());
-					Profiler::Attach(amx, amxdbg);              
-					::debugInfo[amx] = amxdbg;
-					fclose(fp);
-					return AMX_ERR_NONE;
-				} else {
-					logprintf("Profiler: Error loading symbols from %s (%d)", filename.c_str(), error);
-				}
-				fclose(fp);
+		if (DebugInfo::HasDebugInfo(amx)) {
+			DebugInfo debugInfo;
+			debugInfo.Load(filename);
+			if (debugInfo.IsLoaded()) {
+				logprintf("Profiler: Loaded debug info from %s", filename.c_str());
+				::debugInfos[amx] = debugInfo;
+				Profiler::Attach(amx, debugInfo); 
+				return AMX_ERR_NONE;
 			} else {
-				logprintf("Profiler: Couldn't read from %s: %s", filename.c_str(), strerror(errno));
+				logprintf("Profiler: Error loading debug info from %s", filename.c_str());
 			}
 		}
 		Profiler::Attach(amx);
@@ -163,10 +150,10 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 	}
 
 	// Free debug info
-	std::map<AMX*, AMX_DBG>::iterator it = ::debugInfo.find(amx);
-	if (it != ::debugInfo.end()) {
-		dbg_FreeInfo(&it->second);
-		::debugInfo.erase(it);
+	std::map<AMX*, DebugInfo>::iterator it = ::debugInfos.find(amx);
+	if (it != ::debugInfos.end()) {
+		it->second.Free();
+		::debugInfos.erase(it);
 	}
 
 	return AMX_ERR_NONE;
