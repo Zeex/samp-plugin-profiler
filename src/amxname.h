@@ -12,13 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef AMXNAMEFINDER_H
-#define AMXNAMEFINDER_H
+#ifndef AMXNAME_H
+#define AMXNAME_H
 
 #include <ctime>
 #include <list>
 #include <map>
 #include <string>
+
+#ifdef _WIN32
+	#include <memory>
+#else
+	#include <tr/memory>
+#endif
 
 #include "amx/amx.h"
 
@@ -27,17 +33,18 @@ std::string GetAmxName(AMX *amx);
 
 class AmxFile {
 public:
-	explicit AmxFile(const std::string &name);
-	~AmxFile();
+	static void FreeAmx(AMX *amx);
 
-	const AMX &GetAmx() const { return amx_; }
+	explicit AmxFile(const std::string &name);
+
+	bool IsLoaded() const { return amxPtr_.get() != 0; }
+
+	const AMX *GetAmx() const { return amxPtr_.get(); }
 	const std::string &GetName() const { return name_; }
 	std::time_t GetModified() const { return modified_; }
 
 private:
-	AmxFile(const AmxFile&);
-
-	AMX amx_;
+	std::tr1::shared_ptr<AMX> amxPtr_;
 	std::string name_;
 	std::time_t modified_;
 };
