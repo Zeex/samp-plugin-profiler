@@ -89,6 +89,9 @@ std::string GetAmxName(AMX *amx) {
 		result = it->second;
 	} else {
 		result = GetAmxName(reinterpret_cast<AMX_HEADER*>(amx->base));
+		if (!result.empty()) {
+			cachedNames.insert(std::make_pair(amx, result));
+		}
 	}
 
 	return result;
