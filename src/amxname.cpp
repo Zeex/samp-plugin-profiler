@@ -24,20 +24,17 @@
 #include "amx/amx.h"
 #include "amx/amxaux.h"
 
-static std::map<std::string, AmxFile*> scripts;
+static std::map<std::string, AmxFile> scripts;
 static std::map<AMX*, std::string> cachedNames;
 
 AmxFile::AmxFile(const std::string &name)
 	: name_(name)
 	, modified_(fileutils::GetModificationTime(name))
+	, amxPtr_(new AMX, FreeAmx)
 {
-	if (aux_LoadProgram(&amx_, const_cast<char*>(name.c_str()), 0) != AMX_ERR_NONE) {
-		throw std::exception();
+	if (aux_LoadProgram(amxPtr_.get(), const_cast<char*>(name.c_str()), 0) != AMX_ERR_NONE) {
+		amxPtr_.reset();
 	}	
-}
-
-AmxFile::~AmxFile() {
-	aux_FreeProgram(&amx_);
 }
 
 std::string GetAmxName(AMX_HEADER *amxhdr) {
@@ -56,23 +53,21 @@ std::string GetAmxName(AMX_HEADER *amxhdr) {
 		std::string filename = *it;
 
 		time_t modified = fileutils::GetModificationTime(filename);
-		std::map<std::string, AmxFile*>::iterator scriptsIter = scripts.find(filename);
+		std::map<std::string, AmxFile>::iterator scriptsIter = scripts.find(filename);
 
-		if (scriptsIter == scripts.end() || scriptsIter->second->GetModified() < modified) {
+		if (scriptsIter == scripts.end() || scriptsIter->second.GetModified() < modified) {
 			if (scriptsIter != scripts.end()) {
-				delete scriptsIter->second;
 				scripts.erase(scriptsIter);
 			}
-			try {
-				scripts.insert(std::make_pair(filename, new AmxFile(filename)));
-			} catch (std::exception &) {
-				// .amx loading failed, will retry on next call
+			AmxFile script(filename);
+			if (script.IsLoaded()) {
+				scripts.insert(std::make_pair(filename, script));
 			}
 		}
 	}
   
-	for (std::map<std::string, AmxFile*>::const_iterator it = scripts.begin(); it != scripts.end(); ++it) {
-		if (std::memcmp(amxhdr, reinterpret_cast<AMX_HEADER*>(it->second->GetAmx().base), sizeof(AMX_HEADER)) == 0) {
+	for (std::map<std::string, AmxFile>::const_iterator it = scripts.begin(); it != scripts.end(); ++it) {
+		if (std::memcmp(amxhdr, reinterpret_cast<AMX_HEADER*>(it->second.GetAmx()->base), sizeof(AMX_HEADER)) == 0) {
 			result = it->first;
 			break;
 		}
@@ -95,4 +90,9 @@ std::string GetAmxName(AMX *amx) {
 	}
 
 	return result;
+}
+
+void AmxFile::FreeAmx(AMX *amx) {
+	aux_FreeProgram(amx);
+	delete amx;
 }
