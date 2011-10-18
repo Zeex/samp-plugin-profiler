@@ -31,7 +31,7 @@ void DebugInfo::FreeAmxDbg(AMX_DBG *amxdbg) {
 }
 
 bool DebugInfo::IsLoaded() const {
-	return isLoaded_;
+	return (amxdbgPtr_.get() != 0);
 }
 
 void DebugInfo::Load(const std::string &filename) {

@@ -39,7 +39,6 @@ public:
 	std::string GetFunction(cell address);
 
 private:
-	bool isLoaded_;
 	std::tr1::shared_ptr<AMX_DBG> amxdbgPtr_;
 };
 
