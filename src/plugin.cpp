@@ -26,11 +26,14 @@
 #include <string>
 
 #include "amxname.h"
-#include "amxprofiler.h"
+#include "profiler.h"
 #include "jump.h"
 #include "logprintf.h"
 #include "plugin.h"
 #include "version.h"
+
+#include "amx/amx.h"
+#include "amx/amxdbg.h"
 
 extern void *pAMXFunctions; 
 
@@ -49,7 +52,7 @@ static int AMXAPI Exec(AMX *amx, cell *retval, int index) {
 	int error = AMX_ERR_NONE;
 
 	// Check if this script has a profiler attached to it
-	AmxProfiler *prof = AmxProfiler::Get(amx);
+	Profiler *prof = Profiler::Get(amx);
 	if (prof != 0) {
 		error =  prof->Exec(retval, index);
 	} else {
@@ -125,7 +128,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 				int error = dbg_LoadInfo(&amxdbg, fp);
 				if (error == AMX_ERR_NONE) {
 					logprintf("Profiler: Read debug symbols from %s", filename.c_str());
-					AmxProfiler::Attach(amx, amxdbg);              
+					Profiler::Attach(amx, amxdbg);              
 					::debugInfo[amx] = amxdbg;
 					fclose(fp);
 					return AMX_ERR_NONE;
@@ -137,15 +140,15 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 				logprintf("Profiler: Couldn't read from %s: %s", filename.c_str(), strerror(errno));
 			}
 		}
-		AmxProfiler::Attach(amx);
+		Profiler::Attach(amx);
 	} 
 
 	return AMX_ERR_NONE;
 }
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
-	// Get an instance of AmxProfiler attached to the unloading AMX
-	AmxProfiler *prof = AmxProfiler::Get(amx);
+	// Get an instance of Profiler attached to the unloading AMX
+	Profiler *prof = Profiler::Get(amx);
 
 	// Detach profiler
 	if (prof != 0) {
@@ -156,7 +159,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 			logprintf("Profiler: Writing profile to %s", outfile.c_str());
 			prof->PrintStats(outfile);
 		}
-		AmxProfiler::Detach(amx);
+		Profiler::Detach(amx);
 	}
 
 	// Free debug info

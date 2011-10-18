@@ -20,17 +20,17 @@
 #include <iostream>
 #include <numeric>
 
-#include "amxprofiler.h"
+#include "profiler.h"
 
 #include "amx/amx.h"
 #include "amx/amxdbg.h"
 
-std::map<AMX*, AmxProfiler*> AmxProfiler::instances_;
+std::map<AMX*, Profiler*> Profiler::instances_;
 
-AmxProfiler::AmxProfiler() {}
+Profiler::Profiler() {}
 
 // Extracts the names of native functions from the native table.
-static void GetNatives(AMX *amx, std::vector<AmxProfiler::Function> &natives) {
+static void GetNatives(AMX *amx, std::vector<Profiler::Function> &natives) {
 	AMX_HEADER *hdr = reinterpret_cast<AMX_HEADER*>(amx->base);
 	AMX_FUNCSTUBNT *nativeTable = reinterpret_cast<AMX_FUNCSTUBNT*>(amx->base + hdr->natives);
 
@@ -38,13 +38,13 @@ static void GetNatives(AMX *amx, std::vector<AmxProfiler::Function> &natives) {
 	amx_NumNatives(amx, &numberOfNatives);
 
 	for (int i = 0; i < numberOfNatives; i++) {
-		natives.push_back(AmxProfiler::Function(nativeTable[i].address,
+		natives.push_back(Profiler::Function(nativeTable[i].address,
 			reinterpret_cast<char*>(amx->base + nativeTable[i].nameofs)));
 	}
 }
 
 // Extracts the names of public functions from the native table.
-static void GetPublics(AMX *amx, std::vector<AmxProfiler::Function> &publics) {
+static void GetPublics(AMX *amx, std::vector<Profiler::Function> &publics) {
 	AMX_HEADER *hdr = reinterpret_cast<AMX_HEADER*>(amx->base);
 	AMX_FUNCSTUBNT *publicTable = reinterpret_cast<AMX_FUNCSTUBNT*>(amx->base + hdr->publics);
 
@@ -52,7 +52,7 @@ static void GetPublics(AMX *amx, std::vector<AmxProfiler::Function> &publics) {
 	amx_NumPublics(amx, &numberOfPublics);
 
 	for (int i = 0; i < numberOfPublics; i++) {
-		publics.push_back(AmxProfiler::Function(publicTable[i].address, 
+		publics.push_back(Profiler::Function(publicTable[i].address, 
 			reinterpret_cast<char*>(amx->base + publicTable[i].nameofs)));
 	}
 }
@@ -80,7 +80,7 @@ static bool ByTimePerCall(const std::pair<cell, PerformanceCounter> &op1,
 		 > static_cast<double>(op2.second.GetTime()) / static_cast<double>(op2.second.GetCalls());
 }
 
-AmxProfiler::AmxProfiler(AMX *amx) 
+Profiler::Profiler(AMX *amx) 
 	: active_(false)
 	, haveDbg_(false)
 	, amx_(amx)
@@ -94,24 +94,24 @@ AmxProfiler::AmxProfiler(AMX *amx)
 	GetPublics(amx, publics_);
 }
 
-void AmxProfiler::SetDebugInfo(AMX_DBG amxdbg) {
+void Profiler::SetDebugInfo(AMX_DBG amxdbg) {
 	amxdbg_ = amxdbg;
 	haveDbg_ = true;
 }
 
-void AmxProfiler::Attach(AMX *amx) {
-	AmxProfiler *prof = new AmxProfiler(amx);
+void Profiler::Attach(AMX *amx) {
+	Profiler *prof = new Profiler(amx);
 	instances_[amx] = prof;
 	prof->Activate();
 }
 
-void AmxProfiler::Attach(AMX *amx, AMX_DBG amxdbg) {
+void Profiler::Attach(AMX *amx, AMX_DBG amxdbg) {
 	Attach(amx);
 	Get(amx)->SetDebugInfo(amxdbg);
 }
 
-void AmxProfiler::Detach(AMX *amx) {
-	AmxProfiler *prof = AmxProfiler::Get(amx);
+void Profiler::Detach(AMX *amx) {
+	Profiler *prof = Profiler::Get(amx);
 	if (prof != 0) {
 		prof->Deactivate();
 		delete prof;
@@ -119,8 +119,8 @@ void AmxProfiler::Detach(AMX *amx) {
 	instances_.erase(amx);
 }
 
-AmxProfiler *AmxProfiler::Get(AMX *amx) {
-	std::map<AMX*, AmxProfiler*>::iterator it = instances_.find(amx);
+Profiler *Profiler::Get(AMX *amx) {
+	std::map<AMX*, Profiler*>::iterator it = instances_.find(amx);
 	if (it != instances_.end()) {
 		return it->second;
 	}
@@ -128,14 +128,14 @@ AmxProfiler *AmxProfiler::Get(AMX *amx) {
 }
 
 static int AMXAPI Debug(AMX *amx) {
-	return AmxProfiler::Get(amx)->Debug();
+	return Profiler::Get(amx)->Debug();
 }
 
 static int AMXAPI Callback(AMX *amx, cell index, cell *result, cell *params) {
-	return AmxProfiler::Get(amx)->Callback(index, result, params);
+	return Profiler::Get(amx)->Callback(index, result, params);
 }
 
-void AmxProfiler::Activate() {
+void Profiler::Activate() {
 	if (!active_) {
 		active_ = true;
 		amx_SetDebugHook(amx_, ::Debug);
@@ -143,11 +143,11 @@ void AmxProfiler::Activate() {
 	}
 }
 
-bool AmxProfiler::IsActive() const {
+bool Profiler::IsActive() const {
 	return active_;
 }
 
-void AmxProfiler::Deactivate() {
+void Profiler::Deactivate() {
 	if (active_) {
 		active_ = false;
 		amx_SetDebugHook(amx_, debug_);
@@ -155,11 +155,11 @@ void AmxProfiler::Deactivate() {
 	}
 }
 
-void AmxProfiler::ResetStats() {
+void Profiler::ResetStats() {
 	counters_.clear();
 }
 
-bool AmxProfiler::PrintStats(const std::string &filename, StatsPrintOrder order) {
+bool Profiler::PrintStats(const std::string &filename, StatsPrintOrder order) {
 	std::ofstream stream(filename.c_str());
 
 	if (stream.is_open()) {
@@ -204,7 +204,7 @@ bool AmxProfiler::PrintStats(const std::string &filename, StatsPrintOrder order)
 
 			cell address = it->first;
 			if (address <= 0) {
-				AmxProfiler::Function &native = natives_[-address];
+				Profiler::Function &native = natives_[-address];
 				if (native.name().empty()) {
 					stream << "\t\t<td>" << "unknown native @ " << native.address() << "</td>\n";
 				} else {
@@ -216,7 +216,7 @@ bool AmxProfiler::PrintStats(const std::string &filename, StatsPrintOrder order)
 					stream << "\t\t<td>" << name << "</td>\n";
 				} else {
 					bool found = false;
-					for (std::vector<AmxProfiler::Function>::iterator pubIt = publics_.begin(); 
+					for (std::vector<Profiler::Function>::iterator pubIt = publics_.begin(); 
 						 pubIt != publics_.end(); ++pubIt) 
 					{
 						if (pubIt->address() == address)  {
@@ -253,7 +253,7 @@ bool AmxProfiler::PrintStats(const std::string &filename, StatsPrintOrder order)
 	return false;
 }
 
-int AmxProfiler::Debug() {
+int Profiler::Debug() {
 	// Get previous stack frame.
 	cell prevFrame = amx_->stp;
 
@@ -285,7 +285,7 @@ int AmxProfiler::Debug() {
 	return AMX_ERR_NONE;      
 }
 
-int AmxProfiler::Callback(cell index, cell *result, cell *params) {
+int Profiler::Callback(cell index, cell *result, cell *params) {
 	// The default AMX callback (amx_Callback) can replace SYSREQ.C opcodes
 	// with SYSREQ.D for better performance. 
 	amx_->sysreq_d = 0; 
@@ -299,7 +299,7 @@ int AmxProfiler::Callback(cell index, cell *result, cell *params) {
 	return error;
 }
 
-int AmxProfiler::Exec(cell *retval, int index) {	
+int Profiler::Exec(cell *retval, int index) {	
 	if (index >= 0 || index == AMX_EXEC_MAIN) {		
 		AMX_HEADER *hdr = reinterpret_cast<AMX_HEADER*>(amx_->base);
 		cell address = 0;
@@ -320,7 +320,7 @@ int AmxProfiler::Exec(cell *retval, int index) {
 	}
 }
 
-void AmxProfiler::EnterFunction(const CallInfo &info) {
+void Profiler::EnterFunction(const CallInfo &info) {
 	if (active_) {
 		PerformanceCounter &counter = counters_[info.address()];
 		if (call_stack_.empty()) {
@@ -332,7 +332,7 @@ void AmxProfiler::EnterFunction(const CallInfo &info) {
 	call_stack_.push(info);
 }
 
-void AmxProfiler::LeaveFunction(cell address) {
+void Profiler::LeaveFunction(cell address) {
 	while (true) {
 		cell topAddress = call_stack_.top().address();
 		if (active_) {
@@ -345,7 +345,7 @@ void AmxProfiler::LeaveFunction(cell address) {
 	}
 }
 
-bool AmxProfiler::GetLastCall(CallInfo &call) const {
+bool Profiler::GetLastCall(CallInfo &call) const {
 	if (!call_stack_.empty()) {
 		call = call_stack_.top();
 		return true;

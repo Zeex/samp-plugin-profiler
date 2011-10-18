@@ -28,7 +28,7 @@
 #include "amx/amx.h"
 #include "amx/amxdbg.h"
 
-class AmxProfiler {
+class Profiler {
 public:
 	enum StatsPrintOrder {
 		ORDER_NONE,
@@ -52,13 +52,13 @@ public:
 		std::string name_;
 	};
 
-	AmxProfiler(AMX *amx);
+	Profiler(AMX *amx);
 
 	static void Attach(AMX *amx);
 	static void Attach(AMX *amx, AMX_DBG amxdbg);
 	static void Detach(AMX *amx);
 
-	static AmxProfiler *Get(AMX *amx);
+	static Profiler *Get(AMX *amx);
 
 	void Activate();
 	bool IsActive() const;
@@ -74,7 +74,7 @@ public:
 	int Exec(cell *retval, int index);
 
 private:
-	AmxProfiler();
+	Profiler();
 
 	bool active_;
 	bool haveDbg_;
@@ -119,7 +119,7 @@ private:
 
 	std::map<cell, PerformanceCounter> counters_;
 
-	static std::map<AMX*, AmxProfiler*> instances_;
+	static std::map<AMX*, Profiler*> instances_;
 };
 
 #endif
