@@ -120,7 +120,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 	}
 
 	if (!Profiler::IsScriptProfilable(amx)) {
-		logprintf("Profiler: %s can't be profiled (do you use -d0?)", filename.c_str());
+		logprintf("Profiler: %s can't be profiled (are you using -d0?)", filename.c_str());
 		return AMX_ERR_NONE;
 	}
 	 
