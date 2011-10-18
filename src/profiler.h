@@ -54,6 +54,8 @@ public:
 		std::string name_;
 	};
 
+	static bool IsScriptProfilable(AMX *amx);
+
 	Profiler(AMX *amx);
 
 	static void Attach(AMX *amx);
