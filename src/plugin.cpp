@@ -64,6 +64,13 @@ static int AMXAPI Exec(AMX *amx, cell *retval, int index) {
 	return error;
 }
 
+// Replaces back slashes with forward slashes
+static std::string ToPortablePath(const std::string &path) {
+	std::string fsPath = path;
+	std::replace(fsPath.begin(), fsPath.end(), '\\', '/');   
+	return fsPath;
+}
+
 // Returns true if the .amx should be profiled
 static bool WantsProfiler(const std::string &amxName) {
 	std::ifstream config("plugins/profiler.cfg");    
@@ -71,7 +78,7 @@ static bool WantsProfiler(const std::string &amxName) {
 	std::istream_iterator<std::string> begin(config);
 	std::istream_iterator<std::string> end;
 
-	if (std::find(begin, end, amxName) != end) {
+	if (std::find(begin, end, ToPortablePath(amxName)) != end) {
 		return true;
 	}
 
@@ -116,8 +123,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 		logprintf("Profiler: %s can't be profiled (do you use -d0?)", filename.c_str());
 		return AMX_ERR_NONE;
 	}
-
-	std::replace(filename.begin(), filename.end(), '\\', '/');    
+	 
 	if (WantsProfiler(filename)) {
 		logprintf("Profiler: Will profile %s", filename.c_str());
 		if (DebugInfo::HasDebugInfo(amx)) {
