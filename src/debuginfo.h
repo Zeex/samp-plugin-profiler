@@ -16,7 +16,11 @@
 #define DEBUGINFO_H
 
 #include <string>
-#include <memory>
+#ifdef _WIN32
+	#include <memory>
+#else
+	#include <tr1/memory>
+#endif
 
 #include "amx/amx.h"
 #include "amx/amxdbg.h"
