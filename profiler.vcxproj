@@ -83,6 +83,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\amxname.h" />
+    <ClInclude Include="src\debuginfo.h" />
     <ClInclude Include="src\logprintf.h" />
     <ClInclude Include="src\perfcounter.h" />
     <ClInclude Include="src\profiler.h" />
@@ -101,6 +102,7 @@
   <ItemGroup>
     <ClCompile Include="src\amxname.cpp" />
     <ClCompile Include="src\amxplugin.cpp" />
+    <ClCompile Include="src\debuginfo.cpp" />
     <ClCompile Include="src\profiler.cpp" />
     <ClCompile Include="src\amx\amxaux.c" />
     <ClCompile Include="src\amx\amxdbg.c" />

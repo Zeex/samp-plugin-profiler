@@ -12,6 +12,7 @@ OUTFILE = $(PLUGIN).so
 OBJFILES =\
 	src/amxname.o\
 	src/amxplugin.o\
+	src/debuginfo.o\
 	src/fileutils.o\
 	src/jump.o\
 	src/logprintf.o\
