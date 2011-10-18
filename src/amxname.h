@@ -23,7 +23,7 @@
 #ifdef _WIN32
 	#include <memory>
 #else
-	#include <tr/memory>
+	#include <tr1/memory>
 #endif
 
 #include "amx/amx.h"
