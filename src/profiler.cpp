@@ -80,6 +80,21 @@ static bool ByTimePerCall(const std::pair<cell, PerformanceCounter> &op1,
 		 > static_cast<double>(op2.second.GetTime()) / static_cast<double>(op2.second.GetCalls());
 }
 
+bool Profiler::IsScriptProfilable(AMX *amx) {
+	uint16_t flags;
+	amx_Flags(amx, &flags);
+
+	if ((flags & AMX_FLAG_DEBUG) != 0) {
+		return true;
+	}
+
+	if ((flags & AMX_FLAG_NOCHECKS) == 0) {
+		return true;
+	}
+
+	return false;
+}
+
 Profiler::Profiler(AMX *amx) 
 	: active_(false)
 	, amx_(amx)

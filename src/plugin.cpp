@@ -112,6 +112,11 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 		return AMX_ERR_NONE;
 	}
 
+	if (!Profiler::IsScriptProfilable(amx)) {
+		logprintf("Profiler: %s can't be profiled (do you use -d0?)", filename.c_str());
+		return AMX_ERR_NONE;
+	}
+
 	std::replace(filename.begin(), filename.end(), '\\', '/');    
 	if (WantsProfiler(filename)) {
 		logprintf("Profiler: Will profile %s", filename.c_str());
