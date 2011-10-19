@@ -106,7 +106,8 @@ static bool WantsProfiler(const std::string &amxName) {
 		do {
 			std::string fsName;
 			fsStream >> fsName;
-			if (goodAmxName == "filterscripts/" + fsName + ".amx") {
+			if (goodAmxName == "filterscripts/" + fsName + ".amx"
+					|| goodAmxName == "filterscripts/" + fsName) {
 				return true;
 			}
 		} while (!fsStream.eof());
