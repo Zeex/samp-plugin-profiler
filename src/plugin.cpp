@@ -31,7 +31,6 @@
 #include "logprintf.h"
 #include "plugin.h"
 #include "profiler.h"
-#include "version.h"
 
 #include "amx/amx.h"
 
