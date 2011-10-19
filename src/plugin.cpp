@@ -23,6 +23,7 @@
 #include <iterator>
 #include <list>
 #include <map>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -32,6 +33,7 @@
 #include "logprintf.h"
 #include "plugin.h"
 #include "profiler.h"
+#include "servercfg.h"
 
 #include "amx/amx.h"
 
@@ -73,17 +75,41 @@ static std::string ToPortablePath(const std::string &path) {
 
 // Returns true if the .amx should be profiled
 static bool WantsProfiler(const std::string &amxName) {
+	std::string goodAmxName = ToPortablePath(amxName);
+
+	/// Look at profiler.cfg
+	/// It should be just a list of .amx files, one per line.
 	std::ifstream config("plugins/profiler.cfg");    
-
-	std::istream_iterator<std::string> begin(config);
-	std::istream_iterator<std::string> end;
-	
 	std::vector<std::string> filenames;
-	std::transform(begin, end, std::back_inserter(filenames), ToPortablePath);
-
+	std::transform(
+		std::istream_iterator<std::string>(config), 
+		std::istream_iterator<std::string>(),
+		std::back_inserter(filenames), ToPortablePath
+	);
 	if (std::find(filenames.begin(), filenames.end(), 
-			ToPortablePath(amxName)) != filenames.end()) {
+			goodAmxName) != filenames.end()) {
 		return true;
+	}
+
+	/// Read settings from server.cfg.
+	/// This only works if they used the defalt directories for gamemodes and filterscripts.
+	/// Someting like ../my_scripts/awesome_script.amx obviously won't work here.
+	ServerCfg serverCfg;
+	if (goodAmxName.find("gamemodes/") != std::string::npos) {
+		// This is a gamemode
+		if (serverCfg.GetOptionAsInt("profile_gamemode") != 0) {
+			return true;
+		}
+	} else if (goodAmxName.find("filterscripts/") != std::string::npos) {
+		std::string fsList = serverCfg.GetOption("profile_filterscripts");
+		std::stringstream fsStream(fsList);		
+		do {
+			std::string fsName;
+			fsStream >> fsName;
+			if (goodAmxName == "filterscripts/" + fsName + ".amx") {
+				return true;
+			}
+		} while (!fsStream.eof());
 	}
 
 	return false;

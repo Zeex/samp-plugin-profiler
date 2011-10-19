@@ -68,6 +68,7 @@ add_library (profiler MODULE
     "src/perfcounter.cpp"
     "src/plugin.cpp"
     "src/profiler.cpp"
+    "src/servercfg.cpp"
 )
 
 target_link_Libraries (profiler)
