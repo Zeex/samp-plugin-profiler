@@ -1,14 +1,1 @@
-bin
-obj
-Debug
-Release
-ipch
-src/*.o
-*.so
-*.filters
-*.ncb
-*.sdf
-*.opensdf
-*.user
-*.suo
-*.swp
+build
