@@ -154,31 +154,32 @@ PLUGIN_EXPORT void PLUGIN_CALL Unload() {
 PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 	std::string filename = GetAmxName(amx);
 	if (filename.empty()) {
-		logprintf("Profiler: Failed to detect .amx name");
+		logprintf("Profiler: Failed to detect .amx name, prifiling will not be done");
 		return AMX_ERR_NONE;
 	}
 
 	if (!Profiler::IsScriptProfilable(amx)) {
-		logprintf("Profiler: %s can't be profiled (are you using -d0?)", filename.c_str());
+		logprintf("Profiler: Can't profile script %s (are you using -d0?)", filename.c_str());
 		return AMX_ERR_NONE;
 	}
 	 
 	if (WantsProfiler(filename)) {
-		logprintf("Profiler: Will profile %s", filename.c_str());
 		if (DebugInfo::HasDebugInfo(amx)) {
 			DebugInfo debugInfo;
 			debugInfo.Load(filename);
 			if (debugInfo.IsLoaded()) {
 				logprintf("Profiler: Loaded debug info from %s", filename.c_str());
-				::debugInfos[amx] = debugInfo;
+				::debugInfos[amx] = debugInfo;				
 				Profiler::Attach(amx, debugInfo); 
+				logprintf("Profiler: Attached profiler instance to %s", filename.c_str());
 				return AMX_ERR_NONE;
 			} else {
 				logprintf("Profiler: Error loading debug info from %s", filename.c_str());
 			}
-		}
+		}		
 		Profiler::Attach(amx);
-	} 
+		logprintf("Profiler: Attached profiler instance to %s (no debug symbols)", filename.c_str());
+	} 	
 
 	return AMX_ERR_NONE;
 }
