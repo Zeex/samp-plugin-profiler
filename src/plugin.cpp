@@ -24,6 +24,7 @@
 #include <list>
 #include <map>
 #include <string>
+#include <vector>
 
 #include "amxname.h"
 #include "debuginfo.h"
@@ -76,8 +77,12 @@ static bool WantsProfiler(const std::string &amxName) {
 
 	std::istream_iterator<std::string> begin(config);
 	std::istream_iterator<std::string> end;
+	
+	std::vector<std::string> filenames;
+	std::transform(begin, end, std::back_inserter(filenames), ToPortablePath);
 
-	if (std::find(begin, end, ToPortablePath(amxName)) != end) {
+	if (std::find(filenames.begin(), filenames.end(), 
+			ToPortablePath(amxName)) != filenames.end()) {
 		return true;
 	}
 
