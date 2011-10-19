@@ -28,12 +28,12 @@
 #include <vector>
 
 #include "amxname.h"
+#include "configreader.h"
 #include "debuginfo.h"
 #include "jump.h"
 #include "logprintf.h"
 #include "plugin.h"
 #include "profiler.h"
-#include "servercfg.h"
 
 #include "amx/amx.h"
 
@@ -94,14 +94,14 @@ static bool WantsProfiler(const std::string &amxName) {
 	/// Read settings from server.cfg.
 	/// This only works if they used the defalt directories for gamemodes and filterscripts.
 	/// Someting like ../my_scripts/awesome_script.amx obviously won't work here.
-	ServerCfg serverCfg;
+	ConfigReader serverCfg("server.cfg");
 	if (goodAmxName.find("gamemodes/") != std::string::npos) {
 		// This is a gamemode
-		if (serverCfg.GetOptionAsInt("profile_gamemode") != 0) {
+		if (serverCfg.GetOption("profile_gamemode", false)) {
 			return true;
 		}
 	} else if (goodAmxName.find("filterscripts/") != std::string::npos) {
-		std::string fsList = serverCfg.GetOption("profile_filterscripts");
+		std::string fsList = serverCfg.GetOption("profile_filterscripts", std::string(""));
 		std::stringstream fsStream(fsList);		
 		do {
 			std::string fsName;
