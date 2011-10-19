@@ -10,7 +10,7 @@ public:
 	bool LoadFile(const std::string &filename);
 
 	template<typename T>
-	T GetOption(const std::string &name, const T &defaultValue) {
+	T GetOption(const std::string &name, const T &defaultValue) const {
 		std::map<std::string, std::string>::const_iterator it = options_.find(name);
 		if (it == options_.end()) {
 			return defaultValue;
