@@ -10,6 +10,10 @@
 ConfigReader::ConfigReader(const std::string &filename) 
 	: loaded_(false)
 {
+	LoadFile(filename);
+}
+
+bool ConfigReader::LoadFile(const std::string &filename) {
 	std::ifstream cfg(filename.c_str());
 
 	if (cfg.is_open()) {
@@ -30,4 +34,6 @@ ConfigReader::ConfigReader(const std::string &filename)
 			options_[name] = value;
 		}
 	}
+
+	return loaded_;
 }
