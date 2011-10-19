@@ -4,7 +4,10 @@
 
 class ConfigReader {
 public:
+	ConfigReader();
 	ConfigReader(const std::string &filename);
+
+	bool LoadFile(const std::string &filename);
 
 	template<typename T>
 	T GetOption(const std::string &name, const T &defaultValue) {
@@ -24,8 +27,6 @@ public:
 	bool IsLoaded() const { return loaded_; }
 
 private:
-	ConfigReader();
-
 	bool loaded_;
 	std::map<std::string, std::string> options_;
 };
