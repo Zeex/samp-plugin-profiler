@@ -73,6 +73,14 @@ static std::string ToPortablePath(const std::string &path) {
 	return fsPath;
 }
 
+bool IsGameMode(const std::string &amxName) {
+	return ToPortablePath(amxName).find("gamemodes/") != std::string::npos;
+}
+
+bool IsFilterScript(const std::string &amxName) {
+	return ToPortablePath(amxName).find("filterscripts/") != std::string::npos;
+}
+
 // Returns true if the .amx should be profiled
 static bool WantsProfiler(const std::string &amxName) {
 	std::string goodAmxName = ToPortablePath(amxName);
@@ -95,12 +103,12 @@ static bool WantsProfiler(const std::string &amxName) {
 	/// This only works if they used the defalt directories for gamemodes and filterscripts.
 	/// Someting like ../my_scripts/awesome_script.amx obviously won't work here.
 	ConfigReader serverCfg("server.cfg");
-	if (goodAmxName.find("gamemodes/") != std::string::npos) {
+	if (IsGameMode(amxName)) {
 		// This is a gamemode
 		if (serverCfg.GetOption("profile_gamemode", false)) {
 			return true;
 		}
-	} else if (goodAmxName.find("filterscripts/") != std::string::npos) {
+	} else if (IsFilterScript(amxName)) {
 		std::string fsList = serverCfg.GetOption("profile_filterscripts", std::string(""));
 		std::stringstream fsStream(fsList);		
 		do {
