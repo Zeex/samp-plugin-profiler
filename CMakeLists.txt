@@ -76,3 +76,17 @@ exec_program (
 )
 add_definitions (-DVERSION="${VERSION}")
 
+install (TARGETS profiler
+	LIBRARY DESTINATION "."
+)
+
+set (CPACK_PACKAGE_NAME ${CMAKE_PROJECT_NAME})
+set (CPACK_PACKAGE_FILE_NAME ${CPACK_PACKAGE_NAME}-${VERSION})
+
+if (WIN32)
+	set (CPACK_GENERATOR ZIP)
+else (WIN32)
+	set (CPACK_GENERATOR TGZ)
+endif (WIN32)
+
+include (CPack)
