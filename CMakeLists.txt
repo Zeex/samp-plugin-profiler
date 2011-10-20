@@ -4,12 +4,6 @@ project (profiler)
 
 set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
 
-set (VERSION_MAJOR 2)
-set (VERSION_MINOR 1)
-set (VERSION_PATCH 3)
-
-add_definitions (-DVERSION="${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
-
 include (CheckIncludeFile)
 
 check_include_file (alloca.h HAVE_ALLOCA_H)
@@ -71,4 +65,9 @@ add_library (profiler MODULE
     "src/profiler.cpp"
 )
 
+add_custom_command (TARGET profiler PRE_BUILD 
+	COMMAND @sh ${CMAKE_SOURCE_DIR}/version.sh 1> "${CMAKE_SOURCE_DIR}/src/version.h"   
+)
+
 target_link_Libraries (profiler)
+
