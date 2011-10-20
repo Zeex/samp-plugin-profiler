@@ -4,12 +4,6 @@ project (profiler)
 
 set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
 
-set (VERSION_MAJOR 2)
-set (VERSION_MINOR 1)
-set (VERSION_PATCH 3)
-
-add_definitions (-DVERSION="${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
-
 include (CheckIncludeFile)
 
 check_include_file (alloca.h HAVE_ALLOCA_H)
@@ -72,3 +66,13 @@ add_library (profiler MODULE
 )
 
 target_link_Libraries (profiler)
+
+# Get current version from Git
+exec_program (
+	"git"
+	${CMAKE_CURRENT_SOURCE_DIR}
+	ARGS "describe"
+	OUTPUT_VARIABLE VERSION
+)
+add_definitions (-DVERSION="${VERSION}")
+
