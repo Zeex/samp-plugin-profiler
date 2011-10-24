@@ -48,13 +48,13 @@ void DebugInfo::Free() {
 	amxdbgPtr_.reset();
 }
 
-long DebugInfo::GetLine(cell address) {
+long DebugInfo::GetLine(cell address) const {
 	long line = 0;
 	dbg_LookupLine(amxdbgPtr_.get(), address, &line);
 	return line;
 }
 
-std::string DebugInfo::GetFile(cell address) {
+std::string DebugInfo::GetFile(cell address) const {
 	std::string result;
 	const char *file;
 	if (dbg_LookupFile(amxdbgPtr_.get(), address, &file) == AMX_ERR_NONE)
@@ -62,7 +62,7 @@ std::string DebugInfo::GetFile(cell address) {
 	return result;
 }
 
-std::string DebugInfo::GetFunction(cell address) {
+std::string DebugInfo::GetFunction(cell address) const {
 	std::string result;
 	const char *function;
 	if (dbg_LookupFunction(amxdbgPtr_.get(), address, &function) == AMX_ERR_NONE)

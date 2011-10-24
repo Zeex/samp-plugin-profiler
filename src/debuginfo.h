@@ -34,9 +34,9 @@ public:
 	bool IsLoaded() const;
 	void Free();
 
-	long GetLine(cell address);
-	std::string GetFile(cell address);
-	std::string GetFunction(cell address);
+	long GetLine(cell address) const;
+	std::string GetFile(cell address) const;
+	std::string GetFunction(cell address) const;
 
 private:
 	std::tr1::shared_ptr<AMX_DBG> amxdbgPtr_;
