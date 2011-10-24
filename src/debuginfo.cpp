@@ -17,6 +17,12 @@
 
 #include "debuginfo.h"
 
+DebugInfo::DebugInfo() {}
+
+DebugInfo::DebugInfo(const std::string &filename) {
+	Load(filename);
+}
+
 bool DebugInfo::HasDebugInfo(AMX *amx) {
 	uint16_t flags;
 	amx_Flags(amx, &flags);
