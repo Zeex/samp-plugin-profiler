@@ -27,6 +27,9 @@
 
 class DebugInfo {
 public:
+	DebugInfo();
+	explicit DebugInfo(const std::string &filename);
+
 	static bool HasDebugInfo(AMX *amx);
 	static void FreeAmxDbg(AMX_DBG *amxdbg);
 
