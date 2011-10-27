@@ -71,7 +71,7 @@ public:
 	void SetDebugInfo(const DebugInfo &info);
 
 	void ResetStats();
-	bool PrintStats(const std::string &filename, StatsPrintOrder order = ORDER_BY_TIME);
+	void PrintStats(std::ostream &stream, StatsPrintOrder order = ORDER_BY_TIME);
 
 	int Debug();
 	int Callback(cell index, cell *result, cell *params);
