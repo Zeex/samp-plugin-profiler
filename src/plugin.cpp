@@ -194,8 +194,13 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 		std::string name = GetAmxName(amx);
 		if (!name.empty()) {
 			std::string outfile = name + std::string(".prof");
-			logprintf("Profiler: Writing profile to %s", outfile.c_str());
-			prof->PrintStats(outfile);
+			std::ofstream outstream(outfile.c_str());
+			if (outstream.is_open()) {
+				logprintf("Profiler: Writing profile to %s", outfile.c_str());
+				prof->PrintStats(outstream);
+			} else {
+				logprintf("Profiler: Could not open %s for writing", outfile.c_str());
+			}
 		}
 		Profiler::Detach(amx);
 	}

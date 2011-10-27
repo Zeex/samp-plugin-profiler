@@ -15,7 +15,6 @@
 // limitations under the License.
 
 #include <algorithm>
-#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <numeric>
@@ -172,98 +171,90 @@ void Profiler::ResetStats() {
 	counters_.clear();
 }
 
-bool Profiler::PrintStats(const std::string &filename, StatsPrintOrder order) {
-	std::ofstream stream(filename.c_str());
-
-	if (stream.is_open()) {
-		std::vector<std::pair<cell, PerformanceCounter> > stats(
-			counters_.begin(), counters_.end());
-		switch (order) {
-			case ORDER_BY_CALLS:
-				std::sort(stats.begin(), stats.end(), ByCalls);
-				break;
-			case ORDER_BY_TIME:
-				std::sort(stats.begin(), stats.end(), ByTime);
-				break;
-			case ORDER_BY_TIME_PER_CALL:
-				std::sort(stats.begin(), stats.end(), ByTimePerCall);
-				break;
-			default:
-				// leave as is
-				break;
-		}
-
-		stream << "<table>\n"
-			   << "\t<tr>\n"
-			   << "\t\t<td>Function</td>\n"
-			   << "\t\t<td>Calls</td>\n"
-			   << "\t\t<td>Time per call, &#181;s</td>\n"
-			   << "\t\t<td>Overall time, &#181;s</td>\n"
-			   << "\t\t<td>Overall time, &#037;</td>\n"
-			   << "\t</tr>\n";
-
-		platformstl::int64_t totalTime = 0;
-
-		for (std::vector<std::pair<cell, PerformanceCounter> >::iterator it = stats.begin(); 
-			 it != stats.end(); ++it) 
-		{
-			totalTime += it->second.GetTime();
-		}        
-
-		for (std::vector<std::pair<cell, PerformanceCounter> >::iterator it = stats.begin(); 
-			 it != stats.end(); ++it) 
-		{
-			stream << "\t<tr>\n";
-
-			cell address = it->first;
-			if (address <= 0) {
-				Profiler::Function &native = natives_[-address];
-				if (native.name().empty()) {
-					stream << "\t\t<td>" << "unknown native @ " << native.address() << "</td>\n";
-				} else {
-					stream << "\t\t<td>" << natives_[-address].name() << "</td>\n";
-				}
-			} else {
-				const char *name = 0;
-				if (debugInfo_.IsLoaded()) {
-					stream << "\t\t<td>" << debugInfo_.GetFunction(address) << "</td>\n";
-				} else {
-					bool found = false;
-					for (std::vector<Profiler::Function>::iterator pubIt = publics_.begin(); 
-						 pubIt != publics_.end(); ++pubIt) 
-					{
-						if (pubIt->address() == address)  {
-							stream << "\t\t<td>" << pubIt->name() << "</td>\n";
-							found = true;
-							break;
-						}
-					}
-					if (!found) {
-						// OK we tried all means but still don't know the name, so just print the address.
-						stream << "\t\t<td>" << "0x" << std::hex << address << std::dec << "</td>\n";
-					}
-				}
-			}
-
-			PerformanceCounter &counter = it->second;
-
-			stream << "\t\t<td>" << counter.GetCalls() << "</td>\n"
-				   << "\t\t<td>" << std::fixed << std::setprecision(0)
-							     << static_cast<double>(counter.GetTime()) / 
-							            static_cast<double>(counter.GetCalls()) << "</td>\n"
-				   << "\t\t<td>" << counter.GetTime() << "</td>\n"
-				   << "\t\t<td>" << std::setprecision(2)
-							     << static_cast<double>(counter.GetTime() * 100) / 
-							            static_cast<double>(totalTime) << "</td>\n";
-			stream << "\t</tr>\n";
-		}
-
-		stream << "</table>\n";
-
-		return true;
+void Profiler::PrintStats(std::ostream &stream, StatsPrintOrder order) {
+	std::vector<std::pair<cell, PerformanceCounter> > stats(
+		counters_.begin(), counters_.end());
+	switch (order) {
+		case ORDER_BY_CALLS:
+			std::sort(stats.begin(), stats.end(), ByCalls);
+			break;
+		case ORDER_BY_TIME:
+			std::sort(stats.begin(), stats.end(), ByTime);
+			break;
+		case ORDER_BY_TIME_PER_CALL:
+			std::sort(stats.begin(), stats.end(), ByTimePerCall);
+			break;
+		default:
+			// leave as is
+			break;
 	}
 
-	return false;
+	stream << "<table>\n"
+			<< "\t<tr>\n"
+			<< "\t\t<td>Function</td>\n"
+			<< "\t\t<td>Calls</td>\n"
+			<< "\t\t<td>Time per call, &#181;s</td>\n"
+			<< "\t\t<td>Overall time, &#181;s</td>\n"
+			<< "\t\t<td>Overall time, &#037;</td>\n"
+			<< "\t</tr>\n";
+
+	platformstl::int64_t totalTime = 0;
+
+	for (std::vector<std::pair<cell, PerformanceCounter> >::iterator it = stats.begin(); 
+			it != stats.end(); ++it) 
+	{
+		totalTime += it->second.GetTime();
+	}        
+
+	for (std::vector<std::pair<cell, PerformanceCounter> >::iterator it = stats.begin(); 
+			it != stats.end(); ++it) 
+	{
+		stream << "\t<tr>\n";
+
+		cell address = it->first;
+		if (address <= 0) {
+			Profiler::Function &native = natives_[-address];
+			if (native.name().empty()) {
+				stream << "\t\t<td>" << "unknown native @ " << native.address() << "</td>\n";
+			} else {
+				stream << "\t\t<td>" << natives_[-address].name() << "</td>\n";
+			}
+		} else {
+			const char *name = 0;
+			if (debugInfo_.IsLoaded()) {
+				stream << "\t\t<td>" << debugInfo_.GetFunction(address) << "</td>\n";
+			} else {
+				bool found = false;
+				for (std::vector<Profiler::Function>::iterator pubIt = publics_.begin(); 
+						pubIt != publics_.end(); ++pubIt) 
+				{
+					if (pubIt->address() == address)  {
+						stream << "\t\t<td>" << pubIt->name() << "</td>\n";
+						found = true;
+						break;
+					}
+				}
+				if (!found) {
+					// OK we tried all means but still don't know the name, so just print the address.
+					stream << "\t\t<td>" << "0x" << std::hex << address << std::dec << "</td>\n";
+				}
+			}
+		}
+
+		PerformanceCounter &counter = it->second;
+
+		stream << "\t\t<td>" << counter.GetCalls() << "</td>\n"
+				<< "\t\t<td>" << std::fixed << std::setprecision(0)
+							    << static_cast<double>(counter.GetTime()) / 
+							        static_cast<double>(counter.GetCalls()) << "</td>\n"
+				<< "\t\t<td>" << counter.GetTime() << "</td>\n"
+				<< "\t\t<td>" << std::setprecision(2)
+							    << static_cast<double>(counter.GetTime() * 100) / 
+							        static_cast<double>(totalTime) << "</td>\n";
+		stream << "\t</tr>\n";
+	}
+
+	stream << "</table>\n";
 }
 
 int Profiler::Debug() {
