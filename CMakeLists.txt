@@ -68,13 +68,21 @@ add_library (profiler MODULE
 
 target_link_Libraries (profiler)
 
-git_describe (VERSION)
+function (get_version_string _version)
+	git_describe (_describe)
+	string (REGEX REPLACE "([0-9\\.]+)-g([a-f0-9]+)" "\\1" 
+		version ${_describe})
+	set (${_version} ${version} PARENT_SCOPE)
+endfunction()
+
+get_version_string (VERSION)
+message (STATUS "Building Profiler ${VERSION}")
+
 add_definitions (-DVERSION="${VERSION}")
 
 install (TARGETS profiler
 	LIBRARY DESTINATION "."
 )
-
 
 set (CPACK_PACKAGE_NAME ${CMAKE_PROJECT_NAME})
 if (WIN32)
