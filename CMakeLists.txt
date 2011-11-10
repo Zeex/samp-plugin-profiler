@@ -9,10 +9,10 @@ include (CheckIncludeFileCXX)
 include (GetGitRevisionDescription)
 
 # Configure Boost
-find_package (Boost 1.39 COMPONENTS date_time REQUIRED)
 set (Boost_USE_STATIC_LIBS ON)
+set (Boost_USE_MULTITHREADED ON)
 set (Boost_USE_STATIC_RUNTIME OFF)
-set (Boost_USE_MULTITHREADED OFF)
+find_package (Boost 1.39 COMPONENTS chrono REQUIRED)
 
 function (check_include_and_define include_file define)
 	check_include_file (${include_file} HAVE_${include_file})
@@ -61,6 +61,8 @@ endif (WIN32)
 
 set (CMAKE_SHARED_MODULE_PREFIX "") # Don't prefix the output .so with "lib"
 
+link_directories (${Boost_LIBRARY_DIRS})
+
 add_library (profiler MODULE
     "src/amx/amxaux.c"
     "src/amx/amxdbg.c"
@@ -76,7 +78,7 @@ add_library (profiler MODULE
     "src/profiler.cpp"
 )
 
-target_link_Libraries (profiler ${Boost_LIBRARIES})
+target_link_Libraries (profiler ${Boost_CHRONO_LIBRARY})
 
 function (get_version_string _version)
 	git_describe (_describe)
