@@ -142,7 +142,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
 	::amx_Exec_addr = reinterpret_cast<uint32_t>(((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Exec]);
 	SetJump(reinterpret_cast<void*>(::amx_Exec_addr), (void*)::Exec, ::amx_Exec_code);
 
-	logprintf("  Profiler plugin v" VERSION " is OK.");
+	logprintf("  Profiler plugin "VERSION" is OK.");
 
 	return true;
 }
