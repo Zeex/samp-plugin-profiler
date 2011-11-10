@@ -8,6 +8,12 @@ include (CheckIncludeFile)
 include (CheckIncludeFileCXX)
 include (GetGitRevisionDescription)
 
+# Configure Boost
+find_package (Boost 1.39 COMPONENTS date_time REQUIRED)
+set (Boost_USE_STATIC_LIBS ON)
+set (Boost_USE_STATIC_RUNTIME OFF)
+set (Boost_USE_MULTITHREADED OFF)
+
 function (check_include_and_define include_file define)
 	check_include_file (${include_file} HAVE_${include_file})
 	if (HAVE_${include_file})
@@ -30,10 +36,8 @@ check_include_and_define (stdint.h HAVE_STDINT_H)
 check_cxx_include_and_define (memory HAVE_MEMORY)
 check_cxx_include_and_define (tr1/memory HAVE_TR1_MEMORY)
 
-find_package (Stlsoft REQUIRED)
-
 include_directories ("src/amx") # amx.h includes <sclinux.h>
-include_directories (${STLSOFT_INCLUDE_DIR})
+include_directories (${Boost_INCLUDE_DIRS})
 
 if (UNIX OR MINGW)
     set (CMAKE_C_FLAGS   "-m32 -include stddef.h")
@@ -72,7 +76,7 @@ add_library (profiler MODULE
     "src/profiler.cpp"
 )
 
-target_link_Libraries (profiler)
+target_link_Libraries (profiler ${Boost_LIBRARIES})
 
 function (get_version_string _version)
 	git_describe (_describe)
