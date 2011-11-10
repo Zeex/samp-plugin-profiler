@@ -30,8 +30,8 @@ include_directories ("src/amx") # amx.h includes <sclinux.h>
 include_directories (${STLSOFT_INCLUDE_DIR})
 
 if (UNIX OR MINGW)
-    set (CMAKE_C_FLAGS   "-m32")
-    set (CMAKE_CXX_FLAGS "-m32")
+    set (CMAKE_C_FLAGS   "-m32 -include stddef.h")
+    set (CMAKE_CXX_FLAGS "-m32 -include stddef.h")
     set (CMAKE_MODULE_LINKER_FLAGS "-Wl,--no-undefined -static-libstdc++")
 endif (UNIX OR MINGW)
 
