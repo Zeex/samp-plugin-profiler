@@ -15,6 +15,7 @@
 // limitations under the License.
 
 #include <algorithm>
+#include <cstdint>
 #include <iomanip>
 #include <iostream>
 #include <numeric>
@@ -65,18 +66,18 @@ static inline cell ReadAmxCode(AMX *amx, cell where) {
 // Comparison functiosn for different stats sorting modes
 static bool ByCalls(const std::pair<cell, PerformanceCounter> &op1, 
 						 const std::pair<cell, PerformanceCounter> &op2) {
-	return op1.second.GetCalls() > op2.second.GetCalls();
+	return op1.second.GetNumberOfCalls() > op2.second.GetNumberOfCalls();
 }
 
 static bool ByTime(const std::pair<cell, PerformanceCounter> &op1, 
 						const std::pair<cell, PerformanceCounter> &op2) {
-	return op1.second.GetTime() > op2.second.GetTime();
+	return op1.second.GetTotalTime() > op2.second.GetTotalTime();
 }
 
 static bool ByTimePerCall(const std::pair<cell, PerformanceCounter> &op1, 
 							   const std::pair<cell, PerformanceCounter> &op2) {
-	return static_cast<double>(op1.second.GetTime()) / static_cast<double>(op1.second.GetCalls())
-		 > static_cast<double>(op2.second.GetTime()) / static_cast<double>(op2.second.GetCalls());
+	return static_cast<double>(op1.second.GetTotalTime()) / static_cast<double>(op1.second.GetNumberOfCalls())
+		 > static_cast<double>(op2.second.GetTotalTime()) / static_cast<double>(op2.second.GetNumberOfCalls());
 }
 
 bool Profiler::IsScriptProfilable(AMX *amx) {
@@ -198,12 +199,12 @@ void Profiler::PrintStats(std::ostream &stream, StatsPrintOrder order) {
 			<< "\t\t<td>Overall time, &#037;</td>\n"
 			<< "\t</tr>\n";
 
-	platformstl::int64_t totalTime = 0;
+	std::int64_t totalTime = 0;
 
 	for (std::vector<std::pair<cell, PerformanceCounter> >::iterator it = stats.begin(); 
 			it != stats.end(); ++it) 
 	{
-		totalTime += it->second.GetTime();
+		totalTime += it->second.GetTotalTime();
 	}        
 
 	for (std::vector<std::pair<cell, PerformanceCounter> >::iterator it = stats.begin(); 
@@ -220,9 +221,9 @@ void Profiler::PrintStats(std::ostream &stream, StatsPrintOrder order) {
 				stream << "\t\t<td>" << natives_[-address].name() << "</td>\n";
 			}
 		} else {
-			const char *name = 0;
 			if (debugInfo_.IsLoaded()) {
-				stream << "\t\t<td>" << debugInfo_.GetFunction(address) << "</td>\n";
+				std::string name = debugInfo_.GetFunctionName(address);
+				stream << "\t\t<td>" << name << "</td>\n";
 			} else {
 				bool found = false;
 				for (std::vector<Profiler::Function>::iterator pubIt = publics_.begin(); 
@@ -235,7 +236,6 @@ void Profiler::PrintStats(std::ostream &stream, StatsPrintOrder order) {
 					}
 				}
 				if (!found) {
-					// OK we tried all means but still don't know the name, so just print the address.
 					stream << "\t\t<td>" << "0x" << std::hex << address << std::dec << "</td>\n";
 				}
 			}
@@ -243,13 +243,13 @@ void Profiler::PrintStats(std::ostream &stream, StatsPrintOrder order) {
 
 		PerformanceCounter &counter = it->second;
 
-		stream << "\t\t<td>" << counter.GetCalls() << "</td>\n"
+		stream << "\t\t<td>" << counter.GetNumberOfCalls() << "</td>\n"
 				<< "\t\t<td>" << std::fixed << std::setprecision(0)
-							    << static_cast<double>(counter.GetTime()) / 
-							        static_cast<double>(counter.GetCalls()) << "</td>\n"
-				<< "\t\t<td>" << counter.GetTime() << "</td>\n"
+							    << static_cast<double>(counter.GetTotalTime()) / 
+							        static_cast<double>(counter.GetNumberOfCalls()) << "</td>\n"
+				<< "\t\t<td>" << counter.GetTotalTime() << "</td>\n"
 				<< "\t\t<td>" << std::setprecision(2)
-							    << static_cast<double>(counter.GetTime() * 100) / 
+							    << static_cast<double>(counter.GetTotalTime() * 100) / 
 							        static_cast<double>(totalTime) << "</td>\n";
 		stream << "\t</tr>\n";
 	}

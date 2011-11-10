@@ -1,3 +1,17 @@
+// Copyright (c) 2011 Zeex
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 #include <iostream>
 
 #include "perfcounter.h"
@@ -7,9 +21,7 @@ PerformanceCounter::PerformanceCounter()
 	, paused_(false)
 	, child_(0)
 	, parent_(0)
-	, calls_(0)
-	, counter_()
-	, time_(0)  
+	, num_calls_(0)
 {
 }
 
@@ -25,17 +37,15 @@ void PerformanceCounter::Start(PerformanceCounter *parent) {
 		}	
 		parent_ = parent;
 
-		++calls_;
-		counter_.start();
-
+		++num_calls_;
 		started_ = true;		
+		start_ = Clock::now();
 	}
 }
 
 void PerformanceCounter::Stop() {
 	if (started_) {
-		counter_.stop();
-		time_ += counter_.get_microseconds();
+		total_time_ += (Clock::now() - start_);
 
 		if (child_ != 0) {
 			child_->Stop();
@@ -54,23 +64,23 @@ void PerformanceCounter::Stop() {
 
 void PerformanceCounter::Pause() {
 	if (!paused_) {
-		counter_.stop();
-		time_ += counter_.get_microseconds();
+		total_time_ += (Clock::now() - start_);
 		paused_ = true;
 	}
 }
 
 void PerformanceCounter::Resume() {
 	if (paused_) {
-		counter_.start();
+		start_ = Clock::now();
 		paused_ = false;
 	}
 }
 
-platformstl::int64_t PerformanceCounter::GetCalls() const {
-	return calls_;
+std::int64_t PerformanceCounter::GetNumberOfCalls() const {
+	return num_calls_;
 }
 
-platformstl::int64_t PerformanceCounter::GetTime() const {
-	return time_;
+std::int64_t PerformanceCounter::GetTotalTime() const {
+	using namespace boost::chrono;
+	return duration_cast<microseconds>(total_time_).count();
 }
