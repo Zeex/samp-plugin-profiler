@@ -16,9 +16,11 @@
 #define DEBUGINFO_H
 
 #include <string>
-#ifdef _WIN32
+
+#ifdef HAVE_MEMORY
 	#include <memory>
-#else
+#endif
+#ifdef HAVE_TR1_MEMORY
 	#include <tr1/memory>
 #endif
 
