@@ -16,6 +16,7 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <numeric>
@@ -183,9 +184,10 @@ void Profiler::ResetStats() {
 	counters_.clear();
 }
 
-void Profiler::PrintStats(std::ostream &stream, OutputSortMode order) {
+void Profiler::PrintStats(ProfilePrinter &printer, OutputSortMode order) {
 	std::vector<std::pair<cell, PerformanceCounter> > stats(
 		counters_.begin(), counters_.end());
+
 	switch (order) {
 	case SORT_BY_CALLS:
 		std::sort(stats.begin(), stats.end(), ByCalls);
@@ -201,71 +203,46 @@ void Profiler::PrintStats(std::ostream &stream, OutputSortMode order) {
 		break;
 	}
 
-	stream << "<table>\n"
-			<< "\t<tr>\n"
-			<< "\t\t<td>Function</td>\n"
-			<< "\t\t<td>Calls</td>\n"
-			<< "\t\t<td>Time per call, &#181;s</td>\n"
-			<< "\t\t<td>Overall time, &#181;s</td>\n"
-			<< "\t\t<td>Overall time, &#037;</td>\n"
-			<< "\t</tr>\n";
+	std::vector<Profile> profiles;
 
-	std::int64_t totalTime = 0;
-
-	for (std::vector<std::pair<cell, PerformanceCounter> >::iterator it = stats.begin(); 
-			it != stats.end(); ++it) 
+	for (std::vector<std::pair<cell, PerformanceCounter> >::iterator stat_it = stats.begin(); 
+			stat_it != stats.end(); ++stat_it) 
 	{
-		totalTime += it->second.GetTotalTime();
-	}        
+		cell address = stat_it->first;
+		PerformanceCounter &counter = stat_it->second;
 
-	for (std::vector<std::pair<cell, PerformanceCounter> >::iterator it = stats.begin(); 
-			it != stats.end(); ++it) 
-	{
-		stream << "\t<tr>\n";
-
-		cell address = it->first;
 		if (address <= 0) {
-			Profiler::Function &native = natives_[-address];
-			if (native.name().empty()) {
-				stream << "\t\t<td>" << "unknown native @ " << native.address() << "</td>\n";
-			} else {
-				stream << "\t\t<td>" << natives_[-address].name() << "</td>\n";
-			}
+			profiles.push_back(Profile(natives_[-address].name(), "native", counter));
 		} else {
-			if (debugInfo_.IsLoaded()) {
-				std::string name = debugInfo_.GetFunctionName(address);
-				stream << "\t\t<td>" << name << "</td>\n";
-			} else {
-				bool found = false;
-				for (std::vector<Profiler::Function>::iterator pubIt = publics_.begin(); 
-						pubIt != publics_.end(); ++pubIt) 
-				{
-					if (pubIt->address() == address)  {
-						stream << "\t\t<td>" << pubIt->name() << "</td>\n";
+			bool found = false;
+			// Search in public table
+			for (std::vector<Profiler::Function>::iterator pub_it = publics_.begin(); 
+					pub_it != publics_.end(); ++pub_it) 
+			{
+				if (pub_it->address() == address)  {
+					profiles.push_back(Profile(pub_it->name(), "public", counter));
+					found = true;
+					break;
+				}
+			}
+			// Search in symbol table
+			if (!found) {
+				if (debugInfo_.IsLoaded()) {
+					std::string name = debugInfo_.GetFunctionName(address);
+					if (!name.empty()) {	
+						profiles.push_back(Profile(debugInfo_.GetFunctionName(address), "ordinary", counter));
 						found = true;
-						break;
 					}
 				}
-				if (!found) {
-					stream << "\t\t<td>" << "0x" << std::hex << address << std::dec << "</td>\n";
-				}
+			}
+			// Not found
+			if (!found) {
+				profiles.push_back(Profile("", "", counter));
 			}
 		}
-
-		PerformanceCounter &counter = it->second;
-
-		stream << "\t\t<td>" << counter.GetNumberOfCalls() << "</td>\n"
-				<< "\t\t<td>" << std::fixed << std::setprecision(0)
-							    << static_cast<double>(counter.GetTotalTime()) / 
-							        static_cast<double>(counter.GetNumberOfCalls()) << "</td>\n"
-				<< "\t\t<td>" << counter.GetTotalTime() << "</td>\n"
-				<< "\t\t<td>" << std::setprecision(2)
-							    << static_cast<double>(counter.GetTotalTime() * 100) / 
-							        static_cast<double>(totalTime) << "</td>\n";
-		stream << "\t</tr>\n";
 	}
 
-	stream << "</table>\n";
+	printer.Print(profiles);
 }
 
 int Profiler::Debug() {
@@ -366,4 +343,52 @@ bool Profiler::GetLastCall(CallInfo &call) const {
 		return true;
 	}
 	return false;
+}
+
+HtmlProfilePrinter::HtmlProfilePrinter(const std::string &out_file, const std::string &title) 
+	: out_file_(out_file)
+	, title_(title)
+{
+}
+
+void HtmlProfilePrinter::Print(const std::vector<Profile> &profiles) {
+	std::ofstream stream(out_file_);
+	if (!stream.is_open()) {
+		return;
+	}
+
+	stream << "<html>\n";
+
+	if (!title_.empty()) {
+		stream << "<head>\n\t<title>" << title_ << "</title>\n</head>";
+	}
+
+	stream << "<body>\n\n<table>\n"
+			<< "\t<tr>\n"
+			<< "\t\t<td>Function</td>\n"
+			<< "\t\t<td>Calls</td>\n"
+			<< "\t\t<td>Time per call, &#181;s</td>\n"
+			<< "\t\t<td>Overall time, &#181;s</td>\n"
+			<< "\t\t<td>Overall time, &#037;</td>\n"
+			<< "\t</tr>\n";
+
+	std::int64_t total_time = 0;
+	for (std::vector<Profile>::const_iterator it = profiles.begin(); it != profiles.end(); ++it) {
+		total_time += it->GetCounter().GetTotalTime();
+	}        
+
+	for (std::vector<Profile>::const_iterator it = profiles.begin(); it != profiles.end(); ++it) {
+		const PerformanceCounter &counter = it->GetCounter();
+
+		stream << "\t<tr>\n"
+			<< "\t\t<td>" << it->GetFunctionName() << "</td>\n"
+			<< "\t\t<td>" << counter.GetNumberOfCalls() << "</td>\n"
+			<< "\t\t<td>" << counter.GetTotalTime() / counter.GetNumberOfCalls() << "</td>\n"
+			<< "\t\t<td>" << counter.GetTotalTime() << "</td>\n"
+			<< "\t\t<td>" << std::fixed << std::setprecision(2) 
+			    << static_cast<double>(counter.GetTotalTime() * 100) / total_time << "</td>\n"
+		<< "\t</tr>\n";
+	}
+
+	stream << "</table>\n\n</body>\n</html>\n";
 }
