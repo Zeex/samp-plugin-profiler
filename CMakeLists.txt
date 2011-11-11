@@ -61,7 +61,7 @@ target_link_Libraries(profiler ${Boost_LIBRARIES})
 
 if(UNIX OR MINGW)
 	set_property(TARGET profiler APPEND_STRING PROPERTY 
-		COMPILE_FLAGS "-m32 -include stddef.h")
+		COMPILE_FLAGS "-m32 -Wno-attributes -include stddef.h")
 	set_property(TARGET profiler APPEND_STRING PROPERTY 
 		LINK_FLAGS "-m32 -Wl,--no-undefined -static-libstdc++ -lrt")
 endif()
