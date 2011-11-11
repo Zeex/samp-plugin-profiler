@@ -100,10 +100,11 @@ function(get_version_string _version)
 	set(${_version} ${version} PARENT_SCOPE)
 endfunction()
 
-get_version_string(VERSION)
-message(STATUS "Building Profiler ${VERSION}")
+get_version_string(version)
+message(STATUS "You're going to build profiler ${version}")
 
-add_definitions(-DVERSION="${VERSION}")
+set_property(SOURCE "src/plugin.cpp" APPEND_STRING PROPERTY 
+	COMPILE_DEFINITIONS "VERSION=\"${version}\"")
 
 install(TARGETS profiler LIBRARY DESTINATION ".")
 
