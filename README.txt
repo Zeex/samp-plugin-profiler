@@ -13,3 +13,8 @@ You can configure profiler via server.cfg, by changing the following options:
 
   If set to 1, callee's time is substracted from the total time of its caller(s). 
   Default value is 1.
+
+* profiler_output_format <html/text>
+
+  Set output format. Currently supports only html.
+
