@@ -22,7 +22,12 @@
 #include "printers.h"
 #include "profile.h"
 
-void ConsolePrinter::Print(const std::vector<Profile> &profiles) {
+LogPrinter::LogPrinter(const std::string script_name) 
+	: script_name_(script_name)
+{
+}
+
+void LogPrinter::Print(const std::vector<Profile> &profiles) {
 	
 }
 
