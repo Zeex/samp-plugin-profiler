@@ -25,6 +25,20 @@
 #include "amx/amx.h"
 #include "amx/amxdbg.h"
 
+namespace {
+
+int AMXAPI Debug(AMX *amx) {
+	return samp_profiler::Profiler::Get(amx)->Debug();
+}
+
+int AMXAPI Callback(AMX *amx, cell index, cell *result, cell *params) {
+	return samp_profiler::Profiler::Get(amx)->Callback(index, result, params);
+}
+
+} // anonymouse namespace
+
+namespace samp_profiler {
+
 // statics
 bool Profiler::substract_child_time_;
 std::map<AMX*, Profiler*> Profiler::instances_;
@@ -132,14 +146,6 @@ Profiler *Profiler::Get(AMX *amx) {
 		return it->second;
 	}
 	return 0;
-}
-
-static int AMXAPI Debug(AMX *amx) {
-	return Profiler::Get(amx)->Debug();
-}
-
-static int AMXAPI Callback(AMX *amx, cell index, cell *result, cell *params) {
-	return Profiler::Get(amx)->Callback(index, result, params);
 }
 
 Profiler::Profiler(AMX *amx) 
@@ -344,3 +350,4 @@ bool Profiler::GetLastCall(CallInfo &call) const {
 	return false;
 }
 
+} // namespace samp_profiler

@@ -38,6 +38,8 @@
 
 #include "amx/amx.h"
 
+using namespace samp_profiler;
+
 extern void *pAMXFunctions; 
 
 // Symbolic info, used for getting function names

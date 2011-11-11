@@ -14,12 +14,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PERFCOUNTER_H
-#define PERFCOUNTER_H
+#ifndef PROFILER_PERFCOUNTER_H
+#define PROFILER_PERFCOUNTER_H
 
 #include <cstdint>
 
 #include <boost/chrono.hpp>
+
+namespace samp_profiler {
 
 class PerformanceCounter {
 public:
@@ -50,4 +52,6 @@ private:
 	Clock::duration   total_time_;
 };
 
-#endif
+} // namespace samp_profiler
+
+#endif // !PROFILER_PERFCOUNTER_H

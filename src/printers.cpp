@@ -22,6 +22,8 @@
 #include "printers.h"
 #include "profile.h"
 
+namespace samp_profiler {
+
 LogPrinter::LogPrinter(const std::string script_name) 
 	: script_name_(script_name)
 {
@@ -112,3 +114,5 @@ void HtmlPrinter::Print(const std::vector<Profile> &profiles) {
 	"</html>\n"
 	;
 }
+
+} // namespace samp_profiler
