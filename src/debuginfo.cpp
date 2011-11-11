@@ -17,6 +17,8 @@
 
 #include "debuginfo.h"
 
+namespace samp_profiler {
+
 DebugSymbol::DebugSymbol(AMX_DBG_SYMBOL *sym) 
 	: sym_(sym) 
 {
@@ -255,3 +257,5 @@ std::vector<DebugSymbol> DebugInfo::GetSymbols() const {
 
 	return symbols;
 }
+
+} // namespace samp_profiler

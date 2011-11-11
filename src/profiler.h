@@ -14,8 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PROFILER_PROFILER_H
-#define PROFILER_PROFILER_H
+#ifndef SAMP_PROFILER_PROFILER_H
+#define SAMP_PROFILER_PROFILER_H
 
 #include <map>
 #include <stack>
@@ -133,4 +133,4 @@ private:
 
 } // namespace samp_profiler
 
-#endif // !PROFILER_PROFILER_H
+#endif // !SAMP_SAMP_PROFILER_SAMP_SAMP_PROFILER_H

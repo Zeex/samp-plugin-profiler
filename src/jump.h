@@ -1,3 +1,5 @@
+// SA:MP Profiler plugin
+//
 // Copyright (c) 2011 Zeex
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,12 +14,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef JUMP_H
-#define JUMP_H
+#ifndef SAMP_PROFILER_JUMP_H
+#define SAMP_PROFILER_JUMP_H
+
+namespace samp_profiler {
 
 // Modifies code at 'from' to make it JMP to 'to'.
 void SetJump(void *from, void *to);
 void SetJump(void *from, void *to, unsigned char (&oldCode)[5]);
 
-#endif
+} // namespace samp_profiler
 
+#endif // !SAMP_PROFILER_JUMP_H

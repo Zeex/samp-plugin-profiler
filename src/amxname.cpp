@@ -1,3 +1,5 @@
+// SA:MP Profiler plugin
+//
 // Copyright (c) 2011 Zeex
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,6 +25,8 @@
 
 #include "amx/amx.h"
 #include "amx/amxaux.h"
+
+namespace samp_profiler {
 
 static std::map<std::string, AmxFile> scripts;
 static std::map<AMX*, std::string> cachedNames;
@@ -96,3 +100,5 @@ void AmxFile::FreeAmx(AMX *amx) {
 	aux_FreeProgram(amx);
 	delete amx;
 }
+
+} // namespace samp_profiler

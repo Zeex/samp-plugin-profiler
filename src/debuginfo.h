@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef DEBUGINFO_H
-#define DEBUGINFO_H
+#ifndef SAMP_PROFILER_DEBUGINFO_H
+#define SAMP_PROFILER_DEBUGINFO_H
 
 #include <string>
 #include <vector>
@@ -27,6 +27,8 @@
 
 #include "amx/amx.h"
 #include "amx/amxdbg.h"
+
+namespace samp_profiler {
 
 class DebugSymbol {
 public:
@@ -108,4 +110,6 @@ private:
 	std::tr1::shared_ptr<AMX_DBG> amxdbgPtr_;
 };
 
-#endif // !DEBUGINFO_H
+} // namespace samp_profiler
+
+#endif // !SAMP_PROFILER_DEBUGINFO_H
