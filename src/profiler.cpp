@@ -384,7 +384,7 @@ void HtmlProfilePrinter::Print(const std::vector<Profile> &profiles) {
 	stream << 
 	"<body>"
 	"	<h1>" << title_ << "</h1>\n"
-	"	<table id=\"stats\" class=\"tablesorter\">\n"
+	"	<table id=\"stats\" class=\"tablesorter\" border=\"1\" width=\"100%\">\n"
 	"		<thead>\n"
 	"			<tr>\n"
 	"				<th>Function Type</th>\n"
