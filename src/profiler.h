@@ -14,8 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PROFILER_H
-#define PROFILER_H
+#ifndef PROFILER_PROFILER_H
+#define PROFILER_PROFILER_H
 
 #include <map>
 #include <stack>
@@ -27,6 +27,8 @@
 
 #include "amx/amx.h"
 #include "amx/amxdbg.h"
+
+namespace samp_profiler {
 
 class Printer;
 
@@ -129,4 +131,6 @@ private:
 	static std::map<AMX*, Profiler*> instances_;
 };
 
-#endif
+} // namespace samp_profiler
+
+#endif // !PROFILER_PROFILER_H

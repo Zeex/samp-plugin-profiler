@@ -14,11 +14,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PRINTERS_H
-#define PRINTERS_H
+#ifndef PROFILER_PRINTERS_H
+#define PROFILER_PRINTERS_H
 
 #include <string>
 #include <vector>
+
+namespace samp_profiler {
 
 class Profile;
 
@@ -46,4 +48,6 @@ private:
 	std::string title_;
 };
 
-#endif // !PRINTERS_H
+} // namespace samp_profiler
+
+#endif // !PROFILER_PRINTERS_H

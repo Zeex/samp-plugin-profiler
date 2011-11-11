@@ -14,12 +14,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PROFILE_H
-#define PROFILE_H
+#ifndef PROFILER_PROFILE_H
+#define PROFILER_PROFILE_H
 
 #include <string>
 
 #include "perfcounter.h"
+
+namespace samp_profiler {
 
 class Profile {
 public:
@@ -43,4 +45,6 @@ private:
 	PerformanceCounter counter_;
 };
 
-#endif // !PROFILE_H
+} // namespace samp_profiler
+
+#endif // !PROFILER_PROFILE_H

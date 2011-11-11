@@ -18,6 +18,8 @@
 
 #include "perfcounter.h"
 
+namespace samp_profiler {
+
 PerformanceCounter::PerformanceCounter() 
 	: started_(false)
 	, paused_(false)
@@ -86,3 +88,5 @@ std::int64_t PerformanceCounter::GetTotalTime() const {
 	using namespace boost::chrono;
 	return duration_cast<microseconds>(total_time_).count();
 }
+
+} // namespace samp_profiler
