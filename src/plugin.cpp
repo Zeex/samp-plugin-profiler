@@ -193,17 +193,17 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 
 	// Detach profiler
 	if (prof != 0) {
-		// Before doing that, print stats to <amx_file_path>.prof
-		std::string name = GetAmxName(amx);
-		if (!name.empty()) {
-			std::string outfile = name + std::string(".prof");
-			std::ofstream outstream(outfile.c_str());
-			if (outstream.is_open()) {
-				logprintf("Profiler: Writing profile to %s", outfile.c_str());
-				prof->PrintStats(outstream);
-			} else {
-				logprintf("Profiler: Could not open %s for writing", outfile.c_str());
-			}
+		std::string amx_path = GetAmxName(amx);
+		std::string amx_name = std::string(amx_path, 0, amx_path.find_last_of("."));
+
+		// Output stats depending on currently set output_format
+		ConfigReader server_cfg("server.cfg");
+		std::string output_format = 
+			server_cfg.GetOption("profiler_output_format", std::string("html"));
+
+		if (output_format == "html") {			
+			HtmlProfilePrinter printer(amx_name + "-profile.html", "Profile of " + amx_name);
+			prof->PrintStats(printer);
 		}
 		Profiler::Detach(amx);
 	}
