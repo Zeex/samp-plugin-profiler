@@ -64,6 +64,9 @@ add_library(profiler MODULE
 	"src/plugin.cpp"
 	"src/plugin.h"
 	"src/plugincommon.h"
+	"src/printers.cpp"
+	"src/printers.h"
+	"src/profile.h"
 	"src/profiler.cpp"
 	"src/profiler.h"
 )
