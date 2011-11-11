@@ -357,21 +357,45 @@ void HtmlProfilePrinter::Print(const std::vector<Profile> &profiles) {
 		return;
 	}
 
-	stream << "<html>\n";
+	stream << 
+	"<html>\n\n"
+	"<head>\n"
+	;
 
 	if (!title_.empty()) {
-		stream << "<head>\n\t<title>" << title_ << "</title>\n</head>\n";
+		stream << 
+		"	<title>" << title_ << "</title>\n"
+		;
 	}
 
-	stream << "<body>\n\n<table>\n"
-			<< "\t<tr>\n"
-			<< "\t\t<td>Function Type</td>\n"
-			<< "\t\t<td>Function Name</td>\n"
-			<< "\t\t<td>Calls</td>\n"
-			<< "\t\t<td>Time per call, &#181;s</td>\n"
-			<< "\t\t<td>Overall time, &#181;s</td>\n"
-			<< "\t\t<td>Overall time, &#037;</td>\n"
-			<< "\t</tr>\n";
+	stream << 
+	"	<script type=\"text/javascript\"\n"
+	"		src=\"http://code.jquery.com/jquery-latest.min.js\"></script>\n"
+	"	<script type=\"text/javascript\"\n"
+	"		src=\"http://autobahn.tablesorter.com/jquery.tablesorter.min.js\"></script>\n"
+	"	<script type=\"text/javascript\">\n"
+	"	$(document).ready(function() {\n"
+	"		$(\"#stats\").tablesorter();\n"
+	"	});\n"
+	"	</script>\n"
+	"</head>\n\n"
+	;
+
+	stream << 
+	"	<h1>" << title_ << "</h1>\n"
+	"	<table id=\"stats\" class=\"tablesorter\">\n"
+	"		<thead>\n"
+	"			<tr>\n"
+	"				<th>Function Type</th>\n"
+	"				<th>Function Name</th>\n"
+	"				<th>Calls</th>\n"
+	"				<th>Time per call, &#181;s</th>\n"
+	"				<th>Overall time, &#181;s</th>\n"
+	"				<th>Overall time, &#037;</th>\n"
+	"			</tr>\n"
+	"		</thead>\n"
+	"		<tbody>\n"
+	;
 
 	std::int64_t total_time = 0;
 	for (std::vector<Profile>::const_iterator it = profiles.begin(); it != profiles.end(); ++it) {
@@ -381,16 +405,25 @@ void HtmlProfilePrinter::Print(const std::vector<Profile> &profiles) {
 	for (std::vector<Profile>::const_iterator it = profiles.begin(); it != profiles.end(); ++it) {
 		const PerformanceCounter &counter = it->GetCounter();
 
-		stream << "\t<tr>\n"
-			<< "\t\t<td>" << it->GetFunctionType() << "</td>\n"
-			<< "\t\t<td>" << it->GetFunctionName() << "</td>\n"
-			<< "\t\t<td>" << counter.GetNumberOfCalls() << "</td>\n"
-			<< "\t\t<td>" << counter.GetTotalTime() / counter.GetNumberOfCalls() << "</td>\n"
-			<< "\t\t<td>" << counter.GetTotalTime() << "</td>\n"
-			<< "\t\t<td>" << std::fixed << std::setprecision(2) 
-			    << static_cast<double>(counter.GetTotalTime() * 100) / total_time << "</td>\n"
-		<< "\t</tr>\n";
+		stream 
+		<< "		<tr>\n"
+		<< "			<td>" << it->GetFunctionType() << "</td>\n"
+		<< "			<td>" << it->GetFunctionName() << "</td>\n"
+		<< "			<td>" << counter.GetNumberOfCalls() << "</td>\n"
+		<< "			<td>" << counter.GetTotalTime() / counter.GetNumberOfCalls() << "</td>\n"
+		<< "			<td>" << counter.GetTotalTime() << "</td>\n"
+		<< "			<td>" << std::fixed << std::setprecision(2) 
+			<< static_cast<double>(counter.GetTotalTime() * 100) / total_time << "</td>\n"
+		<< "		</tr>\n";
 	}
 
-	stream << "</table>\n\n</body>\n</html>\n";
+	stream << 
+	"		</tbody>\n"
+	"	</table>\n\n"
+	;
+
+	stream <<
+	"</body>\n"
+	"</html>\n"
+	;
 }
