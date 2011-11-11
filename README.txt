@@ -16,5 +16,6 @@ You can configure profiler via server.cfg, by changing the following options:
 
 * profiler_output_format <html/text>
 
-  Set output format. Currently supports only html.
+  Set output format. Currently supports only HTML.
+  Default is html.
 
