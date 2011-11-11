@@ -33,6 +33,7 @@
 #include "jump.h"
 #include "logprintf.h"
 #include "plugin.h"
+#include "printers.h"
 #include "profiler.h"
 
 #include "amx/amx.h"
@@ -202,7 +203,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 			server_cfg.GetOption("profiler_output_format", std::string("html"));
 
 		if (output_format == "html") {			
-			HtmlProfilePrinter printer(amx_name + "-profile.html", "Profile of " + amx_path);
+			HtmlPrinter printer(amx_name + "-profile.html", "Profile of " + amx_path);
 			prof->PrintStats(printer);
 		}
 		Profiler::Detach(amx);

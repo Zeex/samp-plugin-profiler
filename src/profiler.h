@@ -22,15 +22,13 @@
 #include <string>
 #include <vector>
 
-#include <malloc.h> // _alloca
-
 #include "debuginfo.h"
 #include "perfcounter.h"
 
 #include "amx/amx.h"
 #include "amx/amxdbg.h"
 
-class ProfilePrinter;
+class Printer;
 
 class Profiler {
 public:
@@ -75,7 +73,7 @@ public:
 	void SetDebugInfo(const DebugInfo &info);
 
 	void ResetStats();
-	void PrintStats(ProfilePrinter &printer, OutputSortMode order = SORT_BY_TIME);
+	void PrintStats(Printer &printer, OutputSortMode order = SORT_BY_TIME);
 
 	int Debug();
 	int Callback(cell index, cell *result, cell *params);
@@ -129,48 +127,6 @@ private:
 	static bool substract_child_time_;
 
 	static std::map<AMX*, Profiler*> instances_;
-};
-
-class Profile {
-public:
-	Profile(const std::string &function_name, const std::string &function_type, PerformanceCounter counter)
-		: name_(function_name)
-		, type_(function_type)
-		, counter_(counter)
-	{
-	}
-
-	inline const std::string &GetFunctionName() const 
-		{ return name_; }
-	inline const std::string &GetFunctionType() const 
-		{ return type_; }
-	inline const PerformanceCounter &GetCounter() const 
-		{ return counter_; }
-
-private:
-	std::string        name_;
-	std::string        type_;
-	PerformanceCounter counter_;
-};
-
-class ProfilePrinter {
-public:
-	virtual void Print(const std::vector<Profile> &profiles) = 0;
-};
-
-class PlainTextProfilePrinter : public ProfilePrinter {
-public:
-	virtual void Print(const std::vector<Profile> &profiles);
-};
-
-class HtmlProfilePrinter : public ProfilePrinter {
-public:
-	HtmlProfilePrinter(const std::string &out_file, const std::string &title = "");
-	virtual void Print(const std::vector<Profile> &profiles);
-
-private:
-	std::string out_file_;
-	std::string title_;
 };
 
 #endif
