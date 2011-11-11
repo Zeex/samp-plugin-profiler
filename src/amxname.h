@@ -1,3 +1,5 @@
+// SA:MP Profiler plugin
+//
 // Copyright (c) 2011 Zeex
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,8 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef AMXNAME_H
-#define AMXNAME_H
+#ifndef SAMP_PROFILER_AMXNAME_H
+#define SAMP_PROFILER_AMXNAME_H
 
 #include <ctime>
 #include <list>
@@ -28,6 +30,8 @@
 #endif
 
 #include "amx/amx.h"
+
+namespace samp_profiler {
 
 std::string GetAmxName(AMX_HEADER *amxhdr);
 std::string GetAmxName(AMX *amx);
@@ -50,4 +54,6 @@ private:
 	std::time_t modified_;
 };
 
-#endif
+} // namespace samp_profiler
+
+#endif // !SAMP_PROFILER_AMXNAME_H

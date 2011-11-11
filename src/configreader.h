@@ -18,6 +18,11 @@
 #include <sstream>
 #include <string>
 
+#ifndef SAMP_PROFILER_CONFIGREADER_H
+#define SAMP_PROFILER_CONFIGREADER_H
+
+namespace samp_profiler {
+
 class ConfigReader {
 public:
 	ConfigReader();
@@ -49,3 +54,7 @@ T ConfigReader::GetOption(const std::string &name, const T &defaultValue) const 
 	}
 	return value;
 }
+
+} // namespace samp_profiler
+
+#endif // !SAMP_PROFILER_CONFIGREADER_H

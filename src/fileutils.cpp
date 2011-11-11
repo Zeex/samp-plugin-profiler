@@ -1,3 +1,5 @@
+// SA:MP Profiler plugin
+//
 // Copyright (c) 2011 Zeex
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,6 +26,7 @@
 	#include <sys/stat.h>
 #endif
 
+namespace samp_profiler {
 namespace fileutils {
 
 std::string GetBaseName(const std::string &path) {
@@ -79,3 +82,4 @@ void GetFilesInDirectory(const std::string &dir, const std::string &pattern, std
 }
 
 } // namespace fileutils
+} // namespace samp_profiler

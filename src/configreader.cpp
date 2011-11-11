@@ -23,6 +23,8 @@
 
 #include "configreader.h"
 
+namespace samp_profiler {
+
 ConfigReader::ConfigReader(const std::string &filename) 
 	: loaded_(false)
 {
@@ -53,3 +55,5 @@ bool ConfigReader::LoadFile(const std::string &filename) {
 
 	return loaded_;
 }
+
+} // namespace samp_profiler

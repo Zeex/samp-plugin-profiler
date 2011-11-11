@@ -14,8 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PROFILER_PERFCOUNTER_H
-#define PROFILER_PERFCOUNTER_H
+#ifndef SAMP_SAMP_PROFILER_PERFCOUNTER_H
+#define SAMP_SAMP_PROFILER_PERFCOUNTER_H
 
 #include <cstdint>
 
@@ -54,4 +54,4 @@ private:
 
 } // namespace samp_profiler
 
-#endif // !PROFILER_PERFCOUNTER_H
+#endif // !SAMP_SAMP_PROFILER_PERFCOUNTER_H

@@ -14,8 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PROFILER_PRINTERS_H
-#define PROFILER_PRINTERS_H
+#ifndef SAMP_PROFILER_PRINTERS_H
+#define SAMP_PROFILER_PRINTERS_H
 
 #include <string>
 #include <vector>
@@ -50,4 +50,4 @@ private:
 
 } // namespace samp_profiler
 
-#endif // !PROFILER_PRINTERS_H
+#endif // !SAMP_PROFILER_PRINTERS_H

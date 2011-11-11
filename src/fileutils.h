@@ -1,3 +1,5 @@
+// SA:MP Profiler plugin
+//
 // Copyright (c) 2011 Zeex
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,14 +14,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FILEUTILS_H
-#define FILEUTILS_H
+#ifndef SAMP_PROFILER_FILEUTILS_H
+#define SAMP_PROFILER_FILEUTILS_H
 
 #include <string>
 #include <vector>
 
 #include <ctime>
 
+namespace samp_profiler {
 namespace fileutils {
 
 std::string GetBaseName(const std::string &path);
@@ -30,5 +33,6 @@ std::time_t GetModificationTime(const std::string &path);
 void GetFilesInDirectory(const std::string &dir, const std::string &pattern, std::vector<std::string> &result);
 
 } // namespace fileutils
+} // namespace samp_profiler
 
-#endif // FILEUTILS_H
+#endif // SAMP_PROFILER_FILEUTILS_H
