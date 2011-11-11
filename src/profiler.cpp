@@ -360,12 +360,13 @@ void HtmlProfilePrinter::Print(const std::vector<Profile> &profiles) {
 	stream << "<html>\n";
 
 	if (!title_.empty()) {
-		stream << "<head>\n\t<title>" << title_ << "</title>\n</head>";
+		stream << "<head>\n\t<title>" << title_ << "</title>\n</head>\n";
 	}
 
 	stream << "<body>\n\n<table>\n"
 			<< "\t<tr>\n"
-			<< "\t\t<td>Function</td>\n"
+			<< "\t\t<td>Function Type</td>\n"
+			<< "\t\t<td>Function Name</td>\n"
 			<< "\t\t<td>Calls</td>\n"
 			<< "\t\t<td>Time per call, &#181;s</td>\n"
 			<< "\t\t<td>Overall time, &#181;s</td>\n"
@@ -381,6 +382,7 @@ void HtmlProfilePrinter::Print(const std::vector<Profile> &profiles) {
 		const PerformanceCounter &counter = it->GetCounter();
 
 		stream << "\t<tr>\n"
+			<< "\t\t<td>" << it->GetFunctionType() << "</td>\n"
 			<< "\t\t<td>" << it->GetFunctionName() << "</td>\n"
 			<< "\t\t<td>" << counter.GetNumberOfCalls() << "</td>\n"
 			<< "\t\t<td>" << counter.GetTotalTime() / counter.GetNumberOfCalls() << "</td>\n"
