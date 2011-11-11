@@ -1,4 +1,4 @@
-You can configure profiler via server.cfg using the following options:
+You can configure profiler via server.cfg, by changing the following options:
 
 * profile_gamemode <0/1>
 
