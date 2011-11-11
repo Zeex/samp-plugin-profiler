@@ -32,7 +32,7 @@
 
 class Profiler {
 public:
-	enum StatsPrintOrder {
+	enum OutputSortMode {
 		ORDER_NONE,
 		ORDER_BY_CALLS,
 		ORDER_BY_TIME,
@@ -73,7 +73,7 @@ public:
 	void SetDebugInfo(const DebugInfo &info);
 
 	void ResetStats();
-	void PrintStats(std::ostream &stream, StatsPrintOrder order = ORDER_BY_TIME);
+	void PrintStats(std::ostream &stream, OutputSortMode order = ORDER_BY_TIME);
 
 	int Debug();
 	int Callback(cell index, cell *result, cell *params);
