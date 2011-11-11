@@ -12,7 +12,7 @@ include (GetGitRevisionDescription)
 set (Boost_USE_STATIC_LIBS ON)
 set (Boost_USE_MULTITHREADED ON)
 set (Boost_USE_STATIC_RUNTIME OFF)
-find_package (Boost 1.39 COMPONENTS chrono REQUIRED)
+find_package (Boost 1.47 REQUIRED COMPONENTS chrono)
 
 function (check_include_and_define include_file define)
 	check_include_file (${include_file} HAVE_${include_file})
