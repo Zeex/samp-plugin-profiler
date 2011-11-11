@@ -183,22 +183,22 @@ void Profiler::ResetStats() {
 	counters_.clear();
 }
 
-void Profiler::PrintStats(std::ostream &stream, StatsPrintOrder order) {
+void Profiler::PrintStats(std::ostream &stream, OutputSortMode order) {
 	std::vector<std::pair<cell, PerformanceCounter> > stats(
 		counters_.begin(), counters_.end());
 	switch (order) {
-		case ORDER_BY_CALLS:
-			std::sort(stats.begin(), stats.end(), ByCalls);
-			break;
-		case ORDER_BY_TIME:
-			std::sort(stats.begin(), stats.end(), ByTime);
-			break;
-		case ORDER_BY_TIME_PER_CALL:
-			std::sort(stats.begin(), stats.end(), ByTimePerCall);
-			break;
-		default:
-			// leave as is
-			break;
+	case ORDER_BY_CALLS:
+		std::sort(stats.begin(), stats.end(), ByCalls);
+		break;
+	case ORDER_BY_TIME:
+		std::sort(stats.begin(), stats.end(), ByTime);
+		break;
+	case ORDER_BY_TIME_PER_CALL:
+		std::sort(stats.begin(), stats.end(), ByTimePerCall);
+		break;
+	default:
+		// leave as is
+		break;
 	}
 
 	stream << "<table>\n"
