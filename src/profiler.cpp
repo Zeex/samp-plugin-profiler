@@ -25,6 +25,8 @@
 #include "amx/amx.h"
 #include "amx/amxdbg.h"
 
+// statics
+bool Profiler::substract_child_time_;
 std::map<AMX*, Profiler*> Profiler::instances_;
 
 Profiler::Profiler() {}
@@ -95,6 +97,51 @@ bool Profiler::IsScriptProfilable(AMX *amx) {
 	return false;
 }
 
+// static
+void Profiler::SetSubstractChildTime(bool set) {
+	Profiler::substract_child_time_ = set;
+}
+
+// static
+void Profiler::Attach(AMX *amx) {
+	Profiler *prof = new Profiler(amx);
+	instances_[amx] = prof;
+	prof->Activate();
+}
+
+// static
+void Profiler::Attach(AMX *amx, const DebugInfo &debugInfo) {
+	Attach(amx);
+	Get(amx)->SetDebugInfo(debugInfo);
+}
+
+// static
+void Profiler::Detach(AMX *amx) {
+	Profiler *prof = Profiler::Get(amx);
+	if (prof != 0) {
+		prof->Deactivate();
+		delete prof;
+	}
+	instances_.erase(amx);
+}
+
+// static
+Profiler *Profiler::Get(AMX *amx) {
+	std::map<AMX*, Profiler*>::iterator it = instances_.find(amx);
+	if (it != instances_.end()) {
+		return it->second;
+	}
+	return 0;
+}
+
+static int AMXAPI Debug(AMX *amx) {
+	return Profiler::Get(amx)->Debug();
+}
+
+static int AMXAPI Callback(AMX *amx, cell index, cell *result, cell *params) {
+	return Profiler::Get(amx)->Callback(index, result, params);
+}
+
 Profiler::Profiler(AMX *amx) 
 	: active_(false)
 	, amx_(amx)
@@ -110,42 +157,6 @@ Profiler::Profiler(AMX *amx)
 
 void Profiler::SetDebugInfo(const DebugInfo &info) {
 	debugInfo_ = info;
-}
-
-void Profiler::Attach(AMX *amx) {
-	Profiler *prof = new Profiler(amx);
-	instances_[amx] = prof;
-	prof->Activate();
-}
-
-void Profiler::Attach(AMX *amx, const DebugInfo &debugInfo) {
-	Attach(amx);
-	Get(amx)->SetDebugInfo(debugInfo);
-}
-
-void Profiler::Detach(AMX *amx) {
-	Profiler *prof = Profiler::Get(amx);
-	if (prof != 0) {
-		prof->Deactivate();
-		delete prof;
-	}
-	instances_.erase(amx);
-}
-
-Profiler *Profiler::Get(AMX *amx) {
-	std::map<AMX*, Profiler*>::iterator it = instances_.find(amx);
-	if (it != instances_.end()) {
-		return it->second;
-	}
-	return 0;
-}
-
-static int AMXAPI Debug(AMX *amx) {
-	return Profiler::Get(amx)->Debug();
-}
-
-static int AMXAPI Callback(AMX *amx, cell index, cell *result, cell *params) {
-	return Profiler::Get(amx)->Callback(index, result, params);
 }
 
 void Profiler::Activate() {
@@ -327,7 +338,7 @@ int Profiler::Exec(cell *retval, int index) {
 void Profiler::EnterFunction(const CallInfo &info) {
 	if (active_) {
 		PerformanceCounter &counter = counters_[info.address()];
-		if (call_stack_.empty()) {
+		if (call_stack_.empty() || !Profiler::substract_child_time_) {
 			counter.Start();
 		} else {
 			counter.Start(&counters_[call_stack_.top().address()]);

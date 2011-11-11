@@ -102,14 +102,14 @@ static bool WantsProfiler(const std::string &amxName) {
 	/// Read settings from server.cfg.
 	/// This only works if they used the defalt directories for gamemodes and filterscripts.
 	/// Someting like ../my_scripts/awesome_script.amx obviously won't work here.
-	ConfigReader serverCfg("server.cfg");
+	ConfigReader server_cfg("server.cfg");
 	if (IsGameMode(amxName)) {
 		// This is a gamemode
-		if (serverCfg.GetOption("profile_gamemode", false)) {
+		if (server_cfg.GetOption("profile_gamemode", false)) {
 			return true;
 		}
 	} else if (IsFilterScript(amxName)) {
-		std::string fsList = serverCfg.GetOption("profile_filterscripts", std::string(""));
+		std::string fsList = server_cfg.GetOption("profile_filterscripts", std::string(""));
 		std::stringstream fsStream(fsList);		
 		do {
 			std::string fsName;
@@ -141,6 +141,9 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
 	// Hook amx_Exec
 	::amx_Exec_addr = reinterpret_cast<uint32_t>(((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Exec]);
 	SetJump(reinterpret_cast<void*>(::amx_Exec_addr), (void*)::Exec, ::amx_Exec_code);
+
+	ConfigReader server_cfg("server.cfg");
+	Profiler::SetSubstractChildTime(server_cfg.GetOption("profiler_substract_children", true));
 
 	logprintf("  Profiler plugin "VERSION" is OK.");
 
