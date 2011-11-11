@@ -41,18 +41,31 @@ include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 
 add_library(profiler MODULE
+	"src/amx/amx.h"
 	"src/amx/amxaux.c"
+	"src/amx/amxaux.h"
 	"src/amx/amxdbg.c"
+	"src/amx/amxdbg.h"
 	"src/amxname.cpp"
+	"src/amxname.h"
 	"src/amxplugin.cpp"
 	"src/configreader.cpp"
+	"src/configreader.h"
 	"src/debuginfo.cpp"
+	"src/debuginfo.h"
 	"src/fileutils.cpp"
+	"src/fileutils.h"
 	"src/jump.cpp"
+	"src/jump.h"
 	"src/logprintf.cpp"
+	"src/logprintf.h"
 	"src/perfcounter.cpp"
+	"src/perfcounter.h"
 	"src/plugin.cpp"
+	"src/plugin.h"
+	"src/plugincommon.h"
 	"src/profiler.cpp"
+	"src/profiler.h"
 )
 
 set_property(TARGET profiler PROPERTY PREFIX "")
