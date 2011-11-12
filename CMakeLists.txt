@@ -102,6 +102,7 @@ set_property(SOURCE "src/plugin.cpp" APPEND_STRING PROPERTY
 	COMPILE_DEFINITIONS "VERSION=\"${version}\"")
 
 install(TARGETS profiler LIBRARY DESTINATION ".")
+install(FILES "README.txt" "LICENSE.txt" DESTINATION ".")
 
 set(CPACK_PACKAGE_NAME ${CMAKE_PROJECT_NAME})
 if(WIN32)
