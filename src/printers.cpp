@@ -40,12 +40,43 @@ TimeType GetTotalRunTime(const std::vector<Profile> &profiles) {
 
 namespace samp_profiler {
 
-LogPrinter::LogPrinter(const std::string script_name) 
-	: script_name_(script_name)
+TextPrinter::TextPrinter(const std::string &out_file, const std::string &header)
+	: out_file_(out_file)
+	, header_(header)
 {
 }
 
-void LogPrinter::Print(const std::vector<Profile> &profiles) {
+void TextPrinter::Print(const std::vector<Profile> &profiles) {
+	FILE *fp = fopen(out_file_.c_str(), "w");
+	if (fp == NULL) return;
+
+	fprintf(fp, "%s\n\n", header_.c_str());
+
+	TimeType total_time = GetTotalRunTime(profiles);
+
+	fprintf(fp, "%-15s %-32s %-20s %-20s %-20s %-20s\n\n", 
+		"Function Type",
+		"Function Name",
+		"Calls",
+		"Average Time",
+		"Overall Time",
+		"Overall Time, %"
+	); 
+
+	for (std::vector<Profile>::const_iterator it = profiles.begin(); it != profiles.end(); ++it) {
+		const PerformanceCounter &counter = it->GetCounter();
+
+		fprintf(fp, "%-15s %-32s %-20lld %-20lld %-20lld %-20.1f\n", 
+			it->GetFunctionType().c_str(),
+			it->GetFunctionName().c_str(),
+			counter.GetNumberOfCalls(),
+			counter.GetTotalTime() / counter.GetNumberOfCalls(),
+			counter.GetTotalTime(),
+			static_cast<double>(counter.GetTotalTime() * 100) / total_time
+		);
+	}
+
+	fclose(fp);
 }
 
 HtmlPrinter::HtmlPrinter(const std::string &out_file, const std::string &title) 

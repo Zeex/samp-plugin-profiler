@@ -207,6 +207,9 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 		if (output_format == "html") {			
 			HtmlPrinter printer(amx_name + "-profile.html", "Profile of " + amx_path);
 			prof->PrintStats(printer);
+		} else if (output_format == "text") {
+			TextPrinter printer(amx_name + "-profile.txt", "Profile of " + amx_path);
+			prof->PrintStats(printer);
 		}
 		Profiler::Detach(amx);
 	}
