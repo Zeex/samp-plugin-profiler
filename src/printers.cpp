@@ -27,9 +27,9 @@ namespace {
 using samp_profiler::Profile;
 using samp_profiler::TimeType;
 
-TimeType GetTotalRunTime(const std::vector<Profile> &profiles) {
+TimeType GetTotalRunTime(const Profile &profile) {
 	TimeType total_time = 0;
-	for (std::vector<Profile>::const_iterator it = profiles.begin(); it != profiles.end(); ++it) {
+	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
 		total_time += it->GetCounter().GetTotalTime();
 	}   
 	return total_time;
@@ -45,13 +45,13 @@ TextPrinter::TextPrinter(const std::string &out_file, const std::string &header)
 {
 }
 
-void TextPrinter::Print(const std::vector<Profile> &profiles) {
+void TextPrinter::Print(const Profile &profile) {
 	FILE *fp = fopen(out_file_.c_str(), "w");
 	if (fp == NULL) return;
 
 	fprintf(fp, "%s\n\n", header_.c_str());
 
-	TimeType total_time = GetTotalRunTime(profiles);
+	TimeType total_time = GetTotalRunTime(profile);
 
 	fprintf(fp, "%-15s %-32s %-20s %-20s %-20s %-20s\n\n", 
 		"Function Type",
@@ -62,7 +62,7 @@ void TextPrinter::Print(const std::vector<Profile> &profiles) {
 		"Overall Time, %"
 	); 
 
-	for (std::vector<Profile>::const_iterator it = profiles.begin(); it != profiles.end(); ++it) {
+	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
 		const PerformanceCounter &counter = it->GetCounter();
 
 		fprintf(fp, "%-15s %-32s %-20lld %-20lld %-20lld %-20.1f\n", 
@@ -84,7 +84,7 @@ HtmlPrinter::HtmlPrinter(const std::string &out_file, const std::string &title)
 {
 }
 
-void HtmlPrinter::Print(const std::vector<Profile> &profiles) {
+void HtmlPrinter::Print(const Profile &profile) {
 	std::ofstream stream(out_file_.c_str());
 	if (!stream.is_open()) return;
 
@@ -125,9 +125,9 @@ void HtmlPrinter::Print(const std::vector<Profile> &profiles) {
 	"		<tbody>\n"
 	;
 
-    TimeType total_time = GetTotalRunTime(profiles);
+    TimeType total_time = GetTotalRunTime(profile);
 
-	for (std::vector<Profile>::const_iterator it = profiles.begin(); it != profiles.end(); ++it) {
+	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
 		const PerformanceCounter &counter = it->GetCounter();
 
 		stream 
