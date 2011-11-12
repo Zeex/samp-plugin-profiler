@@ -19,8 +19,24 @@
 #include <iostream>
 #include <string>
 
+#include "logprintf.h"
 #include "printers.h"
 #include "profile.h"
+
+namespace {
+
+using samp_profiler::Profile;
+using samp_profiler::TimeType;
+
+TimeType GetTotalRunTime(const std::vector<Profile> &profiles) {
+	TimeType total_time = 0;
+	for (std::vector<Profile>::const_iterator it = profiles.begin(); it != profiles.end(); ++it) {
+		total_time += it->GetCounter().GetTotalTime();
+	}   
+	return total_time;
+}
+
+} // namespace 
 
 namespace samp_profiler {
 
@@ -30,7 +46,6 @@ LogPrinter::LogPrinter(const std::string script_name)
 }
 
 void LogPrinter::Print(const std::vector<Profile> &profiles) {
-	
 }
 
 HtmlPrinter::HtmlPrinter(const std::string &out_file, const std::string &title) 
@@ -80,10 +95,7 @@ void HtmlPrinter::Print(const std::vector<Profile> &profiles) {
 	"		<tbody>\n"
 	;
 
-	int64_t total_time = 0;
-	for (std::vector<Profile>::const_iterator it = profiles.begin(); it != profiles.end(); ++it) {
-		total_time += it->GetCounter().GetTotalTime();
-	}        
+    TimeType total_time = GetTotalRunTime(profiles);
 
 	for (std::vector<Profile>::const_iterator it = profiles.begin(); it != profiles.end(); ++it) {
 		const PerformanceCounter &counter = it->GetCounter();
