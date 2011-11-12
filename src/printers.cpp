@@ -19,7 +19,6 @@
 #include <iostream>
 #include <string>
 
-#include "logprintf.h"
 #include "printers.h"
 #include "profile.h"
 
