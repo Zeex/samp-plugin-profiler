@@ -201,15 +201,26 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 
 		// Output stats depending on currently set output_format
 		ConfigReader server_cfg("server.cfg");
+
+		Profiler::OutputSortMode sort_mode;
+		std::string sort_output_by = 
+			server_cfg.GetOption("profiler_sort_output_by", std::string("time"));
+		if (sort_output_by == "calls") {
+			sort_mode = Profiler::SORT_BY_CALLS;
+		} else if (sort_output_by == "time") {
+			sort_mode = Profiler::SORT_BY_TIME;
+		} else if (sort_output_by == "time_per_call") {
+			sort_mode = Profiler::SORT_BY_TIME_PER_CALL;
+		}
+
 		std::string output_format = 
 			server_cfg.GetOption("profiler_output_format", std::string("html"));
-
 		if (output_format == "html") {			
 			HtmlPrinter printer(amx_name + "-profile.html", "Profile of " + amx_path);
-			prof->PrintStats(printer);
+			prof->PrintStats(printer, sort_mode);
 		} else if (output_format == "text") {
 			TextPrinter printer(amx_name + "-profile.txt", "Profile of " + amx_path);
-			prof->PrintStats(printer);
+			prof->PrintStats(printer, sort_mode);
 		}
 		Profiler::Detach(amx);
 	}
