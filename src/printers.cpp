@@ -40,7 +40,7 @@ HtmlPrinter::HtmlPrinter(const std::string &out_file, const std::string &title)
 }
 
 void HtmlPrinter::Print(const std::vector<Profile> &profiles) {
-	std::ofstream stream(out_file_);
+	std::ofstream stream(out_file_.c_str());
 	if (!stream.is_open()) return;
 
 	stream << 
