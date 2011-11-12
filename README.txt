@@ -1,3 +1,8 @@
+Profiler plugin for the SA:MP server.
+
+Copyright (c) 2011 Zeex.
+See LICENSE file for license details.
+
 You can configure profiler via server.cfg, by changing the following options:
 
 * profile_gamemode <0/1>
