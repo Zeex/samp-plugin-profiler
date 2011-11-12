@@ -207,7 +207,7 @@ void Profiler::PrintStats(Printer &printer, OutputSortMode order) {
 		break;
 	}
 
-	std::vector<Profile> profiles;
+	Profile profile;
 
 	for (std::vector<std::pair<cell, PerformanceCounter> >::iterator stat_it = stats.begin(); 
 			stat_it != stats.end(); ++stat_it) 
@@ -216,7 +216,7 @@ void Profiler::PrintStats(Printer &printer, OutputSortMode order) {
 		PerformanceCounter &counter = stat_it->second;
 
 		if (address <= 0) {
-			profiles.push_back(Profile(natives_[-address].name(), "native", counter));
+			profile.push_back(ProfileEntry(natives_[-address].name(), "native", counter));
 		} else {
 			bool found = false;
 			// Search in public table
@@ -224,7 +224,7 @@ void Profiler::PrintStats(Printer &printer, OutputSortMode order) {
 					pub_it != publics_.end(); ++pub_it) 
 			{
 				if (pub_it->address() == address)  {
-					profiles.push_back(Profile(pub_it->name(), "public", counter));
+					profile.push_back(ProfileEntry(pub_it->name(), "public", counter));
 					found = true;
 					break;
 				}
@@ -234,19 +234,19 @@ void Profiler::PrintStats(Printer &printer, OutputSortMode order) {
 				if (debugInfo_.IsLoaded()) {
 					std::string name = debugInfo_.GetFunctionName(address);
 					if (!name.empty()) {	
-						profiles.push_back(Profile(debugInfo_.GetFunctionName(address), "ordinary", counter));
+						profile.push_back(ProfileEntry(debugInfo_.GetFunctionName(address), "ordinary", counter));
 						found = true;
 					}
 				}
 			}
 			// Not found
 			if (!found) {
-				profiles.push_back(Profile("", "", counter));
+				profile.push_back(ProfileEntry("", "", counter));
 			}
 		}
 	}
 
-	printer.Print(profiles);
+	printer.Print(profile);
 }
 
 int Profiler::Debug() {

@@ -18,14 +18,15 @@
 #define SAMP_PROFILER_PROFILE_H
 
 #include <string>
+#include <vector>
 
 #include "perfcounter.h"
 
 namespace samp_profiler {
 
-class Profile {
+class ProfileEntry {
 public:
-	Profile(const std::string &function_name, const std::string &function_type, PerformanceCounter counter)
+	ProfileEntry(const std::string &function_name, const std::string &function_type, PerformanceCounter counter)
 		: name_(function_name)
 		, type_(function_type)
 		, counter_(counter)
@@ -44,6 +45,8 @@ private:
 	std::string        type_;
 	PerformanceCounter counter_;
 };
+
+typedef std::vector<ProfileEntry> Profile;
 
 } // namespace samp_profiler
 

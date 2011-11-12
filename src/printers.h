@@ -20,19 +20,19 @@
 #include <string>
 #include <vector>
 
-namespace samp_profiler {
+#include "profile.h"
 
-class Profile;
+namespace samp_profiler {
 
 class Printer {
 public:
-	virtual void Print(const std::vector<Profile> &profiles) = 0;
+	virtual void Print(const Profile &profile) = 0;
 };
 
 class TextPrinter : public Printer {
 public:
 	TextPrinter(const std::string &out_file, const std::string &header = "");
-	virtual void Print(const std::vector<Profile> &profiles);
+	virtual void Print(const Profile &profile);
 
 private:
 	std::string out_file_;
@@ -42,7 +42,7 @@ private:
 class HtmlPrinter : public Printer {
 public:
 	HtmlPrinter(const std::string &out_file, const std::string &title = "");
-	virtual void Print(const std::vector<Profile> &profiles);
+	virtual void Print(const Profile &profile);
 
 private:
 	std::string out_file_;
