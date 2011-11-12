@@ -1,7 +1,7 @@
 Profiler plugin for the SA:MP server.
 
 Copyright (c) 2011 Zeex.
-See LICENSE file for license details.
+See LICENSE.txt for license details.
 
 You can configure profiler via server.cfg, by changing the following options:
 
