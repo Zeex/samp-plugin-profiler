@@ -17,8 +17,6 @@
 #ifndef SAMP_SAMP_PROFILER_PERFCOUNTER_H
 #define SAMP_SAMP_PROFILER_PERFCOUNTER_H
 
-#include <cstdint>
-
 #include <boost/chrono.hpp>
 
 namespace samp_profiler {
@@ -33,8 +31,8 @@ public:
 	void Start(PerformanceCounter *parent = 0);
 	void Stop();
 
-	std::int64_t GetNumberOfCalls() const;
-	std::int64_t GetTotalTime() const;
+	int64_t GetNumberOfCalls() const;
+	int64_t GetTotalTime() const;
 
 private:
 	void Pause();
@@ -46,7 +44,7 @@ private:
 	PerformanceCounter *child_;
 	PerformanceCounter *parent_;
 
-	std::int64_t num_calls_;
+	int64_t num_calls_;
 
 	Clock::time_point start_;
 	Clock::duration   total_time_;

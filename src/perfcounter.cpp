@@ -80,11 +80,11 @@ void PerformanceCounter::Resume() {
 	}
 }
 
-std::int64_t PerformanceCounter::GetNumberOfCalls() const {
+int64_t PerformanceCounter::GetNumberOfCalls() const {
 	return num_calls_;
 }
 
-std::int64_t PerformanceCounter::GetTotalTime() const {
+int64_t PerformanceCounter::GetTotalTime() const {
 	using namespace boost::chrono;
 	return duration_cast<microseconds>(total_time_).count();
 }
