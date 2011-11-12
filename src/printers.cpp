@@ -84,7 +84,7 @@ void HtmlPrinter::Print(const std::vector<Profile> &profiles) {
 	"		<tbody>\n"
 	;
 
-	std::int64_t total_time = 0;
+	int64_t total_time = 0;
 	for (std::vector<Profile>::const_iterator it = profiles.begin(); it != profiles.end(); ++it) {
 		total_time += it->GetCounter().GetTotalTime();
 	}        
