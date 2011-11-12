@@ -44,7 +44,7 @@ void HtmlPrinter::Print(const std::vector<Profile> &profiles) {
 	if (!stream.is_open()) return;
 
 	stream << 
-	"<html>\n\n"
+	"<html>\n"
 	"<head>\n"
 	;
 
@@ -55,21 +55,17 @@ void HtmlPrinter::Print(const std::vector<Profile> &profiles) {
 	}
 
 	stream << 
-	"	<script type=\"text/javascript\"\n"
-	"		src=\"http://code.jquery.com/jquery-latest.min.js\"></script>\n"
-	"	<script type=\"text/javascript\"\n"
-	"		src=\"http://autobahn.tablesorter.com/jquery.tablesorter.min.js\"></script>\n"
-	"	<script type=\"text/javascript\">\n"
-	"	$(document).ready(function() {\n"
-	"		$(\"#stats\").tablesorter();\n"
-	"	});\n"
-	"	</script>\n"
 	"</head>\n\n"
+	"<body>"
 	;
 
-	stream << 
-	"<body>"
-	"	<h1>" << title_ << "</h1>\n"
+	if (!title_.empty()) {
+		stream <<
+		"	<h1>" << title_ << "</h1>\n"
+		;
+	}
+
+	stream <<
 	"	<table id=\"stats\" class=\"tablesorter\" border=\"1\" width=\"100%\">\n"
 	"		<thead>\n"
 	"			<tr>\n"
@@ -106,10 +102,19 @@ void HtmlPrinter::Print(const std::vector<Profile> &profiles) {
 
 	stream << 
 	"		</tbody>\n"
-	"	</table>\n\n"
+	"	</table>\n"
 	;
 
 	stream <<
+	"	<script type=\"text/javascript\"\n"
+	"		src=\"http://code.jquery.com/jquery-latest.min.js\"></script>\n"
+	"	<script type=\"text/javascript\"\n"
+	"		src=\"http://autobahn.tablesorter.com/jquery.tablesorter.min.js\"></script>\n"
+	"	<script type=\"text/javascript\">\n"
+	"	$(document).ready(function() {\n"
+	"		$(\"#stats\").tablesorter();\n"
+	"	});\n"
+	"	</script>\n"
 	"</body>\n"
 	"</html>\n"
 	;
