@@ -19,6 +19,8 @@ You can configure profiler via server.cfg, by changing the following options:
   Set output format. Currently supported formats: html, text.
   Default is html.
 
+  Note; for html format it is possible to sort stats by clicking on column name.
+
 * profiler_sort_output_by <what>
   
   Set output sort mode. Supported values are: calls, time, time_per_call.
