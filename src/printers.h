@@ -29,13 +29,14 @@ public:
 	virtual void Print(const std::vector<Profile> &profiles) = 0;
 };
 
-class LogPrinter : public Printer {
+class TextPrinter : public Printer {
 public:
-	LogPrinter(const std::string script_name);
+	TextPrinter(const std::string &out_file, const std::string &header = "");
 	virtual void Print(const std::vector<Profile> &profiles);
 
 private:
-	std::string script_name_;
+	std::string out_file_;
+	std::string header_;
 };
 
 class HtmlPrinter : public Printer {
