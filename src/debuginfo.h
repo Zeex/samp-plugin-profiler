@@ -18,12 +18,7 @@
 #include <string>
 #include <vector>
 
-#if defined HAVE_MEMORY
-	#include <memory>
-#endif
-#if defined HAVE_TR1_MEMORY
-	#include <tr1/memory>
-#endif
+#include <boost/shared_ptr.hpp>
 
 #include "amx/amx.h"
 #include "amx/amxdbg.h"
@@ -107,7 +102,7 @@ public:
 	std::vector<DebugSymbol> GetSymbols() const;
 
 private:
-	std::tr1::shared_ptr<AMX_DBG> amxdbgPtr_;
+	boost::shared_ptr<AMX_DBG> amxdbgPtr_;
 };
 
 } // namespace samp_profiler

@@ -22,12 +22,7 @@
 #include <map>
 #include <string>
 
-#ifdef HAVE_MEMORY
-	#include <memory>
-#endif
-#ifdef HAVE_TR1_MEMORY
-	#include <tr1/memory>
-#endif
+#include <boost/shared_ptr.hpp>
 
 #include "amx/amx.h"
 
@@ -49,7 +44,8 @@ public:
 	std::time_t GetLastWriteTime() const { return last_write_; }
 
 private:
-	std::tr1::shared_ptr<AMX> amxPtr_;
+	boost::shared_ptr<AMX> amxPtr_;
+
 	std::string name_;
 	std::time_t last_write_;
 };

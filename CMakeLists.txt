@@ -24,19 +24,10 @@ function(check_include_and_define include_file define)
 	endif()
 endfunction()
 
-function(check_cxx_include_and_define include_file define)
-	check_include_file_cxx(${include_file} HAVE_${include_file})
-	if(HAVE_${include_file})
-		add_definitions(-D${define})
-	endif()
-endfunction()
-
 check_include_and_define(alloca.h HAVE_ALLOCA_H)
 check_include_and_define(inttypes.h HAVE_INTTYPES_H)
 check_include_and_define(malloc.h HAVE_MALLOC_H)
 check_include_and_define(stdint.h HAVE_STDINT_H)
-check_cxx_include_and_define(memory HAVE_MEMORY)
-check_cxx_include_and_define(tr1/memory HAVE_TR1_MEMORY)
 
 include_directories("src/amx") # amx.h includes <sclinux.h>
 include_directories(${Boost_INCLUDE_DIRS})
