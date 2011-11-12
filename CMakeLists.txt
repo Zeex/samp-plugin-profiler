@@ -11,8 +11,11 @@ include(GetGitRevisionDescription)
 # Configure Boost
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_RUNTIME ON)
-find_package(Boost 1.47 REQUIRED COMPONENTS chrono system)
+set(Boost_USE_STATIC_RUNTIME OFF)
+find_package(Boost 1.47 REQUIRED COMPONENTS chrono filesystem system)
+
+# Disable the auto-link feature 
+add_definitions(-DBOOST_ALL_NO_LIB)
 
 function(check_include_and_define include_file define)
 	check_include_file(${include_file} HAVE_${include_file})
@@ -53,8 +56,6 @@ add_library(profiler MODULE
 	"src/configreader.h"
 	"src/debuginfo.cpp"
 	"src/debuginfo.h"
-	"src/fileutils.cpp"
-	"src/fileutils.h"
 	"src/jump.cpp"
 	"src/jump.h"
 	"src/logprintf.cpp"

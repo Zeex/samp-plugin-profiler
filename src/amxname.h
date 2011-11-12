@@ -46,12 +46,12 @@ public:
 
 	const AMX *GetAmx() const { return amxPtr_.get(); }
 	const std::string &GetName() const { return name_; }
-	std::time_t GetModified() const { return modified_; }
+	std::time_t GetLastWriteTime() const { return last_write_; }
 
 private:
 	std::tr1::shared_ptr<AMX> amxPtr_;
 	std::string name_;
-	std::time_t modified_;
+	std::time_t last_write_;
 };
 
 } // namespace samp_profiler
