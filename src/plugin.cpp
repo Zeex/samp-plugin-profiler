@@ -254,10 +254,10 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 		std::string output_format = 
 			server_cfg.GetOption("profiler_output_format", std::string("html"));
 		if (output_format == "html") {			
-			HtmlPrinter printer(amx_name + "-profile.html", "Profile of " + amx_path);
+			HtmlPrinter printer(amx_name + "-profile.html", amx_path);
 			prof->PrintStats(printer, sort_mode);
 		} else if (output_format == "text") {
-			TextPrinter printer(amx_name + "-profile.txt", "Profile of " + amx_path);
+			TextPrinter printer(amx_name + "-profile.txt", amx_path);
 			prof->PrintStats(printer, sort_mode);
 		}
 		Profiler::Detach(amx);

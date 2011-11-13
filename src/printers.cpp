@@ -14,6 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <ctime>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -35,13 +36,28 @@ TimeType GetTotalRunTime(const Profile &profile) {
 	return total_time;
 }
 
+std::string GetCurrentDateAndTime() {
+	static const size_t kBufferSize = 80u;
+
+	std::time_t raw_time;
+	std::time(&raw_time);
+
+	std::tm *time_info;
+	time_info = std::localtime(&raw_time);
+
+	char buffer[kBufferSize];
+	std::strftime(buffer, kBufferSize, "%c", time_info);
+
+	return std::string(buffer);
+}
+
 } // namespace 
 
 namespace samp_profiler {
 
-TextPrinter::TextPrinter(const std::string &out_file, const std::string &header)
+TextPrinter::TextPrinter(const std::string &out_file, const std::string &script_name)
 	: out_file_(out_file)
-	, header_(header)
+	, script_name_(script_name)
 {
 }
 
@@ -49,7 +65,8 @@ void TextPrinter::Print(const Profile &profile) {
 	std::ofstream stream(out_file_.c_str());
 	if (!stream.is_open()) return;	
 
-	stream << header_ << "\n" << std::endl;
+	stream << "Profile of " << script_name_ << " generated on " 
+		<< GetCurrentDateAndTime() << "\n" << std::endl;
 	stream 
 		<< std::setw(kFunctionTypeWidth)  << "Function Type"
 		<< std::setw(kFunctionNameWidth)  << "Function Name"
@@ -76,9 +93,9 @@ void TextPrinter::Print(const Profile &profile) {
 	}
 }
 
-HtmlPrinter::HtmlPrinter(const std::string &out_file, const std::string &title) 
+HtmlPrinter::HtmlPrinter(const std::string &out_file, const std::string &script_name) 
 	: out_file_(out_file)
-	, title_(title)
+	, script_name_(script_name)
 {
 }
 
@@ -89,26 +106,10 @@ void HtmlPrinter::Print(const Profile &profile) {
 	stream << 
 	"<html>\n"
 	"<head>\n"
-	;
-
-	if (!title_.empty()) {
-		stream << 
-		"	<title>" << title_ << "</title>\n"
-		;
-	}
-
-	stream << 
+	"	<title>" << "Profile of " << script_name_ << "</title>\n"
 	"</head>\n\n"
 	"<body>"
-	;
-
-	if (!title_.empty()) {
-		stream <<
-		"	<h1>" << title_ << "</h1>\n"
-		;
-	}
-
-	stream <<
+	"	<h1>" << "Profile of " << script_name_ << " generated on " << GetCurrentDateAndTime() << "</h1>\n"
 	"	<table id=\"stats\" class=\"tablesorter\" border=\"1\" width=\"100%\">\n"
 	"		<thead>\n"
 	"			<tr>\n"

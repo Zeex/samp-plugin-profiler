@@ -38,22 +38,22 @@ public:
 	static const int kOverallTimeWidth   = 20;
 	static const int kPercentOfTimeWidth = 20;
 
-	TextPrinter(const std::string &out_file, const std::string &header = "");
+	TextPrinter(const std::string &out_file, const std::string &script_name = "");
 	virtual void Print(const Profile &profile);
 
 private:
 	std::string out_file_;
-	std::string header_;
+	std::string script_name_;
 };
 
 class HtmlPrinter : public Printer {
 public:
-	HtmlPrinter(const std::string &out_file, const std::string &title = "");
+	HtmlPrinter(const std::string &out_file, const std::string &script_name = "");
 	virtual void Print(const Profile &profile);
 
 private:
 	std::string out_file_;
-	std::string title_;
+	std::string script_name_;
 };
 
 } // namespace samp_profiler
