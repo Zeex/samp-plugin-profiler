@@ -31,7 +31,7 @@ using samp_profiler::TimeType;
 TimeType GetTotalRunTime(const Profile &profile) {
 	TimeType total_time = 0;
 	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
-		total_time += it->GetCounter().GetTotalTime();
+		total_time += it->GetCounter().GetTime();
 	}   
 	return total_time;
 }
@@ -85,10 +85,10 @@ void TextPrinter::Print(const Profile &profile) {
 			<< std::setw(kFunctionTypeWidth)  << it->GetFunctionType()
 			<< std::setw(kFunctionNameWidth)  << it->GetFunctionName()
 			<< std::setw(kNumberOfCallsWidth) << counter.GetNumberOfCalls()
-			<< std::setw(kAverageTimeWidth)   << counter.GetTotalTime() / counter.GetNumberOfCalls()
-			<< std::setw(kOverallTimeWidth)   << counter.GetTotalTime()
+			<< std::setw(kAverageTimeWidth)   << counter.GetTime() / counter.GetNumberOfCalls()
+			<< std::setw(kOverallTimeWidth)   << counter.GetTime()
 			<< std::setw(kPercentOfTimeWidth) << std::setprecision(2) << std::fixed 
-				<< static_cast<double>(counter.GetTotalTime() * 100) / total_time
+				<< static_cast<double>(counter.GetTime() * 100) / total_time
 		<< std::endl;
 	}
 }
@@ -134,10 +134,10 @@ void HtmlPrinter::Print(const Profile &profile) {
 		<< "			<td>" << it->GetFunctionType() << "</td>\n"
 		<< "			<td>" << it->GetFunctionName() << "</td>\n"
 		<< "			<td>" << counter.GetNumberOfCalls() << "</td>\n"
-		<< "			<td>" << counter.GetTotalTime() / counter.GetNumberOfCalls() << "</td>\n"
-		<< "			<td>" << counter.GetTotalTime() << "</td>\n"
+		<< "			<td>" << counter.GetTime() / counter.GetNumberOfCalls() << "</td>\n"
+		<< "			<td>" << counter.GetTime() << "</td>\n"
 		<< "			<td>" << std::fixed << std::setprecision(2) 
-			<< static_cast<double>(counter.GetTotalTime() * 100) / total_time << "</td>\n"
+			<< static_cast<double>(counter.GetTime() * 100) / total_time << "</td>\n"
 		<< "		</tr>\n";
 	}
 

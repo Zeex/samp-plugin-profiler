@@ -35,7 +35,7 @@ public:
 	void Stop();
 
 	TimeType GetNumberOfCalls() const;
-	TimeType GetTotalTime() const;
+	TimeType GetTime() const;
 
 private:
 	void Pause();
