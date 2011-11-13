@@ -187,6 +187,7 @@ std::string DebugInfo::GetFunctionName(cell address) const {
 				&& symbol->codeend > address) {
 			if (symbol->name[0] != '@') {
 				result.assign(symbol->name);
+				break;
 			}
 		}
 	}
