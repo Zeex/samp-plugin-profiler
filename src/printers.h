@@ -31,6 +31,13 @@ public:
 
 class TextPrinter : public Printer {
 public:
+	static const int kFunctionTypeWidth  = 15;
+	static const int kFunctionNameWidth  = 32;
+	static const int kNumberOfCallsWidth = 20;
+	static const int kAverageTimeWidth   = 20;
+	static const int kOverallTimeWidth   = 20;
+	static const int kPercentOfTimeWidth = 20;
+
 	TextPrinter(const std::string &out_file, const std::string &header = "");
 	virtual void Print(const Profile &profile);
 
