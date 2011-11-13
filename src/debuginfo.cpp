@@ -177,6 +177,10 @@ std::string DebugInfo::GetFileName(cell address) const {
 	return result;
 }
 
+static bool IsBuggedForward(AMX_DBG_SYMBOL *symbol) {
+	return (symbol->name[0] == '@' && symbol->codestart == 0x8 && symbol->codeend == 0x928);
+}
+
 std::string DebugInfo::GetFunctionName(cell address) const {
 	std::string result;
 	AMX_DBG *amxdbg = amxdbgPtr_.get();
@@ -185,7 +189,7 @@ std::string DebugInfo::GetFunctionName(cell address) const {
 		if (symbol->ident == iFUNCTN
 				&& symbol->codestart <= address
 				&& symbol->codeend > address) {
-			if (symbol->name[0] != '@') {
+			if (!IsBuggedForward(symbol)) {
 				result.assign(symbol->name);
 				break;
 			}
@@ -207,7 +211,7 @@ ucell DebugInfo::GetFunctionStartAddress(ucell address) const {
 		if (symbol->ident == iFUNCTN
 				&& symbol->codestart <= address
 				&& symbol->codeend > address) {
-			if (symbol->name[0] != '@') {
+			if (!IsBuggedForward(symbol)) {
 				return symbol->codestart;
 			}
 		}
