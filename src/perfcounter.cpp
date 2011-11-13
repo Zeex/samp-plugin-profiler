@@ -84,7 +84,7 @@ TimeType PerformanceCounter::GetNumberOfCalls() const {
 	return num_calls_;
 }
 
-TimeType PerformanceCounter::GetTotalTime() const {
+TimeType PerformanceCounter::GetTime() const {
 	using namespace boost::chrono;
 	return duration_cast<microseconds>(total_time_).count();
 }
