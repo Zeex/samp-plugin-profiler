@@ -43,18 +43,18 @@ using namespace samp_profiler;
 
 extern void *pAMXFunctions; 
 
+namespace {
+
 // Symbolic info, used for getting function names
-static std::map<AMX*, DebugInfo> debugInfos;
+std::map<AMX*, DebugInfo> debugInfos;
 
 // Both x86 and x86-64 are Little Endian...
-static void *AMXAPI DummyAmxAlign(void *v) { return v; }
+void *AMXAPI DummyAmxAlign(void *v) { return v; }
 
-static uint32_t amx_Exec_addr;
-static unsigned char amx_Exec_code[5];
+Jump ExecHook;
 
-static int AMXAPI Exec(AMX *amx, cell *retval, int index) {
-	memcpy(reinterpret_cast<void*>(::amx_Exec_addr), ::amx_Exec_code, 5);
-
+int AMXAPI Exec(AMX *amx, cell *retval, int index) {
+	ExecHook.Remove();	
 	int error = AMX_ERR_NONE;
 
 	// Check if this script has a profiler attached to it
@@ -65,13 +65,41 @@ static int AMXAPI Exec(AMX *amx, cell *retval, int index) {
 		error = amx_Exec(amx, retval, index);
 	}
 
-	SetJump(reinterpret_cast<void*>(::amx_Exec_addr), (void*)::Exec, ::amx_Exec_code);
+	ExecHook.Reinstall();
+	return error;
+}
 
+Jump CallbackHook;
+
+int AMXAPI Callback(AMX *amx, cell index, cell *result, cell *params) {
+	CallbackHook.Remove();
+	int error = AMX_ERR_NONE;
+
+	// The default AMX callback (amx_Callback) can replace SYSREQ.C opcodes
+	// with SYSREQ.D for better performance. 
+	if (amx->sysreq_d != 0) {
+		amx->sysreq_d = 0; 
+	}
+
+	// Natives can call amx_Exec 
+	ExecHook.Reinstall();
+
+	// Check if this script has a profiler attached to it
+	Profiler *prof = Profiler::Get(amx);
+	if (prof != 0) {
+		error =  prof->Callback(index, result, params);
+	} else {
+		error = amx_Callback(amx, index, result, params);
+	}
+
+	ExecHook.Remove();
+
+	CallbackHook.Reinstall();
 	return error;
 }
 
 // Replaces back slashes with forward slashes
-static std::string ToPortablePath(const std::string &path) {
+std::string ToPortablePath(const std::string &path) {
 	std::string fsPath = path;
 	std::replace(fsPath.begin(), fsPath.end(), '\\', '/');   
 	return fsPath;
@@ -86,7 +114,7 @@ bool IsFilterScript(const std::string &amxName) {
 }
 
 // Returns true if the .amx should be profiled
-static bool WantsProfiler(const std::string &amxName) {
+bool WantsProfiler(const std::string &amxName) {
 	std::string goodAmxName = ToPortablePath(amxName);
 
 	/// Look at profiler.cfg
@@ -103,9 +131,8 @@ static bool WantsProfiler(const std::string &amxName) {
 		return true;
 	}
 
-	/// Read settings from server.cfg.
-	/// This only works if they used the defalt directories for gamemodes and filterscripts.
-	/// Someting like ../my_scripts/awesome_script.amx obviously won't work here.
+	// This only works if they place their gamemodes and filterscripts in default directories.
+	// Someting like ../my_scripts/awesome_script.amx obviously won't work.
 	ConfigReader server_cfg("server.cfg");
 	if (IsGameMode(amxName)) {
 		// This is a gamemode
@@ -128,6 +155,8 @@ static bool WantsProfiler(const std::string &amxName) {
 	return false;
 }
 
+} // namespace
+
 PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports() {
 	return SUPPORTS_VERSION | SUPPORTS_AMX_NATIVES;
 }
@@ -143,8 +172,9 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
 	((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Align64] = (void*)DummyAmxAlign; // amx_Align64
 
 	// Hook amx_Exec
-	::amx_Exec_addr = reinterpret_cast<uint32_t>(((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Exec]);
-	SetJump(reinterpret_cast<void*>(::amx_Exec_addr), (void*)::Exec, ::amx_Exec_code);
+	ExecHook.Install(((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Exec], (void*)::Exec);
+	// Hook amx_Callback
+	CallbackHook.Install(((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Callback], (void*)::Callback);
 
 	ConfigReader server_cfg("server.cfg");
 	Profiler::SetSubstractChildTime(server_cfg.GetOption("profiler_substract_children", true));

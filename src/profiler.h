@@ -89,7 +89,6 @@ private:
 	AMX          *amx_;
 	DebugInfo     debugInfo_;
 	AMX_DEBUG     debug_;
-	AMX_CALLBACK  callback_;
 
 	class CallInfo {
 	public:

@@ -1,5 +1,3 @@
-// SA:MP Profiler plugin
-//
 // Copyright (c) 2011 Zeex
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +14,8 @@
 
 #include <cstring>
 
+namespace samp_profiler {
+
 #if defined WIN32 || defined _WIN32
 	#include <windows.h>
 	typedef unsigned __int32 uint32_t;
@@ -24,8 +24,6 @@
 	#include <unistd.h>
 	#include <sys/mman.h>
 #endif
-
-namespace samp_profiler {
 
 static void Unprotect(void *address, int size) {
 #if defined WIN32 || defined _WIN32
@@ -58,3 +56,4 @@ void SetJump(void *from, void *to) {
 }
 
 } // namespace samp_profiler
+

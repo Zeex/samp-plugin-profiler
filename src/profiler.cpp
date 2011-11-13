@@ -151,7 +151,6 @@ Profiler::Profiler(AMX *amx)
 	: active_(false)
 	, amx_(amx)
 	, debug_(amx->debug)
-	, callback_(amx->callback)
 {
 	// Since PrintStats is done in AmxUnload and amx->base is already freed before
 	// AmxUnload gets called, therefore both native and public tables are not accessible, 
@@ -168,7 +167,6 @@ void Profiler::Activate() {
 	if (!active_) {
 		active_ = true;
 		amx_SetDebugHook(amx_, ::Debug);
-		amx_SetCallback(amx_, ::Callback);
 	}
 }
 
@@ -180,7 +178,6 @@ void Profiler::Deactivate() {
 	if (active_) {
 		active_ = false;
 		amx_SetDebugHook(amx_, debug_);
-		amx_SetCallback(amx_, callback_);
 	}
 }
 
@@ -282,14 +279,10 @@ int Profiler::Debug() {
 }
 
 int Profiler::Callback(cell index, cell *result, cell *params) {
-	// The default AMX callback (amx_Callback) can replace SYSREQ.C opcodes
-	// with SYSREQ.D for better performance. 
-	amx_->sysreq_d = 0; 
-
 	cell address = -index;
 
 	EnterFunction(CallInfo(amx_->frm, address, CallInfo::NATIVE));
-	int error = callback_(amx_, index, result, params);
+	int error = amx_Callback(amx_, index, result, params);
 	LeaveFunction(address);
 
 	return error;

@@ -1,5 +1,3 @@
-// SA:MP Profiler plugin
-//
 // Copyright (c) 2011 Zeex
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,12 +15,37 @@
 #ifndef SAMP_PROFILER_JUMP_H
 #define SAMP_PROFILER_JUMP_H
 
+#include <cstring>
+#include <map>
+
 namespace samp_profiler {
 
 // Modifies code at 'from' to make it JMP to 'to'.
 void SetJump(void *from, void *to);
 void SetJump(void *from, void *to, unsigned char (&oldCode)[5]);
 
+class Jump {
+public:
+    inline void Install(void *from, void *to) {
+        from_ = from; to_ = to;
+        SetJump(from_, to_, code_);
+    }
+
+    inline void Remove() {
+        std::memcpy(from_, code_, 5);
+    }
+
+    inline void Reinstall() {
+        SetJump(from_, to_, code_);
+    }
+
+private:
+    void *from_;
+    void *to_;
+    unsigned char code_[5];
+};
+
 } // namespace samp_profiler
 
-#endif // !SAMP_PROFILER_JUMP_H
+#endif
+
