@@ -47,6 +47,8 @@ add_library(profiler MODULE
 	"src/configreader.h"
 	"src/debuginfo.cpp"
 	"src/debuginfo.h"
+	"src/dumpsym.h"
+	"src/dumpsym.cpp"
 	"src/jump.cpp"
 	"src/jump.h"
 	"src/logprintf.cpp"
