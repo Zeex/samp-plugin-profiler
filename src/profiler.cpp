@@ -32,10 +32,6 @@ int AMXAPI Debug(AMX *amx) {
 	return samp_profiler::Profiler::Get(amx)->Debug();
 }
 
-int AMXAPI Callback(AMX *amx, cell index, cell *result, cell *params) {
-	return samp_profiler::Profiler::Get(amx)->Callback(index, result, params);
-}
-
 } // anonymouse namespace
 
 namespace samp_profiler {
