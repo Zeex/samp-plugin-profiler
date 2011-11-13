@@ -46,36 +46,34 @@ TextPrinter::TextPrinter(const std::string &out_file, const std::string &header)
 }
 
 void TextPrinter::Print(const Profile &profile) {
-	FILE *fp = fopen(out_file_.c_str(), "w");
-	if (fp == NULL) return;
+	std::ofstream stream(out_file_.c_str());
+	if (!stream.is_open()) return;	
 
-	fprintf(fp, "%s\n\n", header_.c_str());
+	stream << header_ << "\n" << std::endl;
+	stream 
+		<< std::setw(kFunctionTypeWidth)  << "Function Type"
+		<< std::setw(kFunctionNameWidth)  << "Function Name"
+		<< std::setw(kNumberOfCallsWidth) << "# Calls"
+		<< std::setw(kAverageTimeWidth)   << "Average Time"
+		<< std::setw(kOverallTimeWidth)   << "Overall Time"
+		<< std::setw(kPercentOfTimeWidth) << "Overall Time, %"
+	<< std::endl;
 
 	TimeType total_time = GetTotalRunTime(profile);
-
-	fprintf(fp, "%-15s %-32s %-20s %-20s %-20s %-20s\n\n", 
-		"Function Type",
-		"Function Name",
-		"Calls",
-		"Average Time",
-		"Overall Time",
-		"Overall Time, %"
-	); 
 
 	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
 		const PerformanceCounter &counter = it->GetCounter();
 
-		fprintf(fp, "%-15s %-32s %-20lld %-20lld %-20lld %-20.1f\n", 
-			it->GetFunctionType().c_str(),
-			it->GetFunctionName().c_str(),
-			counter.GetNumberOfCalls(),
-			counter.GetTotalTime() / counter.GetNumberOfCalls(),
-			counter.GetTotalTime(),
-			static_cast<double>(counter.GetTotalTime() * 100) / total_time
-		);
+		stream 
+			<< std::setw(kFunctionTypeWidth)  << it->GetFunctionType()
+			<< std::setw(kFunctionNameWidth)  << it->GetFunctionName()
+			<< std::setw(kNumberOfCallsWidth) << counter.GetNumberOfCalls()
+			<< std::setw(kAverageTimeWidth)   << counter.GetTotalTime() / counter.GetNumberOfCalls()
+			<< std::setw(kOverallTimeWidth)   << counter.GetTotalTime()
+			<< std::setw(kPercentOfTimeWidth) << std::setprecision(2) << std::fixed 
+				<< static_cast<double>(counter.GetTotalTime() * 100) / total_time
+		<< std::endl;
 	}
-
-	fclose(fp);
 }
 
 HtmlPrinter::HtmlPrinter(const std::string &out_file, const std::string &title) 
