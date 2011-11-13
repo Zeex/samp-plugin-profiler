@@ -16,6 +16,8 @@
 
 #include <algorithm>
 #include <numeric>
+#include <sstream>
+#include <string>
 
 #include "printers.h"
 #include "profile.h"
@@ -238,7 +240,9 @@ void Profiler::PrintStats(Printer &printer, OutputSortMode order) {
 			}
 			// Not found
 			if (!found) {
-				profile.push_back(ProfileEntry("", "", counter));
+				std::stringstream ss;
+				ss << "0x" << std::hex << address;
+				profile.push_back(ProfileEntry(ss.str(), "unknown", counter));
 			}
 		}
 	}
