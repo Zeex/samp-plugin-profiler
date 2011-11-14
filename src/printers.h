@@ -38,7 +38,7 @@ public:
 	static const int kOverallTimeWidth   = 20;
 	static const int kPercentOfTimeWidth = 20;
 
-	TextPrinter(const std::string &out_file, const std::string &script_name = "");
+	TextPrinter(const std::string &out_file, const std::string &script_name);
 	virtual void Print(const Profile &profile);
 
 private:
@@ -48,7 +48,7 @@ private:
 
 class HtmlPrinter : public Printer {
 public:
-	HtmlPrinter(const std::string &out_file, const std::string &script_name = "");
+	HtmlPrinter(const std::string &out_file, const std::string &script_name);
 	virtual void Print(const Profile &profile);
 
 private:
