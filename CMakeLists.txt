@@ -47,8 +47,6 @@ add_library(profiler MODULE
 	"src/configreader.h"
 	"src/debuginfo.cpp"
 	"src/debuginfo.h"
-	"src/dumpsym.h"
-	"src/dumpsym.cpp"
 	"src/jump.cpp"
 	"src/jump.h"
 	"src/logprintf.cpp"
@@ -63,6 +61,8 @@ add_library(profiler MODULE
 	"src/profile.h"
 	"src/profiler.cpp"
 	"src/profiler.h"
+	"src/symboldump.h"
+	"src/symboldump.cpp"
 )
 
 set_property(TARGET profiler PROPERTY PREFIX "")
