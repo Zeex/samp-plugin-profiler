@@ -32,7 +32,7 @@ int AMXAPI Debug(AMX *amx) {
 	return samp_profiler::Profiler::Get(amx)->Debug();
 }
 
-} // anonymouse namespace
+} // anonymous namespace
 
 namespace samp_profiler {
 
