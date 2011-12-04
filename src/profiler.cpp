@@ -37,7 +37,6 @@ int AMXAPI Debug(AMX *amx) {
 namespace samp_profiler {
 
 // statics
-bool Profiler::substract_child_time_;
 std::map<AMX*, Profiler*> Profiler::instances_;
 
 Profiler::Profiler() {}
@@ -106,11 +105,6 @@ bool Profiler::IsScriptProfilable(AMX *amx) {
 	}
 
 	return false;
-}
-
-// static
-void Profiler::SetSubstractChildTime(bool set) {
-	Profiler::substract_child_time_ = set;
 }
 
 // static
@@ -210,8 +204,8 @@ void Profiler::PrintStats(Printer &printer, OutputSortMode order) {
 		cell address = stat_it->first;
 		PerformanceCounter &counter = stat_it->second;
 
-		if (address <= 0) {
-			profile.push_back(ProfileEntry(natives_[-address].name(), "native", counter));
+		if (address < 0) {
+			profile.push_back(ProfileEntry(natives_[-address-1].name(), "native", counter));
 		} else {
 			bool found = false;
 			// Search in public table
@@ -279,7 +273,7 @@ int Profiler::Debug() {
 }
 
 int Profiler::Callback(cell index, cell *result, cell *params) {
-	cell address = -index;
+	cell address = -index - 1;
 
 	EnterFunction(CallInfo(amx_->frm, address, CallInfo::NATIVE));
 	int error = amx_Callback(amx_, index, result, params);
@@ -312,11 +306,7 @@ int Profiler::Exec(cell *retval, int index) {
 void Profiler::EnterFunction(const CallInfo &info) {
 	if (active_) {
 		PerformanceCounter &counter = counters_[info.address()];
-		if (call_stack_.empty() || !Profiler::substract_child_time_) {
-			counter.Start();
-		} else {
-			counter.Start(&counters_[call_stack_.top().address()]);
-		}
+		counter.Start();
 	}
 	call_stack_.push(info);
 }

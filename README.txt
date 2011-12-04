@@ -26,11 +26,6 @@ You can configure profiler via server.cfg, by changing the following options:
 
   A list of filter scripts to be profiled.
 
-* profiler_substract_children <0/1>
-
-  If set to 1, callee's time is substracted from the total time of its caller(s). 
-  Default value is 1.
-
 * profiler_output_format <format>
 
   Set output format. Currently supported formats: html, text.

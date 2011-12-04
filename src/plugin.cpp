@@ -30,7 +30,7 @@
 #include "amxname.h"
 #include "configreader.h"
 #include "debuginfo.h"
-#include "jump.h"
+#include "jump-x86.h"
 #include "logprintf.h"
 #include "plugin.h"
 #include "printers.h"
@@ -47,13 +47,25 @@ namespace {
 // Symbolic info, used for getting function names
 std::map<AMX*, DebugInfo> debugInfos;
 
-// Both x86 and x86-64 are Little Endian...
+// x86 is Little Endian...
 void *AMXAPI DummyAmxAlign(void *v) { return v; }
 
-Jump ExecHook;
+JumpX86 ExecHook;
+JumpX86 CallbackHook;
 
 int AMXAPI Exec(AMX *amx, cell *retval, int index) {
-	ExecHook.Remove();	
+	char name[32];
+	if (index == AMX_EXEC_MAIN) {
+		strcpy(name, "main");
+	} else {
+		amx_GetPublic(amx, index, name);
+	}
+	printf("%s\n", name);
+
+	ExecHook.Remove();		
+	CallbackHook.Install(); // P-code may call natives 
+
+	// Return code
 	int error = AMX_ERR_NONE;
 
 	// Check if this script has a profiler attached to it
@@ -64,24 +76,26 @@ int AMXAPI Exec(AMX *amx, cell *retval, int index) {
 		error = amx_Exec(amx, retval, index);
 	}
 
-	ExecHook.Reinstall();
+	CallbackHook.Remove();
+	ExecHook.Install();
+
 	return error;
 }
 
-Jump CallbackHook;
-
 int AMXAPI Callback(AMX *amx, cell index, cell *result, cell *params) {
-	CallbackHook.Remove();
-	int error = AMX_ERR_NONE;
+	char name[32];
+	amx_GetNative(amx, index, name);
+	printf("%s\n", name);
+
+	CallbackHook.Remove();		
+	ExecHook.Install(); // Natives may call amx_Exec() 
 
 	// The default AMX callback (amx_Callback) can replace SYSREQ.C opcodes
 	// with SYSREQ.D for better performance. 
-	if (amx->sysreq_d != 0) {
-		amx->sysreq_d = 0; 
-	}
+	amx->sysreq_d = 0; 
 
-	// Natives can call amx_Exec 
-	ExecHook.Reinstall();
+	// Return code
+	int error = AMX_ERR_NONE;
 
 	// Check if this script has a profiler attached to it
 	Profiler *prof = Profiler::Get(amx);
@@ -92,8 +106,8 @@ int AMXAPI Callback(AMX *amx, cell index, cell *result, cell *params) {
 	}
 
 	ExecHook.Remove();
+	CallbackHook.Install();
 
-	CallbackHook.Reinstall();
 	return error;
 }
 
@@ -170,13 +184,12 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
 	((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Align32] = (void*)DummyAmxAlign; // amx_Align32
 	((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Align64] = (void*)DummyAmxAlign; // amx_Align64
 
-	// Hook amx_Exec
-	ExecHook.Install(((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Exec], (void*)::Exec);
-	// Hook amx_Callback
-	CallbackHook.Install(((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Callback], (void*)::Callback);
-
-	ConfigReader server_cfg("server.cfg");
-	Profiler::SetSubstractChildTime(server_cfg.GetOption("profiler_substract_children", true));
+	ExecHook.Install(
+		((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Exec], 
+		(void*)::Exec);
+	CallbackHook.Install(
+		((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Callback], 
+		(void*)::Callback);
 
 	logprintf("  Profiler plugin "VERSION" is OK.");
 
