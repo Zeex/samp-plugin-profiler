@@ -15,9 +15,6 @@
 #ifndef JUMP_X86_H
 #define JUMP_X86_H
 
-#include <cstring>
-#include <map>
-
 class JumpX86 {
 public:
 	static const int kJmpInstrSize = 5;
