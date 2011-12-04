@@ -30,7 +30,6 @@
 #include "amxname.h"
 #include "configreader.h"
 #include "debuginfo.h"
-#include "dumpsym.h"
 #include "jump.h"
 #include "logprintf.h"
 #include "plugin.h"
@@ -200,29 +199,22 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 		return AMX_ERR_NONE;
 	}
 	 
-	ConfigReader server_cfg("server.cfg");
-	bool dump_symbols = server_cfg.GetOption("profiler_dump_symbols", false);
-
 	if (WantsProfiler(filename)) {
 		if (DebugInfo::HasDebugInfo(amx)) {
 			DebugInfo debugInfo;
 			debugInfo.Load(filename);
 			if (debugInfo.IsLoaded()) {
-				if (dump_symbols) {
-					logprintf("Symbol table dump for '%s'", filename.c_str());
-					DumpSymbolTable(debugInfo);
-				}
-				logprintf("Profiler: Loaded debug info from '%s'", filename.c_str());
+				logprintf("Profiler: Loaded debug info from %s", filename.c_str());
 				::debugInfos[amx] = debugInfo;				
 				Profiler::Attach(amx, debugInfo); 
-				logprintf("Profiler: Attached profiler to '%s'", filename.c_str());
+				logprintf("Profiler: Attached profiler instance to %s", filename.c_str());
 				return AMX_ERR_NONE;
 			} else {
-				logprintf("Profiler: Error loading debug info from '%s'", filename.c_str());
+				logprintf("Profiler: Error loading debug info from %s", filename.c_str());
 			}
 		}		
 		Profiler::Attach(amx);
-		logprintf("Profiler: Attached profiler to '%s' (no debug symbols)", filename.c_str());
+		logprintf("Profiler: Attached profiler instance to %s (no debug symbols)", filename.c_str());
 	} 	
 
 	return AMX_ERR_NONE;
