@@ -18,64 +18,12 @@
 #define SAMP_PROFILER_DEBUGINFO_H
 
 #include <string>
-#include <vector>
-
 #include <boost/shared_ptr.hpp>
 
 #include "amx/amx.h"
 #include "amx/amxdbg.h"
 
 namespace samp_profiler {
-
-class DebugSymbol {
-public:
-	enum VClass {
-		Global      = 0,
-		Local       = 1,
-		StaticLocal = 2
-	};
-
-	enum Kind {
-		Variable    = 1,
-		Reference   = 2,
-		Array       = 3,
-		ArrayRef    = 4,
-		Function    = 9,
-		FunctionRef = 10
-	};
-
-	explicit DebugSymbol(AMX_DBG_SYMBOL *sym);
-
-	AMX_DBG_SYMBOL *GetPlainData() const;
-	operator bool() const;
-
-	bool IsGlobal() const;
-	bool IsLocal() const;
-	bool IsStaticLocal() const;
-
-	bool IsVariable() const;
-	bool IsReference() const;
-	bool IsArray() const;
-	bool IsArrayRef() const;
-	bool IsFunction() const;
-	bool IsFunctionRef() const;
-
-	ucell GetAddress() const;
-	int16_t GetTag() const;
-	ucell GetCodeStartAddress() const;
-	ucell GetCodeEndAddress() const;
-	Kind GetKind() const;
-	VClass GetVClass() const;
-	int16_t GetDimensions() const;
-	std::string GetName() const;
-
-	bool operator<(const DebugSymbol &rhs) const;
-
-	cell GetValue(AMX *amx) const;
-
-private:
-	AMX_DBG_SYMBOL *sym_;
-};
 
 class DebugInfo {
 public:
@@ -89,19 +37,9 @@ public:
 	bool IsLoaded() const;
 	void Free();
 
-	long GetLineNumber(cell address) const;
-	std::string GetFileName(cell address) const;
-	std::string GetFunctionName(cell address) const;
-
-	ucell GetFunctionAddress(const std::string &functionName, const std::string &fileName) const;
-	ucell GetFunctionStartAddress(ucell address) const;
-	ucell GetLineAddress(long line, const std::string &fileName) const;
-	std::string GetAutomatonName(int automaton) const;
-	std::string GetStateName(int state) const;
-	std::string GetTagName(int tag) const;
-
-	// Get all symbols
-	std::vector<DebugSymbol> GetSymbols() const;
+	long GetLine(cell address) const;
+	std::string GetFile(cell address) const;
+	std::string GetFunction(cell address) const;
 
 private:
 	boost::shared_ptr<AMX_DBG> amxdbgPtr_;

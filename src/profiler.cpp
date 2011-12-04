@@ -227,9 +227,9 @@ void Profiler::PrintStats(Printer &printer, OutputSortMode order) {
 			// Search in symbol table
 			if (!found) {
 				if (debugInfo_.IsLoaded()) {
-					std::string name = debugInfo_.GetFunctionName(address);
+					std::string name = debugInfo_.GetFunction(address);
 					if (!name.empty()) {	
-						profile.push_back(ProfileEntry(debugInfo_.GetFunctionName(address), "ordinary", counter));
+						profile.push_back(ProfileEntry(debugInfo_.GetFunction(address), "ordinary", counter));
 						found = true;
 					}
 				}
