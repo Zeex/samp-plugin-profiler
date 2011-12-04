@@ -20,10 +20,11 @@
 
 class JumpX86 {
 public:
-	static const int JMP_SIZE = 5;
+	static const int kJmpInstrSize = 5;
 
 	JumpX86();
 	JumpX86(void *src, void *dst);
+	~JumpX86();
 
 	bool Install();
     bool Install(void *src, void *dst);

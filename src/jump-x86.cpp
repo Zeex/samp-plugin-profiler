@@ -50,24 +50,28 @@ JumpX86::JumpX86(void *src, void *dst) {
 	Install(src, dst);
 }
 
+JumpX86::~JumpX86() {
+	Remove();
+}
+
 bool JumpX86::Install() {
 	if (installed_) {
 		return false;
 	}
 
 	// Set write permission
-	Unprotect(src_, JMP_SIZE);
+	Unprotect(src_, kJmpInstrSize);
 
 	// Store the code we are going to overwrite (probably to copy it back later)
-	memcpy(code_, src_, JMP_SIZE);
+	memcpy(code_, src_, kJmpInstrSize);
 
 	// E9 - jump near, relative
 	unsigned char JMP = 0xE9;
 	memcpy(src_, &JMP, 1);
 
 	// Jump address is relative to the next instruction's address
-	size_t offset = (uint32_t)dst_ - ((uint32_t)src_ + JMP_SIZE);
-	memcpy((void*)((uint32_t)src_ + 1), &offset, JMP_SIZE - 1);
+	size_t offset = (uint32_t)dst_ - ((uint32_t)src_ + kJmpInstrSize);
+	memcpy((void*)((uint32_t)src_ + 1), &offset, kJmpInstrSize - 1);
 
 	installed_ = true;
 	return true;
@@ -88,7 +92,7 @@ bool JumpX86::Remove() {
 		return false;
 	}
 
-	std::memcpy(src_, code_, JMP_SIZE);
+	std::memcpy(src_, code_, kJmpInstrSize);
 	installed_ = false;
 	return true;
 }
