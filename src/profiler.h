@@ -64,8 +64,6 @@ public:
 	static void Attach(AMX *amx, const DebugInfo &debugInfo);
 	static void Detach(AMX *amx);
 
-	static void SetSubstractChildTime(bool set);
-
 	static Profiler *Get(AMX *amx);
 
 	void Activate();
@@ -124,8 +122,6 @@ private:
 	std::vector<Function> publics_;
 
 	std::map<cell, PerformanceCounter> counters_;
-
-	static bool substract_child_time_;
 
 	static std::map<AMX*, Profiler*> instances_;
 };

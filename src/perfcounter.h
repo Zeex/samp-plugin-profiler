@@ -31,24 +31,15 @@ public:
 	PerformanceCounter();
 	~PerformanceCounter();
 
-	void Start(PerformanceCounter *parent = 0);
+	void Start();
 	void Stop();
 
 	TimeType GetNumberOfCalls() const;
 	TimeType GetTime() const;
 
 private:
-	void Pause();
-	void Resume();
-
 	bool started_;
-	bool paused_;
-
-	PerformanceCounter *child_;
-	PerformanceCounter *parent_;
-
 	TimeType num_calls_;
-
 	Clock::time_point start_;
 	Clock::duration   total_time_;
 };

@@ -22,9 +22,6 @@ namespace samp_profiler {
 
 PerformanceCounter::PerformanceCounter() 
 	: started_(false)
-	, paused_(false)
-	, child_(0)
-	, parent_(0)
 	, num_calls_(0)
 {
 }
@@ -33,15 +30,10 @@ PerformanceCounter::~PerformanceCounter() {
 	Stop();
 }
 
-void PerformanceCounter::Start(PerformanceCounter *parent) {
-	if (!started_) {	
-		if (parent != 0) {
-			parent->child_ = this;
-			parent->Pause();
-		}	
-		parent_ = parent;
+void PerformanceCounter::Start() {
+	++num_calls_;
 
-		++num_calls_;
+	if (!started_) {	
 		started_ = true;		
 		start_ = Clock::now();
 	}
@@ -50,33 +42,7 @@ void PerformanceCounter::Start(PerformanceCounter *parent) {
 void PerformanceCounter::Stop() {
 	if (started_) {
 		total_time_ += (Clock::now() - start_);
-
-		if (child_ != 0) {
-			child_->Stop();
-			child_ = 0;
-		}
-
-		if (parent_ != 0) {
-			parent_->child_ = 0;
-			parent_->Resume();
-			parent_ = 0;
-		}
-
 		started_ = false;
-	}
-}
-
-void PerformanceCounter::Pause() {
-	if (!paused_) {
-		total_time_ += (Clock::now() - start_);
-		paused_ = true;
-	}
-}
-
-void PerformanceCounter::Resume() {
-	if (paused_) {
-		start_ = Clock::now();
-		paused_ = false;
 	}
 }
 
