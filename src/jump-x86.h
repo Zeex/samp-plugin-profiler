@@ -24,15 +24,15 @@ public:
 	~JumpX86();
 
 	bool Install();
-    bool Install(void *src, void *dst);
-    bool Remove();
+	bool Install(void *src, void *dst);
+	bool Remove();
 
 	bool IsInstalled() const;
 
 private:
-    void *src_;
-    void *dst_;
-    unsigned char code_[5];
+	void *src_;
+	void *dst_;
+	unsigned char code_[5];
 	bool installed_;
 };
 
