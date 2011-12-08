@@ -35,8 +35,10 @@ public:
 	void Stop();
 
 	long GetNumberOfCalls() const;
+
 	TimeType GetTotalTime() const;
 	TimeType GetChildTime() const;
+	TimeType GetTime() const;
 
 private:
 	// Whether the counter started
