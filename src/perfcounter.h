@@ -26,7 +26,7 @@ typedef boost::int64_t TimeType;
 
 class PerformanceCounter {
 public:
-	typedef boost::chrono::system_clock Clock;
+	typedef boost::chrono::high_resolution_clock Clock;
 
 	PerformanceCounter();
 	~PerformanceCounter();
