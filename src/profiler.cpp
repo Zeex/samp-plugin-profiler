@@ -83,13 +83,13 @@ static bool ByCalls(const std::pair<cell, PerformanceCounter> &op1,
 
 static bool ByTime(const std::pair<cell, PerformanceCounter> &op1, 
 						const std::pair<cell, PerformanceCounter> &op2) {
-	return op1.second.GetTime() > op2.second.GetTime();
+	return op1.second.GetTotalTime() > op2.second.GetTotalTime();
 }
 
 static bool ByTimePerCall(const std::pair<cell, PerformanceCounter> &op1, 
 							   const std::pair<cell, PerformanceCounter> &op2) {
-	return static_cast<double>(op1.second.GetTime()) / static_cast<double>(op1.second.GetNumberOfCalls())
-		 > static_cast<double>(op2.second.GetTime()) / static_cast<double>(op2.second.GetNumberOfCalls());
+	return static_cast<double>(op1.second.GetTotalTime()) / static_cast<double>(op1.second.GetNumberOfCalls())
+		 > static_cast<double>(op2.second.GetTotalTime()) / static_cast<double>(op2.second.GetNumberOfCalls());
 }
 
 bool Profiler::IsScriptProfilable(AMX *amx) {
@@ -306,7 +306,11 @@ int Profiler::Exec(cell *retval, int index) {
 void Profiler::EnterFunction(const CallInfo &info) {
 	if (active_) {
 		PerformanceCounter &counter = counters_[info.address()];
-		counter.Start();
+		if (call_stack_.empty()) {
+			counter.Start();
+		} else {
+			counter.Start(&counters_[call_stack_.top().address()]);
+		}
 	}
 	call_stack_.push(info);
 }

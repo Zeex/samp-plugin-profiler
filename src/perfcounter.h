@@ -31,17 +31,31 @@ public:
 	PerformanceCounter();
 	~PerformanceCounter();
 
-	void Start();
+	void Start(PerformanceCounter *parent = 0);
 	void Stop();
 
-	TimeType GetNumberOfCalls() const;
-	TimeType GetTime() const;
+	long GetNumberOfCalls() const;
+	TimeType GetTotalTime() const;
+	TimeType GetChildTime() const;
 
 private:
+	// Whether the counter started
 	bool started_;
-	TimeType num_calls_;
+
+	// Number of calls to Start()
+	long num_calls_;
+
+	// Start point
 	Clock::time_point start_;
-	Clock::duration   total_time_;
+
+	// Amount of time taken by child counters
+	Clock::duration child_time_;
+
+	// Total time (including child_time_)
+	Clock::duration total_time_;
+
+	// Current parent counter 
+	PerformanceCounter *current_parent_;
 };
 
 } // namespace samp_profiler
