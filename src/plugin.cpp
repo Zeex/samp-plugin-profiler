@@ -246,26 +246,32 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 		// Output stats depending on currently set output_format
 		ConfigReader server_cfg("server.cfg");
 
-		Profiler::OutputSortMode sort_mode;
+		bool subtract_child_time = 
+			server_cfg.GetOption("profiler_subtract_child_time", true);
 		std::string sort_output_by = 
 			server_cfg.GetOption("profiler_sort_output_by", std::string("time"));
-		if (sort_output_by == "calls") {
-			sort_mode = Profiler::SORT_BY_CALLS;
-		} else if (sort_output_by == "time") {
-			sort_mode = Profiler::SORT_BY_TIME;
-		} else if (sort_output_by == "time_per_call") {
-			sort_mode = Profiler::SORT_BY_TIME_PER_CALL;
-		}
-
 		std::string output_format = 
 			server_cfg.GetOption("profiler_output_format", std::string("html"));
-		if (output_format == "html") {			
-			HtmlPrinter printer(amx_name + "-profile.html", amx_path);
-			prof->PrintStats(printer, sort_mode);
-		} else if (output_format == "text") {
-			TextPrinter printer(amx_name + "-profile.txt", amx_path);
-			prof->PrintStats(printer, sort_mode);
+
+		Printer::OutputSortMode sort_mode;
+		if (sort_output_by == "calls") {
+			sort_mode = Printer::SORT_BY_CALLS;
+		} else if (sort_output_by == "time") {
+			if (subtract_child_time) {
+				sort_mode = Printer::SORT_BY_TIME;
+			} else {
+				sort_mode = Printer::SORT_BY_TOTAL_TIME;
+			}
 		}
+
+		if (output_format == "html") {			
+			HtmlPrinter printer(amx_name + "-profile.html", amx_path, subtract_child_time, sort_mode);
+			prof->PrintStats(printer);
+		} else if (output_format == "text") {
+			TextPrinter printer(amx_name + "-profile.txt", amx_path, subtract_child_time, sort_mode);
+			prof->PrintStats(printer);
+		}
+
 		Profiler::Detach(amx);
 	}
 

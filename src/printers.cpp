@@ -28,14 +28,6 @@ namespace {
 using samp_profiler::Profile;
 using samp_profiler::TimeType;
 
-TimeType GetTotalRunTime(const Profile &profile) {
-	TimeType total_time = 0;
-	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
-		total_time += it->GetCounter().GetTotalTime();
-	}   
-	return total_time;
-}
-
 std::string GetCurrentDateAndTime() {
 	static const size_t kBufferSize = 80u;
 
@@ -55,15 +47,21 @@ std::string GetCurrentDateAndTime() {
 
 namespace samp_profiler {
 
-TextPrinter::TextPrinter(const std::string &out_file, const std::string &script_name)
-	: out_file_(out_file)
-	, script_name_(script_name)
-{
-}
-
-void TextPrinter::Print(const Profile &profile) {
+void TextPrinter::Print(Profile &profile) {
 	std::ofstream stream(out_file_.c_str());
 	if (!stream.is_open()) return;	
+
+	switch (sort_mode_) {
+	case SORT_BY_TIME:
+		std::sort(profile.begin(), profile.end(), ProfileEntry::CompareTime);
+		break;
+	case SORT_BY_CALLS:
+		std::sort(profile.begin(), profile.end(), ProfileEntry::CompareCalls);
+		break;
+	case SORT_BY_TOTAL_TIME:
+		std::sort(profile.begin(), profile.end(), ProfileEntry::CompareTotalTime);
+		break;
+	}	
 
 	stream << "Profile of " << script_name_ << " generated on " 
 		<< GetCurrentDateAndTime() << "\n" << std::endl;
@@ -76,32 +74,52 @@ void TextPrinter::Print(const Profile &profile) {
 		<< std::setw(kPercentOfTimeWidth) << "Overall Time, %"
 	<< std::endl;
 
-	TimeType total_time = GetTotalRunTime(profile);
+	TimeType overall_time = 0;
+	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
+		if (!sub_child_time_) {
+			overall_time += it->GetCounter().GetTotalTime();
+		} else {
+			overall_time += it->GetCounter().GetTime();
+		}
+	}   
 
 	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
 		const PerformanceCounter &counter = it->GetCounter();
+
+		TimeType time;
+		if (sub_child_time_) {
+			time = counter.GetTime();
+		} else {
+			time = counter.GetChildTime();
+		}
 
 		stream 
 			<< std::setw(kFunctionTypeWidth)  << it->GetFunctionType()
 			<< std::setw(kFunctionNameWidth)  << it->GetFunctionName()
 			<< std::setw(kNumberOfCallsWidth) << counter.GetNumberOfCalls()
-			<< std::setw(kAverageTimeWidth)   << counter.GetTotalTime() / counter.GetNumberOfCalls()
-			<< std::setw(kOverallTimeWidth)   << counter.GetTotalTime()
+			<< std::setw(kAverageTimeWidth)   << time / counter.GetNumberOfCalls()
+			<< std::setw(kOverallTimeWidth)   << time
 			<< std::setw(kPercentOfTimeWidth) << std::setprecision(2) << std::fixed 
-				<< static_cast<double>(counter.GetTotalTime() * 100) / total_time
+				<< static_cast<double>(time * 100) / overall_time
 		<< std::endl;
 	}
 }
 
-HtmlPrinter::HtmlPrinter(const std::string &out_file, const std::string &script_name) 
-	: out_file_(out_file)
-	, script_name_(script_name)
-{
-}
-
-void HtmlPrinter::Print(const Profile &profile) {
+void HtmlPrinter::Print(Profile &profile) {
 	std::ofstream stream(out_file_.c_str());
 	if (!stream.is_open()) return;
+
+	switch (sort_mode_) {
+	case SORT_BY_TIME:
+		std::sort(profile.begin(), profile.end(), ProfileEntry::CompareTime);
+		break;
+	case SORT_BY_CALLS:
+		std::sort(profile.begin(), profile.end(), ProfileEntry::CompareCalls);
+		break;
+	case SORT_BY_TOTAL_TIME:
+		std::sort(profile.begin(), profile.end(), ProfileEntry::CompareTotalTime);
+		break;
+	}	
 
 	stream << 
 	"<html>\n"
@@ -124,20 +142,34 @@ void HtmlPrinter::Print(const Profile &profile) {
 	"		<tbody>\n"
 	;
 
-    TimeType total_time = GetTotalRunTime(profile);
+	TimeType overall_time = 0;
+	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
+		if (!sub_child_time_) {
+			overall_time += it->GetCounter().GetTotalTime();
+		} else {
+			overall_time += it->GetCounter().GetTime();
+		}
+	}    
 
 	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
 		const PerformanceCounter &counter = it->GetCounter();
+
+		TimeType time;
+		if (sub_child_time_) {
+			time = counter.GetTime();
+		} else {
+			time = counter.GetChildTime();
+		}
 
 		stream 
 		<< "		<tr>\n"
 		<< "			<td>" << it->GetFunctionType() << "</td>\n"
 		<< "			<td>" << it->GetFunctionName() << "</td>\n"
 		<< "			<td>" << counter.GetNumberOfCalls() << "</td>\n"
-		<< "			<td>" << counter.GetTotalTime() / counter.GetNumberOfCalls() << "</td>\n"
-		<< "			<td>" << counter.GetTotalTime() << "</td>\n"
+		<< "			<td>" << time / counter.GetNumberOfCalls() << "</td>\n"
+		<< "			<td>" << time << "</td>\n"
 		<< "			<td>" << std::fixed << std::setprecision(2) 
-			<< static_cast<double>(counter.GetTotalTime() * 100) / total_time << "</td>\n"
+			<< static_cast<double>(time * 100) / overall_time << "</td>\n"
 		<< "		</tr>\n";
 	}
 

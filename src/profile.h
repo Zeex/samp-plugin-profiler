@@ -40,6 +40,18 @@ public:
 	inline const PerformanceCounter &GetCounter() const 
 		{ return counter_; }
 
+	static bool CompareCalls(const ProfileEntry &left, const ProfileEntry &right) {
+		return left.GetCounter().GetNumberOfCalls() > right.GetCounter().GetNumberOfCalls();
+	}
+
+	static bool CompareTime(const ProfileEntry &left, const ProfileEntry &right) {
+		return left.GetCounter().GetTime() > right.GetCounter().GetTime();
+	}
+
+	static bool CompareTotalTime(const ProfileEntry &left, const ProfileEntry &right) {
+		return left.GetCounter().GetTotalTime() > right.GetCounter().GetTotalTime();
+	}
+
 private:
 	std::string        name_;
 	std::string        type_;
