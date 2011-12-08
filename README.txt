@@ -40,5 +40,5 @@ You can configure profiler via server.cfg, by changing the following options:
 
 * profiler_subtract_child_time <0/1>
 
-  Subtract time taked by callees time from caller's total time.
+  Subtract time taken by callees from caller's total time.
   Default is 1.
