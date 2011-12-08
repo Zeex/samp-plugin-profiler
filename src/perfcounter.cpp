@@ -66,4 +66,8 @@ TimeType PerformanceCounter::GetChildTime() const {
 	return duration_cast<microseconds>(child_time_).count();
 }
 
+TimeType PerformanceCounter::GetTime() const {
+	return GetTotalTimer() - GetChildTime();
+}
+
 } // namespace samp_profiler
