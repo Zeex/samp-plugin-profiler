@@ -90,7 +90,7 @@ void TextPrinter::Print(Profile &profile) {
 		if (sub_child_time_) {
 			time = counter.GetTime();
 		} else {
-			time = counter.GetChildTime();
+			time = counter.GetTotalTime();
 		}
 
 		stream 
@@ -158,7 +158,7 @@ void HtmlPrinter::Print(Profile &profile) {
 		if (sub_child_time_) {
 			time = counter.GetTime();
 		} else {
-			time = counter.GetChildTime();
+			time = counter.GetTotalTime();
 		}
 
 		stream 
