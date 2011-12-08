@@ -84,3 +84,4 @@ std::string DebugInfo::GetFunction(cell address) const {
 }
 
 } // namespace samp_profiler
+

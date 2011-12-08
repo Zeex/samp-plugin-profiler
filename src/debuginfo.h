@@ -48,3 +48,4 @@ private:
 } // namespace samp_profiler
 
 #endif // !SAMP_PROFILER_DEBUGINFO_H
+
