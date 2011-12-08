@@ -23,6 +23,7 @@ namespace samp_profiler {
 PerformanceCounter::PerformanceCounter() 
 	: started_(false)
 	, num_calls_(0)
+	, current_parent_(0)
 {
 }
 
@@ -30,29 +31,39 @@ PerformanceCounter::~PerformanceCounter() {
 	Stop();
 }
 
-void PerformanceCounter::Start() {
+void PerformanceCounter::Start(PerformanceCounter *parent) {
 	++num_calls_;
 
-	if (!started_) {	
-		started_ = true;		
+	if (!started_) {			
 		start_ = Clock::now();
-	}
+		current_parent_ = parent;
+		started_ = true;
+	}	
 }
 
 void PerformanceCounter::Stop() {
 	if (started_) {
-		total_time_ += (Clock::now() - start_);
+		Clock::duration time = Clock::now() - start_;
+		total_time_ += time;		
+		if (current_parent_ != 0) {
+			current_parent_->child_time_ += time;
+		}
 		started_ = false;
 	}
 }
 
-TimeType PerformanceCounter::GetNumberOfCalls() const {
+long PerformanceCounter::GetNumberOfCalls() const {
 	return num_calls_;
 }
 
-TimeType PerformanceCounter::GetTime() const {
+TimeType PerformanceCounter::GetTotalTime() const {
 	using namespace boost::chrono;
 	return duration_cast<microseconds>(total_time_).count();
+}
+
+TimeType PerformanceCounter::GetChildTime() const {
+	using namespace boost::chrono;
+	return duration_cast<microseconds>(child_time_).count();
 }
 
 } // namespace samp_profiler
