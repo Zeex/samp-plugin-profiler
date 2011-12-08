@@ -35,6 +35,7 @@
 #include "plugin.h"
 #include "printers.h"
 #include "profiler.h"
+#include "version.h"
 
 #include "amx/amx.h"
 
@@ -191,7 +192,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
 		((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Callback], 
 		(void*)::Callback);
 
-	logprintf("  Profiler plugin "VERSION" is OK.");
+	logprintf("  Profiler plugin "VERSION_STRING" is OK.");
 
 	return true;
 }

@@ -55,6 +55,7 @@ add_library(profiler MODULE
 	"src/perfcounter.h"
 	"src/plugin.cpp"
 	"src/plugin.h"
+	"src/plugin.rc"
 	"src/plugincommon.h"
 	"src/printers.cpp"
 	"src/printers.h"
@@ -88,18 +89,37 @@ if(WIN32)
 	endif()
 endif()
 
-function(get_version_string _version)
-	git_describe(_describe)
-	string(REGEX REPLACE "([0-9\\.]+)-g([a-f0-9]+)" "\\1" 
-		version ${_describe})
-	set(${_version} ${version} PARENT_SCOPE)
-endfunction()
+git_describe(description --match v[0-9]*.[0-9]*.[0-9]*)
+if(NOT description STREQUAL "GIT-NOTFOUND" AND NOT description STREQUAL "")
+	string(REGEX REPLACE "v([0-9]+)\\.([0-9]+)\\.([0-9]+)-?([0-9]*)-?g?([a-f0-9]*)" 
+		"\\1;\\2;\\3;\\4;\\5" version_components ${description})
+	list(GET version_components 0 version_major)
+	list(GET version_components 1 version_minor)
+	list(GET version_components 2 version_patch)
+	list(GET version_components 3 version_commit)
+	if(version_commit STREQUAL "")
+		set(version_commit 0)
+	endif()
+	set(dotted_version ${version_major}.${version_minor}.${version_patch}.${version_commit})
+else()
+	message(WARNING "Can't extract version info: Git not found")
+	set(version_major  0)
+	set(version_minor  0)
+	set(version_patch  0)
+	set(version_commit 0)
+	set(dotted_version "0.0.0.0")
+endif()
 
-get_version_string(version)
-message(STATUS "You're going to build profiler ${version}")
+file(WRITE "src/version.h" 
+"/* Auto-generated, do not edit */
+#define VERSION_MAJOR ${version_major}
+#define VERSION_MINOR ${version_minor}
+#define VERSION_PATCH ${version_patch}
+#define VERSION_COMMIT ${version_commit}
+#define VERSION_STRING \"${dotted_version}\"
+")
 
-set_property(SOURCE "src/plugin.cpp" APPEND_STRING PROPERTY 
-	COMPILE_DEFINITIONS "VERSION=\"${version}\"")
+message(STATUS "You're going to build Profiler v${dotted_version}")
 
 install(TARGETS profiler LIBRARY DESTINATION ".")
 install(FILES "README.txt" "LICENSE.txt" DESTINATION ".")
