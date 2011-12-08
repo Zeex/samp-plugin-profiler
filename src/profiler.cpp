@@ -75,23 +75,6 @@ static inline cell ReadAmxCode(AMX *amx, cell where) {
 	return *reinterpret_cast<cell*>(amx->base + hdr->cod + where);
 }
 
-// Comparison functiosn for different stats sorting modes
-static bool ByCalls(const std::pair<cell, PerformanceCounter> &op1, 
-						 const std::pair<cell, PerformanceCounter> &op2) {
-	return op1.second.GetNumberOfCalls() > op2.second.GetNumberOfCalls();
-}
-
-static bool ByTime(const std::pair<cell, PerformanceCounter> &op1, 
-						const std::pair<cell, PerformanceCounter> &op2) {
-	return op1.second.GetTotalTime() > op2.second.GetTotalTime();
-}
-
-static bool ByTimePerCall(const std::pair<cell, PerformanceCounter> &op1, 
-							   const std::pair<cell, PerformanceCounter> &op2) {
-	return static_cast<double>(op1.second.GetTotalTime()) / static_cast<double>(op1.second.GetNumberOfCalls())
-		 > static_cast<double>(op2.second.GetTotalTime()) / static_cast<double>(op2.second.GetNumberOfCalls());
-}
-
 bool Profiler::IsScriptProfilable(AMX *amx) {
 	uint16_t flags;
 	amx_Flags(amx, &flags);
@@ -177,24 +160,9 @@ void Profiler::ResetStats() {
 	counters_.clear();
 }
 
-void Profiler::PrintStats(Printer &printer, OutputSortMode order) {
+void Profiler::PrintStats(Printer &printer) {
 	std::vector<std::pair<cell, PerformanceCounter> > stats(
 		counters_.begin(), counters_.end());
-
-	switch (order) {
-	case SORT_BY_CALLS:
-		std::sort(stats.begin(), stats.end(), ByCalls);
-		break;
-	case SORT_BY_TIME:
-		std::sort(stats.begin(), stats.end(), ByTime);
-		break;
-	case SORT_BY_TIME_PER_CALL:
-		std::sort(stats.begin(), stats.end(), ByTimePerCall);
-		break;
-	default:
-		// leave as is
-		break;
-	}
 
 	Profile profile;
 

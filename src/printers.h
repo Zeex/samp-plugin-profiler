@@ -26,7 +26,24 @@ namespace samp_profiler {
 
 class Printer {
 public:
-	virtual void Print(const Profile &profile) = 0;
+	enum OutputSortMode {
+		ORDER_NONE,
+		SORT_BY_CALLS,
+		SORT_BY_TIME,
+		SORT_BY_TOTAL_TIME
+	};
+
+	Printer(const std::string &out_file, const std::string &script_name, bool sub_child_time, OutputSortMode sort_mode)
+		: out_file_(out_file), script_name_(script_name), sub_child_time_(sub_child_time), sort_mode_(sort_mode)
+	{}
+
+	virtual void Print(Profile &profile) = 0;
+
+protected:
+	std::string out_file_;
+	std::string script_name_;
+	bool sub_child_time_;
+	OutputSortMode sort_mode_;
 };
 
 class TextPrinter : public Printer {
@@ -38,22 +55,20 @@ public:
 	static const int kOverallTimeWidth   = 20;
 	static const int kPercentOfTimeWidth = 20;
 
-	TextPrinter(const std::string &out_file, const std::string &script_name);
-	virtual void Print(const Profile &profile);
+	TextPrinter(const std::string &out_file, const std::string &script_name, bool sub_child_time, OutputSortMode sort_mode)
+		: Printer(out_file, script_name, sub_child_time, sort_mode)
+	{}
 
-private:
-	std::string out_file_;
-	std::string script_name_;
+	virtual void Print(Profile &profile);
 };
 
 class HtmlPrinter : public Printer {
 public:
-	HtmlPrinter(const std::string &out_file, const std::string &script_name);
-	virtual void Print(const Profile &profile);
+	HtmlPrinter(const std::string &out_file, const std::string &script_name, bool sub_child_time, OutputSortMode sort_mode)
+		: Printer(out_file, script_name, sub_child_time, sort_mode)
+	{}
 
-private:
-	std::string out_file_;
-	std::string script_name_;
+	virtual void Print(Profile &profile);
 };
 
 } // namespace samp_profiler

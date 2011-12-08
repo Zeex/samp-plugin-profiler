@@ -34,13 +34,6 @@ class Printer;
 
 class Profiler {
 public:
-	enum OutputSortMode {
-		ORDER_NONE,
-		SORT_BY_CALLS,
-		SORT_BY_TIME,
-		SORT_BY_TIME_PER_CALL
-	};
-
 	class Function {
 	public:
 		Function(cell address, const char *name) 
@@ -73,7 +66,7 @@ public:
 	void SetDebugInfo(const DebugInfo &info);
 
 	void ResetStats();
-	void PrintStats(Printer &printer, OutputSortMode order = SORT_BY_TIME);
+	void PrintStats(Printer &printer);
 
 	int Debug();
 	int Callback(cell index, cell *result, cell *params);
