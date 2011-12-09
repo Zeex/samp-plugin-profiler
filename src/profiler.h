@@ -22,8 +22,8 @@
 #include <string>
 #include <vector>
 
-#include "debuginfo.h"
-#include "perfcounter.h"
+#include "debug_info.h"
+#include "performance_counter.h"
 
 #include "amx/amx.h"
 #include "amx/amxdbg.h"

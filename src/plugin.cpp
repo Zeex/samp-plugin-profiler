@@ -27,9 +27,9 @@
 #include <string>
 #include <vector>
 
-#include "amxname.h"
-#include "configreader.h"
-#include "debuginfo.h"
+#include "amx_name.h"
+#include "config_reader.h"
+#include "debug_info.h"
 #include "html_printer.h"
 #include "jump-x86.h"
 #include "logprintf.h"

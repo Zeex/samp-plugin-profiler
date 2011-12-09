@@ -20,7 +20,7 @@
 #include "amx/amx.h"
 #include "amx/amxdbg.h"
 
-#include "debuginfo.h"
+#include "debug_info.h"
 
 namespace samp_profiler {
 
