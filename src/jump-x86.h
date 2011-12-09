@@ -14,8 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef JUMP_X86_H
-#define JUMP_X86_H
+#ifndef SAMP_PROFILER_JUMP_X86_H
+#define SAMP_PROFILER_JUMP_X86_H
 
 namespace samp_profiler {
 
@@ -42,5 +42,5 @@ private:
 
 } // namespace samp_profiler
 
-#endif
+#endif // !SAMP_PROFILER_JUMP_X86_H
 
