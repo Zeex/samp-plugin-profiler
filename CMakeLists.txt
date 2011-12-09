@@ -54,8 +54,6 @@ add_library(profiler MODULE
 	"src/html_printer.h"
 	"src/jump-x86.cpp"
 	"src/jump-x86.h"
-	"src/logprintf.cpp"
-	"src/logprintf.h"
 	"src/performance_counter.cpp"
 	"src/performance_counter.h"
 	"src/plugin.cpp"

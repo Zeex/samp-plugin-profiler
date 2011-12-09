@@ -32,7 +32,6 @@
 #include "debug_info.h"
 #include "html_printer.h"
 #include "jump-x86.h"
-#include "logprintf.h"
 #include "plugin.h"
 #include "profiler.h"
 #include "text_printer.h"
@@ -45,6 +44,10 @@ using namespace samp_profiler;
 extern void *pAMXFunctions; 
 
 namespace {
+
+typedef void (*logprintf_t)(const char *format, ...);
+
+logprintf_t logprintf;
 
 // Symbolic info, used for getting function names
 std::map<AMX*, DebugInfo> debugInfos;
