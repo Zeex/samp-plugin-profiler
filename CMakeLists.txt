@@ -9,9 +9,6 @@ include(CheckIncludeFileCXX)
 include(GetGitRevisionDescription)
 
 # Configure Boost
-set(Boost_USE_STATIC_LIBS ON)
-set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_RUNTIME OFF)
 find_package(Boost 1.47 REQUIRED COMPONENTS chrono filesystem system)
 
 # Disable the auto-link feature 
