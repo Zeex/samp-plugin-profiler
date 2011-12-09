@@ -26,20 +26,26 @@ check_include_and_define(inttypes.h HAVE_INTTYPES_H)
 check_include_and_define(malloc.h HAVE_MALLOC_H)
 check_include_and_define(stdint.h HAVE_STDINT_H)
 
-include_directories("src/amx") # amx.h includes <sclinux.h>
+include_directories("lib") 
+include_directories("lib/amx")
 include_directories(${Boost_INCLUDE_DIRS})
 
 link_directories(${Boost_LIBRARY_DIRS})
 
 add_library(profiler MODULE
-	"src/amx/amx.h"
-	"src/amx/amxaux.c"
-	"src/amx/amxaux.h"
-	"src/amx/amxdbg.c"
-	"src/amx/amxdbg.h"
+	"lib/amx/amx.h"
+	"lib/amx/amxaux.c"
+	"lib/amx/amxaux.h"
+	"lib/amx/amxdbg.c"
+	"lib/amx/amxdbg.h"
+	"lib/amx/getch.h"
+	"lib/amx/osdefs.h"
+	"lib/amx/sclinux.h"
+	"lib/amxplugin.cpp"
+	"lib/plugin.h"
+	"lib/plugincommon.h"
 	"src/amx_name.cpp"
 	"src/amx_name.h"
-	"src/amxplugin.cpp"
 	"src/config_reader.cpp"
 	"src/config_reader.h"
 	"src/debug_info.cpp"
@@ -53,9 +59,7 @@ add_library(profiler MODULE
 	"src/performance_counter.cpp"
 	"src/performance_counter.h"
 	"src/plugin.cpp"
-	"src/plugin.h"
 	"src/plugin.rc"
-	"src/plugincommon.h"
 	"src/printer.h"
 	"src/profile.h"
 	"src/profiler.cpp"
