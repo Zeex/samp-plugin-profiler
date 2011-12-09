@@ -64,7 +64,12 @@ void TextPrinter::Print(Profile &profile) {
 	}	
 
 	stream << "Profile of " << script_name_ << " generated on " 
-		<< GetCurrentDateAndTime() << "\n" << std::endl;
+		<< GetCurrentDateAndTime();
+	if (sub_child_time_) {
+		stream << " (with child time included)";
+	} 
+	stream << "\n" << std::endl;
+
 	stream 
 		<< std::setw(kFunctionTypeWidth)  << "Function Type"
 		<< std::setw(kFunctionNameWidth)  << "Function Name"
@@ -127,7 +132,11 @@ void HtmlPrinter::Print(Profile &profile) {
 	"	<title>" << "Profile of " << script_name_ << "</title>\n"
 	"</head>\n\n"
 	"<body>"
-	"	<h1>" << "Profile of " << script_name_ << " generated on " << GetCurrentDateAndTime() << "</h1>\n"
+	"	<h1>" << "Profile of " << script_name_ << " generated on " << GetCurrentDateAndTime();
+	if (sub_child_time_) {
+		stream << " (with child time included)";
+	} 
+	stream << "</h1>\n"
 	"	<table id=\"stats\" class=\"tablesorter\" border=\"1\" width=\"100%\">\n"
 	"		<thead>\n"
 	"			<tr>\n"
