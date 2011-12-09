@@ -30,11 +30,12 @@
 #include "amxname.h"
 #include "configreader.h"
 #include "debuginfo.h"
+#include "html_printer.h"
 #include "jump-x86.h"
 #include "logprintf.h"
 #include "plugin.h"
-#include "printers.h"
 #include "profiler.h"
+#include "text_printer.h"
 #include "version.h"
 
 #include "amx/amx.h"

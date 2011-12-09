@@ -19,7 +19,7 @@
 #include <sstream>
 #include <string>
 
-#include "printers.h"
+#include "printer.h"
 #include "profile.h"
 #include "profiler.h"
 

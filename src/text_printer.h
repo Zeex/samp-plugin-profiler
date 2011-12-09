@@ -14,37 +14,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SAMP_PROFILER_PRINTERS_H
-#define SAMP_PROFILER_PRINTERS_H
+#ifndef SAMP_PROFILER_TEXT_PRINTER_H
+#define SAMP_PROFILER_TEXT_PRINTER_H
 
 #include <string>
-#include <vector>
 
+#include "printer.h"
 #include "profile.h"
 
 namespace samp_profiler {
-
-class Printer {
-public:
-	enum OutputSortMode {
-		ORDER_NONE,
-		SORT_BY_CALLS,
-		SORT_BY_TIME,
-		SORT_BY_TOTAL_TIME
-	};
-
-	Printer(const std::string &out_file, const std::string &script_name, bool sub_child_time, OutputSortMode sort_mode)
-		: out_file_(out_file), script_name_(script_name), sub_child_time_(sub_child_time), sort_mode_(sort_mode)
-	{}
-
-	virtual void Print(Profile &profile) = 0;
-
-protected:
-	std::string out_file_;
-	std::string script_name_;
-	bool sub_child_time_;
-	OutputSortMode sort_mode_;
-};
 
 class TextPrinter : public Printer {
 public:
@@ -62,15 +40,6 @@ public:
 	virtual void Print(Profile &profile);
 };
 
-class HtmlPrinter : public Printer {
-public:
-	HtmlPrinter(const std::string &out_file, const std::string &script_name, bool sub_child_time, OutputSortMode sort_mode)
-		: Printer(out_file, script_name, sub_child_time, sort_mode)
-	{}
-
-	virtual void Print(Profile &profile);
-};
-
 } // namespace samp_profiler
 
-#endif // !SAMP_PROFILER_PRINTERS_H
+#endif // !SAMP_PROFILER_TEXT_PRINTER_H
