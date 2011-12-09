@@ -1,4 +1,6 @@
-// Copyright (c) 2011 Sergey Zolotarev <zeex@rocketmail.com>
+// SA:MP Profiler plugin
+//
+// Copyright (c) 2011 Zeex
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -41,6 +43,8 @@ static void Unprotect(void *address, int size) {
 }
 
 #endif
+
+namespace samp_profiler {
 
 JumpX86::JumpX86() 
 	: src_(0)
@@ -102,3 +106,6 @@ bool JumpX86::Remove() {
 bool JumpX86::IsInstalled() const {
 	return installed_;
 }
+
+} // namespace samp_profiler
+
