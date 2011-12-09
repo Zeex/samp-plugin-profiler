@@ -30,7 +30,7 @@
 
 namespace samp_profiler {
 
-class Printer;
+class AbstractPrinter;
 
 class Profiler {
 public:
@@ -66,7 +66,7 @@ public:
 	void SetDebugInfo(const DebugInfo &info);
 
 	void ResetStats();
-	void PrintStats(Printer &printer);
+	void PrintStats(AbstractPrinter &printer);
 
 	int Debug();
 	int Callback(cell index, cell *result, cell *params);

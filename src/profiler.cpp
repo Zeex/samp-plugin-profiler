@@ -19,7 +19,7 @@
 #include <sstream>
 #include <string>
 
-#include "printer.h"
+#include "abstract_printer.h"
 #include "profile.h"
 #include "profiler.h"
 
@@ -160,7 +160,7 @@ void Profiler::ResetStats() {
 	counters_.clear();
 }
 
-void Profiler::PrintStats(Printer &printer) {
+void Profiler::PrintStats(AbstractPrinter &printer) {
 	std::vector<std::pair<cell, PerformanceCounter> > stats(
 		counters_.begin(), counters_.end());
 

@@ -19,12 +19,12 @@
 
 #include <string>
 
-#include "printer.h"
+#include "abstract_printer.h"
 #include "profile.h"
 
 namespace samp_profiler {
 
-class TextPrinter : public Printer {
+class TextPrinter : public AbstractPrinter {
 public:
 	static const int kFunctionTypeWidth  = 15;
 	static const int kFunctionNameWidth  = 32;
@@ -34,7 +34,7 @@ public:
 	static const int kPercentOfTimeWidth = 20;
 
 	TextPrinter(const std::string &out_file, const std::string &script_name, bool sub_child_time, OutputSortMode sort_mode)
-		: Printer(out_file, script_name, sub_child_time, sort_mode)
+		: AbstractPrinter(out_file, script_name, sub_child_time, sort_mode)
 	{}
 
 	virtual void Print(Profile &profile);
