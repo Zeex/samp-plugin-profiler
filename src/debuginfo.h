@@ -13,6 +13,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// Lightweight wrapper for some of the dbg_* routines from the amxdbg module.
 
 #ifndef SAMP_PROFILER_DEBUGINFO_H
 #define SAMP_PROFILER_DEBUGINFO_H
