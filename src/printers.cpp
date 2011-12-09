@@ -65,7 +65,7 @@ void TextPrinter::Print(Profile &profile) {
 
 	stream << "Profile of " << script_name_ << " generated on " 
 		<< GetCurrentDateAndTime();
-	if (sub_child_time_) {
+	if (!sub_child_time_) {
 		stream << " (with child time included)";
 	} 
 	stream << "\n" << std::endl;
@@ -133,7 +133,7 @@ void HtmlPrinter::Print(Profile &profile) {
 	"</head>\n\n"
 	"<body>"
 	"	<h1>" << "Profile of " << script_name_ << " generated on " << GetCurrentDateAndTime();
-	if (sub_child_time_) {
+	if (!sub_child_time_) {
 		stream << " (with child time included)";
 	} 
 	stream << "</h1>\n"
