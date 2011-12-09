@@ -44,6 +44,8 @@ add_library(profiler MODULE
 	"src/configreader.h"
 	"src/debuginfo.cpp"
 	"src/debuginfo.h"
+	"src/html_printer.cpp"
+	"src/html_printer.h"
 	"src/jump-x86.cpp"
 	"src/jump-x86.h"
 	"src/logprintf.cpp"
@@ -54,11 +56,12 @@ add_library(profiler MODULE
 	"src/plugin.h"
 	"src/plugin.rc"
 	"src/plugincommon.h"
-	"src/printers.cpp"
-	"src/printers.h"
+	"src/printer.h"
 	"src/profile.h"
 	"src/profiler.cpp"
 	"src/profiler.h"
+	"src/text_printer.cpp"
+	"src/text_printer.h"
 )
 
 set_property(TARGET profiler PROPERTY PREFIX "")
