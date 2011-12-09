@@ -23,7 +23,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include "amxname.h"
+#include "amx_name.h"
 
 #include "amx/amx.h"
 #include "amx/amxaux.h"

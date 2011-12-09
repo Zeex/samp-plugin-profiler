@@ -20,7 +20,7 @@
 #include <string>
 #include <vector>
 
-#include "perfcounter.h"
+#include "performance_counter.h"
 
 namespace samp_profiler {
 

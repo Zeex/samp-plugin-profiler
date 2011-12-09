@@ -21,7 +21,7 @@
 #include <sstream>
 #include <string>
 
-#include "configreader.h"
+#include "config_reader.h"
 
 namespace samp_profiler {
 
