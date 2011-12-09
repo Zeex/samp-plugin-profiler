@@ -23,7 +23,7 @@
 
 namespace samp_profiler {
 
-class Printer {
+class AbstractPrinter {
 public:
 	enum OutputSortMode {
 		ORDER_NONE,
@@ -32,7 +32,7 @@ public:
 		SORT_BY_TOTAL_TIME
 	};
 
-	Printer(const std::string &out_file, const std::string &script_name, bool sub_child_time, OutputSortMode sort_mode)
+	AbstractPrinter(const std::string &out_file, const std::string &script_name, bool sub_child_time, OutputSortMode sort_mode)
 		: out_file_(out_file), script_name_(script_name), sub_child_time_(sub_child_time), sort_mode_(sort_mode)
 	{}
 

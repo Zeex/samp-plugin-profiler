@@ -19,15 +19,15 @@
 
 #include <string>
 
-#include "printer.h"
+#include "abstract_printer.h"
 #include "profile.h"
 
 namespace samp_profiler {
 
-class HtmlPrinter : public Printer {
+class HtmlPrinter : public AbstractPrinter {
 public:
 	HtmlPrinter(const std::string &out_file, const std::string &script_name, bool sub_child_time, OutputSortMode sort_mode)
-		: Printer(out_file, script_name, sub_child_time, sort_mode)
+		: AbstractPrinter(out_file, script_name, sub_child_time, sort_mode)
 	{}
 
 	virtual void Print(Profile &profile);

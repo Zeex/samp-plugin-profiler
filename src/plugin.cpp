@@ -257,14 +257,14 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 		std::string output_format = 
 			server_cfg.GetOption("profiler_output_format", std::string("html"));
 
-		Printer::OutputSortMode sort_mode;
+		AbstractPrinter::OutputSortMode sort_mode;
 		if (sort_output_by == "calls") {
-			sort_mode = Printer::SORT_BY_CALLS;
+			sort_mode = AbstractPrinter::SORT_BY_CALLS;
 		} else if (sort_output_by == "time") {
 			if (subtract_child_time) {
-				sort_mode = Printer::SORT_BY_TIME;
+				sort_mode = AbstractPrinter::SORT_BY_TIME;
 			} else {
-				sort_mode = Printer::SORT_BY_TOTAL_TIME;
+				sort_mode = AbstractPrinter::SORT_BY_TOTAL_TIME;
 			}
 		}
 
