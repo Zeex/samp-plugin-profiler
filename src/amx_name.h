@@ -14,8 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SAMP_PROFILER_AMXNAME_H
-#define SAMP_PROFILER_AMXNAME_H
+#ifndef SAMP_PROFILER_AMX_NAME_H
+#define SAMP_PROFILER_AMX_NAME_H
 
 #include <ctime>
 #include <list>

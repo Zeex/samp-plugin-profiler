@@ -16,8 +16,8 @@
 //
 // Lightweight wrapper for some of the dbg_* routines from the amxdbg module.
 
-#ifndef SAMP_PROFILER_DEBUGINFO_H
-#define SAMP_PROFILER_DEBUGINFO_H
+#ifndef SAMP_PROFILER_DEBUG_INFO_H
+#define SAMP_PROFILER_DEBUG_INFO_H
 
 #include <string>
 #include <boost/shared_ptr.hpp>
