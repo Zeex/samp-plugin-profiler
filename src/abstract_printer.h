@@ -17,7 +17,7 @@
 #ifndef SAMP_PROFILER_ABSTRACT_PRINTER_H
 #define SAMP_PROFILER_ABSTRACT_PRINTER_H
 
-#include <string>
+#include <ostream>
 
 #include "profile.h"
 
@@ -25,16 +25,7 @@ namespace samp_profiler {
 
 class AbstractPrinter {
 public:
-	AbstractPrinter(const std::string &out_file, const std::string &script_name, bool sub_child_time)
-		: out_file_(out_file), script_name_(script_name), sub_child_time_(sub_child_time)
-	{}
-
-	virtual void Print(Profile &profile) = 0;
-
-protected:
-	std::string out_file_;
-	std::string script_name_;
-	bool sub_child_time_;
+	virtual void Print(std::ostream &stream, Profile &profile) = 0;
 };
 
 } // namespace samp_profiler

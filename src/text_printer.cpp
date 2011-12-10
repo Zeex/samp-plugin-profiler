@@ -14,26 +14,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <fstream>
-#include <string>
-
 #include <boost/date_time.hpp>
 
 #include "text_printer.h"
 
 namespace samp_profiler {
 
-void TextPrinter::Print(Profile &profile) {
-	std::ofstream stream(out_file_.c_str());
-	if (!stream.is_open()) 
-		return;	
-
-	stream << "Profile of " << script_name_ << " generated on " 
-		<< boost::posix_time::second_clock::local_time();
-	if (!sub_child_time_) {
-		stream << " (with child time included)";
-	} 
-	stream << "\n" << std::endl;
+void TextPrinter::Print(std::ostream &stream, Profile &profile) {
+	stream << "Generated on " << boost::posix_time::second_clock::local_time() << "\n" << std::endl;
 
 	stream 
 		<< std::setw(kFunctionTypeWidth)  << "Function Type"
@@ -46,22 +34,22 @@ void TextPrinter::Print(Profile &profile) {
 
 	TimeType overall_time = 0;
 	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
-		if (!sub_child_time_) {
-			overall_time += it->GetCounter().GetTotalTime();
-		} else {
+		//if (!sub_child_time_) {
+		//	overall_time += it->GetCounter().GetTotalTime();
+		//} else {
 			overall_time += it->GetCounter().GetTime();
-		}
+		//}
 	}   
 
 	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
 		const PerformanceCounter &counter = it->GetCounter();
 
 		TimeType time;
-		if (sub_child_time_) {
+		//if (sub_child_time_) {
 			time = counter.GetTime();
-		} else {
-			time = counter.GetTotalTime();
-		}
+		//} else {
+		//	time = counter.GetTotalTime();
+		//}
 
 		stream 
 			<< std::setw(kFunctionTypeWidth)  << it->GetFunctionType()

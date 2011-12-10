@@ -25,11 +25,7 @@ namespace samp_profiler {
 
 class HtmlPrinter : public AbstractPrinter {
 public:
-	HtmlPrinter(const std::string &out_file, const std::string &script_name, bool sub_child_time)
-		: AbstractPrinter(out_file, script_name, sub_child_time)
-	{}
-
-	virtual void Print(Profile &profile);
+	virtual void Print(std::ostream &stream, Profile &profile);
 };
 
 } // namespace samp_profiler
