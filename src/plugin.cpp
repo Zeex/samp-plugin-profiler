@@ -59,14 +59,6 @@ JumpX86 ExecHook;
 JumpX86 CallbackHook;
 
 int AMXAPI Exec(AMX *amx, cell *retval, int index) {
-	//char name[32];
-	//if (index == AMX_EXEC_MAIN) {
-	//	strcpy(name, "main");
-	//} else {
-	//	amx_GetPublic(amx, index, name);
-	//}
-	//printf("%s\n", name);
-
 	ExecHook.Remove();		
 	CallbackHook.Install(); // P-code may call natives 
 
@@ -88,10 +80,6 @@ int AMXAPI Exec(AMX *amx, cell *retval, int index) {
 }
 
 int AMXAPI Callback(AMX *amx, cell index, cell *result, cell *params) {
-	//char name[32];
-	//amx_GetNative(amx, index, name);
-	//printf("%s\n", name);
-
 	CallbackHook.Remove();		
 	ExecHook.Install(); // Natives may call amx_Exec() 
 
