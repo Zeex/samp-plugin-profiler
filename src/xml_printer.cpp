@@ -25,7 +25,8 @@ namespace samp_profiler {
 
 void XmlPrinter::Print(Profile &profile) {
 	std::ofstream stream(out_file_.c_str());
-	if (!stream.is_open()) return;
+	if (!stream.is_open()) 
+		return;
 
 	stream << 
 	"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"

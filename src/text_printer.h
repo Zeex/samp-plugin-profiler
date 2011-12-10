@@ -32,8 +32,8 @@ public:
 	static const int kOverallTimeWidth   = 20;
 	static const int kPercentOfTimeWidth = 20;
 
-	TextPrinter(const std::string &out_file, const std::string &script_name, bool sub_child_time, OutputSortMode sort_mode)
-		: AbstractPrinter(out_file, script_name, sub_child_time, sort_mode)
+	TextPrinter(const std::string &out_file, const std::string &script_name, bool sub_child_time)
+		: AbstractPrinter(out_file, script_name, sub_child_time)
 	{}
 
 	virtual void Print(Profile &profile);
