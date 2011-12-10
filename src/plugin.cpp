@@ -36,6 +36,7 @@
 #include "profiler.h"
 #include "text_printer.h"
 #include "version.h"
+#include "xml_printer.h"
 
 #include "amx/amx.h"
 
@@ -248,7 +249,10 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 		} else if (output_format == "text") {
 			TextPrinter printer(amx_name + "-profile.txt", amx_path, subtract_child_time, sort_mode);
 			prof->PrintStats(printer);
-		}
+		} else if (output_format == "xml") {
+			XmlPrinter printer(amx_name + "-profile.xml", amx_path, subtract_child_time, sort_mode);			
+			prof->PrintStats(printer);
+		}		
 
 		Profiler::Detach(amx);
 	}
