@@ -28,7 +28,7 @@ You can configure profiler via server.cfg, by changing the following options:
 
 * profiler_output_format <format>
 
-  Set output format. Currently supported formats: html, text.
+  Set output format. Currently supported formats: xml, html, text.
   Default is html.
 
   Note for html: it is possible to sort stats by clicking on column names.
