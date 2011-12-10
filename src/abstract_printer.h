@@ -14,8 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SAMP_PROFILER_PRINTER_H
-#define SAMP_PROFILER_PRINTER_H
+#ifndef SAMP_PROFILER_ABSTRACT_PRINTER_H
+#define SAMP_PROFILER_ABSTRACT_PRINTER_H
 
 #include <string>
 

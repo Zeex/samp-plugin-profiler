@@ -14,8 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SAMP_SAMP_PROFILER_PERFCOUNTER_H
-#define SAMP_SAMP_PROFILER_PERFCOUNTER_H
+#ifndef SAMP_PROFILER_PERFORMANCE_COUNTER_H
+#define SAMP_PROFILER_PERFORMANCE_COUNTER_H
 
 #include <boost/chrono.hpp>
 #include <boost/integer.hpp>
@@ -63,4 +63,4 @@ private:
 
 } // namespace samp_profiler
 
-#endif // !SAMP_SAMP_PROFILER_PERFCOUNTER_H
+#endif // !SAMP_SAMP_PROFILER_PERFORMANCE_COUNTER_H

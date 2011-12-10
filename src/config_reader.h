@@ -23,8 +23,8 @@
 #include <sstream>
 #include <string>
 
-#ifndef SAMP_PROFILER_CONFIGREADER_H
-#define SAMP_PROFILER_CONFIGREADER_H
+#ifndef SAMP_PROFILER_CONFIG_READER_H
+#define SAMP_PROFILER_CONFIG_READER_H
 
 namespace samp_profiler {
 
