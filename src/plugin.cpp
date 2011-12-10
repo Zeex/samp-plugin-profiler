@@ -225,23 +225,27 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 		// Output stats depending on currently set output_format
 		ConfigReader server_cfg("server.cfg");
 
-		bool subtract_child_time = 
-			server_cfg.GetOption("profiler_subtract_child_time", true);
-		std::string output_format = 
-			server_cfg.GetOption("profiler_output_format", std::string("html"));
+		std::string format = 
+			server_cfg.GetOption("profile_format", std::string("html"));
 
-		if (output_format == "html") {			
-			HtmlPrinter printer(amx_name + "-profile.html", amx_path, subtract_child_time);
-			prof->PrintStats(printer);
-		} else if (output_format == "text") {
-			TextPrinter printer(amx_name + "-profile.txt", amx_path, subtract_child_time);
-			prof->PrintStats(printer);
-		} else if (output_format == "xml") {
-			XmlPrinter printer(amx_name + "-profile.xml", amx_path, subtract_child_time);
-			prof->PrintStats(printer);
+		std::ofstream ostream;
+		AbstractPrinter *printer = 0;
+
+		if (format == "html") {			
+			ostream.open(amx_name + "-profile.html");
+			printer = new HtmlPrinter;			
+		} else if (format == "text") {
+			ostream.open(amx_name + "-profile.txt");
+			printer = new TextPrinter;
+		} else if (format == "xml") {
+			ostream.open(amx_name + "-profile.xml");
+			printer = new XmlPrinter;
 		} else {
-			logprintf("Profiler: Unknown output format '%s'", output_format.c_str());
+			logprintf("Profiler: Unknown output format '%s'", format.c_str());
 		}
+
+		prof->PrintStats(ostream, printer);
+		delete printer;
 
 		Profiler::Detach(amx);
 	}

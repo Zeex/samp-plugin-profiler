@@ -160,7 +160,7 @@ void Profiler::ResetStats() {
 	counters_.clear();
 }
 
-void Profiler::PrintStats(AbstractPrinter &printer) {
+void Profiler::PrintStats(std::ostream &stream, AbstractPrinter *printer) {
 	std::vector<std::pair<cell, PerformanceCounter> > stats(
 		counters_.begin(), counters_.end());
 
@@ -205,7 +205,7 @@ void Profiler::PrintStats(AbstractPrinter &printer) {
 		}
 	}
 
-	printer.Print(profile);
+	printer->Print(stream, profile);
 }
 
 int Profiler::Debug() {

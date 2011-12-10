@@ -23,23 +23,16 @@
 
 namespace samp_profiler {
 
-void HtmlPrinter::Print(Profile &profile) {
-	std::ofstream stream(out_file_.c_str());
-	if (!stream.is_open()) 
-		return;
-
+void HtmlPrinter::Print(std::ostream &stream, Profile &profile) {
 	stream << 
 	"<html>\n"
 	"<head>\n"
-	"	<title>" << "Profile of " << script_name_ << "</title>\n"
+	"	<title>" << "Profiling results</title>\n"
 	"</head>\n\n"
 	"<body>"
-	"	<h1>" << "Profile of " << script_name_ << " generated on " << 
-			boost::posix_time::second_clock::local_time();
-	if (!sub_child_time_) {
-		stream << " (with child time included)";
-	} 
-	stream << "</h1>\n"
+	"	<h1>" << 
+	"		Generated on " << boost::posix_time::second_clock::local_time() << 
+	"	</h1>\n"
 	"	<table id=\"stats\" class=\"tablesorter\" border=\"1\" width=\"100%\">\n"
 	"		<thead>\n"
 	"			<tr>\n"
@@ -56,22 +49,22 @@ void HtmlPrinter::Print(Profile &profile) {
 
 	TimeType overall_time = 0;
 	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
-		if (!sub_child_time_) {
-			overall_time += it->GetCounter().GetTotalTime();
-		} else {
+		//if (!sub_child_time_) {
+		//	overall_time += it->GetCounter().GetTotalTime();
+		//} else {
 			overall_time += it->GetCounter().GetTime();
-		}
+		//}
 	}    
 
 	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
 		const PerformanceCounter &counter = it->GetCounter();
 
 		TimeType time;
-		if (sub_child_time_) {
+		//if (sub_child_time_) {
 			time = counter.GetTime();
-		} else {
-			time = counter.GetTotalTime();
-		}
+		//} else {
+		//	time = counter.GetTotalTime();
+		//}
 
 		stream 
 		<< "		<tr>\n"

@@ -18,6 +18,7 @@
 #define SAMP_PROFILER_PROFILER_H
 
 #include <map>
+#include <ostream>
 #include <stack>
 #include <string>
 #include <vector>
@@ -66,7 +67,7 @@ public:
 	void SetDebugInfo(const DebugInfo &info);
 
 	void ResetStats();
-	void PrintStats(AbstractPrinter &printer);
+	void PrintStats(std::ostream &stream, AbstractPrinter *printer);
 
 	int Debug();
 	int Callback(cell index, cell *result, cell *params);
