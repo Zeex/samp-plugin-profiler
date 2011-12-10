@@ -16,7 +16,7 @@
 
 #include <cstring>
 
-#include "jump-x86.h"
+#include "jump_x86.h"
 
 #if defined WIN32 || defined _WIN32
 

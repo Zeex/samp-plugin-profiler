@@ -31,7 +31,7 @@
 #include "config_reader.h"
 #include "debug_info.h"
 #include "html_printer.h"
-#include "jump-x86.h"
+#include "jump_x86.h"
 #include "plugin.h"
 #include "profiler.h"
 #include "text_printer.h"
