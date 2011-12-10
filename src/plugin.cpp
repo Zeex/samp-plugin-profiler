@@ -135,20 +135,6 @@ bool IsFilterScript(const std::string &amxName) {
 bool WantsProfiler(const std::string &amxName) {
 	std::string goodAmxName = ToPortablePath(amxName);
 
-	/// Look at profiler.cfg
-	/// It should be just a list of .amx files, one per line.
-	std::ifstream config("plugins/profiler.cfg");    
-	std::vector<std::string> filenames;
-	std::transform(
-		std::istream_iterator<std::string>(config), 
-		std::istream_iterator<std::string>(),
-		std::back_inserter(filenames), ToPortablePath
-	);
-	if (std::find(filenames.begin(), filenames.end(), 
-			goodAmxName) != filenames.end()) {
-		return true;
-	}
-
 	// This only works if they place their gamemodes and filterscripts in default directories.
 	// Someting like ../my_scripts/awesome_script.amx obviously won't work.
 	ConfigReader server_cfg("server.cfg");
