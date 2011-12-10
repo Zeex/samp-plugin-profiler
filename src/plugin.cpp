@@ -228,22 +228,23 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 		std::string format = 
 			server_cfg.GetOption("profile_format", std::string("html"));
 
-		std::ofstream ostream;
+		std::string filename;
 		AbstractPrinter *printer = 0;
 
 		if (format == "html") {			
-			ostream.open(amx_name + "-profile.html");
+			filename = amx_name + "-profile.html";
 			printer = new HtmlPrinter;			
 		} else if (format == "text") {
-			ostream.open(amx_name + "-profile.txt");
+			filename = amx_name + "-profile.txt";
 			printer = new TextPrinter;
 		} else if (format == "xml") {
-			ostream.open(amx_name + "-profile.xml");
+			filename = amx_name + "-profile.xml";
 			printer = new XmlPrinter;
 		} else {
 			logprintf("Profiler: Unknown output format '%s'", format.c_str());
 		}
 
+		std::ofstream ostream(filename.c_str());
 		prof->PrintStats(ostream, printer);
 		delete printer;
 
