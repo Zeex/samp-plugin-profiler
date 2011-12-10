@@ -25,15 +25,8 @@ namespace samp_profiler {
 
 class AbstractPrinter {
 public:
-	enum OutputSortMode {
-		ORDER_NONE,
-		SORT_BY_CALLS,
-		SORT_BY_TIME,
-		SORT_BY_TOTAL_TIME
-	};
-
-	AbstractPrinter(const std::string &out_file, const std::string &script_name, bool sub_child_time, OutputSortMode sort_mode)
-		: out_file_(out_file), script_name_(script_name), sub_child_time_(sub_child_time), sort_mode_(sort_mode)
+	AbstractPrinter(const std::string &out_file, const std::string &script_name, bool sub_child_time)
+		: out_file_(out_file), script_name_(script_name), sub_child_time_(sub_child_time)
 	{}
 
 	virtual void Print(Profile &profile) = 0;
@@ -42,7 +35,6 @@ protected:
 	std::string out_file_;
 	std::string script_name_;
 	bool sub_child_time_;
-	OutputSortMode sort_mode_;
 };
 
 } // namespace samp_profiler

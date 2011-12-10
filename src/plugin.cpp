@@ -227,32 +227,21 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 
 		bool subtract_child_time = 
 			server_cfg.GetOption("profiler_subtract_child_time", true);
-		std::string sort_output_by = 
-			server_cfg.GetOption("profiler_sort_output_by", std::string("time"));
 		std::string output_format = 
 			server_cfg.GetOption("profiler_output_format", std::string("html"));
 
-		AbstractPrinter::OutputSortMode sort_mode;
-		if (sort_output_by == "calls") {
-			sort_mode = AbstractPrinter::SORT_BY_CALLS;
-		} else if (sort_output_by == "time") {
-			if (subtract_child_time) {
-				sort_mode = AbstractPrinter::SORT_BY_TIME;
-			} else {
-				sort_mode = AbstractPrinter::SORT_BY_TOTAL_TIME;
-			}
-		}
-
 		if (output_format == "html") {			
-			HtmlPrinter printer(amx_name + "-profile.html", amx_path, subtract_child_time, sort_mode);
+			HtmlPrinter printer(amx_name + "-profile.html", amx_path, subtract_child_time);
 			prof->PrintStats(printer);
 		} else if (output_format == "text") {
-			TextPrinter printer(amx_name + "-profile.txt", amx_path, subtract_child_time, sort_mode);
+			TextPrinter printer(amx_name + "-profile.txt", amx_path, subtract_child_time);
 			prof->PrintStats(printer);
 		} else if (output_format == "xml") {
-			XmlPrinter printer(amx_name + "-profile.xml", amx_path, subtract_child_time, sort_mode);			
+			XmlPrinter printer(amx_name + "-profile.xml", amx_path, subtract_child_time);
 			prof->PrintStats(printer);
-		}		
+		} else {
+			logprintf("Profiler: Unknown output format '%s'", output_format.c_str());
+		}
 
 		Profiler::Detach(amx);
 	}

@@ -25,19 +25,8 @@ namespace samp_profiler {
 
 void HtmlPrinter::Print(Profile &profile) {
 	std::ofstream stream(out_file_.c_str());
-	if (!stream.is_open()) return;
-
-	switch (sort_mode_) {
-	case SORT_BY_TIME:
-		std::sort(profile.begin(), profile.end(), ProfileEntry::CompareTime);
-		break;
-	case SORT_BY_CALLS:
-		std::sort(profile.begin(), profile.end(), ProfileEntry::CompareCalls);
-		break;
-	case SORT_BY_TOTAL_TIME:
-		std::sort(profile.begin(), profile.end(), ProfileEntry::CompareTotalTime);
-		break;
-	}	
+	if (!stream.is_open()) 
+		return;
 
 	stream << 
 	"<html>\n"

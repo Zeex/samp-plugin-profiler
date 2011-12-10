@@ -33,11 +33,6 @@ You can configure profiler via server.cfg, by changing the following options:
 
   Note for html: it is possible to sort stats by clicking on column names.
 
-* profiler_sort_output_by <what>
-  
-  Set output sort mode. Supported values are: calls, time.
-  By default output sorted by time.
-
 * profiler_subtract_child_time <0/1>
 
   Subtract time taken by callees from caller's total time.
