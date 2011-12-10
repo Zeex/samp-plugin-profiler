@@ -191,7 +191,7 @@ void Profiler::PrintStats(std::ostream &stream, AbstractPrinter *printer) {
 				if (debugInfo_.IsLoaded()) {
 					std::string name = debugInfo_.GetFunction(address);
 					if (!name.empty()) {	
-						profile.push_back(ProfileEntry(debugInfo_.GetFunction(address), "ordinary", counter));
+						profile.push_back(ProfileEntry(debugInfo_.GetFunction(address), "normal", counter));
 						found = true;
 					}
 				}
