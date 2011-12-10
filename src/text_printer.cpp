@@ -24,41 +24,42 @@ void TextPrinter::Print(std::ostream &stream, Profile &profile) {
 	stream << "Generated on " << boost::posix_time::second_clock::local_time() << "\n" << std::endl;
 
 	stream 
-		<< std::setw(kFunctionTypeWidth)  << "Function Type"
-		<< std::setw(kFunctionNameWidth)  << "Function Name"
-		<< std::setw(kNumberOfCallsWidth) << "Calls"
-		<< std::setw(kAverageTimeWidth)   << "Average Time"
-		<< std::setw(kOverallTimeWidth)   << "Overall Time"
-		<< std::setw(kPercentOfTimeWidth) << "Overall Time, %"
+		<< std::setw(kFunctionTypeWidth)     << "Function Type"
+		<< std::setw(kFunctionNameWidth)     << "Function Name"
+		<< std::setw(kNumberOfCallsWidth)    << "Calls"
+		<< std::setw(kTimePerCallWidth)      << "Time Per Call"
+		<< std::setw(kTimeWidth)             << "Time"
+		<< std::setw(kTimePercentWidth)      << "Time, %"
+		<< std::setw(kTotalTimePerCallWidth) << "Total Time Per Call"
+		<< std::setw(kTotalTimeWidth)        << "Total Time"
+		<< std::setw(kTotalTimePercentWidth) << "Total Time, %"
 	<< std::endl;
 
-	TimeType overall_time = 0;
+	TimeType time_all = 0;
 	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
-		//if (!sub_child_time_) {
-		//	overall_time += it->GetCounter().GetTotalTime();
-		//} else {
-			overall_time += it->GetCounter().GetTime();
-		//}
+		time_all += it->GetCounter().GetTime();
+	}    
+
+	TimeType total_time_all = 0;
+	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
+		total_time_all += it->GetCounter().GetTotalTime();
 	}   
 
 	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
 		const PerformanceCounter &counter = it->GetCounter();
 
-		TimeType time;
-		//if (sub_child_time_) {
-			time = counter.GetTime();
-		//} else {
-		//	time = counter.GetTotalTime();
-		//}
-
 		stream 
-			<< std::setw(kFunctionTypeWidth)  << it->GetFunctionType()
-			<< std::setw(kFunctionNameWidth)  << it->GetFunctionName()
-			<< std::setw(kNumberOfCallsWidth) << counter.GetNumberOfCalls()
-			<< std::setw(kAverageTimeWidth)   << time / counter.GetNumberOfCalls()
-			<< std::setw(kOverallTimeWidth)   << time
-			<< std::setw(kPercentOfTimeWidth) << std::setprecision(2) << std::fixed 
-				<< static_cast<double>(time * 100) / overall_time
+			<< std::setw(kFunctionTypeWidth)     << it->GetFunctionType()
+			<< std::setw(kFunctionNameWidth)     << it->GetFunctionName()
+			<< std::setw(kNumberOfCallsWidth)    << counter.GetNumberOfCalls()
+			<< std::setw(kTimePerCallWidth)      << counter.GetTime() / counter.GetNumberOfCalls()
+			<< std::setw(kTimeWidth)             << counter.GetTime()
+			<< std::setw(kTimePercentWidth)      << std::setprecision(2) << std::fixed 
+				<< static_cast<double>(counter.GetTime() * 100) / time_all
+			<< std::setw(kTotalTimePerCallWidth) << counter.GetTotalTime() / counter.GetNumberOfCalls()
+			<< std::setw(kTotalTimeWidth)        << counter.GetTotalTime()
+			<< std::setw(kTotalTimePercentWidth) << std::setprecision(2) << std::fixed 
+				<< static_cast<double>(counter.GetTotalTime() * 100) / total_time_all
 		<< std::endl;
 	}
 }

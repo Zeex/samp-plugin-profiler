@@ -23,35 +23,33 @@ namespace samp_profiler {
 void XmlPrinter::Print(std::ostream &stream, Profile &profile) {
 	stream << 
 	"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-	"<profile>";
+	"<profile date=\"" << boost::posix_time::second_clock::local_time() << "\">";
 
-	TimeType overall_time = 0;
+	TimeType time_all = 0;
 	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
-		//if (!sub_child_time_) {
-		//	overall_time += it->GetCounter().GetTotalTime();
-		//} else {
-			overall_time += it->GetCounter().GetTime();
-		//}
+		time_all += it->GetCounter().GetTime();
+	}    
+
+	TimeType total_time_all = 0;
+	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
+		total_time_all += it->GetCounter().GetTotalTime();
 	}    
 
 	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
 		const PerformanceCounter &counter = it->GetCounter();
 
-		TimeType time;
-		//if (sub_child_time_) {
-			time = counter.GetTime();
-		//} else {
-		//	time = counter.GetTotalTime();
-		//}
-
 		stream << "		<function";
 		stream << " type=\"" << it->GetFunctionType() << "\"";
 		stream << " name=\"" << it->GetFunctionName() << "\"";
 		stream << " calls=\"" << counter.GetNumberOfCalls() << "\"";
-		stream << " average_time=\"" << time / counter.GetNumberOfCalls() << "\"";
-		stream << " total_time=\"" << time << "\"";
+		stream << " time_per_call=\"" << counter.GetTime() / counter.GetNumberOfCalls() << "\"";
+		stream << " time=\"" << counter.GetTime() << "\"";
+		stream << " time_percent=\"" <<  std::fixed << std::setprecision(2) 
+			<< static_cast<double>(counter.GetTime() * 100) / time_all << "\"";
+		stream << " total_time_per_call=\"" << counter.GetTotalTime() / counter.GetNumberOfCalls() << "\"";
+		stream << " total_time=\"" << counter.GetTotalTime() << "\"";
 		stream << " total_time_percent=\"" <<  std::fixed << std::setprecision(2) 
-			<< static_cast<double>(time * 100) / overall_time << "\"";
+			<< static_cast<double>(counter.GetTotalTime() * 100) / total_time_all << "\"";
 		stream << " />\n";
 	}
 

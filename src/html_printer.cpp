@@ -39,42 +39,43 @@ void HtmlPrinter::Print(std::ostream &stream, Profile &profile) {
 	"				<th>Function Type</th>\n"
 	"				<th>Function Name</th>\n"
 	"				<th>Calls</th>\n"
-	"				<th>Average Time, &#181;s</th>\n"
-	"				<th>Overall Time, &#181;s</th>\n"
-	"				<th>Overall Time, &#037;</th>\n"
+	"				<th>Time Per Call</th>\n"
+	"				<th>Time</th>\n"
+	"				<th>Time, &#037</th>\n"
+	"				<th>Total Time Per Call</th>\n"
+	"				<th>Total Time</th>\n"
+	"				<th>Total Time, &#037</th>\n"
 	"			</tr>\n"
 	"		</thead>\n"
 	"		<tbody>\n"
 	;
 
-	TimeType overall_time = 0;
+	TimeType time_all = 0;
 	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
-		//if (!sub_child_time_) {
-		//	overall_time += it->GetCounter().GetTotalTime();
-		//} else {
-			overall_time += it->GetCounter().GetTime();
-		//}
+		time_all += it->GetCounter().GetTime();
+	}    
+
+	TimeType total_time_all = 0;
+	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
+		total_time_all += it->GetCounter().GetTotalTime();
 	}    
 
 	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
 		const PerformanceCounter &counter = it->GetCounter();
-
-		TimeType time;
-		//if (sub_child_time_) {
-			time = counter.GetTime();
-		//} else {
-		//	time = counter.GetTotalTime();
-		//}
 
 		stream 
 		<< "		<tr>\n"
 		<< "			<td>" << it->GetFunctionType() << "</td>\n"
 		<< "			<td>" << it->GetFunctionName() << "</td>\n"
 		<< "			<td>" << counter.GetNumberOfCalls() << "</td>\n"
-		<< "			<td>" << time / counter.GetNumberOfCalls() << "</td>\n"
-		<< "			<td>" << time << "</td>\n"
+		<< "			<td>" << counter.GetTime() / counter.GetNumberOfCalls() << "</td>\n"
+		<< "			<td>" << counter.GetTime() << "</td>\n"
 		<< "			<td>" << std::fixed << std::setprecision(2) 
-			<< static_cast<double>(time * 100) / overall_time << "</td>\n"
+			<< static_cast<double>(counter.GetTime() * 100) / time_all << "</td>\n"
+		<< "			<td>" << counter.GetTotalTime() / counter.GetNumberOfCalls() << "</td>\n"
+		<< "			<td>" << counter.GetTotalTime() << "</td>\n"
+		<< "			<td>" << std::fixed << std::setprecision(2) 
+			<< static_cast<double>(counter.GetTotalTime() * 100) / total_time_all << "</td>\n"
 		<< "		</tr>\n";
 	}
 
