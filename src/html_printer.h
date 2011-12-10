@@ -20,7 +20,6 @@
 #include <string>
 
 #include "abstract_printer.h"
-#include "profile.h"
 
 namespace samp_profiler {
 

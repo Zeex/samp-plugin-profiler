@@ -14,8 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SAMP_PROFILER_TEXT_PRINTER_H
-#define SAMP_PROFILER_TEXT_PRINTER_H
+#ifndef SAMP_PROFILER_XML_PRINTER_H
+#define SAMP_PROFILER_XML_PRINTER_H
 
 #include <string>
 
@@ -23,16 +23,9 @@
 
 namespace samp_profiler {
 
-class TextPrinter : public AbstractPrinter {
+class XmlPrinter : public AbstractPrinter {
 public:
-	static const int kFunctionTypeWidth  = 15;
-	static const int kFunctionNameWidth  = 32;
-	static const int kNumberOfCallsWidth = 20;
-	static const int kAverageTimeWidth   = 20;
-	static const int kOverallTimeWidth   = 20;
-	static const int kPercentOfTimeWidth = 20;
-
-	TextPrinter(const std::string &out_file, const std::string &script_name, bool sub_child_time, OutputSortMode sort_mode)
+	XmlPrinter(const std::string &out_file, const std::string &script_name, bool sub_child_time, OutputSortMode sort_mode)
 		: AbstractPrinter(out_file, script_name, sub_child_time, sort_mode)
 	{}
 
@@ -41,4 +34,4 @@ public:
 
 } // namespace samp_profiler
 
-#endif // !SAMP_PROFILER_TEXT_PRINTER_H
+#endif // !SAMP_PROFILER_XML_PRINTER_H

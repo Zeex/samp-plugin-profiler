@@ -64,6 +64,8 @@ add_library(profiler MODULE
 	"src/profiler.h"
 	"src/text_printer.cpp"
 	"src/text_printer.h"
+	"src/xml_printer.cpp"
+	"src/xml_printer.h"
 )
 
 set_property(TARGET profiler PROPERTY PREFIX "")
