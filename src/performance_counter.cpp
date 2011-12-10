@@ -35,21 +35,32 @@ void PerformanceCounter::Start(PerformanceCounter *parent) {
 	++num_calls_;
 
 	if (!started_) {			
-		start_ = Clock::now();
 		current_parent_ = parent;
+		start_point_ = Clock::now();
 		started_ = true;
-	}	
+	} else {
+		// Start() called twice - restart counter
+		Stop();
+		Start();
+	}
 }
 
 void PerformanceCounter::Stop() {
+	Clock::duration time;
 	if (started_) {
-		Clock::duration time = Clock::now() - start_;
-		total_time_ += time;		
-		if (current_parent_ != 0) {
-			current_parent_->child_time_ += time;
-		}
+		time = Clock::now() - start_point_;
 		started_ = false;
+	} else {
+		// Stop() called twice 
+		time = Clock::now() - stop_point_;	
 	}
+
+	total_time_ += time;		
+	if (current_parent_ != 0) {
+		current_parent_->child_time_ += time;
+	}
+
+	stop_point_ = Clock::now();
 }
 
 long PerformanceCounter::GetNumberOfCalls() const {

@@ -47,8 +47,9 @@ private:
 	// Number of calls to Start()
 	long num_calls_;
 
-	// Start point
-	Clock::time_point start_;
+	// Recorded when users call Start() and Stop() respectively
+	Clock::time_point start_point_;
+	Clock::time_point stop_point_;
 
 	// Amount of time taken by child counters
 	Clock::duration child_time_;
