@@ -42,13 +42,13 @@ void XmlPrinter::Print(std::ostream &stream, Profile &profile) {
 		stream << " type=\"" << it->GetFunctionType() << "\"";
 		stream << " name=\"" << it->GetFunctionName() << "\"";
 		stream << " calls=\"" << counter.GetNumberOfCalls() << "\"";
-		stream << " time_per_call=\"" << counter.GetTime() / counter.GetNumberOfCalls() << "\"";
-		stream << " time=\"" << counter.GetTime() << "\"";
-		stream << " time_percent=\"" <<  std::fixed << std::setprecision(2) 
-			<< static_cast<double>(counter.GetTime() * 100) / time_all << "\"";
-		stream << " total_time_per_call=\"" << counter.GetTotalTime() / counter.GetNumberOfCalls() << "\"";
-		stream << " total_time=\"" << counter.GetTotalTime() << "\"";
+		stream << " mean_time=\"" << counter.GetTime() / counter.GetNumberOfCalls() << "\"";
+		stream << " total_time=\"" << counter.GetTime() << "\"";
 		stream << " total_time_percent=\"" <<  std::fixed << std::setprecision(2) 
+			<< static_cast<double>(counter.GetTime() * 100) / time_all << "\"";
+		stream << " mean_full_time=\"" << counter.GetTotalTime() / counter.GetNumberOfCalls() << "\"";
+		stream << " total_full_time=\"" << counter.GetTotalTime() << "\"";
+		stream << " total_full_time_percent=\"" <<  std::fixed << std::setprecision(2) 
 			<< static_cast<double>(counter.GetTotalTime() * 100) / total_time_all << "\"";
 		stream << " />\n";
 	}
