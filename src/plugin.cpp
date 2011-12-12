@@ -166,7 +166,7 @@ static bool WantsProfiler(const std::string &amxName) {
 	PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx);
 
 	// Manually call Unload and AmxUnload on Ctrl+C, Ctrl+Break 
-	// and server window close event, then quit with 0 exit code.
+	// and server window close event.
 	static BOOL WINAPI ConsoleCtrlHandler(DWORD dwCtrlType) {
 		switch (dwCtrlType) {
 		case CTRL_CLOSE_EVENT:
