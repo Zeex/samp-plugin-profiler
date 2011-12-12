@@ -55,7 +55,7 @@ public:
 	Profiler(AMX *amx);
 
 	static void Attach(AMX *amx);
-	static void Attach(AMX *amx, const DebugInfo &debugInfo);
+	static void Attach(AMX *amx, const DebugInfo &debug_info);
 	static void Detach(AMX *amx);
 
 	static Profiler *Get(AMX *amx);
@@ -79,7 +79,7 @@ private:
 	bool active_;
 
 	AMX          *amx_;
-	DebugInfo     debugInfo_;
+	DebugInfo     debug_info_;
 	AMX_DEBUG     debug_;
 
 	class CallInfo {
