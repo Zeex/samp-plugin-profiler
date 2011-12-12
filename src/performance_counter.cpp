@@ -32,9 +32,8 @@ PerformanceCounter::~PerformanceCounter() {
 }
 
 void PerformanceCounter::Start(PerformanceCounter *parent) {
-	++num_calls_;
-
 	if (!started_) {			
+		++num_calls_;
 		current_parent_ = parent;
 		start_point_ = Clock::now();
 		started_ = true;
