@@ -98,9 +98,9 @@ void Profiler::Attach(AMX *amx) {
 }
 
 // static
-void Profiler::Attach(AMX *amx, const DebugInfo &debugInfo) {
+void Profiler::Attach(AMX *amx, const DebugInfo &debug_info) {
 	Attach(amx);
-	Get(amx)->SetDebugInfo(debugInfo);
+	Get(amx)->SetDebugInfo(debug_info);
 }
 
 // static
@@ -135,7 +135,7 @@ Profiler::Profiler(AMX *amx)
 }
 
 void Profiler::SetDebugInfo(const DebugInfo &info) {
-	debugInfo_ = info;
+	debug_info_ = info;
 }
 
 void Profiler::Activate() {
@@ -188,10 +188,10 @@ void Profiler::PrintStats(std::ostream &stream, AbstractPrinter *printer) {
 			}
 			// Search in symbol table
 			if (!found) {
-				if (debugInfo_.IsLoaded()) {
-					std::string name = debugInfo_.GetFunction(address);
+				if (debug_info_.IsLoaded()) {
+					std::string name = debug_info_.GetFunction(address);
 					if (!name.empty()) {	
-						profile.push_back(ProfileEntry(debugInfo_.GetFunction(address), "normal", counter));
+						profile.push_back(ProfileEntry(debug_info_.GetFunction(address), "normal", counter));
 						found = true;
 					}
 				}

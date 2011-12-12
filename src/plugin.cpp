@@ -27,6 +27,10 @@
 #include <string>
 #include <vector>
 
+#ifdef _WIN32
+	#include <Windows.h>
+#endif
+
 #include "amx_name.h"
 #include "config_reader.h"
 #include "debug_info.h"
@@ -49,7 +53,10 @@ extern void *pAMXFunctions;
 static logprintf_t logprintf;
 
 // Symbolic info, used for getting function names
-static std::map<AMX*, samp_profiler::DebugInfo> debugInfos;
+static std::map<AMX*, samp_profiler::DebugInfo> debug_infos;
+
+// Contains currently loaded AMX scripts
+static std::list<AMX*> loaded_scripts;
 
 // Hooks
 static samp_profiler::JumpX86 ExecHook;
@@ -153,6 +160,29 @@ static bool WantsProfiler(const std::string &amxName) {
 	return false;
 }
 
+#ifdef _WIN32
+
+	PLUGIN_EXPORT void PLUGIN_CALL Unload();
+	PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx);
+
+	// Manually call Unload and AmxUnload on Ctrl+C, Ctrl+Break 
+	// and server window close event, then quit with 0 exit code.
+	static BOOL WINAPI ConsoleCtrlHandler(DWORD dwCtrlType) {
+		switch (dwCtrlType) {
+		case CTRL_CLOSE_EVENT:
+		case CTRL_BREAK_EVENT:
+		case CTRL_C_EVENT:
+			for (std::list<AMX*>::const_iterator iterator = ::loaded_scripts.begin();
+					iterator != ::loaded_scripts.end(); ++iterator) {
+				AmxUnload(*iterator);
+			}
+			Unload();
+		}
+		return FALSE;
+	}
+
+#endif
+
 PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports() {
 	return SUPPORTS_VERSION | SUPPORTS_AMX_NATIVES;
 }
@@ -177,12 +207,17 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
 		((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Callback], 
 		(void*)::Callback);
 
+	#ifdef _WIN32
+		SetConsoleCtrlHandler(ConsoleCtrlHandler, TRUE);
+	#endif
+
 	logprintf("  Profiler plugin "VERSION_STRING" is OK.");
 
 	return true;
 }
 
 PLUGIN_EXPORT void PLUGIN_CALL Unload() {
+	logprintf("Profiler got unloaded.");
 	return;
 }
 
@@ -210,7 +245,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 			debugInfo.Load(filename);
 			if (debugInfo.IsLoaded()) {
 				logprintf("Profiler: Loaded debug info from %s", filename.c_str());
-				::debugInfos[amx] = debugInfo;				
+				::debug_infos[amx] = debugInfo;				
 				samp_profiler::Profiler::Attach(amx, debugInfo); 
 				logprintf("Profiler: Attached profiler instance to %s", filename.c_str());
 				return AMX_ERR_NONE;
@@ -221,6 +256,8 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 		samp_profiler::Profiler::Attach(amx);
 		logprintf("Profiler: Attached profiler instance to %s (no debug symbols)", filename.c_str());
 	} 	
+
+	::loaded_scripts.push_back(amx);
 
 	return AMX_ERR_NONE;
 }
@@ -264,11 +301,13 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 	}
 
 	// Free debug info
-	std::map<AMX*, samp_profiler::DebugInfo>::iterator it = ::debugInfos.find(amx);
-	if (it != ::debugInfos.end()) {
+	std::map<AMX*, samp_profiler::DebugInfo>::iterator it = ::debug_infos.find(amx);
+	if (it != ::debug_infos.end()) {
 		it->second.Free();
-		::debugInfos.erase(it);
+		::debug_infos.erase(it);
 	}
+
+	::loaded_scripts.remove(amx);
 
 	return AMX_ERR_NONE;
 }
