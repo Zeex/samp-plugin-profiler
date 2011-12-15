@@ -17,12 +17,7 @@
 #ifndef SAMP_PROFILER_AMX_NAME_H
 #define SAMP_PROFILER_AMX_NAME_H
 
-#include <ctime>
-#include <list>
-#include <map>
 #include <string>
-
-#include <boost/shared_ptr.hpp>
 
 #include "amx/amx.h"
 
@@ -30,25 +25,6 @@ namespace samp_profiler {
 
 std::string GetAmxName(AMX_HEADER *amxhdr);
 std::string GetAmxName(AMX *amx);
-
-class AmxFile {
-public:
-	static void FreeAmx(AMX *amx);
-
-	explicit AmxFile(const std::string &name);
-
-	bool IsLoaded() const { return amxPtr_.get() != 0; }
-
-	const AMX *GetAmx() const { return amxPtr_.get(); }
-	const std::string &GetName() const { return name_; }
-	std::time_t GetLastWriteTime() const { return last_write_; }
-
-private:
-	boost::shared_ptr<AMX> amxPtr_;
-
-	std::string name_;
-	std::time_t last_write_;
-};
 
 } // namespace samp_profiler
 
