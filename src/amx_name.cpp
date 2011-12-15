@@ -18,6 +18,7 @@
 #include <exception>
 #include <iterator>
 #include <list>
+#include <map>
 #include <string>
 
 #include <boost/filesystem.hpp>
@@ -30,8 +31,23 @@
 
 namespace samp_profiler {
 
-static std::map<std::string, AmxFile> scripts;
-static std::map<AMX*, std::string> cachedNames;
+class AmxFile {
+public:
+	static void FreeAmx(AMX *amx);
+
+	explicit AmxFile(const std::string &name);
+
+	bool IsLoaded() const { return amxPtr_.get() != 0; }
+
+	const AMX *GetAmx() const { return amxPtr_.get(); }
+	const std::string &GetName() const { return name_; }
+	std::time_t GetLastWriteTime() const { return last_write_; }
+
+private:
+	boost::shared_ptr<AMX> amxPtr_;
+	std::string name_;
+	std::time_t last_write_;
+};
 
 AmxFile::AmxFile(const std::string &name)
 	: name_(name)
@@ -42,6 +58,14 @@ AmxFile::AmxFile(const std::string &name)
 		amxPtr_.reset();
 	}	
 }
+
+void AmxFile::FreeAmx(AMX *amx) {
+	aux_FreeProgram(amx);
+	delete amx;
+}
+
+static std::map<std::string, AmxFile> scripts;
+static std::map<AMX*, std::string> cachedNames;
 
 std::string GetAmxName(AMX_HEADER *amxhdr) {
 	std::string result;
@@ -107,11 +131,6 @@ std::string GetAmxName(AMX *amx) {
 	}
 
 	return result;
-}
-
-void AmxFile::FreeAmx(AMX *amx) {
-	aux_FreeProgram(amx);
-	delete amx;
 }
 
 } // namespace samp_profiler
