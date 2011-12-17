@@ -56,4 +56,13 @@ bool ConfigReader::LoadFile(const std::string &filename) {
 	return loaded_;
 }
 
+template<>
+std::string ConfigReader::GetOption<std::string>(const std::string &name, const std::string &defaultValue) const {
+	std::map<std::string, std::string>::const_iterator it = options_.find(name);
+	if (it == options_.end()) {
+		return defaultValue;
+	}
+	return it->second;
+}
+
 } // namespace samp_profiler
