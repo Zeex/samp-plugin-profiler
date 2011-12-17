@@ -60,6 +60,8 @@ T ConfigReader::GetOption(const std::string &name, const T &defaultValue) const 
 	return value;
 }
 
+template<> std::string ConfigReader::GetOption(const std::string &name, const std::string &value) const;
+
 } // namespace samp_profiler
 
 #endif // !SAMP_PROFILER_CONFIGREADER_H
