@@ -18,7 +18,9 @@
 #include <cctype>
 #include <cstdlib>
 #include <fstream>
+#include <functional>
 #include <iostream>
+#include <locale>
 #include <stdexcept>
 #include <sstream>
 #include <string>
