@@ -14,6 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <algorithm>
+#include <cctype>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
@@ -31,6 +33,20 @@ ConfigReader::ConfigReader(const std::string &filename)
 	LoadFile(filename);
 }
 
+static inline std::string &ltrim(std::string &s) {
+        s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
+        return s;
+}
+
+static inline std::string &rtrim(std::string &s) {
+        s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
+        return s;
+}
+
+static inline std::string &trim(std::string &s) {
+        return ltrim(rtrim(s));
+}
+
 bool ConfigReader::LoadFile(const std::string &filename) {
 	std::ifstream cfg(filename.c_str());
 
@@ -44,10 +60,12 @@ bool ConfigReader::LoadFile(const std::string &filename) {
 			// Get first word in the line
 			std::string name;
 			std::getline(linestream, name, ' ');
+			trim(name);
 
 			// Get the rest
 			std::string value;
 			std::getline(linestream, value, '\n');
+			trim(value);
 
 			options_[name] = value;
 		}
