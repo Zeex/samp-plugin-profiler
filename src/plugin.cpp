@@ -221,6 +221,8 @@ PLUGIN_EXPORT void PLUGIN_CALL Unload() {
 }
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
+	::loaded_scripts.push_back(amx);
+
 	std::string filename = samp_profiler::GetAmxName(amx);
 	if (filename.empty()) {
 		logprintf("Profiler: Failed to detect .amx name, prifiling will not be done");
@@ -254,9 +256,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 		}		
 		samp_profiler::Profiler::Attach(amx);
 		logprintf("Profiler: Attached profiler instance to %s (no debug symbols)", filename.c_str());
-	} 	
-
-	::loaded_scripts.push_back(amx);
+	} 		
 
 	return AMX_ERR_NONE;
 }
@@ -307,8 +307,6 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 		it->second.Free();
 		::debug_infos.erase(it);
 	}
-
-	::loaded_scripts.remove(amx);
 
 	return AMX_ERR_NONE;
 }
