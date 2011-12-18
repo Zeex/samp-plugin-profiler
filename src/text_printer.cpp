@@ -24,15 +24,11 @@ void TextPrinter::Print(std::ostream &stream, Profile &profile) {
 	stream << "Generated on " << boost::posix_time::second_clock::local_time() << "\n" << std::endl;
 
 	stream 
-		<< std::setw(kFunctionTypeWidth) << "Function Type"
-		<< std::setw(kFunctionNameWidth) << "Function Name"
-		<< std::setw(kNumberOfCallsWidth) << "Calls"
-		<< std::setw(kMeanTimeWidth) << "Mean Time"
+		<< std::setw(kTypeWidth) << "Function Type"
+		<< std::setw(kNameWidth) << "Function Name"
+		<< std::setw(kCallsWidth) << "Calls"
+		<< std::setw(kTimeWidth) << "Time"
 		<< std::setw(kTotalTimeWidth) << "Total Time"
-		<< std::setw(kTotalTimePercentWidth) << "Total Time, %"
-		<< std::setw(kMeanFullTimeWidth) << "Mean Full Time"
-		<< std::setw(kTotalFullTimeWidth) << "Total Full Time"
-		<< std::setw(kTotalFullTimePercentWidth) << "Total Full Time, %"
 	<< std::endl;
 
 	TimeType time_all = 0;
@@ -49,16 +45,12 @@ void TextPrinter::Print(std::ostream &stream, Profile &profile) {
 		const PerformanceCounter &counter = it->GetCounter();
 
 		stream 
-			<< std::setw(kFunctionTypeWidth) << it->GetFunctionType()
-			<< std::setw(kFunctionNameWidth) << it->GetFunctionName()
-			<< std::setw(kNumberOfCallsWidth) << counter.GetNumberOfCalls()
-			<< std::setw(kMeanTimeWidth) << counter.GetTime() / counter.GetNumberOfCalls()
-			<< std::setw(kTotalTimeWidth) << counter.GetTime()
-			<< std::setw(kTotalTimePercentWidth) << std::setprecision(2) << std::fixed 
+			<< std::setw(kTypeWidth) << it->GetFunctionType()
+			<< std::setw(kNameWidth) << it->GetFunctionName()
+			<< std::setw(kCallsWidth) << counter.GetNumberOfCalls()
+			<< std::setw(kTimeWidth) << std::setprecision(2) << std::fixed 
 				<< static_cast<double>(counter.GetTime() * 100) / time_all
-			<< std::setw(kMeanFullTimeWidth) << counter.GetTotalTime() / counter.GetNumberOfCalls()
-			<< std::setw(kTotalFullTimeWidth) << counter.GetTotalTime()
-			<< std::setw(kTotalFullTimePercentWidth) << std::setprecision(2) << std::fixed 
+			<< std::setw(kTotalTimeWidth) << std::setprecision(2) << std::fixed 
 				<< static_cast<double>(counter.GetTotalTime() * 100) / total_time_all
 		<< std::endl;
 	}
