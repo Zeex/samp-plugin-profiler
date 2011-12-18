@@ -27,6 +27,8 @@
 #include <string>
 #include <vector>
 
+#include <boost/algorithm/string.hpp>
+
 #ifdef _WIN32
 	#include <Windows.h>
 #endif
@@ -275,6 +277,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 
 		std::string format = 
 			server_cfg.GetOption("profile_format", std::string("html"));
+		boost::algorithm::to_lower(format);
 
 		std::string filename = amx_name + "-profile";
 		samp_profiler::AbstractPrinter *printer = 0;
