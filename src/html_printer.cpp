@@ -39,12 +39,8 @@ void HtmlPrinter::Print(std::ostream &stream, Profile &profile) {
 	"				<th>Function Type</th>\n"
 	"				<th>Function Name</th>\n"
 	"				<th>Calls</th>\n"
-	"				<th>Mean Time</th>\n"
+	"				<th>Time</th>\n"
 	"				<th>Total Time</th>\n"
-	"				<th>Total Time, &#037</th>\n"
-	"				<th>Mean Full Time</th>\n"
-	"				<th>Total Full Time</th>\n"
-	"				<th>Total Full Time, &#037</th>\n"
 	"			</tr>\n"
 	"		</thead>\n"
 	"		<tbody>\n"
@@ -68,12 +64,8 @@ void HtmlPrinter::Print(std::ostream &stream, Profile &profile) {
 		<< "			<td>" << it->GetFunctionType() << "</td>\n"
 		<< "			<td>" << it->GetFunctionName() << "</td>\n"
 		<< "			<td>" << counter.GetNumberOfCalls() << "</td>\n"
-		<< "			<td>" << counter.GetTime() / counter.GetNumberOfCalls() << "</td>\n"
-		<< "			<td>" << counter.GetTime() << "</td>\n"
 		<< "			<td>" << std::fixed << std::setprecision(2) 
 			<< static_cast<double>(counter.GetTime() * 100) / time_all << "</td>\n"
-		<< "			<td>" << counter.GetTotalTime() / counter.GetNumberOfCalls() << "</td>\n"
-		<< "			<td>" << counter.GetTotalTime() << "</td>\n"
 		<< "			<td>" << std::fixed << std::setprecision(2) 
 			<< static_cast<double>(counter.GetTotalTime() * 100) / total_time_all << "</td>\n"
 		<< "		</tr>\n";

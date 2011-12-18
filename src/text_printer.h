@@ -25,15 +25,11 @@ namespace samp_profiler {
 
 class TextPrinter : public AbstractPrinter {
 public:
-	static const int kFunctionTypeWidth = 15;
-	static const int kFunctionNameWidth = 32;
-	static const int kNumberOfCallsWidth = 20;
-	static const int kMeanTimeWidth = 20;
-	static const int kTotalTimeWidth = 20;
-	static const int kTotalTimePercentWidth = 20;
-	static const int kMeanFullTimeWidth = 25;
-	static const int kTotalFullTimeWidth = 25;
-	static const int kTotalFullTimePercentWidth = 25;
+	static const int kTypeWidth = 15;
+	static const int kNameWidth = 32;
+	static const int kCallsWidth = 15;
+	static const int kTimeWidth = 15;
+	static const int kTotalTimeWidth = 15;
 
 	virtual void Print(std::ostream &stream, Profile &profile);
 };
