@@ -276,25 +276,27 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 		std::string format = 
 			server_cfg.GetOption("profile_format", std::string("html"));
 
-		std::string filename;
+		std::string filename = amx_name + "-profile";
 		samp_profiler::AbstractPrinter *printer = 0;
 
 		if (format == "html") {			
-			filename = amx_name + "-profile.html";
+			filename += ".html";
 			printer = new samp_profiler::HtmlPrinter;			
 		} else if (format == "text") {
-			filename = amx_name + "-profile.txt";
+			filename += ".txt";
 			printer = new samp_profiler::TextPrinter;
 		} else if (format == "xml") {
-			filename = amx_name + "-profile.xml";
+			filename += ".xml";
 			printer = new samp_profiler::XmlPrinter;
 		} else {
 			logprintf("Profiler: Unknown output format '%s'", format.c_str());
 		}
 
-		std::ofstream ostream(filename.c_str());
-		prof->PrintStats(ostream, printer);
-		delete printer;
+		if (printer != 0) {
+			std::ofstream ostream(filename.c_str());
+			prof->PrintStats(ostream, printer);
+			delete printer;
+		}
 
 		samp_profiler::Profiler::Detach(amx);
 	}
