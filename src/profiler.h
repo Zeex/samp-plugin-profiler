@@ -17,14 +17,16 @@
 #ifndef SAMP_PROFILER_PROFILER_H
 #define SAMP_PROFILER_PROFILER_H
 
-#include <map>
 #include <ostream>
+#include <set>
 #include <stack>
 #include <string>
 #include <vector>
 
+#include "call_stack.h"
 #include "debug_info.h"
-#include "performance_counter.h"
+#include "function.h"
+#include "timer.h"
 
 #include "amx/amx.h"
 #include "amx/amxdbg.h"
@@ -35,21 +37,6 @@ class AbstractPrinter;
 
 class Profiler {
 public:
-	class Function {
-	public:
-		Function(cell address, const char *name) 
-			: address_(address),
-			  name_(name)
-		{}
-
-		cell address() const { return address_; }
-		std::string name() const { return name_; }
-
-	private:
-		cell address_;
-		std::string name_;
-	};
-
 	static bool IsScriptProfilable(AMX *amx);
 
 	Profiler(AMX *amx);
@@ -67,7 +54,7 @@ public:
 	void SetDebugInfo(const DebugInfo &info);
 
 	void ResetStats();
-	void PrintStats(std::ostream &stream, AbstractPrinter *printer);
+	void PrintStats(std::ostream &stream, AbstractPrinter *printer) const;
 
 	int Debug();
 	int Callback(cell index, cell *result, cell *params);
@@ -78,44 +65,19 @@ private:
 
 	bool active_;
 
-	AMX          *amx_;
-	DebugInfo     debug_info_;
-	AMX_DEBUG     debug_;
-
-	class CallInfo {
-	public:
-		enum FunctionType {
-			NATIVE,
-			PUBLIC,
-			ORDINARY
-		};
-
-		CallInfo(cell frame, cell address, FunctionType functionType) 
-			: frame_(frame), 
-			  address_(address), 
-			  functionType_(functionType) 
-		{}
-
-		cell frame() const  { return frame_; }
-		cell address() const  { return address_; }
-		FunctionType functionType() const { return functionType_; }
-
-	private:
-		cell frame_;
-		cell address_;
-		FunctionType functionType_;
-	};
+	AMX       *amx_;
+	DebugInfo debug_info_;
+	AMX_DEBUG debug_;
 
 	void EnterFunction(const CallInfo &info);
-	void LeaveFunction(cell address);
-	bool GetLastCall(CallInfo &call) const;
+	void LeaveFunction(const Function &function);
 
-	std::stack<CallInfo> call_stack_;
+	CallStack call_stack_;
 
-	std::vector<Function> natives_;
-	std::vector<Function> publics_;
+	std::vector<std::string> native_names_;
+	std::vector<std::string> public_names_;
 
-	std::map<cell, PerformanceCounter> counters_;
+	std::set<Function> functions_;
 
 	static std::map<AMX*, Profiler*> instances_;
 };

@@ -20,6 +20,7 @@
 #include <boost/date_time.hpp>
 
 #include "html_printer.h"
+#include "profile.h"
 
 namespace samp_profiler {
 
@@ -46,28 +47,26 @@ void HtmlPrinter::Print(std::ostream &stream, Profile &profile) {
 	"		<tbody>\n"
 	;
 
-	TimeType time_all = 0;
+	ProfileEntry::Time time_all = 0;
 	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
-		time_all += it->GetCounter().GetTime();
+		time_all += it->time() - it->child_time();
 	}    
 
-	TimeType total_time_all = 0;
+	ProfileEntry::Time total_time_all = 0;
 	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
-		total_time_all += it->GetCounter().GetTotalTime();
-	}    
+		total_time_all += it->time();
+	}
 
 	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
-		const PerformanceCounter &counter = it->GetCounter();
-
 		stream 
 		<< "		<tr>\n"
-		<< "			<td>" << it->GetFunctionType() << "</td>\n"
-		<< "			<td>" << it->GetFunctionName() << "</td>\n"
-		<< "			<td>" << counter.GetNumberOfCalls() << "</td>\n"
+		<< "			<td>" << it->function_type() << "</td>\n"
+		<< "			<td>" << it->function_name() << "</td>\n"
+		<< "			<td>" << it->num_calls() << "</td>\n"
 		<< "			<td>" << std::fixed << std::setprecision(2) 
-			<< static_cast<double>(counter.GetTime() * 100) / time_all << "</td>\n"
+			<< static_cast<double>((it->time() - it->child_time()) * 100) / time_all << "</td>\n"
 		<< "			<td>" << std::fixed << std::setprecision(2) 
-			<< static_cast<double>(counter.GetTotalTime() * 100) / total_time_all << "</td>\n"
+			<< static_cast<double>(it->time() * 100) / total_time_all << "</td>\n"
 		<< "		</tr>\n";
 	}
 

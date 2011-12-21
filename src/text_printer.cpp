@@ -17,6 +17,7 @@
 #include <boost/date_time.hpp>
 
 #include "text_printer.h"
+#include "profile.h"
 
 namespace samp_profiler {
 
@@ -31,27 +32,25 @@ void TextPrinter::Print(std::ostream &stream, Profile &profile) {
 		<< std::setw(kTotalTimeWidth) << "Total Time"
 	<< std::endl;
 
-	TimeType time_all = 0;
+	ProfileEntry::Time time_all = 0;
 	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
-		time_all += it->GetCounter().GetTime();
+		time_all += it->time() - it->child_time();
 	}    
 
-	TimeType total_time_all = 0;
+	ProfileEntry::Time total_time_all = 0;
 	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
-		total_time_all += it->GetCounter().GetTotalTime();
-	}   
+		total_time_all += it->time();
+	}
 
 	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
-		const PerformanceCounter &counter = it->GetCounter();
-
 		stream 
-			<< std::setw(kTypeWidth) << it->GetFunctionType()
-			<< std::setw(kNameWidth) << it->GetFunctionName()
-			<< std::setw(kCallsWidth) << counter.GetNumberOfCalls()
+			<< std::setw(kTypeWidth) << it->function_type()
+			<< std::setw(kNameWidth) << it->function_name()
+			<< std::setw(kCallsWidth) << it->num_calls()
 			<< std::setw(kTimeWidth) << std::setprecision(2) << std::fixed 
-				<< static_cast<double>(counter.GetTime() * 100) / time_all
+				<< static_cast<double>((it->time() - it->child_time()) * 100) / time_all
 			<< std::setw(kTotalTimeWidth) << std::setprecision(2) << std::fixed 
-				<< static_cast<double>(counter.GetTotalTime() * 100) / total_time_all
+				<< static_cast<double>(it->time() * 100) / total_time_all
 		<< std::endl;
 	}
 }

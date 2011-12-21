@@ -16,6 +16,7 @@
 
 #include <boost/date_time.hpp>
 
+#include "profile.h"
 #include "xml_printer.h"
 
 namespace samp_profiler {
@@ -25,27 +26,25 @@ void XmlPrinter::Print(std::ostream &stream, Profile &profile) {
 	"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
 	"<profile date=\"" << boost::posix_time::second_clock::local_time() << "\">";
 
-	TimeType time_all = 0;
+	ProfileEntry::Time time_all = 0;
 	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
-		time_all += it->GetCounter().GetTime();
+		time_all += it->time() - it->child_time();
 	}    
 
-	TimeType total_time_all = 0;
+	ProfileEntry::Time total_time_all = 0;
 	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
-		total_time_all += it->GetCounter().GetTotalTime();
-	}    
+		total_time_all += it->time();
+	}
 
 	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
-		const PerformanceCounter &counter = it->GetCounter();
-
 		stream << "		<function";
-		stream << " type=\"" << it->GetFunctionType() << "\"";
-		stream << " name=\"" << it->GetFunctionName() << "\"";
-		stream << " calls=\"" << counter.GetNumberOfCalls() << "\"";
+		stream << " type=\"" << it->function_type() << "\"";
+		stream << " name=\"" << it->function_name() << "\"";
+		stream << " calls=\"" << it->num_calls() << "\"";
 		stream << " time=\"" <<  std::fixed << std::setprecision(2) 
-			<< static_cast<double>(counter.GetTime() * 100) / time_all << "\"";
+			<< static_cast<double>((it->time() - it->child_time()) * 100) / time_all << "\"";
 		stream << " total_time=\"" <<  std::fixed << std::setprecision(2) 
-			<< static_cast<double>(counter.GetTotalTime() * 100) / total_time_all << "\"";
+			<< static_cast<double>(it->time() * 100) / total_time_all << "\"";
 		stream << " />\n";
 	}
 
