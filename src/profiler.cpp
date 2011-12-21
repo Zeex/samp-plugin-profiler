@@ -268,12 +268,18 @@ void Profiler::EnterFunction(const CallInfo &call) {
 
 void Profiler::LeaveFunction(const Function &function) {
 	while (true) {
-		CallInfo current = call_stack_.Pop();		
-		std::set<Function>::iterator iterator = functions_.find(function);
-		if (iterator != functions_.end()) {
-			const Timer &timer = current.timer();
-			// TODO: calculate actual child_time 
-			iterator->AdjustTime(timer.total_time(), 0);
+		CallInfo current = call_stack_.Pop();
+		std::set<Function>::iterator current_it = functions_.find(current.function());
+		if (current_it != functions_.end()) {
+			current_it->AdjustTime(current.timer().total_time());
+		}
+		if (!call_stack_.IsEmpty()) {
+			// Adjust caller's child_time
+			CallInfo top = call_stack_.GetTop();
+			std::set<Function>::iterator top_it = functions_.find(top.function());
+			if (top_it != functions_.end()) {
+				top_it->AdjustChildTime(current.timer().total_time());
+			}
 		}
 		if (current.function() == function) {
 			break;
