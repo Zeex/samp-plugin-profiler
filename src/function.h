@@ -56,10 +56,17 @@ public:
 	long num_calls() const
 		{ return num_calls_; }
 
-	void IncreaseCalls() const
-		{ ++num_calls_; }
-	void AdjustTime(TimeType time, TimeType child_time) const
-		{ time_ += time; child_time_ += child_time; }
+	void IncreaseCalls() const {
+		++num_calls_; 
+	}
+
+	void AdjustTime(TimeType time) const { 
+		time_ += time; 
+	}
+
+	void AdjustChildTime(TimeType child_time) const { 
+		child_time_ += child_time; 
+	}
 
 	bool operator<(const Function &that) const;
 	bool operator==(const Function &that) const;
