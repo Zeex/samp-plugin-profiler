@@ -14,53 +14,38 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SAMP_PROFILER_PERFORMANCE_COUNTER_H
-#define SAMP_PROFILER_PERFORMANCE_COUNTER_H
+#ifndef SAMP_PROFILER_TIMER_H
+#define SAMP_PROFILER_TIMER_H
 
 #include <boost/chrono.hpp>
 #include <boost/integer.hpp>
 
 namespace samp_profiler {
 
-typedef boost::int64_t TimeType;
-
-class PerformanceCounter {
+class Timer {
 public:
-	typedef boost::chrono::high_resolution_clock Clock;
+	typedef boost::int64_t TimeType;
+	typedef boost::chrono::high_resolution_clock ClockType;
 
-	PerformanceCounter();
-	~PerformanceCounter();
+	Timer();
+	~Timer();
 
-	void Start(PerformanceCounter *parent = 0);
+	void Start();
 	void Stop();
 
-	long GetNumberOfCalls() const;
-
-	TimeType GetTotalTime() const;
-	TimeType GetChildTime() const;
-	TimeType GetTime() const;
+	TimeType total_time() const;
 
 private:
 	// Whether the counter started
 	bool started_;
 
-	// Number of calls to Start()
-	long num_calls_;
-
 	// Recorded when users call Start() and Stop() respectively
-	Clock::time_point start_point_;
-	Clock::time_point stop_point_;
-
-	// Amount of time taken by child counters
-	Clock::duration child_time_;
+	ClockType::time_point start_point_;
 
 	// Total time (including child_time_)
-	Clock::duration total_time_;
-
-	// Current parent counter 
-	PerformanceCounter *current_parent_;
+	ClockType::duration total_time_;
 };
 
 } // namespace samp_profiler
 
-#endif // !SAMP_SAMP_PROFILER_PERFORMANCE_COUNTER_H
+#endif // !SAMP_PROFILER_TIMER_H

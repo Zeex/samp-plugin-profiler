@@ -15,11 +15,13 @@
 // limitations under the License.
 
 #include <algorithm>
+#include <map>
 #include <numeric>
 #include <sstream>
 #include <string>
 
 #include "abstract_printer.h"
+#include "function.h"
 #include "profile.h"
 #include "profiler.h"
 
@@ -32,6 +34,12 @@ int AMXAPI Debug(AMX *amx) {
 	return samp_profiler::Profiler::Get(amx)->Debug();
 }
 
+// Reads from a code section at a given location.
+inline cell ReadAmxCode(AMX *amx, cell where) {
+	AMX_HEADER *hdr = reinterpret_cast<AMX_HEADER*>(amx->base);
+	return *reinterpret_cast<cell*>(amx->base + hdr->cod + where);
+}
+
 } // anonymous namespace
 
 namespace samp_profiler {
@@ -40,40 +48,6 @@ namespace samp_profiler {
 std::map<AMX*, Profiler*> Profiler::instances_;
 
 Profiler::Profiler() {}
-
-// Extracts the names of native functions from the native table.
-static void GetNatives(AMX *amx, std::vector<Profiler::Function> &natives) {
-	AMX_HEADER *hdr = reinterpret_cast<AMX_HEADER*>(amx->base);
-	AMX_FUNCSTUBNT *nativeTable = reinterpret_cast<AMX_FUNCSTUBNT*>(amx->base + hdr->natives);
-
-	int numberOfNatives;
-	amx_NumNatives(amx, &numberOfNatives);
-
-	for (int i = 0; i < numberOfNatives; i++) {
-		natives.push_back(Profiler::Function(nativeTable[i].address,
-			reinterpret_cast<char*>(amx->base + nativeTable[i].nameofs)));
-	}
-}
-
-// Extracts the names of public functions from the native table.
-static void GetPublics(AMX *amx, std::vector<Profiler::Function> &publics) {
-	AMX_HEADER *hdr = reinterpret_cast<AMX_HEADER*>(amx->base);
-	AMX_FUNCSTUBNT *publicTable = reinterpret_cast<AMX_FUNCSTUBNT*>(amx->base + hdr->publics);
-
-	int numberOfPublics;
-	amx_NumPublics(amx, &numberOfPublics);
-
-	for (int i = 0; i < numberOfPublics; i++) {
-		publics.push_back(Profiler::Function(publicTable[i].address, 
-			reinterpret_cast<char*>(amx->base + publicTable[i].nameofs)));
-	}
-}
-
-// Reads from a code section at a given location.
-static inline cell ReadAmxCode(AMX *amx, cell where) {
-	AMX_HEADER *hdr = reinterpret_cast<AMX_HEADER*>(amx->base);
-	return *reinterpret_cast<cell*>(amx->base + hdr->cod + where);
-}
 
 bool Profiler::IsScriptProfilable(AMX *amx) {
 	uint16_t flags;
@@ -130,8 +104,19 @@ Profiler::Profiler(AMX *amx)
 	// Since PrintStats is done in AmxUnload and amx->base is already freed before
 	// AmxUnload gets called, therefore both native and public tables are not accessible, 
 	// from there, so they must be stored separately in some global place.
-	GetNatives(amx, natives_);
-	GetPublics(amx, publics_);
+	AMX_HEADER *hdr = reinterpret_cast<AMX_HEADER*>(amx->base);
+	AMX_FUNCSTUBNT *publics = reinterpret_cast<AMX_FUNCSTUBNT*>(amx->base + hdr->publics);
+	AMX_FUNCSTUBNT *natives = reinterpret_cast<AMX_FUNCSTUBNT*>(amx->base + hdr->natives);
+	int num_publics;
+	amx_NumPublics(amx_, &num_publics);
+	for (int i = 0; i < num_publics; i++) {
+		public_names_.push_back(reinterpret_cast<char*>(amx->base + publics[i].nameofs));
+	}
+	int num_natives;
+	amx_NumNatives(amx_, &num_natives);
+	for (int i = 0; i < num_natives; i++) {
+		native_names_.push_back(reinterpret_cast<char*>(amx->base + natives[i].nameofs));
+	}
 }
 
 void Profiler::SetDebugInfo(const DebugInfo &info) {
@@ -157,52 +142,56 @@ void Profiler::Deactivate() {
 }
 
 void Profiler::ResetStats() {
-	counters_.clear();
+	functions_.clear();
 }
 
-void Profiler::PrintStats(std::ostream &stream, AbstractPrinter *printer) {
-	std::vector<std::pair<cell, PerformanceCounter> > stats(
-		counters_.begin(), counters_.end());
-
+void Profiler::PrintStats(std::ostream &stream, AbstractPrinter *printer) const {
 	Profile profile;
 
-	for (std::vector<std::pair<cell, PerformanceCounter> >::iterator stat_it = stats.begin(); 
-			stat_it != stats.end(); ++stat_it) 
+	for (std::set<Function>::const_iterator iterator = functions_.begin(); 
+			iterator != functions_.end(); ++iterator) 
 	{
-		cell address = stat_it->first;
-		PerformanceCounter &counter = stat_it->second;
+		std::string name;
+		std::string type;
 
-		if (address < 0) {
-			profile.push_back(ProfileEntry(natives_[-address-1].name(), "native", counter));
-		} else {
-			bool found = false;
-			// Search in public table
-			for (std::vector<Profiler::Function>::iterator pub_it = publics_.begin(); 
-					pub_it != publics_.end(); ++pub_it) 
-			{
-				if (pub_it->address() == address)  {
-					profile.push_back(ProfileEntry(pub_it->name(), "public", counter));
-					found = true;
-					break;
-				}
-			}
+		switch (iterator->type()) {
+		case Function::NATIVE:
+			name = native_names_[iterator->index()];
+			type = "native";
+			break;
+		case Function::PUBLIC:
+			if (iterator->index() >= 0) {
+				name = public_names_[iterator->index()];
+				type = "public";
+				break;
+			} else if (iterator->index() == AMX_EXEC_MAIN) {
+				name = "main";
+				type = "main";
+				break;
+			}			
+		case Function::NORMAL:			
+			bool name_found = false;
 			// Search in symbol table
-			if (!found) {
+			if (!name_found) {
 				if (debug_info_.IsLoaded()) {
-					std::string name = debug_info_.GetFunction(address);
+					name = debug_info_.GetFunction(iterator->address());
 					if (!name.empty()) {	
-						profile.push_back(ProfileEntry(debug_info_.GetFunction(address), "normal", counter));
-						found = true;
+						type = "normal";
+						name_found = true;
 					}
 				}
 			}
 			// Not found
-			if (!found) {
+			if (!name_found) {
 				std::stringstream ss;
-				ss << "0x" << std::hex << address;
-				profile.push_back(ProfileEntry(ss.str(), "unknown", counter));
-			}
-		}
+				ss << "0x" << std::hex << iterator->address();
+				ss >> name;
+				type = "unknown";
+			}			
+		} 
+
+		profile.push_back(ProfileEntry(name, type, iterator->time(), iterator->child_time(), 
+				iterator->num_calls()));
 	}
 
 	printer->Print(stream, profile);
@@ -212,8 +201,8 @@ int Profiler::Debug() {
 	// Get previous stack frame.
 	cell prevFrame = amx_->stp;
 
-	if (!call_stack_.empty()) {
-		prevFrame = call_stack_.top().frame();
+	if (!call_stack_.IsEmpty()) {
+		prevFrame = call_stack_.GetTop().frame();
 	}
 
 	// Check whether current frame is different.
@@ -222,13 +211,12 @@ int Profiler::Debug() {
 		cell address = amx_->cip - 2*sizeof(cell);            
 		// Check if we have a PROC opcode behind.
 		if (ReadAmxCode(amx_, address) == 46) {
-			EnterFunction(CallInfo(amx_->frm, address, CallInfo::ORDINARY));
+			EnterFunction(CallInfo(Function::Normal(address), amx_->frm));
 		}
 	} else if (amx_->frm > prevFrame) {
-		if (call_stack_.top().functionType() != CallInfo::PUBLIC) { // entry points are handled by Exec
+		if (call_stack_.GetTop().function().type() == Function::PUBLIC) { // entry points are handled by Exec
 			// Left the function
-			cell address = call_stack_.top().address();
-			LeaveFunction(address);
+			LeaveFunction(call_stack_.GetTop().function());
 		}
 	}
 
@@ -241,12 +229,9 @@ int Profiler::Debug() {
 }
 
 int Profiler::Callback(cell index, cell *result, cell *params) {
-	cell address = -index - 1;
-
-	EnterFunction(CallInfo(amx_->frm, address, CallInfo::NATIVE));
+	EnterFunction(CallInfo(Function::Native(index), amx_->frm));
 	int error = amx_Callback(amx_, index, result, params);
-	LeaveFunction(address);
-
+	LeaveFunction(Function::Native(index));
 	return error;
 }
 
@@ -260,48 +245,40 @@ int Profiler::Exec(cell *retval, int index) {
 			AMX_FUNCSTUBNT *publics = reinterpret_cast<AMX_FUNCSTUBNT*>(amx_->base + hdr->publics);
 			address = publics[index].address;
 		}        
-
-		EnterFunction(CallInfo(amx_->stk - 3*sizeof(cell), address, CallInfo::PUBLIC));
+		EnterFunction(CallInfo(Function::Public(index), amx_->stk - 3*sizeof(cell)));
 		int error = amx_Exec(amx_, retval, index);
-		LeaveFunction(address);
-
+		LeaveFunction(Function::Public(index));
 		return error;
 	} else {
 		return amx_Exec(amx_, retval, index);
 	}
 }
 
-void Profiler::EnterFunction(const CallInfo &info) {
-	if (active_) {
-		PerformanceCounter &counter = counters_[info.address()];
-		if (call_stack_.empty()) {
-			counter.Start();
-		} else {
-			counter.Start(&counters_[call_stack_.top().address()]);
-		}
+void Profiler::EnterFunction(const CallInfo &call) {
+	call_stack_.Push(call);
+	std::set<Function>::iterator iterator = functions_.find(call.function());
+	if (iterator == functions_.end()) {
+		Function f = call.function();
+		f.IncreaseCalls();
+		functions_.insert(f);
+	} else {
+		iterator->IncreaseCalls();
 	}
-	call_stack_.push(info);
 }
 
-void Profiler::LeaveFunction(cell address) {
+void Profiler::LeaveFunction(const Function &function) {
 	while (true) {
-		cell topAddress = call_stack_.top().address();
-		if (active_) {
-			counters_[topAddress].Stop();
+		CallInfo current = call_stack_.Pop();		
+		std::set<Function>::iterator iterator = functions_.find(function);
+		if (iterator != functions_.end()) {
+			const Timer &timer = current.timer();
+			// TODO: calculate actual child_time 
+			iterator->AdjustTime(timer.total_time(), 0);
 		}
-		call_stack_.pop();		
-		if (topAddress == address) {
+		if (current.function() == function) {
 			break;
 		}
 	}
-}
-
-bool Profiler::GetLastCall(CallInfo &call) const {
-	if (!call_stack_.empty()) {
-		call = call_stack_.top();
-		return true;
-	}
-	return false;
 }
 
 } // namespace samp_profiler

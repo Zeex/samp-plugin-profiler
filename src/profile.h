@@ -20,42 +20,41 @@
 #include <string>
 #include <vector>
 
-#include "performance_counter.h"
+#include "timer.h"
 
 namespace samp_profiler {
 
 class ProfileEntry {
 public:
-	ProfileEntry(const std::string &function_name, const std::string &function_type, PerformanceCounter counter)
+	typedef Timer::TimeType Time;
+
+	ProfileEntry(const std::string &function_name, const std::string &function_type, 
+			Time time, Time child_time, long num_calls)
 		: name_(function_name)
 		, type_(function_type)
-		, counter_(counter)
+		, time_(time)
+		, child_time_(child_time)
+		, num_calls_(num_calls)
 	{
 	}
 
-	inline const std::string &GetFunctionName() const 
+	const std::string &function_name() const 
 		{ return name_; }
-	inline const std::string &GetFunctionType() const 
+	const std::string &function_type() const 
 		{ return type_; }
-	inline const PerformanceCounter &GetCounter() const 
-		{ return counter_; }
-
-	static bool CompareCalls(const ProfileEntry &left, const ProfileEntry &right) {
-		return left.GetCounter().GetNumberOfCalls() > right.GetCounter().GetNumberOfCalls();
-	}
-
-	static bool CompareTime(const ProfileEntry &left, const ProfileEntry &right) {
-		return left.GetCounter().GetTime() > right.GetCounter().GetTime();
-	}
-
-	static bool CompareTotalTime(const ProfileEntry &left, const ProfileEntry &right) {
-		return left.GetCounter().GetTotalTime() > right.GetCounter().GetTotalTime();
-	}
+	Time time() const 
+		{ return time_; }
+	Time child_time() const 
+		{ return child_time_; }
+	long num_calls() const 
+		{ return num_calls_; }
 
 private:
-	std::string        name_;
-	std::string        type_;
-	PerformanceCounter counter_;
+	std::string name_;
+	std::string type_;
+	Time        time_;
+	Time        child_time_;
+	long        num_calls_;
 };
 
 typedef std::vector<ProfileEntry> Profile;
