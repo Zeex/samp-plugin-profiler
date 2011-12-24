@@ -1,13 +1,3 @@
-#ifndef SAMP_PROFILER_CALL_STACK_H
-#define SAMP_PROFILER_CALL_STACK_H
-
-#include <stack>
-
-#include "function.h"
-#include "timer.h"
-
-#include "amx/amx.h"
-
 // SA:MP Profiler plugin
 //
 // Copyright (c) 2011 Zeex
@@ -24,6 +14,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifndef SAMP_PROFILER_CALL_STACK_H
+#define SAMP_PROFILER_CALL_STACK_H
+
+#include <stack>
+
+#include "function.h"
 #include "timer.h"
 
 namespace samp_profiler {
