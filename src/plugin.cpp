@@ -212,7 +212,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
 		SetConsoleCtrlHandler(ConsoleCtrlHandler, TRUE);
 	#endif
 
-	logprintf("  Profiler plugin "VERSION_STRING" is OK.");
+	logprintf("  Profiler plugin "PROFILER_VERSION" is OK.");
 
 	return true;
 }
