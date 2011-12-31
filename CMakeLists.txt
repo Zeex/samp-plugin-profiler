@@ -2,10 +2,10 @@ cmake_minimum_required(VERSION 2.8.6)
 
 project(profiler)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} 
+	"${CMAKE_SOURCE_DIR}/cmake/Modules")
 
-include(CheckIncludeFile)
-include(CheckIncludeFileCXX)
+include(CheckHeader)
 include(GetGitRevisionDescription)
 
 # Configure Boost
@@ -14,17 +14,10 @@ find_package(Boost 1.47 REQUIRED COMPONENTS chrono filesystem system)
 # Disable the auto-link feature 
 add_definitions(-DBOOST_ALL_NO_LIB)
 
-function(check_include_and_define include_file define)
-	check_include_file(${include_file} HAVE_${include_file})
-	if(HAVE_${include_file})
-		add_definitions(-D${define})
-	endif()
-endfunction()
-
-check_include_and_define(alloca.h HAVE_ALLOCA_H)
-check_include_and_define(inttypes.h HAVE_INTTYPES_H)
-check_include_and_define(malloc.h HAVE_MALLOC_H)
-check_include_and_define(stdint.h HAVE_STDINT_H)
+check_header(alloca.h)
+check_header(inttypes.h)
+check_header(malloc.h)
+check_header(stdint.h)
 
 include_directories("lib") 
 include_directories("lib/amx")
