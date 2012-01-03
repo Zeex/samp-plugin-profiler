@@ -18,7 +18,7 @@
 
 namespace samp_profiler {
 
-void CallStack::Push(const Function &function, ucell frame) { 
+void CallStack::Push(const Function &function, cell frame) { 
 	Push(CallInfo(function, frame));
 }
 
