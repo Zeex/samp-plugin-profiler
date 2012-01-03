@@ -26,7 +26,7 @@ namespace samp_profiler {
 
 class CallInfo {
 public:
-	CallInfo(const Function &function, ucell frame = 0)
+	CallInfo(const Function &function, cell frame = 0)
 		: function_(function)
 		, frame_(frame)
 	{
@@ -34,20 +34,20 @@ public:
 
 	const Function &function() const 
 		{ return function_; }
-	ucell frame() const
+	cell frame() const
 		{ return frame_; }
 	Timer &timer() 
 		{ return timer_; }
 
 private:
 	Function function_;
-	ucell frame_; // frame address on AMX stack
+	cell frame_; // frame address on AMX stack
 	Timer timer_;
 };
 
 class CallStack {
 public:
-	void Push(const Function &function, ucell frame);
+	void Push(const Function &function, cell frame);
 	void Push(const CallInfo &info);
 	CallInfo Pop();
 

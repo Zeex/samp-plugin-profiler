@@ -15,6 +15,7 @@
 // limitations under the License.
 
 #include <algorithm>
+#include <cassert>
 #include <map>
 #include <numeric>
 #include <sstream>
@@ -155,21 +156,22 @@ void Profiler::PrintStats(std::ostream &stream, AbstractPrinter *printer) const 
 		std::string type;
 
 		switch (iterator->type()) {
-		case Function::NATIVE:
+		case Function::NATIVE: {
 			name = native_names_[iterator->index()];
 			type = "native";
 			break;
-		case Function::PUBLIC:
+		}
+		case Function::PUBLIC: {
 			if (iterator->index() >= 0) {
 				name = public_names_[iterator->index()];
 				type = "public";
-				break;
 			} else if (iterator->index() == AMX_EXEC_MAIN) {
 				name = "main";
 				type = "main";
-				break;
-			}			
-		case Function::NORMAL:			
+			}	
+			break;
+		}
+		case Function::NORMAL: {
 			bool name_found = false;
 			// Search in symbol table
 			if (!name_found) {
@@ -187,7 +189,11 @@ void Profiler::PrintStats(std::ostream &stream, AbstractPrinter *printer) const 
 				ss << "0x" << std::hex << iterator->address();
 				ss >> name;
 				type = "unknown";
-			}			
+			}	
+			break;
+		}
+		default:
+			assert(0 && "Invalid function type");
 		} 
 
 		profile.push_back(ProfileEntry(name, type, iterator->time(), iterator->child_time(), 
@@ -198,33 +204,27 @@ void Profiler::PrintStats(std::ostream &stream, AbstractPrinter *printer) const 
 }
 
 int Profiler::Debug() {
-	// Get previous stack frame.
 	cell prevFrame = amx_->stp;
-
 	if (!call_stack_.IsEmpty()) {
 		prevFrame = call_stack_.GetTop().frame();
 	}
 
-	// Check whether current frame is different.
 	if (amx_->frm < prevFrame) {
-		// Probably entered a function body (first BREAK after PROC).
-		cell address = amx_->cip - 2*sizeof(cell);            
-		// Check if we have a PROC opcode behind.
-		if (ReadAmxCode(amx_, address) == 46) {
+		cell address = amx_->cip - 2*sizeof(cell);   
+		std::string name = debug_info_.GetFunction(address);
+		if (call_stack_.GetTop().frame() != amx_->frm) {
 			EnterFunction(CallInfo(Function::Normal(address), amx_->frm));
 		}
 	} else if (amx_->frm > prevFrame) {
-		if (call_stack_.GetTop().function().type() == Function::PUBLIC) { // entry points are handled by Exec
-			// Left the function
-			LeaveFunction(call_stack_.GetTop().function());
+		Function top_fn = call_stack_.GetTop().function();
+		if (top_fn.type() == Function::NORMAL) {
+			LeaveFunction(top_fn);
 		}
 	}
 
 	if (debug_ != 0) {
-		// Others could set their own debug hooks
 		return debug_(amx_);
 	}   
-
 	return AMX_ERR_NONE;      
 }
 
@@ -245,7 +245,12 @@ int Profiler::Exec(cell *retval, int index) {
 			AMX_FUNCSTUBNT *publics = reinterpret_cast<AMX_FUNCSTUBNT*>(amx_->base + hdr->publics);
 			address = publics[index].address;
 		}        
-		EnterFunction(CallInfo(Function::Public(index), amx_->stk - 3*sizeof(cell)));
+		EnterFunction(CallInfo(Function::Public(index), 
+			amx_->stk - 3*sizeof(cell)));
+		// Why 3?
+		// - one for parameter count (amx->paramcount)
+		// - another is zero return address
+		// - stk is the third, pushed by PROC opcode
 		int error = amx_Exec(amx_, retval, index);
 		LeaveFunction(Function::Public(index));
 		return error;
