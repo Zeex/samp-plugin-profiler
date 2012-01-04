@@ -257,7 +257,23 @@ int Profiler::Exec(cell *retval, int index) {
 	}
 }
 
+std::string Profiler::GetFunctionName(const Function &f) const {
+	if (f.type() == Function::NORMAL) {
+		return debug_info_.GetFunction(f.address());
+	} else if (f.type() == Function::PUBLIC) {
+		char pub_name[32];
+		amx_GetPublic(amx_, f.index(), pub_name);
+		return pub_name;
+	} else if (f.type() == Function::NATIVE) {
+		char nat_name[32];
+		amx_GetNative(amx_, f.index(), nat_name);
+		return nat_name;
+	} 
+	return "<unknown>";
+}
+
 void Profiler::EnterFunction(const CallInfo &call) {
+	//std::string name = GetFunctionName(call.function());
 	call_stack_.Push(call);
 	std::set<Function>::iterator iterator = functions_.find(call.function());
 	if (iterator == functions_.end()) {
@@ -269,13 +285,14 @@ void Profiler::EnterFunction(const CallInfo &call) {
 	}
 }
 
-void Profiler::LeaveFunction(const Function &function) {
+void Profiler::LeaveFunction(const Function &function) {	
 	while (true) {
 		CallInfo current = call_stack_.Pop();
 		std::set<Function>::iterator current_it = functions_.find(current.function());
 		if (current_it != functions_.end()) {
 			current_it->AdjustTime(current.timer().total_time());
 		}
+		//std::string name = GetFunctionName(current.function());
 		if (!call_stack_.IsEmpty()) {
 			// Adjust caller's child_time
 			CallInfo top = call_stack_.GetTop();
