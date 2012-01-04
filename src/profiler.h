@@ -58,7 +58,7 @@ public:
 
 	int Debug();
 	int Callback(cell index, cell *result, cell *params);
-	int Exec(cell *retval, int index);
+	int Exec(cell *retval, int index);	
 
 private:
 	Profiler();
@@ -68,6 +68,9 @@ private:
 	AMX       *amx_;
 	DebugInfo debug_info_;
 	AMX_DEBUG debug_;
+
+	// useful for debugging
+	std::string GetFunctionName(const Function &f) const;
 
 	void EnterFunction(const CallInfo &info);
 	void LeaveFunction(const Function &function);
