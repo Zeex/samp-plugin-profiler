@@ -172,24 +172,19 @@ void Profiler::PrintStats(std::ostream &stream, AbstractPrinter *printer) const 
 			break;
 		}
 		case Function::NORMAL: {
+			type = "normal";
 			bool name_found = false;
-			// Search in symbol table
-			if (!name_found) {
-				if (debug_info_.IsLoaded()) {
-					name = debug_info_.GetFunction(iterator->address());
-					if (!name.empty()) {	
-						type = "normal";
-						name_found = true;
-					}
+			if (debug_info_.IsLoaded()) {
+				name = debug_info_.GetFunction(iterator->address());
+				if (!name.empty()) {							
+					name_found = true;
 				}
 			}
-			// Not found
 			if (!name_found) {
 				std::stringstream ss;
-				ss << "0x" << std::hex << iterator->address();
+				ss << "unknown@0x" << std::hex << iterator->address();
 				ss >> name;
-				type = "unknown";
-			}	
+			}				
 			break;
 		}
 		default:
