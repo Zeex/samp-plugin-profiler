@@ -21,10 +21,11 @@
 
 namespace samp_profiler {
 
-void XmlPrinter::Print(std::ostream &stream, Profile &profile) {
+void XmlPrinter::Print(const std::string &script_name, std::ostream &stream, Profile &profile) {
 	stream << 
 	"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-	"<profile date=\"" << boost::posix_time::second_clock::local_time() << "\">";
+	"<profile script=\"" << script_name << "\""
+		"date=\"" << boost::posix_time::second_clock::local_time() << "\">";
 
 	ProfileEntry::Time time_all = 0;
 	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {

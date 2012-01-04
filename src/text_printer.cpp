@@ -21,8 +21,9 @@
 
 namespace samp_profiler {
 
-void TextPrinter::Print(std::ostream &stream, Profile &profile) {
-	stream << "Generated on " << boost::posix_time::second_clock::local_time() << "\n" << std::endl;
+void TextPrinter::Print(const std::string &script_name, std::ostream &stream, Profile &profile) {
+	stream << "Profile of '" << script_name 
+		<< "' generated on " << boost::posix_time::second_clock::local_time() << "\n" << std::endl;
 
 	stream 
 		<< std::setw(kTypeWidth) << "Function Type"

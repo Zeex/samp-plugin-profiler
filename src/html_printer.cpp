@@ -24,16 +24,18 @@
 
 namespace samp_profiler {
 
-void HtmlPrinter::Print(std::ostream &stream, Profile &profile) {
+void HtmlPrinter::Print(const std::string &script_name, std::ostream &stream, Profile &profile) {
 	stream << 
 	"<html>\n"
 	"<head>\n"
-	"	<title>" << "Profiling results</title>\n"
+	"	<title>" << "Profile of '" << script_name << "'</title>\n"
 	"</head>\n\n"
 	"<body>"
 	"	<h1>" << 
-	"		Generated on " << boost::posix_time::second_clock::local_time() << 
+	"		Profile of '" << script_name << "'"
 	"	</h1>\n"
+	"	<h2>Generated on " << boost::posix_time::second_clock::local_time() << 
+	"	</h2>"
 	"	<table id=\"stats\" class=\"tablesorter\" border=\"1\" width=\"100%\">\n"
 	"		<thead>\n"
 	"			<tr>\n"
