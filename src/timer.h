@@ -36,13 +36,8 @@ public:
 	TimeType total_time() const;
 
 private:
-	// Whether the counter started
 	bool started_;
-
-	// Recorded when users call Start() and Stop() respectively
 	ClockType::time_point start_point_;
-
-	// Total time (including child_time_)
 	ClockType::duration total_time_;
 };
 
