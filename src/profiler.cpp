@@ -168,7 +168,11 @@ void Profiler::PrintStats(std::ostream &stream, AbstractPrinter *printer) const 
 			} else if (iterator->index() == AMX_EXEC_MAIN) {
 				name = "main";
 				type = "main";
-			}	
+			} else {
+				std::stringstream ss;
+				ss << "unknown_public@0x" << std::hex << iterator->address();
+				type = "public";
+			}
 			break;
 		}
 		case Function::NORMAL: {
