@@ -206,7 +206,6 @@ int Profiler::Debug() {
 
 	if (amx_->frm < prevFrame) {
 		cell address = amx_->cip - 2*sizeof(cell);   
-		std::string name = debug_info_.GetFunction(address);
 		if (call_stack_.GetTop().frame() != amx_->frm) {
 			EnterFunction(CallInfo(Function::Normal(address), amx_->frm));
 		}
