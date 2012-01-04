@@ -25,7 +25,7 @@ namespace samp_profiler {
 
 class AbstractPrinter {
 public:
-	virtual void Print(std::ostream &stream, Profile &profile) = 0;
+	virtual void Print(const std::string &script_name, std::ostream &stream, Profile &profile) = 0;
 };
 
 } // namespace samp_profiler

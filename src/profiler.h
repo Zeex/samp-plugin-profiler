@@ -54,7 +54,7 @@ public:
 	void SetDebugInfo(const DebugInfo &info);
 
 	void ResetStats();
-	void PrintStats(std::ostream &stream, AbstractPrinter *printer) const;
+	void PrintStats(const std::string &script_name, std::ostream &stream, AbstractPrinter *printer) const;
 
 	int Debug();
 	int Callback(cell index, cell *result, cell *params);

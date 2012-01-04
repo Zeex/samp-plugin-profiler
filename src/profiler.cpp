@@ -146,7 +146,7 @@ void Profiler::ResetStats() {
 	functions_.clear();
 }
 
-void Profiler::PrintStats(std::ostream &stream, AbstractPrinter *printer) const {
+void Profiler::PrintStats(const std::string &script_name, std::ostream &stream, AbstractPrinter *printer) const {
 	Profile profile;
 
 	for (std::set<Function>::const_iterator iterator = functions_.begin(); 
@@ -199,7 +199,7 @@ void Profiler::PrintStats(std::ostream &stream, AbstractPrinter *printer) const 
 				iterator->num_calls()));
 	}
 
-	printer->Print(stream, profile);
+	printer->Print(script_name, stream, profile);
 }
 
 int Profiler::Debug() {

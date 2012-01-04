@@ -297,7 +297,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 
 		if (printer != 0) {
 			std::ofstream ostream(filename.c_str());
-			prof->PrintStats(ostream, printer);
+			prof->PrintStats(amx_path, ostream, printer);
 			delete printer;
 		}
 
