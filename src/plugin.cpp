@@ -212,14 +212,13 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
 		SetConsoleCtrlHandler(ConsoleCtrlHandler, TRUE);
 	#endif
 
-	logprintf("  Profiler plugin "PROFILER_VERSION" is OK.");
+	logprintf("  Profiler v"PROFILER_VERSION" is OK.");
 
 	return true;
 }
 
 PLUGIN_EXPORT void PLUGIN_CALL Unload() {
-	logprintf("Profiler got unloaded.");
-	return;
+	// nothing
 }
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
@@ -227,12 +226,12 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 
 	std::string filename = samp_profiler::GetAmxName(amx);
 	if (filename.empty()) {
-		logprintf("Profiler: Failed to detect .amx name, prifiling will not be done");
+		logprintf("[profiler]: Can't find matching .amx file");
 		return AMX_ERR_NONE;
 	}
 
 	if (!samp_profiler::Profiler::IsScriptProfilable(amx)) {
-		logprintf("Profiler: Can't profile script %s (are you using -d0?)", filename.c_str());
+		logprintf("[profiler]: Can't profile '%s' (are you using -d0?)", filename.c_str());
 		return AMX_ERR_NONE;
 	}
 	 
@@ -247,17 +246,17 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 			samp_profiler::DebugInfo debugInfo;
 			debugInfo.Load(filename);
 			if (debugInfo.IsLoaded()) {
-				logprintf("Profiler: Loaded debug info from %s", filename.c_str());
+				logprintf("[profiler]: Loaded debug info from '%s'", filename.c_str());
 				::debug_infos[amx] = debugInfo;				
 				samp_profiler::Profiler::Attach(amx, debugInfo); 
-				logprintf("Profiler: Attached profiler instance to %s", filename.c_str());
+				logprintf("[profiler]: Attached profiler to '%s'", filename.c_str());
 				return AMX_ERR_NONE;
 			} else {
-				logprintf("Profiler: Error loading debug info from %s", filename.c_str());
+				logprintf("[profiler]: Error loading debug info from '%s'", filename.c_str());
 			}
 		}		
 		samp_profiler::Profiler::Attach(amx);
-		logprintf("Profiler: Attached profiler instance to %s (no debug symbols)", filename.c_str());
+		logprintf("[profiler]: Attached profiler to '%s' (no debug symbols)", filename.c_str());
 	} 		
 
 	return AMX_ERR_NONE;
@@ -292,7 +291,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 			filename += ".xml";
 			printer = new samp_profiler::XmlPrinter;
 		} else {
-			logprintf("Profiler: Unknown output format '%s'", format.c_str());
+			logprintf("[profiler]: Unknown output format '%s'", format.c_str());
 		}
 
 		if (printer != 0) {
