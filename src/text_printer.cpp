@@ -26,21 +26,21 @@ void TextPrinter::Print(const std::string &script_name, std::ostream &stream, Pr
 		<< "' generated on " << boost::posix_time::second_clock::local_time() << "\n" << std::endl;
 
 	stream 
-		<< std::setw(kTypeWidth) << "Function Type"
-		<< std::setw(kNameWidth) << "Function Name"
+		<< std::setw(kTypeWidth) << "Type"
+		<< std::setw(kNameWidth) << "Name"
 		<< std::setw(kCallsWidth) << "Calls"
-		<< std::setw(kTimeWidth) << "Time"
+		<< std::setw(kSelfTimeWidth) << "Self Time"
 		<< std::setw(kTotalTimeWidth) << "Total Time"
 	<< std::endl;
 
 	ProfileEntry::Time time_all = 0;
 	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
-		time_all += it->time() - it->child_time();
+		time_all += it->self_time() - it->child_time();
 	}    
 
 	ProfileEntry::Time total_time_all = 0;
 	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
-		total_time_all += it->time();
+		total_time_all += it->self_time();
 	}
 
 	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
@@ -48,10 +48,10 @@ void TextPrinter::Print(const std::string &script_name, std::ostream &stream, Pr
 			<< std::setw(kTypeWidth) << it->function_type()
 			<< std::setw(kNameWidth) << it->function_name()
 			<< std::setw(kCallsWidth) << it->num_calls()
-			<< std::setw(kTimeWidth) << std::setprecision(2) << std::fixed 
-				<< static_cast<double>((it->time() - it->child_time()) * 100) / time_all
+			<< std::setw(kSelfTimeWidth) << std::setprecision(2) << std::fixed 
+				<< static_cast<double>((it->self_time() - it->child_time()) * 100) / time_all
 			<< std::setw(kTotalTimeWidth) << std::setprecision(2) << std::fixed 
-				<< static_cast<double>(it->time() * 100) / total_time_all
+				<< static_cast<double>(it->self_time() * 100) / total_time_all
 		<< std::endl;
 	}
 }

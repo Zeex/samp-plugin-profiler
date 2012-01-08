@@ -29,12 +29,12 @@ void XmlPrinter::Print(const std::string &script_name, std::ostream &stream, Pro
 
 	ProfileEntry::Time time_all = 0;
 	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
-		time_all += it->time() - it->child_time();
+		time_all += it->self_time() - it->child_time();
 	}    
 
 	ProfileEntry::Time total_time_all = 0;
 	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
-		total_time_all += it->time();
+		total_time_all += it->self_time();
 	}
 
 	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
@@ -42,10 +42,10 @@ void XmlPrinter::Print(const std::string &script_name, std::ostream &stream, Pro
 		stream << " type=\"" << it->function_type() << "\"";
 		stream << " name=\"" << it->function_name() << "\"";
 		stream << " calls=\"" << it->num_calls() << "\"";
-		stream << " time=\"" <<  std::fixed << std::setprecision(2) 
-			<< static_cast<double>((it->time() - it->child_time()) * 100) / time_all << "\"";
+		stream << " self_time=\"" <<  std::fixed << std::setprecision(2) 
+			<< static_cast<double>((it->self_time() - it->child_time()) * 100) / time_all << "\"";
 		stream << " total_time=\"" <<  std::fixed << std::setprecision(2) 
-			<< static_cast<double>(it->time() * 100) / total_time_all << "\"";
+			<< static_cast<double>(it->self_time() * 100) / total_time_all << "\"";
 		stream << " />\n";
 	}
 

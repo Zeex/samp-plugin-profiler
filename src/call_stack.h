@@ -29,6 +29,7 @@ public:
 	CallInfo(const Function &function, cell frame = 0)
 		: function_(function)
 		, frame_(frame)
+		, recursive_(false)
 	{
 	}
 
@@ -39,10 +40,16 @@ public:
 	Timer &timer() 
 		{ return timer_; }
 
+	bool recursive() const 
+		{ return recursive_; }
+	void set_recursive(bool set) 
+		{ recursive_ = set; }
+
 private:
 	Function function_;
 	cell frame_; // frame address on AMX stack
 	Timer timer_;
+	bool recursive_; // whether it's a recursive call
 };
 
 class CallStack {

@@ -18,7 +18,7 @@
 #define SAMP_PROFILER_PROFILER_H
 
 #include <ostream>
-#include <set>
+#include <map>
 #include <stack>
 #include <string>
 #include <vector>
@@ -72,7 +72,7 @@ private:
 	// useful for debugging
 	std::string GetFunctionName(const Function &f) const;
 
-	void EnterFunction(const CallInfo &info);
+	void EnterFunction(CallInfo info);
 	void LeaveFunction(const Function &function);
 
 	CallStack call_stack_;
@@ -80,7 +80,12 @@ private:
 	std::vector<std::string> native_names_;
 	std::vector<std::string> public_names_;
 
-	std::set<Function> functions_;
+	enum FunctionState {
+		RUNNING,
+		FINISHED
+	};
+
+	std::map<Function, FunctionState> functions_;
 
 	static std::map<AMX*, Profiler*> instances_;
 };

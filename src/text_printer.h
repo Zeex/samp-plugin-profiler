@@ -28,7 +28,7 @@ public:
 	static const int kTypeWidth = 15;
 	static const int kNameWidth = 32;
 	static const int kCallsWidth = 15;
-	static const int kTimeWidth = 15;
+	static const int kSelfTimeWidth = 15;
 	static const int kTotalTimeWidth = 15;
 
 	virtual void Print(const std::string &script_name, std::ostream &stream, Profile &profile);
