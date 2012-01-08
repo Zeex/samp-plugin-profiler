@@ -49,8 +49,8 @@ public:
 		{ return handle_.address; }
 	cell index() const 
 		{ return handle_.index; }
-	TimeType time() const 
-		{ return time_; }
+	TimeType self_time() const 
+		{ return self_time_; }
 	TimeType child_time() const 
 		{ return child_time_; }
 	long num_calls() const
@@ -60,8 +60,8 @@ public:
 		++num_calls_; 
 	}
 
-	void AdjustTime(TimeType time) const { 
-		time_ += time; 
+	void AdjustSelfTime(TimeType time) const { 
+		self_time_ += time; 
 	}
 
 	void AdjustChildTime(TimeType child_time) const { 
@@ -77,7 +77,7 @@ private:
 	Type type_;
 	Handle handle_;
 
-	mutable TimeType time_;
+	mutable TimeType self_time_;
 	mutable TimeType child_time_;
 	mutable long num_calls_;
 };

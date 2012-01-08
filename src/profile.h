@@ -29,10 +29,10 @@ public:
 	typedef Timer::TimeType Time;
 
 	ProfileEntry(const std::string &function_name, const std::string &function_type, 
-			Time time, Time child_time, long num_calls)
+			Time self_time, Time child_time, long num_calls)
 		: name_(function_name)
 		, type_(function_type)
-		, time_(time)
+		, self_time_(self_time)
 		, child_time_(child_time)
 		, num_calls_(num_calls)
 	{
@@ -42,8 +42,8 @@ public:
 		{ return name_; }
 	const std::string &function_type() const 
 		{ return type_; }
-	Time time() const 
-		{ return time_; }
+	Time self_time() const 
+		{ return self_time_; }
 	Time child_time() const 
 		{ return child_time_; }
 	long num_calls() const 
@@ -52,7 +52,7 @@ public:
 private:
 	std::string name_;
 	std::string type_;
-	Time        time_;
+	Time        self_time_;
 	Time        child_time_;
 	long        num_calls_;
 };

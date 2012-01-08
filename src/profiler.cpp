@@ -149,28 +149,30 @@ void Profiler::ResetStats() {
 void Profiler::PrintStats(const std::string &script_name, std::ostream &stream, AbstractPrinter *printer) const {
 	Profile profile;
 
-	for (std::set<Function>::const_iterator iterator = functions_.begin(); 
+	for (std::map<Function, FunctionState>::const_iterator iterator = functions_.begin(); 
 			iterator != functions_.end(); ++iterator) 
 	{
 		std::string name;
 		std::string type;
 
-		switch (iterator->type()) {
+		Function f = iterator->first;
+
+		switch (f.type()) {
 		case Function::NATIVE: {
-			name = native_names_[iterator->index()];
+			name = native_names_[f.index()];
 			type = "native";
 			break;
 		}
 		case Function::PUBLIC: {
-			if (iterator->index() >= 0) {
-				name = public_names_[iterator->index()];
+			if (f.index() >= 0) {
+				name = public_names_[f.index()];
 				type = "public";
-			} else if (iterator->index() == AMX_EXEC_MAIN) {
+			} else if (f.index() == AMX_EXEC_MAIN) {
 				name = "main";
 				type = "main";
 			} else {
 				std::stringstream ss;
-				ss << "unknown_public@0x" << std::hex << iterator->address();
+				ss << "unknown_public@0x" << std::hex << f.address();
 				type = "public";
 			}
 			break;
@@ -179,14 +181,14 @@ void Profiler::PrintStats(const std::string &script_name, std::ostream &stream, 
 			type = "normal";
 			bool name_found = false;
 			if (debug_info_.IsLoaded()) {
-				name = debug_info_.GetFunction(iterator->address());
+				name = debug_info_.GetFunction(f.address());
 				if (!name.empty()) {							
 					name_found = true;
 				}
 			}
 			if (!name_found) {
 				std::stringstream ss;
-				ss << "unknown@0x" << std::hex << iterator->address();
+				ss << "unknown@0x" << std::hex << f.address();
 				ss >> name;
 			}				
 			break;
@@ -195,8 +197,8 @@ void Profiler::PrintStats(const std::string &script_name, std::ostream &stream, 
 			assert(0 && "Invalid function type");
 		} 
 
-		profile.push_back(ProfileEntry(name, type, iterator->time(), iterator->child_time(), 
-				iterator->num_calls()));
+		profile.push_back(ProfileEntry(name, type, f.self_time(), f.child_time(), 
+				f.num_calls()));
 	}
 
 	printer->Print(script_name, stream, profile);
@@ -272,34 +274,51 @@ std::string Profiler::GetFunctionName(const Function &f) const {
 	return "<unknown>";
 }
 
-void Profiler::EnterFunction(const CallInfo &call) {
-	//std::string name = GetFunctionName(call.function());
-	call_stack_.Push(call);
-	std::set<Function>::iterator iterator = functions_.find(call.function());
+void Profiler::EnterFunction(CallInfo call) {
+	//std::string name = GetFunctionName(call.function());	
+	std::map<Function, FunctionState>::iterator 
+			iterator = functions_.find(call.function());
 	if (iterator == functions_.end()) {
 		Function f = call.function();
 		f.IncreaseCalls();
-		functions_.insert(f);
+		functions_.insert(std::make_pair(f, RUNNING));
 	} else {
-		iterator->IncreaseCalls();
+		iterator->first.IncreaseCalls();
+		if (iterator->second == RUNNING) {
+			call.set_recursive(true);
+		} else {
+			iterator->second = RUNNING;
+		}
 	}
+	call_stack_.Push(call);
 }
 
 void Profiler::LeaveFunction(const Function &function) {	
 	while (true) {
 		CallInfo current = call_stack_.Pop();
-		std::set<Function>::iterator current_it = functions_.find(current.function());
-		if (current_it != functions_.end()) {
-			current_it->AdjustTime(current.timer().total_time());
-		}
 		//std::string name = GetFunctionName(current.function());
+		std::map<Function, FunctionState>::iterator 
+				current_it = functions_.find(current.function());
+		if (current_it != functions_.end()) {
+			if (!current.recursive()) {
+				current_it->first.AdjustSelfTime(current.timer().total_time());
+			} else {
+				current_it->first.AdjustSelfTime(current.function().child_time());
+				current_it->first.AdjustChildTime(current.function().child_time()
+						- current.timer().total_time());
+			}
+		}		
 		if (!call_stack_.IsEmpty()) {
 			// Adjust caller's child_time
 			CallInfo top = call_stack_.GetTop();
-			std::set<Function>::iterator top_it = functions_.find(top.function());
+			std::map<Function, FunctionState>::iterator 
+					top_it = functions_.find(top.function());
 			if (top_it != functions_.end()) {
-				top_it->AdjustChildTime(current.timer().total_time());
+				top_it->first.AdjustChildTime(current.timer().total_time());
 			}
+		}
+		if (!current.recursive()) {
+			current_it->second = FINISHED;
 		}
 		if (current.function() == function) {
 			break;

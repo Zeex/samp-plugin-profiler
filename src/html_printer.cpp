@@ -39,10 +39,10 @@ void HtmlPrinter::Print(const std::string &script_name, std::ostream &stream, Pr
 	"	<table id=\"stats\" class=\"tablesorter\" border=\"1\" width=\"100%\">\n"
 	"		<thead>\n"
 	"			<tr>\n"
-	"				<th>Function Type</th>\n"
-	"				<th>Function Name</th>\n"
+	"				<th>Type</th>\n"
+	"				<th>Name</th>\n"
 	"				<th>Calls</th>\n"
-	"				<th>Time</th>\n"
+	"				<th>Self Time</th>\n"
 	"				<th>Total Time</th>\n"
 	"			</tr>\n"
 	"		</thead>\n"
@@ -51,12 +51,12 @@ void HtmlPrinter::Print(const std::string &script_name, std::ostream &stream, Pr
 
 	ProfileEntry::Time time_all = 0;
 	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
-		time_all += it->time() - it->child_time();
+		time_all += it->self_time() - it->child_time();
 	}    
 
 	ProfileEntry::Time total_time_all = 0;
 	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
-		total_time_all += it->time();
+		total_time_all += it->self_time();
 	}
 
 	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
@@ -66,9 +66,9 @@ void HtmlPrinter::Print(const std::string &script_name, std::ostream &stream, Pr
 		<< "			<td>" << it->function_name() << "</td>\n"
 		<< "			<td>" << it->num_calls() << "</td>\n"
 		<< "			<td>" << std::fixed << std::setprecision(2) 
-			<< static_cast<double>((it->time() - it->child_time()) * 100) / time_all << "</td>\n"
+			<< static_cast<double>((it->self_time() - it->child_time()) * 100) / time_all << "</td>\n"
 		<< "			<td>" << std::fixed << std::setprecision(2) 
-			<< static_cast<double>(it->time() * 100) / total_time_all << "</td>\n"
+			<< static_cast<double>(it->self_time() * 100) / total_time_all << "</td>\n"
 		<< "		</tr>\n";
 	}
 

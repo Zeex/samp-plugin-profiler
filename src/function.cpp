@@ -23,7 +23,7 @@ namespace samp_profiler {
 Function::Function(Type type, Handle handle) 
 	: type_(type)
 	, handle_(handle)
-	, time_(0)
+	, self_time_(0)
 	, child_time_(0)
 	, num_calls_(0)
 {
