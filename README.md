@@ -8,15 +8,15 @@ Configuration
 
 You can configure profiler via `server.cfg`, by setting the following options:
 
-* profile_gamemode <0|1>
+* profile_gamemode &lt;0|1&gt;
 
   If set to 1, profiler will profile currently running game mode. Default value is 0.
 
-* profile_filterscripts <fs1> <fs2> ...
+* profile_filterscripts &lt;fs1&gt; &lt;fs2&gt; ...
 
   A list of filter scripts to be profiled. Can be empty.
 
-* profile_format <xml|html|text>
+* profile_format &lt;xml|html|text&gt;
 
   Set statistics output format. Default is html. 
   Note for HTML: it is possible to sort stats by clicking on column names!!
