@@ -19,7 +19,6 @@ check_header(inttypes.h)
 check_header(malloc.h)
 check_header(stdint.h)
 
-include_directories("src") 
 include_directories("src/amx")
 include_directories(${Boost_INCLUDE_DIRS})
 
@@ -81,7 +80,7 @@ target_link_Libraries(profiler ${Boost_LIBRARIES})
 
 if(UNIX OR MINGW)
 	set_property(TARGET profiler APPEND_STRING PROPERTY 
-		COMPILE_FLAGS " -m32 -Wno-attributes -include stddef.h")
+		COMPILE_FLAGS " -m32 -Wno-attributes")
 	set_property(TARGET profiler APPEND_STRING PROPERTY 
 		LINK_FLAGS " -m32 -Wl,--no-undefined")
 	if(UNIX)
