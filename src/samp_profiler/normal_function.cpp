@@ -21,8 +21,8 @@
 
 namespace samp_profiler {
 
-NormalFunction::NormalFunction(AMX *amx, ucell address, DebugInfo *debug_info) 
-	: Function(amx), address_(address), name_()
+NormalFunction::NormalFunction(ucell address, DebugInfo *debug_info) 
+	: address_(address), name_()
 {
 	if (debug_info != 0 && debug_info->IsLoaded()) {
 		name_ = debug_info->GetFunction(address);
@@ -40,9 +40,8 @@ std::string NormalFunction::name() const {
 	return name_;
 }
 
-int NormalFunction::Compare(const Function *that) const {
-	assert(that->type() == this->type() && "Function types do not match");
-	return this->address() - dynamic_cast<const NormalFunction*>(that)->address();
+ucell NormalFunction::address() const {
+	return address_;
 }
 
 Function *NormalFunction::Clone() const {

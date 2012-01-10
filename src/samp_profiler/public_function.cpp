@@ -21,13 +21,14 @@
 namespace samp_profiler {
 
 PublicFunction::PublicFunction(AMX *amx, cell index) 
-	: Function(amx), index_(index), name_()
+	: index_(index), address_(0), name_()
 {
 	AMX_HEADER *amxhdr = reinterpret_cast<AMX_HEADER*>(amx->base);
 	int num_publics = (amxhdr->natives - amxhdr->publics) / amxhdr->defsize;
 	if (index_ >= 0 && index_ < num_publics) {
 		AMX_FUNCSTUBNT *publics = reinterpret_cast<AMX_FUNCSTUBNT*>(amxhdr->publics + amx->base);
-		name_.assign(reinterpret_cast<char*>(publics[index_].nameofs + amx->base));
+		address_ = publics[index].address;
+		name_.assign(reinterpret_cast<char*>(publics[index_].nameofs + amx->base));		
 	} else if (index_ == AMX_EXEC_MAIN) {
 		name_.assign("main");
 	} else {
@@ -43,9 +44,8 @@ std::string PublicFunction::name() const {
 	return name_;
 }
 
-int PublicFunction::Compare(const Function *that) const {
-	assert(that->type() == this->type() && "Function types do not match");
-	return this->index() - dynamic_cast<const PublicFunction*>(that)->index();
+ucell PublicFunction::address() const {
+	return address_;
 }
 
 Function *PublicFunction::Clone() const {

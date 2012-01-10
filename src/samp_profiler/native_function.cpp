@@ -21,12 +21,13 @@
 namespace samp_profiler {
 
 NativeFunction::NativeFunction(AMX *amx, cell index) 
-	: Function(amx), index_(index), name_()
+	: index_(index), address_(0), name_()
 {
 	AMX_HEADER *amxhdr = reinterpret_cast<AMX_HEADER*>(amx->base);
 	int num_natives = (amxhdr->libraries - amxhdr->natives) / amxhdr->defsize;
 	if (index_ >= 0 && index_ < num_natives) {
 		AMX_FUNCSTUBNT *natives = reinterpret_cast<AMX_FUNCSTUBNT*>(amxhdr->natives + amx->base);
+		address_ = natives[index].address;
 		name_.assign(reinterpret_cast<char*>(natives[index_].nameofs + amx->base));
 	} else {
 		name_.append("unknown_native@").append(boost::lexical_cast<std::string>(index_));
@@ -41,9 +42,8 @@ std::string NativeFunction::name() const {
 	return name_;
 }
 
-int NativeFunction::Compare(const Function *that) const {
-	assert(that->type() == this->type() && "Function types do not match");
-	return this->index() - dynamic_cast<const NativeFunction*>(that)->index();
+ucell NativeFunction::address() const {
+	return address_;
 }
 
 Function *NativeFunction::Clone() const {
