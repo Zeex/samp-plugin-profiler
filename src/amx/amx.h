@@ -23,6 +23,7 @@
  *  Edited by Zeex on 2012-01-10
  *  Changes:
  *   - Added missing #include <stddef.h> (needed for size_t)
+ *   - Added missing #include <malloc.h> for _alloca on Windows
  */
 
 #if defined FREEBSD && !defined __FreeBSD__
@@ -89,6 +90,7 @@
   #include <alloca.h>
 #endif
 #if defined __WIN32__ || defined _WIN32 || defined WIN32 /* || defined __MSDOS__ */
+  #include <malloc.h>
   #if !defined alloca
     #define alloca(n)   _alloca(n)
   #endif
