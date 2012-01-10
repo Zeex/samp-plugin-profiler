@@ -83,7 +83,7 @@ if(UNIX OR MINGW)
 	set_property(TARGET profiler APPEND_STRING PROPERTY 
 		COMPILE_FLAGS "-m32 -Wno-attributes -include stddef.h")
 	set_property(TARGET profiler APPEND_STRING PROPERTY 
-		LINK_FLAGS "-m32 -Wl,--no-undefined -static-libstdc++ -lrt")
+		LINK_FLAGS "-m32 -Wl,--no-undefined -lrt")
 endif()
 
 if(UNIX AND NOT WIN32)
