@@ -24,7 +24,7 @@
 
 #include <boost/scoped_ptr.hpp>
 
-#include "abstract_printer.h"
+#include "printer.h"
 #include "function.h"
 #include "function_profile.h"
 #include "native_function.h"
@@ -138,7 +138,7 @@ void Profiler::ResetStats() {
 	functions_.clear();
 }
 
-void Profiler::PrintStats(const std::string &script_name, std::ostream &stream, AbstractPrinter *printer) const {
+void Profiler::PrintStats(const std::string &script_name, std::ostream &stream, Printer *printer) const {
 	std::vector<const FunctionProfile*> stats;
 	for (Functions::const_iterator iterator = functions_.begin(); 
 			iterator != functions_.end(); ++iterator) {
