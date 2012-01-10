@@ -19,52 +19,28 @@
 
 #include <stack>
 
-#include "function.h"
-#include "timer.h"
+#include "function_call.h"
+#include "amx/amx.h"
 
 namespace samp_profiler {
 
-class CallInfo {
-public:
-	CallInfo(const Function &function, cell frame = 0)
-		: function_(function)
-		, frame_(frame)
-		, recursive_(false)
-	{
-	}
-
-	const Function &function() const 
-		{ return function_; }
-	cell frame() const
-		{ return frame_; }
-	Timer &timer() 
-		{ return timer_; }
-
-	bool recursive() const 
-		{ return recursive_; }
-	void set_recursive(bool set) 
-		{ recursive_ = set; }
-
-private:
-	Function function_;
-	cell frame_; // frame address on AMX stack
-	Timer timer_;
-	bool recursive_; // whether it's a recursive call
-};
+class FunctionProfile;
 
 class CallStack {
 public:
-	void Push(const Function &function, cell frame);
-	void Push(const CallInfo &info);
-	CallInfo Pop();
+	void Push(Function *function, ucell frame, bool recursive = false);
+	void Push(const FunctionCall &info);
+	FunctionCall Pop();
 
 	bool IsEmpty() const 
 		{ return calls_.empty(); }
-	const CallInfo &GetTop()
+	FunctionCall &GetTop() 
+		{ return calls_.top(); }
+	const FunctionCall &GetTop() const
 		{ return calls_.top(); }
 
 private:
-	std::stack<CallInfo> calls_;
+	std::stack<FunctionCall> calls_;
 };
 
 } // namespace samp_profiler

@@ -14,38 +14,45 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <fstream>
+#include <string>
+
 #include <boost/date_time.hpp>
 
-#include "profile.h"
+#include "function.h"
+#include "function_profile.h"
+#include "timer.h"
 #include "xml_printer.h"
 
 namespace samp_profiler {
 
-void XmlPrinter::Print(const std::string &script_name, std::ostream &stream, Profile &profile) {
+void XmlPrinter::Print(const std::string &script_name, std::ostream &stream, 
+	const std::vector<FunctionProfile> &stats) 
+{
 	stream << 
 	"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
 	"<profile script=\"" << script_name << "\""
 		"date=\"" << boost::posix_time::second_clock::local_time() << "\">";
 
-	ProfileEntry::Time time_all = 0;
-	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
-		time_all += it->self_time() - it->child_time();
+	Timer::TimeType time_all = 0;
+	for (std::vector<FunctionProfile>::const_iterator it = stats.begin(); it != stats.end(); ++it) {
+		time_all += it->total_time() - it->child_time();
 	}    
 
-	ProfileEntry::Time total_time_all = 0;
-	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
-		total_time_all += it->self_time();
+	Timer::TimeType total_time_all = 0;
+	for (std::vector<FunctionProfile>::const_iterator it = stats.begin(); it != stats.end(); ++it) {
+		total_time_all += it->total_time();
 	}
 
-	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
+	for (std::vector<FunctionProfile>::const_iterator it = stats.begin(); it != stats.end(); ++it) {
 		stream << "		<function";
-		stream << " type=\"" << it->function_type() << "\"";
-		stream << " name=\"" << it->function_name() << "\"";
+		stream << " type=\"" << it->function()->type() << "\"";
+		stream << " name=\"" << it->function()->name() << "\"";
 		stream << " calls=\"" << it->num_calls() << "\"";
-		stream << " self_time=\"" <<  std::fixed << std::setprecision(2) 
-			<< static_cast<double>((it->self_time() - it->child_time()) * 100) / time_all << "\"";
 		stream << " total_time=\"" <<  std::fixed << std::setprecision(2) 
-			<< static_cast<double>(it->self_time() * 100) / total_time_all << "\"";
+			<< static_cast<double>((it->total_time() - it->child_time()) * 100) / time_all << "\"";
+		stream << " total_time=\"" <<  std::fixed << std::setprecision(2) 
+			<< static_cast<double>(it->total_time() * 100) / total_time_all << "\"";
 		stream << " />\n";
 	}
 

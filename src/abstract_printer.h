@@ -18,14 +18,16 @@
 #define SAMP_PROFILER_ABSTRACT_PRINTER_H
 
 #include <ostream>
-
-#include "profile.h"
+#include <vector>
 
 namespace samp_profiler {
 
+class FunctionProfile;
+
 class AbstractPrinter {
 public:
-	virtual void Print(const std::string &script_name, std::ostream &stream, Profile &profile) = 0;
+	virtual void Print(const std::string &script_name, std::ostream &stream, 
+			const std::vector<FunctionProfile> &stats) = 0;
 };
 
 } // namespace samp_profiler

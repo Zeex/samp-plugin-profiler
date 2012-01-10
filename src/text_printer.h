@@ -31,7 +31,8 @@ public:
 	static const int kSelfTimeWidth = 15;
 	static const int kTotalTimeWidth = 15;
 
-	virtual void Print(const std::string &script_name, std::ostream &stream, Profile &profile);
+	virtual void Print(const std::string &script_name, std::ostream &stream, 
+			const std::vector<FunctionProfile> &stats);
 };
 
 } // namespace samp_profiler

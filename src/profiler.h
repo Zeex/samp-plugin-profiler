@@ -17,8 +17,10 @@
 #ifndef SAMP_PROFILER_PROFILER_H
 #define SAMP_PROFILER_PROFILER_H
 
+#include <functional>
 #include <ostream>
 #include <map>
+#include <set>
 #include <stack>
 #include <string>
 #include <vector>
@@ -26,6 +28,8 @@
 #include "call_stack.h"
 #include "debug_info.h"
 #include "function.h"
+#include "function_profile.h"
+#include "function_runtime_info.h"
 #include "timer.h"
 
 #include "amx/amx.h"
@@ -40,6 +44,7 @@ public:
 	static bool IsScriptProfilable(AMX *amx);
 
 	Profiler(AMX *amx);
+	~Profiler();
 
 	static void Attach(AMX *amx);
 	static void Attach(AMX *amx, const DebugInfo &debug_info);
@@ -69,23 +74,24 @@ private:
 	DebugInfo debug_info_;
 	AMX_DEBUG debug_;
 
-	// useful for debugging
-	std::string GetFunctionName(const Function &f) const;
-
-	void EnterFunction(CallInfo info);
-	void LeaveFunction(const Function &function);
-
 	CallStack call_stack_;
 
-	std::vector<std::string> native_names_;
-	std::vector<std::string> public_names_;
+	void EnterFunction(const Function *function, ucell frm);
+	void LeaveFunction(const Function *function = 0);	
 
-	enum FunctionState {
-		RUNNING,
-		FINISHED
+	class CompFunByPtr : public std::binary_function<Function*, Function*, bool> {
+	public:
+		bool operator()(Function *left, Function *right) {
+			if (left->type() == right->type()) {
+				return left->Compare(right) < 0;
+			} else {
+				return left->type() < right->type();
+			}
+		}
 	};
 
-	std::map<Function, FunctionState> functions_;
+	typedef std::map<Function*, FunctionRuntimeInfo, CompFunByPtr> Functions;
+	Functions functions_;
 
 	static std::map<AMX*, Profiler*> instances_;
 };
