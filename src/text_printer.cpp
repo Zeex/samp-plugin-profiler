@@ -27,7 +27,7 @@
 namespace samp_profiler {
 
 void TextPrinter::Print(const std::string &script_name, std::ostream &stream,
-		const std::vector<FunctionProfile> &stats)
+		const std::vector<const FunctionProfile*> &stats)
 {
 	stream << "Profile of '" << script_name 
 		<< "' generated on " << boost::posix_time::second_clock::local_time() << "\n" << std::endl;
@@ -41,24 +41,27 @@ void TextPrinter::Print(const std::string &script_name, std::ostream &stream,
 	<< std::endl;
 
 	Timer::TimeType time_all = 0;
-	for (std::vector<FunctionProfile>::const_iterator it = stats.begin(); it != stats.end(); ++it) {
-		time_all += it->total_time() - it->child_time();
+	for (std::vector<const FunctionProfile*>::const_iterator iterator = stats.begin();
+			iterator != stats.end(); ++iterator) {
+		time_all += (*iterator)->total_time() - (*iterator)->child_time();
 	}    
 
 	Timer::TimeType total_time_all = 0;
-	for (std::vector<FunctionProfile>::const_iterator it = stats.begin(); it != stats.end(); ++it) {
-		total_time_all += it->total_time();
+	for (std::vector<const FunctionProfile*>::const_iterator iterator = stats.begin();
+			iterator != stats.end(); ++iterator) {
+		total_time_all += (*iterator)->total_time();
 	}
 
-	for (std::vector<FunctionProfile>::const_iterator it = stats.begin(); it != stats.end(); ++it) {
+	for (std::vector<const FunctionProfile*>::const_iterator iterator = stats.begin();
+			iterator != stats.end(); ++iterator) {
 		stream 
-			<< std::setw(kTypeWidth) << it->function()->type()
-			<< std::setw(kNameWidth) << it->function()->name()
-			<< std::setw(kCallsWidth) << it->num_calls()
+			<< std::setw(kTypeWidth) << (*iterator)->function()->type()
+			<< std::setw(kNameWidth) << (*iterator)->function()->name()
+			<< std::setw(kCallsWidth) << (*iterator)->num_calls()
 			<< std::setw(kSelfTimeWidth) << std::setprecision(2) << std::fixed 
-				<< static_cast<double>((it->total_time() - it->child_time()) * 100) / time_all
+				<< static_cast<double>(((*iterator)->total_time() - (*iterator)->child_time()) * 100) / time_all
 			<< std::setw(kTotalTimeWidth) << std::setprecision(2) << std::fixed 
-				<< static_cast<double>(it->total_time() * 100) / total_time_all
+				<< static_cast<double>((*iterator)->total_time() * 100) / total_time_all
 		<< std::endl;
 	}
 }

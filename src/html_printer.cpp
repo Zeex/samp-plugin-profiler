@@ -27,7 +27,7 @@
 namespace samp_profiler {
 
 void HtmlPrinter::Print(const std::string &script_name, std::ostream &stream, 
-		const std::vector<FunctionProfile> &stats) 
+		const std::vector<const FunctionProfile*> &stats) 
 {
 	stream << 
 	"<html>\n"
@@ -54,25 +54,28 @@ void HtmlPrinter::Print(const std::string &script_name, std::ostream &stream,
 	;
 
 	Timer::TimeType time_all = 0;
-	for (std::vector<FunctionProfile>::const_iterator it = stats.begin(); it != stats.end(); ++it) {
-		time_all += it->total_time() - it->child_time();
+	for (std::vector<const FunctionProfile*>::const_iterator iterator = stats.begin();
+			iterator != stats.end(); ++iterator) {
+		time_all += (*iterator)->total_time() - (*iterator)->child_time();
 	}    
 
 	Timer::TimeType total_time_all = 0;
-	for (std::vector<FunctionProfile>::const_iterator it = stats.begin(); it != stats.end(); ++it) {
-		total_time_all += it->total_time();
+	for (std::vector<const FunctionProfile*>::const_iterator iterator = stats.begin();
+			iterator != stats.end(); ++iterator) {
+		total_time_all += (*iterator)->total_time();
 	}
 
-	for (std::vector<FunctionProfile>::const_iterator it = stats.begin(); it != stats.end(); ++it) {
+	for (std::vector<const FunctionProfile*>::const_iterator iterator = stats.begin();
+			iterator != stats.end(); ++iterator) {
 		stream 
 		<< "		<tr>\n"
-		<< "			<td>" << it->function()->type() << "</td>\n"
-		<< "			<td>" << it->function()->name() << "</td>\n"
-		<< "			<td>" << it->num_calls() << "</td>\n"
+		<< "			<td>" << (*iterator)->function()->type() << "</td>\n"
+		<< "			<td>" << (*iterator)->function()->name() << "</td>\n"
+		<< "			<td>" << (*iterator)->num_calls() << "</td>\n"
 		<< "			<td>" << std::fixed << std::setprecision(2) 
-			<< static_cast<double>((it->total_time() - it->child_time()) * 100) / time_all << "</td>\n"
+			<< static_cast<double>(((*iterator)->total_time() - (*iterator)->child_time()) * 100) / time_all << "</td>\n"
 		<< "			<td>" << std::fixed << std::setprecision(2) 
-			<< static_cast<double>(it->total_time() * 100) / total_time_all << "</td>\n"
+			<< static_cast<double>((*iterator)->total_time() * 100) / total_time_all << "</td>\n"
 		<< "		</tr>\n";
 	}
 
