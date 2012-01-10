@@ -18,11 +18,22 @@
 
 namespace samp_profiler {
 
-FunctionCall::FunctionCall(Function *function, cell frame, bool recursive)
+FunctionCall::FunctionCall(Function *function, cell frame, FunctionCall *parent)
 		: fn_(function)
+		, parent_(parent)
 		, frame_(frame)
-		, recursive_(recursive)
+		, timer_(parent != 0 ? &parent->timer_ : 0)
+		, recursive_(false)
 {
+	// Check if this is a recursive call
+	FunctionCall *current = parent;
+	while (current != 0) {
+		if (current->fn_ == this->fn_) {
+			recursive_ = true;
+			break;
+		}
+		current = current->parent_;
+	}
 }
 
 } // namespace samp_profiler

@@ -28,7 +28,7 @@ class FunctionProfile;
 
 class CallStack {
 public:
-	void Push(Function *function, ucell frame, bool recursive = false);
+	void Push(Function *function, ucell frame);
 	void Push(const FunctionCall &info);
 	FunctionCall Pop();
 

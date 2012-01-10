@@ -27,17 +27,23 @@ public:
 	typedef boost::int64_t TimeType;
 	typedef boost::chrono::high_resolution_clock ClockType;
 
-	Timer();
+	Timer(Timer *parent = 0);
 	~Timer();
 
 	void Start();
 	void Stop();
 
+	TimeType child_time() const;
 	TimeType total_time() const;
+
+	inline TimeType self_time() const 
+		{ return total_time() - child_time(); }
 
 private:
 	bool started_;
+	Timer *parent_;
 	ClockType::time_point start_point_;
+	ClockType::duration child_time_;
 	ClockType::duration total_time_;
 };
 

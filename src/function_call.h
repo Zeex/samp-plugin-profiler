@@ -18,7 +18,6 @@
 #define SAMP_PROFILER_FUNCTION_CALL_H
 
 #include "function.h"
-#include "function_runtime_info.h"
 #include "timer.h"
 #include "amx/amx.h"
 
@@ -26,7 +25,7 @@ namespace samp_profiler {
 
 class FunctionCall {
 public:
-	FunctionCall(Function *function, cell frame, bool recursive = false);
+	FunctionCall(Function *function, cell frame, FunctionCall *parent = 0);
 
 	Function *function() const 
 		{ return fn_; }
@@ -38,11 +37,10 @@ public:
 		{ return timer_; }
 	bool IsRecursive() const 
 		{ return recursive_; }
-	Timer::TimeType GetExecutionTime() const 
-		{ return timer_.total_time(); }
 
 private:
 	Function *fn_;
+	FunctionCall *parent_;
 	cell frame_; // frame address on AMX stack
 	Timer timer_;
 	bool recursive_; // whether it's a recursive call

@@ -26,6 +26,10 @@ FunctionProfile::FunctionProfile(Function *f)
 {
 }
 
+Function *FunctionProfile::function() {
+	return func_;
+}
+
 const Function *FunctionProfile::function() const {
 	return func_;
 }
@@ -52,13 +56,6 @@ Timer::TimeType &FunctionProfile::child_time() {
 
 const Timer::TimeType &FunctionProfile::child_time() const { 
 	return child_time_; 
-}
-
-FunctionProfile &FunctionProfile::operator+=(const FunctionProfile &that) {
-	this->num_calls_ += that.num_calls_;
-	this->total_time_ += that.total_time_;
-	this->child_time_ += that.child_time_;
-	return *this;
 }
 
 } // namespace samp_profiler

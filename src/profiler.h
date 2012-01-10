@@ -29,7 +29,6 @@
 #include "debug_info.h"
 #include "function.h"
 #include "function_profile.h"
-#include "function_runtime_info.h"
 #include "timer.h"
 
 #include "amx/amx.h"
@@ -90,7 +89,7 @@ private:
 		}
 	};
 
-	typedef std::map<Function*, FunctionRuntimeInfo, CompFunByPtr> Functions;
+	typedef std::map<Function*, FunctionProfile, CompFunByPtr> Functions;
 	Functions functions_;
 
 	static std::map<AMX*, Profiler*> instances_;
