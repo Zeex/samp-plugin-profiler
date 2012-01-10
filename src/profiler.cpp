@@ -159,10 +159,9 @@ int Profiler::Debug() {
 			EnterFunction(fn.get(), amx_->frm);
 		}
 	} else if (amx_->frm > prevFrame) {
-		const Function *top_fn = call_stack_.GetTop().function();
-		if (top_fn->type() == "normal") {
-			LeaveFunction(top_fn);
-		}
+		Function *fn = call_stack_.GetTop().function();
+		assert(fn->type() == "normal" && "Call stack messed up");
+		LeaveFunction(fn);
 	}
 	if (debug_ != 0) {
 		return debug_(amx_);
