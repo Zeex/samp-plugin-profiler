@@ -27,14 +27,11 @@
 #include <string>
 #include <vector>
 
-#include <boost/algorithm/string.hpp>
-
 #ifdef _WIN32
 	#include <Windows.h>
 #endif
 
-#include "plugin.h"
-#include "version.h"
+#include <boost/algorithm/string.hpp>
 
 #include "samp_profiler/amx_name.h"
 #include "samp_profiler/config_reader.h"
@@ -45,9 +42,12 @@
 #include "samp_profiler/text_printer.h"
 #include "samp_profiler/xml_printer.h"
 
+#include "plugin.h"
+#include "version.h"
+
 typedef void (*logprintf_t)(const char *format, ...);
 
-extern void *pAMXFunctions; 
+extern void *pAMXFunctions;
 
 static logprintf_t logprintf;
 
@@ -57,8 +57,8 @@ static samp_profiler::JumpX86 ExecHook;
 static samp_profiler::JumpX86 CallbackHook;
 
 static int AMXAPI Exec(AMX *amx, cell *retval, int index) {
-	ExecHook.Remove();		
-	CallbackHook.Install(); 
+	ExecHook.Remove();
+	CallbackHook.Install();
 
 	int error = AMX_ERR_NONE;
 
@@ -76,10 +76,10 @@ static int AMXAPI Exec(AMX *amx, cell *retval, int index) {
 }
 
 static int AMXAPI Callback(AMX *amx, cell index, cell *result, cell *params) {
-	CallbackHook.Remove();		
-	ExecHook.Install(); 
+	CallbackHook.Remove();
+	ExecHook.Install();
 
-	amx->sysreq_d = 0; 
+	amx->sysreq_d = 0;
 
 	int error = AMX_ERR_NONE;
 
@@ -98,7 +98,7 @@ static int AMXAPI Callback(AMX *amx, cell index, cell *result, cell *params) {
 
 static std::string ToUnixPath(const std::string &path) {
 	std::string fsPath = path;
-	std::replace(fsPath.begin(), fsPath.end(), '\\', '/');   
+	std::replace(fsPath.begin(), fsPath.end(), '\\', '/');
 	return fsPath;
 }
 
@@ -116,7 +116,7 @@ static bool GetPublicVariable(AMX *amx, const char *name, cell &value) {
 		cell *phys_addr;
 		amx_GetAddr(amx, amx_addr, &phys_addr);
 		value = *phys_addr;
-		return true; 
+		return true;
 	}
 	return false;
 }
@@ -131,7 +131,7 @@ static bool WantsProfiler(const std::string &amxName) {
 		}
 	} else if (IsFilterScript(amxName)) {
 		std::string fsList = server_cfg.GetOption("profile_filterscripts", std::string(""));
-		std::stringstream fsStream(fsList);		
+		std::stringstream fsStream(fsList);
 		do {
 			std::string fsName;
 			fsStream >> fsName;
@@ -178,10 +178,10 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
 	((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Align64] = (void*)my_amx_Align;
 
 	ExecHook.Install(
-		((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Exec], 
+		((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Exec],
 		(void*)::Exec);
 	CallbackHook.Install(
-		((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Callback], 
+		((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Callback],
 		(void*)::Callback);
 
 	#ifdef _WIN32
@@ -206,9 +206,9 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 		logprintf("[profiler]: Can't profile '%s' (are you using -d0?)", filename.c_str());
 		return AMX_ERR_NONE;
 	}
-	 
-	cell profiler_enabled = false; 
-	if (GetPublicVariable(amx, "profiler_enabled", profiler_enabled) 
+
+	cell profiler_enabled = false;
+	if (GetPublicVariable(amx, "profiler_enabled", profiler_enabled)
 			&& !profiler_enabled) {
 		return AMX_ERR_NONE;
 	}
@@ -218,17 +218,17 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 			samp_profiler::DebugInfo debug_info;
 			debug_info.Load(filename);
 			if (debug_info.IsLoaded()) {
-				logprintf("[profiler]: Loaded debug info from '%s'", filename.c_str());			
-				samp_profiler::Profiler::Attach(amx, debug_info); 
+				logprintf("[profiler]: Loaded debug info from '%s'", filename.c_str());
+				samp_profiler::Profiler::Attach(amx, debug_info);
 				logprintf("[profiler]: Attached profiler to '%s'", filename.c_str());
 				return AMX_ERR_NONE;
 			} else {
 				logprintf("[profiler]: Error loading debug info from '%s'", filename.c_str());
 			}
-		}		
+		}
 		samp_profiler::Profiler::Attach(amx);
 		logprintf("[profiler]: Attached profiler to '%s' (no debug symbols)", filename.c_str());
-	} 		
+	}
 
 	return AMX_ERR_NONE;
 }
@@ -237,21 +237,21 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 	samp_profiler::Profiler *prof = samp_profiler::Profiler::Get(amx);
 
 	if (prof != 0) {
-		std::string amx_path = samp_profiler::GetAmxName(amx); 
+		std::string amx_path = samp_profiler::GetAmxName(amx);
 		std::string amx_name = std::string(amx_path, 0, amx_path.find_last_of("."));
 
 		samp_profiler::ConfigReader server_cfg("server.cfg");
 
-		std::string format = 
+		std::string format =
 			server_cfg.GetOption("profile_format", std::string("html"));
 		boost::algorithm::to_lower(format);
 
 		std::string filename = amx_name + "-profile";
 		samp_profiler::Printer *printer = 0;
 
-		if (format == "html") {			
+		if (format == "html") {
 			filename += ".html";
-			printer = new samp_profiler::HtmlPrinter;			
+			printer = new samp_profiler::HtmlPrinter;
 		} else if (format == "text") {
 			filename += ".txt";
 			printer = new samp_profiler::TextPrinter;

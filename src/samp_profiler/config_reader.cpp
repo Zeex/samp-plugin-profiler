@@ -24,7 +24,6 @@
 #include <stdexcept>
 #include <sstream>
 #include <string>
-
 #include "config_reader.h"
 
 namespace samp_profiler {

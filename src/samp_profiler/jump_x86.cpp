@@ -15,7 +15,6 @@
 // limitations under the License.
 
 #include <cstring>
-
 #include "jump_x86.h"
 
 #if defined WIN32 || defined _WIN32
@@ -33,6 +32,7 @@ static void Unprotect(void *address, int size) {
 #include <stdint.h>
 #include <unistd.h>
 #include <sys/mman.h>
+
 
 static void Unprotect(void *address, int size) {
 	// Both address and size must be multiples of page size...

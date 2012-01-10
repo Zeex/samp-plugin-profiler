@@ -18,8 +18,7 @@
 #define SAMP_PROFILER_AMX_NAME_H
 
 #include <string>
-
-#include "amx/amx.h"
+#include <amx/amx.h>
 
 namespace samp_profiler {
 

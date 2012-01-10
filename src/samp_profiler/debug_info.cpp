@@ -16,10 +16,8 @@
 
 #include <cassert>
 #include <cstdio>
-
-#include "amx/amx.h"
-#include "amx/amxdbg.h"
-
+#include <amx/amx.h>
+#include <amxdbg.h>
 #include "debug_info.h"
 
 namespace samp_profiler {

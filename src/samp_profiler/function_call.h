@@ -17,9 +17,9 @@
 #ifndef SAMP_PROFILER_FUNCTION_CALL_H
 #define SAMP_PROFILER_FUNCTION_CALL_H
 
+#include <amx/amx.h>
 #include "function.h"
 #include "timer.h"
-#include "amx/amx.h"
 
 namespace samp_profiler {
 
@@ -27,15 +27,15 @@ class FunctionCall {
 public:
 	FunctionCall(Function *function, cell frame, FunctionCall *parent = 0);
 
-	Function *function() const 
+	Function *function() const
 		{ return fn_; }
 	cell frame() const
 		{ return frame_; }
 	Timer &timer()
 		{ return timer_; }
-	const Timer &timer() const 
+	const Timer &timer() const
 		{ return timer_; }
-	bool IsRecursive() const 
+	bool IsRecursive() const
 		{ return recursive_; }
 
 private:

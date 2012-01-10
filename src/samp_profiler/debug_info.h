@@ -21,9 +21,8 @@
 
 #include <string>
 #include <boost/shared_ptr.hpp>
-
-#include "amx/amx.h"
-#include "amx/amxdbg.h"
+#include <amx/amx.h>
+#include <amxdbg.h>
 
 namespace samp_profiler {
 

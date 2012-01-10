@@ -24,15 +24,12 @@
 #include <stack>
 #include <string>
 #include <vector>
-
+#include <amx/amx.h>
 #include "call_stack.h"
 #include "debug_info.h"
 #include "function.h"
 #include "function_profile.h"
 #include "timer.h"
-
-#include "amx/amx.h"
-#include "amx/amxdbg.h"
 
 namespace samp_profiler {
 
