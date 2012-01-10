@@ -33,18 +33,17 @@
 	#include <Windows.h>
 #endif
 
-#include "amx_name.h"
-#include "config_reader.h"
-#include "debug_info.h"
-#include "html_printer.h"
-#include "jump_x86.h"
 #include "plugin.h"
-#include "profiler.h"
-#include "text_printer.h"
 #include "version.h"
-#include "xml_printer.h"
 
-#include "amx/amx.h"
+#include "samp_profiler/amx_name.h"
+#include "samp_profiler/config_reader.h"
+#include "samp_profiler/debug_info.h"
+#include "samp_profiler/html_printer.h"
+#include "samp_profiler/jump_x86.h"
+#include "samp_profiler/profiler.h"
+#include "samp_profiler/text_printer.h"
+#include "samp_profiler/xml_printer.h"
 
 typedef void (*logprintf_t)(const char *format, ...);
 
