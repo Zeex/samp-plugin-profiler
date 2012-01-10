@@ -26,7 +26,7 @@ namespace samp_profiler {
 class XmlPrinter : public AbstractPrinter {
 public:
 	virtual void Print(const std::string &script_name, std::ostream &stream, 
-			const std::vector<FunctionProfile> &stats);
+			const std::vector<const FunctionProfile*> &stats);
 };
 
 } // namespace samp_profiler

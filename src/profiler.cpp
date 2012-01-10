@@ -145,10 +145,10 @@ void Profiler::ResetStats() {
 }
 
 void Profiler::PrintStats(const std::string &script_name, std::ostream &stream, AbstractPrinter *printer) const {
-	std::vector<FunctionProfile> stats;
+	std::vector<const FunctionProfile*> stats;
 	for (Functions::const_iterator iterator = functions_.begin(); 
 			iterator != functions_.end(); ++iterator) {
-		stats.push_back(iterator->second);
+		stats.push_back(&iterator->second);
 	}
 	printer->Print(script_name, stream, stats);
 }

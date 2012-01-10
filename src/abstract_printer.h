@@ -27,7 +27,7 @@ class FunctionProfile;
 class AbstractPrinter {
 public:
 	virtual void Print(const std::string &script_name, std::ostream &stream, 
-			const std::vector<FunctionProfile> &stats) = 0;
+			const std::vector<const FunctionProfile*> &stats) = 0;
 };
 
 } // namespace samp_profiler
