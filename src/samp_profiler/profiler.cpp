@@ -14,13 +14,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <algorithm>
 #include <cassert>
 #include <map>
-#include <set>
-#include <numeric>
-#include <sstream>
 #include <string>
+#include <vector>
 #include <boost/scoped_ptr.hpp>
 #include <amx/amx.h>
 #include "function.h"
