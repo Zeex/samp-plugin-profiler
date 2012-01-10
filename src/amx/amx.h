@@ -24,13 +24,14 @@
  *  Changes:
  *   - Added missing #include <stddef.h> (needed for size_t)
  *   - Added missing #include <malloc.h> for _alloca on Windows
+ *   - Replaced <sclinux.h> with "sclinux.h"
  */
 
 #if defined FREEBSD && !defined __FreeBSD__
   #define __FreeBSD__
 #endif
 #if defined LINUX || defined __FreeBSD__ || defined __OpenBSD__
-  #include <sclinux.h>
+  #include "sclinux.h"
 #endif
 
 #ifndef AMX_H_INCLUDED
