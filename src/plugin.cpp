@@ -33,15 +33,15 @@
 
 #include <boost/algorithm/string.hpp>
 
-#include "samp_profiler/amx_name.h"
-#include "samp_profiler/config_reader.h"
 #include "samp_profiler/debug_info.h"
 #include "samp_profiler/html_printer.h"
-#include "samp_profiler/jump_x86.h"
 #include "samp_profiler/profiler.h"
 #include "samp_profiler/text_printer.h"
 #include "samp_profiler/xml_printer.h"
 
+#include "amx_name.h"
+#include "config_reader.h"
+#include "jump-x86.h"
 #include "plugin.h"
 #include "version.h"
 
@@ -53,8 +53,8 @@ static logprintf_t logprintf;
 
 static std::list<AMX*> loaded_scripts;
 
-static samp_profiler::JumpX86 ExecHook;
-static samp_profiler::JumpX86 CallbackHook;
+static JumpX86 ExecHook;
+static JumpX86 CallbackHook;
 
 static int AMXAPI Exec(AMX *amx, cell *retval, int index) {
 	ExecHook.Remove();
@@ -124,7 +124,7 @@ static bool GetPublicVariable(AMX *amx, const char *name, cell &value) {
 static bool WantsProfiler(const std::string &amxName) {
 	std::string goodAmxName = ToUnixPath(amxName);
 
-	samp_profiler::ConfigReader server_cfg("server.cfg");
+	ConfigReader server_cfg("server.cfg");
 	if (IsGameMode(amxName)) {
 		if (server_cfg.GetOption("profile_gamemode", false)) {
 			return true;
@@ -196,7 +196,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
 PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 	::loaded_scripts.push_back(amx);
 
-	std::string filename = samp_profiler::GetAmxName(amx);
+	std::string filename = GetAmxName(amx);
 	if (filename.empty()) {
 		logprintf("[profiler]: Can't find matching .amx file");
 		return AMX_ERR_NONE;
@@ -237,10 +237,10 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 	samp_profiler::Profiler *prof = samp_profiler::Profiler::Get(amx);
 
 	if (prof != 0) {
-		std::string amx_path = samp_profiler::GetAmxName(amx);
+		std::string amx_path = GetAmxName(amx);
 		std::string amx_name = std::string(amx_path, 0, amx_path.find_last_of("."));
 
-		samp_profiler::ConfigReader server_cfg("server.cfg");
+		ConfigReader server_cfg("server.cfg");
 
 		std::string format =
 			server_cfg.GetOption("profile_format", std::string("html"));
