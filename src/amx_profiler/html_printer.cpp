@@ -23,7 +23,7 @@
 #include "html_printer.h"
 #include "timer.h"
 
-namespace samp_profiler {
+namespace amx_profiler {
 
 void HtmlPrinter::Print(const std::string &script_name, std::ostream &stream, 
 		const std::vector<const FunctionProfile*> &stats) 
@@ -100,4 +100,4 @@ void HtmlPrinter::Print(const std::string &script_name, std::ostream &stream,
 	;
 }
 
-} // namespace samp_profiler
+} // namespace amx_profiler

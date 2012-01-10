@@ -14,21 +14,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SAMP_PROFILER_HTML_PRINTER_H
-#define SAMP_PROFILER_HTML_PRINTER_H
+#ifndef AMX_PROFILER_CALL_STACK_H
+#define AMX_PROFILER_CALL_STACK_H
 
-#include <string>
-#include <vector>
-#include "printer.h"
+#include <stack>
+#include <amx/amx.h>
+#include "function_call.h"
 
-namespace samp_profiler {
+namespace amx_profiler {
 
-class HtmlPrinter : public Printer {
+class FunctionProfile;
+
+class CallStack {
 public:
-	virtual void Print(const std::string &script_name, std::ostream &stream, 
-			const std::vector<const FunctionProfile*> &stats);
+	void Push(Function *function, ucell frame);
+	void Push(const FunctionCall &info);
+	FunctionCall Pop();
+
+	bool IsEmpty() const
+		{ return calls_.empty(); }
+	FunctionCall &GetTop()
+		{ return calls_.top(); }
+	const FunctionCall &GetTop() const
+		{ return calls_.top(); }
+
+private:
+	std::stack<FunctionCall> calls_;
 };
 
-} // namespace samp_profiler
+} // namespace amx_profiler
 
-#endif // !SAMP_PROFILER_HTML_PRINTER_H
+#endif // !AMX_PROFILER_CALL_STACK_H

@@ -33,11 +33,11 @@
 
 #include <boost/algorithm/string.hpp>
 
-#include "samp_profiler/debug_info.h"
-#include "samp_profiler/html_printer.h"
-#include "samp_profiler/profiler.h"
-#include "samp_profiler/text_printer.h"
-#include "samp_profiler/xml_printer.h"
+#include <amx_profiler/debug_info.h>
+#include <amx_profiler/html_printer.h>
+#include <amx_profiler/profiler.h>
+#include <amx_profiler/text_printer.h>
+#include <amx_profiler/xml_printer.h>
 
 #include "amx_name.h"
 #include "config_reader.h"
@@ -62,7 +62,7 @@ static int AMXAPI Exec(AMX *amx, cell *retval, int index) {
 
 	int error = AMX_ERR_NONE;
 
-	samp_profiler::Profiler *prof = samp_profiler::Profiler::Get(amx);
+	amx_profiler::Profiler *prof = amx_profiler::Profiler::Get(amx);
 	if (prof != 0) {
 		error =  prof->Exec(retval, index);
 	} else {
@@ -83,7 +83,7 @@ static int AMXAPI Callback(AMX *amx, cell index, cell *result, cell *params) {
 
 	int error = AMX_ERR_NONE;
 
-	samp_profiler::Profiler *prof = samp_profiler::Profiler::Get(amx);
+	amx_profiler::Profiler *prof = amx_profiler::Profiler::Get(amx);
 	if (prof != 0) {
 		error =  prof->Callback(index, result, params);
 	} else {
@@ -202,7 +202,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 		return AMX_ERR_NONE;
 	}
 
-	if (!samp_profiler::Profiler::IsScriptProfilable(amx)) {
+	if (!amx_profiler::Profiler::IsScriptProfilable(amx)) {
 		logprintf("[profiler]: Can't profile '%s' (are you using -d0?)", filename.c_str());
 		return AMX_ERR_NONE;
 	}
@@ -214,19 +214,19 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 	}
 
 	if (profiler_enabled || WantsProfiler(filename)) {
-		if (samp_profiler::DebugInfo::HasDebugInfo(amx)) {
-			samp_profiler::DebugInfo debug_info;
+		if (amx_profiler::DebugInfo::HasDebugInfo(amx)) {
+			amx_profiler::DebugInfo debug_info;
 			debug_info.Load(filename);
 			if (debug_info.IsLoaded()) {
 				logprintf("[profiler]: Loaded debug info from '%s'", filename.c_str());
-				samp_profiler::Profiler::Attach(amx, debug_info);
+				amx_profiler::Profiler::Attach(amx, debug_info);
 				logprintf("[profiler]: Attached profiler to '%s'", filename.c_str());
 				return AMX_ERR_NONE;
 			} else {
 				logprintf("[profiler]: Error loading debug info from '%s'", filename.c_str());
 			}
 		}
-		samp_profiler::Profiler::Attach(amx);
+		amx_profiler::Profiler::Attach(amx);
 		logprintf("[profiler]: Attached profiler to '%s' (no debug symbols)", filename.c_str());
 	}
 
@@ -234,7 +234,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 }
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
-	samp_profiler::Profiler *prof = samp_profiler::Profiler::Get(amx);
+	amx_profiler::Profiler *prof = amx_profiler::Profiler::Get(amx);
 
 	if (prof != 0) {
 		std::string amx_path = GetAmxName(amx);
@@ -247,17 +247,17 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 		boost::algorithm::to_lower(format);
 
 		std::string filename = amx_name + "-profile";
-		samp_profiler::Printer *printer = 0;
+		amx_profiler::Printer *printer = 0;
 
 		if (format == "html") {
 			filename += ".html";
-			printer = new samp_profiler::HtmlPrinter;
+			printer = new amx_profiler::HtmlPrinter;
 		} else if (format == "text") {
 			filename += ".txt";
-			printer = new samp_profiler::TextPrinter;
+			printer = new amx_profiler::TextPrinter;
 		} else if (format == "xml") {
 			filename += ".xml";
-			printer = new samp_profiler::XmlPrinter;
+			printer = new amx_profiler::XmlPrinter;
 		} else {
 			logprintf("[profiler]: Unknown output format '%s'", format.c_str());
 		}
@@ -268,7 +268,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 			delete printer;
 		}
 
-		samp_profiler::Profiler::Detach(amx);
+		amx_profiler::Profiler::Detach(amx);
 	}
 
 	return AMX_ERR_NONE;

@@ -14,22 +14,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SAMP_PROFILER_PRINTER_H
-#define SAMP_PROFILER_PRINTER_H
+#ifndef AMX_PROFILER_HTML_PRINTER_H
+#define AMX_PROFILER_HTML_PRINTER_H
 
-#include <ostream>
+#include <string>
 #include <vector>
+#include "printer.h"
 
-namespace samp_profiler {
+namespace amx_profiler {
 
-class FunctionProfile;
-
-class Printer {
+class HtmlPrinter : public Printer {
 public:
 	virtual void Print(const std::string &script_name, std::ostream &stream, 
-			const std::vector<const FunctionProfile*> &stats) = 0;
+			const std::vector<const FunctionProfile*> &stats);
 };
 
-} // namespace samp_profiler
+} // namespace amx_profiler
 
-#endif // !SAMP_PROFILER_PRINTER_H
+#endif // !AMX_PROFILER_HTML_PRINTER_H

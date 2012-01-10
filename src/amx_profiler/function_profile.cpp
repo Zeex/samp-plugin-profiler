@@ -16,7 +16,7 @@
 
 #include "function_profile.h"
 
-namespace samp_profiler {
+namespace amx_profiler {
 
 FunctionProfile::FunctionProfile(Function *f)
 	: func_(f)
@@ -58,4 +58,4 @@ const Timer::TimeType &FunctionProfile::child_time() const {
 	return child_time_; 
 }
 
-} // namespace samp_profiler
+} // namespace amx_profiler

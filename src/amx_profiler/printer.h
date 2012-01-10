@@ -14,27 +14,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SAMP_PROFILER_TEXT_PRINTER_H
-#define SAMP_PROFILER_TEXT_PRINTER_H
+#ifndef AMX_PROFILER_PRINTER_H
+#define AMX_PROFILER_PRINTER_H
 
-#include <string>
+#include <ostream>
 #include <vector>
-#include "printer.h"
 
-namespace samp_profiler {
+namespace amx_profiler {
 
-class TextPrinter : public Printer {
+class FunctionProfile;
+
+class Printer {
 public:
-	static const int kTypeWidth = 15;
-	static const int kNameWidth = 32;
-	static const int kCallsWidth = 15;
-	static const int kSelfTimeWidth = 15;
-	static const int kTotalTimeWidth = 15;
-
 	virtual void Print(const std::string &script_name, std::ostream &stream, 
-			const std::vector<const FunctionProfile*> &stats);
+			const std::vector<const FunctionProfile*> &stats) = 0;
 };
 
-} // namespace samp_profiler
+} // namespace amx_profiler
 
-#endif // !SAMP_PROFILER_TEXT_PRINTER_H
+#endif // !AMX_PROFILER_PRINTER_H

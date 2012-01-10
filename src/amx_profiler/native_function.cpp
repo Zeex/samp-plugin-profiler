@@ -16,40 +16,38 @@
 
 #include <cassert>
 #include <boost/lexical_cast.hpp>
-#include "public_function.h"
+#include "native_function.h"
 
-namespace samp_profiler {
+namespace amx_profiler {
 
-PublicFunction::PublicFunction(AMX *amx, cell index) 
+NativeFunction::NativeFunction(AMX *amx, cell index) 
 	: index_(index), address_(0), name_()
 {
 	AMX_HEADER *amxhdr = reinterpret_cast<AMX_HEADER*>(amx->base);
-	int num_publics = (amxhdr->natives - amxhdr->publics) / amxhdr->defsize;
-	if (index_ >= 0 && index_ < num_publics) {
-		AMX_FUNCSTUBNT *publics = reinterpret_cast<AMX_FUNCSTUBNT*>(amxhdr->publics + amx->base);
-		address_ = publics[index].address;
-		name_.assign(reinterpret_cast<char*>(publics[index_].nameofs + amx->base));		
-	} else if (index_ == AMX_EXEC_MAIN) {
-		name_.assign("main");
+	int num_natives = (amxhdr->libraries - amxhdr->natives) / amxhdr->defsize;
+	if (index_ >= 0 && index_ < num_natives) {
+		AMX_FUNCSTUBNT *natives = reinterpret_cast<AMX_FUNCSTUBNT*>(amxhdr->natives + amx->base);
+		address_ = natives[index].address;
+		name_.assign(reinterpret_cast<char*>(natives[index_].nameofs + amx->base));
 	} else {
-		name_.append(std::string("unknown_public@")).append(boost::lexical_cast<std::string>(index_));
+		name_.append("unknown_native@").append(boost::lexical_cast<std::string>(index_));
 	}
 }
 
-std::string PublicFunction::type() const {
-	return std::string("public");
+std::string NativeFunction::type() const {
+	return std::string("native");
 }
 
-std::string PublicFunction::name() const {
+std::string NativeFunction::name() const {
 	return name_;
 }
 
-ucell PublicFunction::address() const {
+ucell NativeFunction::address() const {
 	return address_;
 }
 
-Function *PublicFunction::Clone() const {
-	return new PublicFunction(*this);
+Function *NativeFunction::Clone() const {
+	return new NativeFunction(*this);
 }
 
-} // namespace samp_profiler
+} // namespace amx_profiler

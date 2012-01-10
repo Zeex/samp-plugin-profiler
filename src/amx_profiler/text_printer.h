@@ -14,14 +14,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <cassert>
-#include <boost/lexical_cast.hpp>
-#include "debug_info.h"
-#include "function.h"
+#ifndef AMX_PROFILER_TEXT_PRINTER_H
+#define AMX_PROFILER_TEXT_PRINTER_H
 
-namespace samp_profiler {
+#include <string>
+#include <vector>
+#include "printer.h"
 
-Function::~Function() {
-}
+namespace amx_profiler {
 
-} // namespace samp_profiler
+class TextPrinter : public Printer {
+public:
+	static const int kTypeWidth = 15;
+	static const int kNameWidth = 32;
+	static const int kCallsWidth = 15;
+	static const int kSelfTimeWidth = 15;
+	static const int kTotalTimeWidth = 15;
+
+	virtual void Print(const std::string &script_name, std::ostream &stream, 
+			const std::vector<const FunctionProfile*> &stats);
+};
+
+} // namespace amx_profiler
+
+#endif // !AMX_PROFILER_TEXT_PRINTER_H

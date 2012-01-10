@@ -20,18 +20,24 @@
 #include <boost/date_time.hpp>
 #include "function.h"
 #include "function_profile.h"
+#include "text_printer.h"
 #include "timer.h"
-#include "xml_printer.h"
 
-namespace samp_profiler {
+namespace amx_profiler {
 
-void XmlPrinter::Print(const std::string &script_name, std::ostream &stream, 
-	const std::vector<const FunctionProfile*> &stats) 
+void TextPrinter::Print(const std::string &script_name, std::ostream &stream,
+		const std::vector<const FunctionProfile*> &stats)
 {
-	stream << 
-	"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-	"<profile script=\"" << script_name << "\""
-		"date=\"" << boost::posix_time::second_clock::local_time() << "\">";
+	stream << "Profile of '" << script_name 
+		<< "' generated on " << boost::posix_time::second_clock::local_time() << "\n" << std::endl;
+
+	stream 
+		<< std::setw(kTypeWidth) << "Type"
+		<< std::setw(kNameWidth) << "Name"
+		<< std::setw(kCallsWidth) << "Calls"
+		<< std::setw(kSelfTimeWidth) << "Self Time"
+		<< std::setw(kTotalTimeWidth) << "Total Time"
+	<< std::endl;
 
 	Timer::TimeType time_all = 0;
 	for (std::vector<const FunctionProfile*>::const_iterator iterator = stats.begin();
@@ -47,19 +53,16 @@ void XmlPrinter::Print(const std::string &script_name, std::ostream &stream,
 
 	for (std::vector<const FunctionProfile*>::const_iterator iterator = stats.begin();
 			iterator != stats.end(); ++iterator) {
-		stream << "		<function";
-		stream << " type=\"" << (*iterator)->function()->type() << "\"";
-		stream << " name=\"" << (*iterator)->function()->name() << "\"";
-		stream << " calls=\"" << (*iterator)->num_calls() << "\"";
-		stream << " total_time=\"" <<  std::fixed << std::setprecision(2) 
-			<< static_cast<double>(((*iterator)->total_time() - (*iterator)->child_time()) * 100) / time_all << "\"";
-		stream << " total_time=\"" <<  std::fixed << std::setprecision(2) 
-			<< static_cast<double>((*iterator)->total_time() * 100) / total_time_all << "\"";
-		stream << " />\n";
+		stream 
+			<< std::setw(kTypeWidth) << (*iterator)->function()->type()
+			<< std::setw(kNameWidth) << (*iterator)->function()->name()
+			<< std::setw(kCallsWidth) << (*iterator)->num_calls()
+			<< std::setw(kSelfTimeWidth) << std::setprecision(2) << std::fixed 
+				<< static_cast<double>(((*iterator)->total_time() - (*iterator)->child_time()) * 100) / time_all
+			<< std::setw(kTotalTimeWidth) << std::setprecision(2) << std::fixed 
+				<< static_cast<double>((*iterator)->total_time() * 100) / total_time_all
+		<< std::endl;
 	}
-
-	stream << "</profile>";
 }
 
-} // namespace samp_profiler
-
+} // namespace amx_profiler
