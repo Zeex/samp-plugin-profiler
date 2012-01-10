@@ -19,6 +19,7 @@ check_header(inttypes.h)
 check_header(malloc.h)
 check_header(stdint.h)
 
+include_directories("src")
 include_directories("src/amx")
 include_directories(${Boost_INCLUDE_DIRS})
 

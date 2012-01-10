@@ -18,7 +18,7 @@
 #define SAMP_PROFILER_HTML_PRINTER_H
 
 #include <string>
-
+#include <vector>
 #include "printer.h"
 
 namespace samp_profiler {

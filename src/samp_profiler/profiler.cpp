@@ -21,19 +21,15 @@
 #include <numeric>
 #include <sstream>
 #include <string>
-
 #include <boost/scoped_ptr.hpp>
-
-#include "printer.h"
+#include <amx/amx.h>
 #include "function.h"
 #include "function_profile.h"
 #include "native_function.h"
 #include "normal_function.h"
+#include "printer.h"
 #include "profiler.h"
 #include "public_function.h"
-
-#include "amx/amx.h"
-#include "amx/amxdbg.h"
 
 namespace {
 

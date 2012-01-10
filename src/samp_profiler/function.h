@@ -19,9 +19,8 @@
 
 #include <string>
 #include <boost/shared_ptr.hpp>
-
+#include <amx/amx.h>
 #include "cloneable.h"
-#include "amx/amx.h"
 
 namespace samp_profiler {
 
@@ -36,8 +35,8 @@ public:
 
 	virtual std::string name() const = 0;
 	virtual std::string type() const = 0;
-	
-	virtual int Compare(const Function *other) const = 0;	
+
+	virtual int Compare(const Function *other) const = 0;
 
 private:
 	AMX *amx_;

@@ -16,7 +16,6 @@
 
 #include <cassert>
 #include <boost/lexical_cast.hpp>
-
 #include "native_function.h"
 
 namespace samp_profiler {

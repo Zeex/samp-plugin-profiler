@@ -18,9 +18,8 @@
 #define SAMP_PROFILER_CALL_STACK_H
 
 #include <stack>
-
+#include <amx/amx.h>
 #include "function_call.h"
-#include "amx/amx.h"
 
 namespace samp_profiler {
 
@@ -32,9 +31,9 @@ public:
 	void Push(const FunctionCall &info);
 	FunctionCall Pop();
 
-	bool IsEmpty() const 
+	bool IsEmpty() const
 		{ return calls_.empty(); }
-	FunctionCall &GetTop() 
+	FunctionCall &GetTop()
 		{ return calls_.top(); }
 	const FunctionCall &GetTop() const
 		{ return calls_.top(); }

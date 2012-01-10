@@ -20,14 +20,11 @@
 #include <list>
 #include <map>
 #include <string>
-
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
-
+#include <amx/amx.h>
+#include <amxaux.h>
 #include "amx_name.h"
-
-#include "amx/amx.h"
-#include "amx/amxaux.h"
 
 namespace samp_profiler {
 
@@ -56,7 +53,7 @@ AmxFile::AmxFile(const std::string &name)
 {
 	if (aux_LoadProgram(amxPtr_.get(), const_cast<char*>(name.c_str()), 0) != AMX_ERR_NONE) {
 		amxPtr_.reset();
-	}	
+	}
 }
 
 void AmxFile::FreeAmx(AMX *amx) {
@@ -74,12 +71,12 @@ std::string GetAmxName(AMX_HEADER *amxhdr) {
 	dirs.push_back(boost::filesystem::path("gamemodes/"));
 	dirs.push_back(boost::filesystem::path("filterscripts/"));
 
-	for (std::list<boost::filesystem::path>::const_iterator d = dirs.begin(); 
+	for (std::list<boost::filesystem::path>::const_iterator d = dirs.begin();
 			d != dirs.end(); ++d) {
 		if (!boost::filesystem::exists(*d) || !boost::filesystem::is_directory(*d)) {
 			continue;
 		}
-		for (boost::filesystem::directory_iterator f(*d); 
+		for (boost::filesystem::directory_iterator f(*d);
 				f != boost::filesystem::directory_iterator(); ++f) {
 			if (!boost::filesystem::is_regular_file(f->path()) ||
 					!boost::algorithm::ends_with(f->path().string(), ".amx")) {
@@ -89,9 +86,9 @@ std::string GetAmxName(AMX_HEADER *amxhdr) {
 			std::string filename = f->path().string();
 			std::time_t last_write = boost::filesystem::last_write_time(filename);
 
-			std::map<std::string, AmxFile>::iterator script_it = scripts.find(filename);				
+			std::map<std::string, AmxFile>::iterator script_it = scripts.find(filename);
 
-			if (script_it == scripts.end() || 
+			if (script_it == scripts.end() ||
 					script_it->second.GetLastWriteTime() < last_write) {
 				if (script_it != scripts.end()) {
 					scripts.erase(script_it);
@@ -102,10 +99,10 @@ std::string GetAmxName(AMX_HEADER *amxhdr) {
 				}
 			}
 		}
-	}	
+	}
 
-	for (std::map<std::string, AmxFile>::const_iterator script_it = scripts.begin(); 
-			script_it != scripts.end(); ++script_it) 
+	for (std::map<std::string, AmxFile>::const_iterator script_it = scripts.begin();
+			script_it != scripts.end(); ++script_it)
 	{
 		void *amxhdr2 = script_it->second.GetAmx()->base;
 		if (std::memcmp(amxhdr, amxhdr2, sizeof(AMX_HEADER)) == 0) {

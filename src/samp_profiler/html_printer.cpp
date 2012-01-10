@@ -16,9 +16,8 @@
 
 #include <fstream>
 #include <string>
-
+#include <vector>
 #include <boost/date_time.hpp>
-
 #include "function.h"
 #include "function_profile.h"
 #include "html_printer.h"

@@ -15,9 +15,7 @@
 // limitations under the License.
 
 #include <cassert>
-
 #include <boost/lexical_cast.hpp>
-
 #include "debug_info.h"
 #include "function.h"
 

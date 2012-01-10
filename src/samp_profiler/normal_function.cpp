@@ -16,7 +16,6 @@
 
 #include <cassert>
 #include <boost/lexical_cast.hpp>
-
 #include "debug_info.h"
 #include "normal_function.h"
 
