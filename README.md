@@ -29,9 +29,12 @@ The output consists of a table with these data:
 *	Function Type
 
 	The type of a function, can be one of: public, native, normal.
-	*Publics functions are the ones denoted by the `public` keyword. 
+
+	*Public* functions are the ones denoted by the `public` keyword. 
+
 	*Native* functions are native code procedures exported by the server or a plugin.
-	*Nommal* functions are the rest.
+
+	*Normal* functions are the rest.
 
 *	Function Name
 
