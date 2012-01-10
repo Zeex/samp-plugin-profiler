@@ -19,6 +19,10 @@
  *  3.  This notice may not be removed or altered from any source distribution.
  *
  *  Version: $Id: amx.h,v 1.5 2006/03/26 16:56:15 spookie Exp $
+ *
+ *  Edited by Zeex on 2012-01-10
+ *  Changes:
+ *   - Added missing #include <stddef.h> (needed for size_t)
  */
 
 #if defined FREEBSD && !defined __FreeBSD__
@@ -30,6 +34,8 @@
 
 #ifndef AMX_H_INCLUDED
 #define AMX_H_INCLUDED
+
+#include <stddef.h>
 
 #if defined HAVE_STDINT_H
   #include <stdint.h>
