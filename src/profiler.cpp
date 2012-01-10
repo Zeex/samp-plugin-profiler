@@ -41,12 +41,6 @@ int AMXAPI Debug(AMX *amx) {
 	return samp_profiler::Profiler::Get(amx)->Debug();
 }
 
-// Reads from a code section at a given location.
-inline cell ReadAmxCode(AMX *amx, cell where) {
-	AMX_HEADER *hdr = reinterpret_cast<AMX_HEADER*>(amx->base);
-	return *reinterpret_cast<cell*>(amx->base + hdr->cod + where);
-}
-
 } // anonymous namespace
 
 namespace samp_profiler {
