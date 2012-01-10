@@ -1,6 +1,4 @@
-// AMX profiler for SA-MP server: http://sa-mp.com
-//
-// Copyright (C) 2011 Sergey Zolotarev
+// Copyright (c) 2011 Sergey Zolotarev <zeex@rocketmail.com>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,7 +13,8 @@
 // limitations under the License.
 
 #include <cstring>
-#include "jump_x86.h"
+
+#include "jump-x86.h"
 
 #if defined WIN32 || defined _WIN32
 
@@ -33,7 +32,6 @@ static void Unprotect(void *address, int size) {
 #include <unistd.h>
 #include <sys/mman.h>
 
-
 static void Unprotect(void *address, int size) {
 	// Both address and size must be multiples of page size...
 	size_t pagesize = getpagesize();
@@ -43,8 +41,6 @@ static void Unprotect(void *address, int size) {
 }
 
 #endif
-
-namespace samp_profiler {
 
 JumpX86::JumpX86() 
 	: src_(0)
@@ -110,6 +106,3 @@ bool JumpX86::Remove() {
 bool JumpX86::IsInstalled() const {
 	return installed_;
 }
-
-} // namespace samp_profiler
-

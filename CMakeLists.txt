@@ -26,12 +26,8 @@ include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 
 add_library(profiler MODULE
-	src/samp_profiler/amx_name.cpp
-	src/samp_profiler/amx_name.h
 	src/samp_profiler/call_stack.cpp
 	src/samp_profiler/call_stack.h
-	src/samp_profiler/config_reader.cpp
-	src/samp_profiler/config_reader.h
 	src/samp_profiler/cloneable.h
 	src/samp_profiler/debug_info.cpp
 	src/samp_profiler/debug_info.h
@@ -43,8 +39,6 @@ add_library(profiler MODULE
 	src/samp_profiler/function_profile.h
 	src/samp_profiler/html_printer.cpp
 	src/samp_profiler/html_printer.h
-	src/samp_profiler/jump_x86.cpp
-	src/samp_profiler/jump_x86.h
 	src/samp_profiler/native_function.cpp
 	src/samp_profiler/native_function.h
 	src/samp_profiler/normal_function.cpp
@@ -68,7 +62,13 @@ add_library(profiler MODULE
 	src/amx/getch.h
 	src/amx/osdefs.h
 	src/amx/sclinux.h
+	src/amx_name.cpp
+	src/amx_name.h
 	src/amxplugin.cpp
+	src/config_reader.cpp
+	src/config_reader.h
+	src/jump-x86.cpp
+	src/jump-x86.h
 	src/plugin.h
 	src/plugincommon.h
 	src/plugin.cpp

@@ -1,5 +1,3 @@
-// AMX profiler for SA-MP server: http://sa-mp.com
-//
 // Copyright (C) 2011 Sergey Zolotarev
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,10 +21,8 @@
 #include <sstream>
 #include <string>
 
-#ifndef SAMP_PROFILER_CONFIG_READER_H
-#define SAMP_PROFILER_CONFIG_READER_H
-
-namespace samp_profiler {
+#ifndef CONFIG_READER_H
+#define CONFIG_READER_H
 
 class ConfigReader {
 public:
@@ -62,6 +58,4 @@ T ConfigReader::GetOption(const std::string &name, const T &defaultValue) const 
 
 template<> std::string ConfigReader::GetOption(const std::string &name, const std::string &value) const;
 
-} // namespace samp_profiler
-
-#endif // !SAMP_PROFILER_CONFIGREADER_H
+#endif // !CONFIG_READER_H

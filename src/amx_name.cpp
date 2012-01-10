@@ -1,5 +1,3 @@
-// AMX profiler for SA-MP server: http://sa-mp.com
-//
 // Copyright (C) 2011 Sergey Zolotarev
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,8 +23,6 @@
 #include <amx/amx.h>
 #include <amxaux.h>
 #include "amx_name.h"
-
-namespace samp_profiler {
 
 class AmxFile {
 public:
@@ -129,5 +125,3 @@ std::string GetAmxName(AMX *amx) {
 
 	return result;
 }
-
-} // namespace samp_profiler

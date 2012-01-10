@@ -1,5 +1,3 @@
-// AMX profiler for SA-MP server: http://sa-mp.com
-//
 // Copyright (C) 2011 Sergey Zolotarev
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,33 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SAMP_PROFILER_JUMP_X86_H
-#define SAMP_PROFILER_JUMP_X86_H
+#ifndef AMX_NAME_H
+#define AMX_NAME_H
 
-namespace samp_profiler {
+#include <string>
+#include <amx/amx.h>
 
-class JumpX86 {
-public:
-	static const int kJmpInstrSize = 5;
+std::string GetAmxName(AMX_HEADER *amxhdr);
+std::string GetAmxName(AMX *amx);
 
-	JumpX86();
-	JumpX86(void *src, void *dst);
-	~JumpX86();
-
-	bool Install();
-	bool Install(void *src, void *dst);
-	bool Remove();
-
-	bool IsInstalled() const;
-
-private:
-	void *src_;
-	void *dst_;
-	unsigned char code_[5];
-	bool installed_;
-};
-
-} // namespace samp_profiler
-
-#endif // !SAMP_PROFILER_JUMP_X86_H
-
+#endif // !AMX_NAME_H
