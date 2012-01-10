@@ -75,14 +75,10 @@ private:
 	void EnterFunction(const Function *function, ucell frm);
 	void LeaveFunction(const Function *function = 0);	
 
-	class CompFunByPtr : public std::binary_function<Function*, Function*, bool> {
+	class CompFunByPtr : public std::binary_function<const Function*, const Function*, bool> {
 	public:
-		bool operator()(Function *left, Function *right) {
-			if (left->type() == right->type()) {
-				return left->Compare(right) < 0;
-			} else {
-				return left->type() < right->type();
-			}
+		bool operator()(const Function *left, const Function *right) {
+			return left->address() < right->address();
 		}
 	};
 

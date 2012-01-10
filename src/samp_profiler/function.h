@@ -26,20 +26,11 @@ namespace samp_profiler {
 
 class Function : public Cloneable<Function> {
 public:
-	friend class Profiler;
-
-	Function(AMX *amx);
 	virtual ~Function();
-
-	AMX *amx() const;
 
 	virtual std::string name() const = 0;
 	virtual std::string type() const = 0;
-
-	virtual int Compare(const Function *other) const = 0;
-
-private:
-	AMX *amx_;
+	virtual ucell address() const = 0;
 };
 
 } // namespace samp_profiler

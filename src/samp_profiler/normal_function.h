@@ -25,16 +25,13 @@ class DebugInfo;
 
 class NormalFunction : public Function {
 public:
-	NormalFunction(AMX *amx, ucell address, DebugInfo *debug_info = 0);
+	NormalFunction(ucell address, DebugInfo *debug_info = 0);
 
 	virtual std::string name() const;
 	virtual std::string type() const;
+	virtual ucell address() const;
 
-	virtual int Compare(const Function *other) const;
-
-	virtual Function *Clone() const;
-
-	ucell address() const { return address_; }
+	virtual Function *Clone() const;	
 
 private:
 	ucell address_;

@@ -21,16 +21,7 @@
 
 namespace samp_profiler {
 
-Function::Function(AMX *amx)
-	: amx_(amx)
-{
-}
-
 Function::~Function() {
-}
-
-AMX *Function::amx() const {
-	return amx_;
 }
 
 } // namespace samp_profiler

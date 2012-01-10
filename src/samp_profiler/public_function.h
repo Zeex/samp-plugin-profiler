@@ -26,9 +26,8 @@ public:
 	PublicFunction(AMX *amx, cell index);
 
 	virtual std::string name() const;
-	virtual std::string type() const;
-
-	virtual int Compare(const Function *other) const;
+	virtual std::string type() const;	
+	virtual ucell address() const;
 
 	virtual Function *Clone() const;
 
@@ -36,6 +35,7 @@ public:
 
 private:
 	cell index_;
+	ucell address_;
 	std::string name_;
 };
 

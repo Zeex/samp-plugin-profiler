@@ -151,7 +151,7 @@ int Profiler::Debug() {
 	if (amx_->frm < prevFrame) {
 		cell address = amx_->cip - 2*sizeof(cell);   
 		if (call_stack_.GetTop().frame() != amx_->frm) {
-			boost::scoped_ptr<NormalFunction> fn(new NormalFunction(amx_, address, &debug_info_));
+			boost::scoped_ptr<NormalFunction> fn(new NormalFunction(address, &debug_info_));
 			EnterFunction(fn.get(), amx_->frm);
 		}
 	} else if (amx_->frm > prevFrame) {
@@ -220,8 +220,7 @@ void Profiler::LeaveFunction(const Function *fn) {
 			FunctionCall &top = call_stack_.GetTop();
 			functions_.find(top.function())->second.child_time() += current.timer().total_time();
 		}
-		if (fn == 0 || (current.function()->type() == fn->type() 
-		                && current.function()->Compare(fn) == 0)) {
+		if (fn == 0 || (current.function()->address() == fn->address())) {
 			break;
 		}
 	}
