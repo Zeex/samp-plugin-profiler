@@ -52,7 +52,7 @@ The output consists of a table with these data:
 
 *	Total Time
 
-	This is Self Time + Total Time of all callees.
+	This is function's Self Time + Total Time of all its callees.
 
 License
 -------
