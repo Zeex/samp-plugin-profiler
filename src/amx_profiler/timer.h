@@ -14,13 +14,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SAMP_PROFILER_TIMER_H
-#define SAMP_PROFILER_TIMER_H
+#ifndef AMX_PROFILER_TIMER_H
+#define AMX_PROFILER_TIMER_H
 
 #include <boost/chrono.hpp>
 #include <boost/integer.hpp>
 
-namespace samp_profiler {
+namespace amx_profiler {
 
 class Timer {
 public:
@@ -47,6 +47,6 @@ private:
 	ClockType::duration total_time_;
 };
 
-} // namespace samp_profiler
+} // namespace amx_profiler
 
-#endif // !SAMP_PROFILER_TIMER_H
+#endif // !AMX_PROFILER_TIMER_H

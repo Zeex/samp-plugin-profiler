@@ -14,31 +14,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SAMP_PROFILER_NATIVE_FUNCTION_H
-#define SAMP_PROFILER_NATIVE_FUNCTION_H
+#include "call_stack.h"
+#include "function_profile.h"
 
-#include "function.h"
+namespace amx_profiler {
 
-namespace samp_profiler {
+void CallStack::Push(Function *function, ucell frame) { 
+	Push(FunctionCall(function, frame, calls_.empty() ? 0 : &calls_.top()));
+}
 
-class NativeFunction : public Function {
-public:
-	NativeFunction(AMX *amx, cell index);
+void CallStack::Push(const FunctionCall &call) { 
+	calls_.push(call); 
+	calls_.top().timer().Start();
+}
 
-	virtual std::string name() const;
-	virtual std::string type() const;
-	virtual ucell address() const;
+FunctionCall CallStack::Pop() {
+	FunctionCall &top = calls_.top();
+	top.timer().Stop();
+	FunctionCall top_copy(top);
+	calls_.pop();
+	return top_copy;
+}
 
-	virtual Function *Clone() const;
-
-	cell index() const { return index_; }
-
-private:
-	cell index_;
-	ucell address_;
-	std::string name_;
-};
-
-} // namespace samp_profiler
-
-#endif // !SAMP_PROFILER_NATIVE_FUNCTION_H
+} // namespace amx_profiler

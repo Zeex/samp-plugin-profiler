@@ -17,7 +17,7 @@
 #include <boost/chrono.hpp>
 #include "timer.h"
 
-namespace samp_profiler {
+namespace amx_profiler {
 
 Timer::Timer(Timer *parent) 
 	: started_(false)
@@ -57,4 +57,4 @@ Timer::TimeType Timer::total_time() const {
 	return duration_cast<microseconds>(total_time_).count();
 }
 
-} // namespace samp_profiler
+} // namespace amx_profiler

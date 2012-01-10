@@ -14,26 +14,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "function_call.h"
+#include <cassert>
+#include <boost/lexical_cast.hpp>
+#include "debug_info.h"
+#include "function.h"
 
-namespace samp_profiler {
+namespace amx_profiler {
 
-FunctionCall::FunctionCall(Function *function, cell frame, FunctionCall *parent)
-		: fn_(function)
-		, parent_(parent)
-		, frame_(frame)
-		, timer_(parent != 0 ? &parent->timer_ : 0)
-		, recursive_(false)
-{
-	// Check if this is a recursive call
-	FunctionCall *current = parent;
-	while (current != 0) {
-		if (current->fn_ == this->fn_) {
-			recursive_ = true;
-			break;
-		}
-		current = current->parent_;
-	}
+Function::~Function() {
 }
 
-} // namespace samp_profiler
+} // namespace amx_profiler

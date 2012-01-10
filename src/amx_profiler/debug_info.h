@@ -16,15 +16,15 @@
 //
 // Lightweight wrapper for some of the dbg_* routines from the amxdbg module.
 
-#ifndef SAMP_PROFILER_DEBUG_INFO_H
-#define SAMP_PROFILER_DEBUG_INFO_H
+#ifndef AMX_PROFILER_DEBUG_INFO_H
+#define AMX_PROFILER_DEBUG_INFO_H
 
 #include <string>
 #include <boost/shared_ptr.hpp>
 #include <amx/amx.h>
 #include <amxdbg.h>
 
-namespace samp_profiler {
+namespace amx_profiler {
 
 class DebugInfo {
 public:
@@ -46,7 +46,7 @@ private:
 	boost::shared_ptr<AMX_DBG> amxdbgPtr_;
 };
 
-} // namespace samp_profiler
+} // namespace amx_profiler
 
-#endif // !SAMP_PROFILER_DEBUGINFO_H
+#endif // !AMX_PROFILER_DEBUGINFO_H
 

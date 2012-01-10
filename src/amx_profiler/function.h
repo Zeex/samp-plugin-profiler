@@ -14,34 +14,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SAMP_PROFILER_CALL_STACK_H
-#define SAMP_PROFILER_CALL_STACK_H
+#ifndef AMX_PROFILER_FUNCTION_FUNCTION_H
+#define AMX_PROFILER_FUNCTION_FUNCTION_H
 
-#include <stack>
+#include <string>
+#include <boost/shared_ptr.hpp>
 #include <amx/amx.h>
-#include "function_call.h"
+#include "cloneable.h"
 
-namespace samp_profiler {
+namespace amx_profiler {
 
-class FunctionProfile;
-
-class CallStack {
+class Function : public Cloneable<Function> {
 public:
-	void Push(Function *function, ucell frame);
-	void Push(const FunctionCall &info);
-	FunctionCall Pop();
+	virtual ~Function();
 
-	bool IsEmpty() const
-		{ return calls_.empty(); }
-	FunctionCall &GetTop()
-		{ return calls_.top(); }
-	const FunctionCall &GetTop() const
-		{ return calls_.top(); }
-
-private:
-	std::stack<FunctionCall> calls_;
+	virtual std::string name() const = 0;
+	virtual std::string type() const = 0;
+	virtual ucell address() const = 0;
 };
 
-} // namespace samp_profiler
+} // namespace amx_profiler
 
-#endif // !SAMP_PROFILER_CALL_STACK_H
+#endif // !AMX_PROFILER_FUNCTION_FUNCTION_H

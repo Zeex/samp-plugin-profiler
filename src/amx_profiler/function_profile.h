@@ -14,12 +14,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SAMP_PROFILER_FUNCTION_PROFILE_H
-#define SAMP_PROFILER_FUNCTION_PROFILE_H
+#ifndef AMX_PROFILER_FUNCTION_PROFILE_H
+#define AMX_PROFILER_FUNCTION_PROFILE_H
 
 #include "timer.h"
 
-namespace samp_profiler {
+namespace amx_profiler {
 
 class Function;
 
@@ -49,6 +49,6 @@ private:
 	Timer::TimeType child_time_;
 };
 
-} // namespace samp_profiler
+} // namespace amx_profiler
 
-#endif // !SAMP_PROFILER_FUNCTION_PROFILE_H
+#endif // !AMX_PROFILER_FUNCTION_PROFILE_H

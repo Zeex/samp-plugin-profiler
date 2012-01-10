@@ -14,21 +14,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SAMP_PROFILER_XML_PRINTER_H
-#define SAMP_PROFILER_XML_PRINTER_H
+#include "function_call.h"
 
-#include <string>
-#include <vector>
-#include "printer.h"
+namespace amx_profiler {
 
-namespace samp_profiler {
+FunctionCall::FunctionCall(Function *function, cell frame, FunctionCall *parent)
+		: fn_(function)
+		, parent_(parent)
+		, frame_(frame)
+		, timer_(parent != 0 ? &parent->timer_ : 0)
+		, recursive_(false)
+{
+	// Check if this is a recursive call
+	FunctionCall *current = parent;
+	while (current != 0) {
+		if (current->fn_ == this->fn_) {
+			recursive_ = true;
+			break;
+		}
+		current = current->parent_;
+	}
+}
 
-class XmlPrinter : public Printer {
-public:
-	virtual void Print(const std::string &script_name, std::ostream &stream, 
-			const std::vector<const FunctionProfile*> &stats);
-};
-
-} // namespace samp_profiler
-
-#endif // !SAMP_PROFILER_XML_PRINTER_H
+} // namespace amx_profiler

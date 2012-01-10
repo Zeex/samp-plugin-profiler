@@ -14,30 +14,38 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SAMP_PROFILER_NORMAL_FUNCTION_H
-#define SAMP_PROFILER_NORMAL_FUNCTION_H
+#ifndef AMX_PROFILER_FUNCTION_CALL_H
+#define AMX_PROFILER_FUNCTION_CALL_H
 
+#include <amx/amx.h>
 #include "function.h"
+#include "timer.h"
 
-namespace samp_profiler {
+namespace amx_profiler {
 
-class DebugInfo;
-
-class NormalFunction : public Function {
+class FunctionCall {
 public:
-	NormalFunction(ucell address, DebugInfo *debug_info = 0);
+	FunctionCall(Function *function, cell frame, FunctionCall *parent = 0);
 
-	virtual std::string name() const;
-	virtual std::string type() const;
-	virtual ucell address() const;
-
-	virtual Function *Clone() const;	
+	Function *function() const
+		{ return fn_; }
+	cell frame() const
+		{ return frame_; }
+	Timer &timer()
+		{ return timer_; }
+	const Timer &timer() const
+		{ return timer_; }
+	bool IsRecursive() const
+		{ return recursive_; }
 
 private:
-	ucell address_;
-	std::string name_;
+	Function *fn_;
+	FunctionCall *parent_;
+	cell frame_; // frame address on AMX stack
+	Timer timer_;
+	bool recursive_; // whether it's a recursive call
 };
 
-} // namespace samp_profiler
+} // namespace amx_profiler
 
-#endif // !SAMP_PROFILER_NORMAL_FUNCTION_H
+#endif // !AMX_PROFILER_FUNCTION_CALL_H

@@ -26,34 +26,34 @@ include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 
 add_library(profiler MODULE
-	src/samp_profiler/call_stack.cpp
-	src/samp_profiler/call_stack.h
-	src/samp_profiler/cloneable.h
-	src/samp_profiler/debug_info.cpp
-	src/samp_profiler/debug_info.h
-	src/samp_profiler/function.cpp
-	src/samp_profiler/function.h
-	src/samp_profiler/function_call.cpp
-	src/samp_profiler/function_call.h
-	src/samp_profiler/function_profile.cpp
-	src/samp_profiler/function_profile.h
-	src/samp_profiler/html_printer.cpp
-	src/samp_profiler/html_printer.h
-	src/samp_profiler/native_function.cpp
-	src/samp_profiler/native_function.h
-	src/samp_profiler/normal_function.cpp
-	src/samp_profiler/normal_function.h
-	src/samp_profiler/printer.h
-	src/samp_profiler/profiler.cpp
-	src/samp_profiler/profiler.h
-	src/samp_profiler/public_function.cpp
-	src/samp_profiler/public_function.h
-	src/samp_profiler/text_printer.cpp
-	src/samp_profiler/text_printer.h
-	src/samp_profiler/timer.cpp
-	src/samp_profiler/timer.h
-	src/samp_profiler/xml_printer.cpp
-	src/samp_profiler/xml_printer.h
+	src/amx_profiler/call_stack.cpp
+	src/amx_profiler/call_stack.h
+	src/amx_profiler/cloneable.h
+	src/amx_profiler/debug_info.cpp
+	src/amx_profiler/debug_info.h
+	src/amx_profiler/function.cpp
+	src/amx_profiler/function.h
+	src/amx_profiler/function_call.cpp
+	src/amx_profiler/function_call.h
+	src/amx_profiler/function_profile.cpp
+	src/amx_profiler/function_profile.h
+	src/amx_profiler/html_printer.cpp
+	src/amx_profiler/html_printer.h
+	src/amx_profiler/native_function.cpp
+	src/amx_profiler/native_function.h
+	src/amx_profiler/normal_function.cpp
+	src/amx_profiler/normal_function.h
+	src/amx_profiler/printer.h
+	src/amx_profiler/profiler.cpp
+	src/amx_profiler/profiler.h
+	src/amx_profiler/public_function.cpp
+	src/amx_profiler/public_function.h
+	src/amx_profiler/text_printer.cpp
+	src/amx_profiler/text_printer.h
+	src/amx_profiler/timer.cpp
+	src/amx_profiler/timer.h
+	src/amx_profiler/xml_printer.cpp
+	src/amx_profiler/xml_printer.h
 	src/amx/amx.h
 	src/amx/amxaux.c
 	src/amx/amxaux.h

@@ -14,25 +14,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SAMP_PROFILER_FUNCTION_FUNCTION_H
-#define SAMP_PROFILER_FUNCTION_FUNCTION_H
+#ifndef AMX_PROFILER_CLONEABLE_H
+#define AMX_PROFILER_CLONEABLE_H
 
-#include <string>
-#include <boost/shared_ptr.hpp>
-#include <amx/amx.h>
-#include "cloneable.h"
+namespace amx_profiler {
 
-namespace samp_profiler {
-
-class Function : public Cloneable<Function> {
+template<typename T> class Cloneable {
 public:
-	virtual ~Function();
-
-	virtual std::string name() const = 0;
-	virtual std::string type() const = 0;
-	virtual ucell address() const = 0;
+	virtual T *Clone() const = 0;
 };
 
-} // namespace samp_profiler
+} // namespace amx_profiler
 
-#endif // !SAMP_PROFILER_FUNCTION_FUNCTION_H
+#endif // !AMX_PROFILER_CLONEABLE_H

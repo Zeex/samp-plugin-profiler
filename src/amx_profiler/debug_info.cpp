@@ -20,7 +20,7 @@
 #include <amxdbg.h>
 #include "debug_info.h"
 
-namespace samp_profiler {
+namespace amx_profiler {
 
 DebugInfo::DebugInfo() {}
 
@@ -81,5 +81,5 @@ std::string DebugInfo::GetFunction(cell address) const {
 	return result;
 }
 
-} // namespace samp_profiler
+} // namespace amx_profiler
 

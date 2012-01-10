@@ -14,16 +14,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SAMP_PROFILER_CLONEABLE_H
-#define SAMP_PROFILER_CLONEABLE_H
+#ifndef AMX_PROFILER_PUBLIC_FUNCTION_H
+#define AMX_PROFILER_PUBLIC_FUNCTION_H
 
-namespace samp_profiler {
+#include "function.h"
 
-template<typename T> class Cloneable {
+namespace amx_profiler {
+
+class PublicFunction : public Function {
 public:
-	virtual T *Clone() const = 0;
+	PublicFunction(AMX *amx, cell index);
+
+	virtual std::string name() const;
+	virtual std::string type() const;	
+	virtual ucell address() const;
+
+	virtual Function *Clone() const;
+
+	cell index() const { return index_; }
+
+private:
+	cell index_;
+	ucell address_;
+	std::string name_;
 };
 
-} // namespace samp_profiler
+} // namespace amx_profiler
 
-#endif // !SAMP_PROFILER_CLONEABLE_H
+#endif // !AMX_PROFILER_PUBLIC_FUNCTION_H

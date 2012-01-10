@@ -19,7 +19,7 @@
 #include "debug_info.h"
 #include "normal_function.h"
 
-namespace samp_profiler {
+namespace amx_profiler {
 
 NormalFunction::NormalFunction(ucell address, DebugInfo *debug_info) 
 	: address_(address), name_()
@@ -48,4 +48,4 @@ Function *NormalFunction::Clone() const {
 	return new NormalFunction(*this);
 }
 
-} // namespace samp_profiler
+} // namespace amx_profiler

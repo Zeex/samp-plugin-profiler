@@ -31,12 +31,12 @@
 namespace {
 
 int AMXAPI Debug(AMX *amx) {
-	return samp_profiler::Profiler::Get(amx)->Debug();
+	return amx_profiler::Profiler::Get(amx)->Debug();
 }
 
 } // anonymous namespace
 
-namespace samp_profiler {
+namespace amx_profiler {
 
 // statics
 std::map<AMX*, Profiler*> Profiler::instances_;
@@ -222,4 +222,4 @@ void Profiler::LeaveFunction(const Function *fn) {
 	}
 }
 
-} // namespace samp_profiler
+} // namespace amx_profiler
