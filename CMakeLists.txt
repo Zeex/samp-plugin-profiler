@@ -37,7 +37,6 @@ add_library(profiler MODULE
 	lib/amxplugin.cpp
 	lib/plugin.h
 	lib/plugincommon.h
-	src/abstract_printer.h
 	src/amx_name.cpp
 	src/amx_name.h
 	src/call_stack.cpp
@@ -63,6 +62,7 @@ add_library(profiler MODULE
 	src/normal_function.h
 	src/plugin.cpp
 	src/plugin.rc
+	src/printer.h
 	src/profiler.cpp
 	src/profiler.h
 	src/public_function.cpp

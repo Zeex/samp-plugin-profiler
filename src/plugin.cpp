@@ -275,7 +275,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 		boost::algorithm::to_lower(format);
 
 		std::string filename = amx_name + "-profile";
-		samp_profiler::AbstractPrinter *printer = 0;
+		samp_profiler::Printer *printer = 0;
 
 		if (format == "html") {			
 			filename += ".html";
