@@ -81,9 +81,13 @@ target_link_Libraries(profiler ${Boost_LIBRARIES})
 
 if(UNIX OR MINGW)
 	set_property(TARGET profiler APPEND_STRING PROPERTY 
-		COMPILE_FLAGS "-m32 -Wno-attributes -include stddef.h")
+		COMPILE_FLAGS " -m32 -Wno-attributes -include stddef.h")
 	set_property(TARGET profiler APPEND_STRING PROPERTY 
-		LINK_FLAGS "-m32 -Wl,--no-undefined -lrt")
+		LINK_FLAGS " -m32 -Wl,--no-undefined")
+	if(UNIX)
+		set_property(TARGET profiler APPEND_STRING PROPERTY 
+			LINK_FLAGS " -lrt")
+	endif()
 endif()
 
 if(UNIX AND NOT WIN32)
@@ -94,10 +98,12 @@ if(WIN32)
 	add_definitions(-DWIN32 -D_WIN32)
 	set(def_file "${profiler_SOURCE_DIR}/src/plugin.def")
 	if(MSVC)
-		set_property(TARGET profiler APPEND_STRING PROPERTY LINK_FLAGS "/DEF:${def_file}")
+		set_property(TARGET profiler APPEND_STRING PROPERTY 
+			LINK_FLAGS " /DEF:${def_file}")
 		add_definitions(-D_CRT_SECURE_NO_WARNINGS)  
 	elseif(MINGW)
-		set_property(TARGET profiler APPEND_STRING PROPERTY LINK_FLAGS "-Wl,--kill-at --def ${def_file}")
+		set_property(TARGET profiler APPEND_STRING PROPERTY 
+			LINK_FLAGS " -Wl,--kill-at --def ${def_file}")
 	endif()
 endif()
 
