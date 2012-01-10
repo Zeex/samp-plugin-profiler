@@ -19,11 +19,11 @@
 
 #include <string>
 
-#include "abstract_printer.h"
+#include "printer.h"
 
 namespace samp_profiler {
 
-class TextPrinter : public AbstractPrinter {
+class TextPrinter : public Printer {
 public:
 	static const int kTypeWidth = 15;
 	static const int kNameWidth = 32;
