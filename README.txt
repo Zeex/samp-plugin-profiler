@@ -1,9 +1,8 @@
-************************************
-Profiler plugin for the SA:MP server
-************************************
+********************************
+Profiler plugin for SA-MP server
+********************************
 
-Copyright (c) 2011 Zeex.
-See LICENSE.txt for license details.
+Copyright (c) 2011 Sergey "Zeex" Zolotarev
 
 Source code can be obtained here:
 	https://github.com/Zeex/profiler
@@ -15,7 +14,7 @@ Latest binaries can be downloaded from:
 Plugin configuration
 --------------------
 
-You can configure profiler via server.cfg, by changing the following options:
+You can configure profiler via `server.cfg`, by changing the following options:
 
 * profile_gamemode <0|1>
 
@@ -28,5 +27,5 @@ You can configure profiler via server.cfg, by changing the following options:
 * profile_format <xml|html|text>
 
   Set statistics output format. Default is html.
-  Note for html: it is possible to sort stats by clicking on column names!
+  Note for HTML: it is possible to sort stats by clicking on column names!!
 

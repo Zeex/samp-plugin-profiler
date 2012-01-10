@@ -1,6 +1,6 @@
-// SA:MP Profiler plugin
+// AMX profiler for SA-MP server: http://sa-mp.com
 //
-// Copyright (c) 2011 Zeex
+// Copyright (C) 2011 Sergey Zolotarev
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
