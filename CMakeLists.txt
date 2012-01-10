@@ -132,7 +132,6 @@ file(WRITE "src/version.h"
 message(STATUS "You're going to build Profiler v${version}")
 
 install(TARGETS profiler LIBRARY DESTINATION ".")
-install(FILES "README.md" DESTINATION ".")
 
 set(CPACK_PACKAGE_NAME ${CMAKE_PROJECT_NAME})
 if(WIN32)
