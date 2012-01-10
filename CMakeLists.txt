@@ -19,60 +19,60 @@ check_header(inttypes.h)
 check_header(malloc.h)
 check_header(stdint.h)
 
-include_directories("lib") 
-include_directories("lib/amx")
+include_directories("src") 
+include_directories("src/amx")
 include_directories(${Boost_INCLUDE_DIRS})
 
 link_directories(${Boost_LIBRARY_DIRS})
 
 add_library(profiler MODULE
-	lib/amx/amx.h
-	lib/amx/amxaux.c
-	lib/amx/amxaux.h
-	lib/amx/amxdbg.c
-	lib/amx/amxdbg.h
-	lib/amx/getch.h
-	lib/amx/osdefs.h
-	lib/amx/sclinux.h
-	lib/amxplugin.cpp
-	lib/plugin.h
-	lib/plugincommon.h
-	src/amx_name.cpp
-	src/amx_name.h
-	src/call_stack.cpp
-	src/call_stack.h
-	src/config_reader.cpp
-	src/config_reader.h
-	src/cloneable.h
-	src/debug_info.cpp
-	src/debug_info.h
-	src/function.cpp
-	src/function.h
-	src/function_call.cpp
-	src/function_call.h
-	src/function_profile.cpp
-	src/function_profile.h
-	src/html_printer.cpp
-	src/html_printer.h
-	src/jump_x86.cpp
-	src/jump_x86.h
-	src/native_function.cpp
-	src/native_function.h
-	src/normal_function.cpp
-	src/normal_function.h
+	src/samp_profiler/amx_name.cpp
+	src/samp_profiler/amx_name.h
+	src/samp_profiler/call_stack.cpp
+	src/samp_profiler/call_stack.h
+	src/samp_profiler/config_reader.cpp
+	src/samp_profiler/config_reader.h
+	src/samp_profiler/cloneable.h
+	src/samp_profiler/debug_info.cpp
+	src/samp_profiler/debug_info.h
+	src/samp_profiler/function.cpp
+	src/samp_profiler/function.h
+	src/samp_profiler/function_call.cpp
+	src/samp_profiler/function_call.h
+	src/samp_profiler/function_profile.cpp
+	src/samp_profiler/function_profile.h
+	src/samp_profiler/html_printer.cpp
+	src/samp_profiler/html_printer.h
+	src/samp_profiler/jump_x86.cpp
+	src/samp_profiler/jump_x86.h
+	src/samp_profiler/native_function.cpp
+	src/samp_profiler/native_function.h
+	src/samp_profiler/normal_function.cpp
+	src/samp_profiler/normal_function.h
+	src/samp_profiler/printer.h
+	src/samp_profiler/profiler.cpp
+	src/samp_profiler/profiler.h
+	src/samp_profiler/public_function.cpp
+	src/samp_profiler/public_function.h
+	src/samp_profiler/text_printer.cpp
+	src/samp_profiler/text_printer.h
+	src/samp_profiler/timer.cpp
+	src/samp_profiler/timer.h
+	src/samp_profiler/xml_printer.cpp
+	src/samp_profiler/xml_printer.h
+	src/amx/amx.h
+	src/amx/amxaux.c
+	src/amx/amxaux.h
+	src/amx/amxdbg.c
+	src/amx/amxdbg.h
+	src/amx/getch.h
+	src/amx/osdefs.h
+	src/amx/sclinux.h
+	src/amxplugin.cpp
+	src/plugin.h
+	src/plugincommon.h
 	src/plugin.cpp
 	src/plugin.rc
-	src/printer.h
-	src/profiler.cpp
-	src/profiler.h
-	src/public_function.cpp
-	src/public_function.h
-	src/text_printer.cpp
-	src/text_printer.h
-	src/timer.cpp
-	src/timer.h
-	src/xml_printer.cpp
-	src/xml_printer.h
 )
 
 set_property(TARGET profiler PROPERTY PREFIX "")
