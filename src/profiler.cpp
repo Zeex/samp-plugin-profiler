@@ -60,7 +60,7 @@ Profiler::Profiler() {
 Profiler::~Profiler() {
 	for (Functions::const_iterator iterator = functions_.begin(); 
 			iterator != functions_.end(); ++iterator) {
-		//delete iterator->first;
+		delete iterator->first;
 	}
 }
 
