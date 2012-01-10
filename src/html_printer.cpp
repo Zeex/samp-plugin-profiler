@@ -19,12 +19,16 @@
 
 #include <boost/date_time.hpp>
 
+#include "function.h"
+#include "function_profile.h"
 #include "html_printer.h"
-#include "profile.h"
+#include "timer.h"
 
 namespace samp_profiler {
 
-void HtmlPrinter::Print(const std::string &script_name, std::ostream &stream, Profile &profile) {
+void HtmlPrinter::Print(const std::string &script_name, std::ostream &stream, 
+		const std::vector<FunctionProfile> &stats) 
+{
 	stream << 
 	"<html>\n"
 	"<head>\n"
@@ -49,26 +53,26 @@ void HtmlPrinter::Print(const std::string &script_name, std::ostream &stream, Pr
 	"		<tbody>\n"
 	;
 
-	ProfileEntry::Time time_all = 0;
-	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
-		time_all += it->self_time() - it->child_time();
+	Timer::TimeType time_all = 0;
+	for (std::vector<FunctionProfile>::const_iterator it = stats.begin(); it != stats.end(); ++it) {
+		time_all += it->total_time() - it->child_time();
 	}    
 
-	ProfileEntry::Time total_time_all = 0;
-	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
-		total_time_all += it->self_time();
+	Timer::TimeType total_time_all = 0;
+	for (std::vector<FunctionProfile>::const_iterator it = stats.begin(); it != stats.end(); ++it) {
+		total_time_all += it->total_time();
 	}
 
-	for (Profile::const_iterator it = profile.begin(); it != profile.end(); ++it) {
+	for (std::vector<FunctionProfile>::const_iterator it = stats.begin(); it != stats.end(); ++it) {
 		stream 
 		<< "		<tr>\n"
-		<< "			<td>" << it->function_type() << "</td>\n"
-		<< "			<td>" << it->function_name() << "</td>\n"
+		<< "			<td>" << it->function()->type() << "</td>\n"
+		<< "			<td>" << it->function()->name() << "</td>\n"
 		<< "			<td>" << it->num_calls() << "</td>\n"
 		<< "			<td>" << std::fixed << std::setprecision(2) 
-			<< static_cast<double>((it->self_time() - it->child_time()) * 100) / time_all << "</td>\n"
+			<< static_cast<double>((it->total_time() - it->child_time()) * 100) / time_all << "</td>\n"
 		<< "			<td>" << std::fixed << std::setprecision(2) 
-			<< static_cast<double>(it->self_time() * 100) / total_time_all << "</td>\n"
+			<< static_cast<double>(it->total_time() * 100) / total_time_all << "</td>\n"
 		<< "		</tr>\n";
 	}
 

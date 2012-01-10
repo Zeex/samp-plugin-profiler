@@ -16,71 +16,24 @@
 
 #include <cassert>
 
+#include <boost/lexical_cast.hpp>
+
+#include "debug_info.h"
 #include "function.h"
+#include "function_runtime_info.h"
 
 namespace samp_profiler {
 
-Function::Function(Type type, Handle handle) 
-	: type_(type)
-	, handle_(handle)
-	, self_time_(0)
-	, child_time_(0)
-	, num_calls_(0)
+Function::Function(AMX *amx)
+	: amx_(amx)
 {
 }
 
-// static
-Function Function::Native(cell index) {
-	Handle handle;
-	handle.index = index;
-	return Function(NATIVE, handle);
+Function::~Function() {
 }
 
-// static
-Function Function::Public(cell index) {
-	Handle handle;
-	handle.index = index;
-	return Function(PUBLIC, handle);
-}
-
-// static
-Function Function::Normal(ucell address) {
-	Handle handle;
-	handle.address = address;
-	return Function(NORMAL, handle);
-}
-
-bool Function::operator<(const Function &that) const {
-	if (this->type() == that.type()) {
-		switch (type_) {
-		case NATIVE:
-		case PUBLIC:
-			return this->handle_.index < that.handle_.index;
-		case NORMAL:
-			return this->handle_.address < that.handle_.address;
-		default:
-			assert(0 && "Unknown function type");
-			return false; // never reached
-		}
-	} else {
-		return this->type() < that.type();
-	}
-}
-
-bool Function::operator==(const Function &that) const {
-	if (this->type_ != that.type_) {
-		return false;
-	}
-	switch (type_) {
-	case NATIVE:
-	case PUBLIC:
-		return this->handle_.index == that.handle_.index;
-	case NORMAL:
-		return this->handle_.address == that.handle_.address;
-	default:
-		assert(0 && "Unknown function type");
-		return false; // never reached
-	}
+AMX *Function::amx() const {
+	return amx_;
 }
 
 } // namespace samp_profiler

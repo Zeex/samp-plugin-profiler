@@ -54,9 +54,6 @@ extern void *pAMXFunctions;
 // For logging
 static logprintf_t logprintf;
 
-// Symbolic info, used for getting function names
-static std::map<AMX*, samp_profiler::DebugInfo> debug_infos;
-
 // Contains currently loaded AMX scripts
 static std::list<AMX*> loaded_scripts;
 
@@ -243,12 +240,11 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 
 	if (profiler_enabled || WantsProfiler(filename)) {
 		if (samp_profiler::DebugInfo::HasDebugInfo(amx)) {
-			samp_profiler::DebugInfo debugInfo;
-			debugInfo.Load(filename);
-			if (debugInfo.IsLoaded()) {
-				logprintf("[profiler]: Loaded debug info from '%s'", filename.c_str());
-				::debug_infos[amx] = debugInfo;				
-				samp_profiler::Profiler::Attach(amx, debugInfo); 
+			samp_profiler::DebugInfo debug_info;
+			debug_info.Load(filename);
+			if (debug_info.IsLoaded()) {
+				logprintf("[profiler]: Loaded debug info from '%s'", filename.c_str());			
+				samp_profiler::Profiler::Attach(amx, debug_info); 
 				logprintf("[profiler]: Attached profiler to '%s'", filename.c_str());
 				return AMX_ERR_NONE;
 			} else {
@@ -301,13 +297,6 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 		}
 
 		samp_profiler::Profiler::Detach(amx);
-	}
-
-	// Free debug info
-	std::map<AMX*, samp_profiler::DebugInfo>::iterator it = ::debug_infos.find(amx);
-	if (it != ::debug_infos.end()) {
-		it->second.Free();
-		::debug_infos.erase(it);
 	}
 
 	return AMX_ERR_NONE;

@@ -14,74 +14,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SAMP_PROFILER_FUNCTION_H
-#define SAMP_PROFILER_FUNCTION_H
+#ifndef SAMP_PROFILER_FUNCTION_FUNCTION_H
+#define SAMP_PROFILER_FUNCTION_FUNCTION_H
 
-#include "timer.h"
+#include <string>
+#include <boost/shared_ptr.hpp>
+
+#include "cloneable.h"
 #include "amx/amx.h"
 
 namespace samp_profiler {
 
-class Function {
+class Function : public Cloneable<Function> {
 public:
-	enum Type {
-		NATIVE,
-		PUBLIC,
-		NORMAL
-	};
+	friend class Profiler;
 
-	union Handle {
-		ucell address;
-		cell  index;
-	};
+	Function(AMX *amx);
+	virtual ~Function();
 
-	typedef Timer::TimeType TimeType;
+	AMX *amx() const;
 
-	Function(Type type, Handle handle);
-
-	static Function Native(cell index);
-	static Function Public(cell index);
-	static Function Normal(ucell address);
-
-	Type type() const
-		{ return type_; }
-	ucell address() const
-		{ return handle_.address; }
-	cell index() const 
-		{ return handle_.index; }
-	TimeType self_time() const 
-		{ return self_time_; }
-	TimeType child_time() const 
-		{ return child_time_; }
-	long num_calls() const
-		{ return num_calls_; }
-
-	void IncreaseCalls() const {
-		++num_calls_; 
-	}
-
-	void AdjustSelfTime(TimeType time) const { 
-		self_time_ += time; 
-	}
-
-	void AdjustChildTime(TimeType child_time) const { 
-		child_time_ += child_time; 
-	}
-
-	bool operator<(const Function &that) const;
-	bool operator==(const Function &that) const;
+	virtual std::string name() const = 0;
+	virtual std::string type() const = 0;
+	
+	virtual int Compare(const Function *other) const = 0;	
 
 private:
-	Function();
-
-	Type type_;
-	Handle handle_;
-
-	mutable TimeType self_time_;
-	mutable TimeType child_time_;
-	mutable long num_calls_;
+	AMX *amx_;
 };
 
 } // namespace samp_profiler
 
-#endif // !SAMP_PROFILER_FUNCTION_H
+#endif // !SAMP_PROFILER_FUNCTION_FUNCTION_H

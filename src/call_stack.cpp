@@ -15,23 +15,26 @@
 // limitations under the License.
 
 #include "call_stack.h"
+#include "function_profile.h"
+#include "function_runtime_info.h"
 
 namespace samp_profiler {
 
-void CallStack::Push(const Function &function, cell frame) { 
-	Push(CallInfo(function, frame));
+void CallStack::Push(Function *function, ucell frame, bool recursive) { 
+	Push(FunctionCall(function, frame, recursive));
 }
 
-void CallStack::Push(const CallInfo &info) { 
-	calls_.push(info); 
+void CallStack::Push(const FunctionCall &call) { 
+	calls_.push(call); 
 	calls_.top().timer().Start();
 }
 
-CallInfo CallStack::Pop() {
-	calls_.top().timer().Stop();
-	CallInfo top(calls_.top());
+FunctionCall CallStack::Pop() {
+	FunctionCall &top = calls_.top();
+	top.timer().Stop();
+	FunctionCall top_copy(top);
 	calls_.pop();
-	return top;
+	return top_copy;
 }
 
 } // namespace samp_profiler
