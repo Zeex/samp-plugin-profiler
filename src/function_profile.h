@@ -29,6 +29,7 @@ public:
 
 	explicit FunctionProfile(Function *f);
 
+	Function *function();
 	const Function *function() const;
 
 	long &num_calls();
@@ -39,8 +40,6 @@ public:
 
 	Timer::TimeType &child_time();
 	const Timer::TimeType &child_time() const;
-
-	FunctionProfile &operator+=(const FunctionProfile &that);
 
 private:
 	Function *func_;

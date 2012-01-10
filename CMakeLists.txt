@@ -53,8 +53,6 @@ add_library(profiler MODULE
 	src/function_call.h
 	src/function_profile.cpp
 	src/function_profile.h
-	src/function_runtime_info.cpp
-	src/function_runtime_info.h
 	src/html_printer.cpp
 	src/html_printer.h
 	src/jump_x86.cpp

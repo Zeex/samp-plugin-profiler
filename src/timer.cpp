@@ -20,8 +20,9 @@
 
 namespace samp_profiler {
 
-Timer::Timer() 
+Timer::Timer(Timer *parent) 
 	: started_(false)
+	, parent_(parent)
 {
 }
 
@@ -38,9 +39,18 @@ void Timer::Start() {
 
 void Timer::Stop() {
 	if (started_) {
-		total_time_+= ClockType::now() - start_point_;
+		ClockType::duration interval = ClockType::now() - start_point_;
+		total_time_+= interval;
+		if (parent_ != 0) {
+			parent_->child_time_ += interval;
+		}
 		started_ = false;
 	} 
+}
+
+Timer::TimeType Timer::child_time() const {
+	using namespace boost::chrono;
+	return duration_cast<microseconds>(child_time_).count();
 }
 
 Timer::TimeType Timer::total_time() const {

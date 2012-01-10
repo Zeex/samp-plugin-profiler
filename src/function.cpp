@@ -20,7 +20,6 @@
 
 #include "debug_info.h"
 #include "function.h"
-#include "function_runtime_info.h"
 
 namespace samp_profiler {
 

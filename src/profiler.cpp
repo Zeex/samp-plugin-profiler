@@ -27,7 +27,6 @@
 #include "abstract_printer.h"
 #include "function.h"
 #include "function_profile.h"
-#include "function_runtime_info.h"
 #include "native_function.h"
 #include "normal_function.h"
 #include "profiler.h"
@@ -149,7 +148,7 @@ void Profiler::PrintStats(const std::string &script_name, std::ostream &stream, 
 	std::vector<FunctionProfile> stats;
 	for (Functions::const_iterator iterator = functions_.begin(); 
 			iterator != functions_.end(); ++iterator) {
-		stats.push_back(iterator->second.profile());
+		stats.push_back(iterator->second);
 	}
 	printer->Print(script_name, stream, stats);
 }
@@ -209,16 +208,11 @@ void Profiler::EnterFunction(const Function *fn, ucell frame) {
 	Functions::iterator iterator = functions_.find(const_cast<Function*>(fn));
 	if (iterator == functions_.end()) {	
 		Function *new_fn = fn->Clone();
-		functions_.insert(std::make_pair(new_fn, FunctionRuntimeInfo(new_fn)));
-		call_stack_.Push(new_fn, frame, false);
+		functions_.insert(std::make_pair(new_fn, FunctionProfile(new_fn)));
+		call_stack_.Push(new_fn, frame);
 	} else {
-		iterator->second.profile().num_calls()++;
-		if (iterator->second.running()) {
-			call_stack_.Push(iterator->second.function(), frame, true);
-		} else {
-			iterator->second.set_running(true);
-			call_stack_.Push(iterator->second.function(), frame, false);
-		}
+		iterator->second.num_calls()++;
+		call_stack_.Push(iterator->second.function(), frame);
 	}
 }
 
@@ -227,18 +221,15 @@ void Profiler::LeaveFunction(const Function *fn) {
 	while (true) {
 		FunctionCall current = call_stack_.Pop();
 		Functions::iterator current_it = functions_.find(current.function());
-		if (current.IsRecursive()) {
-			current_it->second.profile().total_time() += current.GetExecutionTime();
+		if (current.IsRecursive()) {			
+			//current_it->second.total_time() += current.timer().child_time();
+			current_it->second.child_time() -= current.timer().child_time();
 		} else {
-			current_it->second.profile().total_time() += current.GetExecutionTime();
+			current_it->second.total_time() += current.timer().total_time();
 		}	
 		if (!call_stack_.IsEmpty()) {
 			FunctionCall &top = call_stack_.GetTop();
-			Functions::iterator top_fn_iterator = functions_.find(top.function());
-			top_fn_iterator->second.profile().child_time() += current.GetExecutionTime();
-		}
-		if (!current.IsRecursive()) {
-			current_it->second.set_running(false);
+			functions_.find(top.function())->second.child_time() += current.timer().total_time();
 		}
 		if (fn == 0 || (current.function()->type() == fn->type() 
 		                && current.function()->Compare(fn) == 0)) {

@@ -16,12 +16,11 @@
 
 #include "call_stack.h"
 #include "function_profile.h"
-#include "function_runtime_info.h"
 
 namespace samp_profiler {
 
-void CallStack::Push(Function *function, ucell frame, bool recursive) { 
-	Push(FunctionCall(function, frame, recursive));
+void CallStack::Push(Function *function, ucell frame) { 
+	Push(FunctionCall(function, frame, calls_.empty() ? 0 : &calls_.top()));
 }
 
 void CallStack::Push(const FunctionCall &call) { 
