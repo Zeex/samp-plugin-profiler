@@ -49,7 +49,7 @@ The output consists of a table with these data:
 
 *	Total Time
 
-	This Self Time + Total Time of function's callees.
+	This is Self Time + Total Time of all callees.
 
 License
 -------
