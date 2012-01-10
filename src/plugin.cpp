@@ -47,27 +47,21 @@
 
 typedef void (*logprintf_t)(const char *format, ...);
 
-// AMX API functons array
 extern void *pAMXFunctions; 
 
-// For logging
 static logprintf_t logprintf;
 
-// Contains currently loaded AMX scripts
 static std::list<AMX*> loaded_scripts;
 
-// Hooks
 static samp_profiler::JumpX86 ExecHook;
 static samp_profiler::JumpX86 CallbackHook;
 
 static int AMXAPI Exec(AMX *amx, cell *retval, int index) {
 	ExecHook.Remove();		
-	CallbackHook.Install(); // P-code may call natives 
+	CallbackHook.Install(); 
 
-	// Return code
 	int error = AMX_ERR_NONE;
 
-	// Check if this script has a profiler attached to it
 	samp_profiler::Profiler *prof = samp_profiler::Profiler::Get(amx);
 	if (prof != 0) {
 		error =  prof->Exec(retval, index);
@@ -83,16 +77,12 @@ static int AMXAPI Exec(AMX *amx, cell *retval, int index) {
 
 static int AMXAPI Callback(AMX *amx, cell index, cell *result, cell *params) {
 	CallbackHook.Remove();		
-	ExecHook.Install(); // Natives may call amx_Exec() 
+	ExecHook.Install(); 
 
-	// The default AMX callback (amx_Callback) can replace SYSREQ.C opcodes
-	// with SYSREQ.D for better performance. 
 	amx->sysreq_d = 0; 
 
-	// Return code
 	int error = AMX_ERR_NONE;
 
-	// Check if this script has a profiler attached to it
 	samp_profiler::Profiler *prof = samp_profiler::Profiler::Get(amx);
 	if (prof != 0) {
 		error =  prof->Callback(index, result, params);
@@ -106,19 +96,18 @@ static int AMXAPI Callback(AMX *amx, cell index, cell *result, cell *params) {
 	return error;
 }
 
-// Replaces back slashes with forward slashes
-static std::string ToNormalPath(const std::string &path) {
+static std::string ToUnixPath(const std::string &path) {
 	std::string fsPath = path;
 	std::replace(fsPath.begin(), fsPath.end(), '\\', '/');   
 	return fsPath;
 }
 
 static bool IsGameMode(const std::string &amxName) {
-	return ToNormalPath(amxName).find("gamemodes/") != std::string::npos;
+	return ToUnixPath(amxName).find("gamemodes/") != std::string::npos;
 }
 
 static bool IsFilterScript(const std::string &amxName) {
-	return ToNormalPath(amxName).find("filterscripts/") != std::string::npos;
+	return ToUnixPath(amxName).find("filterscripts/") != std::string::npos;
 }
 
 static bool GetPublicVariable(AMX *amx, const char *name, cell &value) {
@@ -132,13 +121,11 @@ static bool GetPublicVariable(AMX *amx, const char *name, cell &value) {
 	return false;
 }
 
-// Returns true if the .amx should be profiled
 static bool WantsProfiler(const std::string &amxName) {
-	std::string goodAmxName = ToNormalPath(amxName);
+	std::string goodAmxName = ToUnixPath(amxName);
 
 	samp_profiler::ConfigReader server_cfg("server.cfg");
 	if (IsGameMode(amxName)) {
-		// This is a gamemode
 		if (server_cfg.GetOption("profile_gamemode", false)) {
 			return true;
 		}
@@ -160,23 +147,19 @@ static bool WantsProfiler(const std::string &amxName) {
 
 #ifdef _WIN32
 
-	PLUGIN_EXPORT void PLUGIN_CALL Unload();
-	PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx);
+PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx);
 
-	// Manually call Unload and AmxUnload on Ctrl+Break 
-	// and server window close event.
-	static BOOL WINAPI ConsoleCtrlHandler(DWORD dwCtrlType) {
-		switch (dwCtrlType) {
-		case CTRL_CLOSE_EVENT:
-		case CTRL_BREAK_EVENT:
-			for (std::list<AMX*>::const_iterator iterator = ::loaded_scripts.begin();
-					iterator != ::loaded_scripts.end(); ++iterator) {
-				AmxUnload(*iterator);
-			}
-			Unload();
+static BOOL WINAPI ConsoleCtrlHandler(DWORD dwCtrlType) {
+	switch (dwCtrlType) {
+	case CTRL_CLOSE_EVENT:
+	case CTRL_BREAK_EVENT:
+		for (std::list<AMX*>::const_iterator iterator = ::loaded_scripts.begin();
+				iterator != ::loaded_scripts.end(); ++iterator) {
+			AmxUnload(*iterator);
 		}
-		return FALSE;
 	}
+	return FALSE;
+}
 
 #endif
 
@@ -184,18 +167,15 @@ PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports() {
 	return SUPPORTS_VERSION | SUPPORTS_AMX_NATIVES;
 }
 
-// x86 is Little Endian...
 static void *AMXAPI my_amx_Align(void *v) { return v; }
 
 PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
 	pAMXFunctions = ppData[PLUGIN_DATA_AMX_EXPORTS];
 	logprintf = (logprintf_t)ppData[PLUGIN_DATA_LOGPRINTF];
 
-	// The server does not export amx_Align* for some reason.
-	// They are used in amxdbg.c and amxaux.c, so they must be callable.
-	((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Align16] = (void*)my_amx_Align; // amx_Align16
-	((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Align32] = (void*)my_amx_Align; // amx_Align32
-	((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Align64] = (void*)my_amx_Align; // amx_Align64
+	((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Align16] = (void*)my_amx_Align;
+	((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Align32] = (void*)my_amx_Align;
+	((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Align64] = (void*)my_amx_Align;
 
 	ExecHook.Install(
 		((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Exec], 
@@ -211,10 +191,6 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
 	logprintf("  Profiler v"PROFILER_VERSION" is OK.");
 
 	return true;
-}
-
-PLUGIN_EXPORT void PLUGIN_CALL Unload() {
-	// nothing
 }
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
@@ -258,15 +234,12 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 }
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
-	// Get an instance of Profiler attached to the unloading AMX
 	samp_profiler::Profiler *prof = samp_profiler::Profiler::Get(amx);
 
-	// Detach profiler
 	if (prof != 0) {
-		std::string amx_path = samp_profiler::GetAmxName(amx); // must be in cache
+		std::string amx_path = samp_profiler::GetAmxName(amx); 
 		std::string amx_name = std::string(amx_path, 0, amx_path.find_last_of("."));
 
-		// Output stats depending on currently set output_format
 		samp_profiler::ConfigReader server_cfg("server.cfg");
 
 		std::string format = 
