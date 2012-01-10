@@ -23,7 +23,7 @@
  *  Version: $Id: amxdbg.c 3363 2005-07-23 09:03:29Z thiadmer $
  */
 
-/* Edited by Zeex on 2011-06-18
+/* Edited by Zeex on 2011-2012-06-18
  * Changes:
  *  - stupid fix for dbg_LookupFunction which worked incorrectly 
  *    because of some bug(?) in compiler
