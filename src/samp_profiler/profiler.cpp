@@ -211,7 +211,6 @@ void Profiler::LeaveFunction(const Function *fn) {
 		FunctionCall current = call_stack_.Pop();
 		Functions::iterator current_it = functions_.find(current.function());
 		if (current.IsRecursive()) {			
-			//current_it->second.total_time() += current.timer().child_time();
 			current_it->second.child_time() -= current.timer().child_time();
 		} else {
 			current_it->second.total_time() += current.timer().total_time();
