@@ -38,9 +38,6 @@ void HtmlPrinter::Print(const std::string &script_name, std::ostream &stream,
 	"	<h1>\n" << 
 	"		Profile of '" << script_name << "'\n"
 	"	</h1>\n"
-	"	<h2>\n"
-	"		Generated on " << boost::posix_time::second_clock::local_time() << "\n"
-	"	</h2>\n"
 	"	<table id=\"stats\" class=\"tablesorter\" border=\"1\" width=\"100%\">\n"
 	"		<thead>\n"
 	"			<tr>\n"
@@ -86,6 +83,10 @@ void HtmlPrinter::Print(const std::string &script_name, std::ostream &stream,
 	;
 
 	stream <<
+	"	<br/>"
+	"	<footer>\n"
+	"		Generated on " << boost::posix_time::second_clock::local_time() << "\n"
+	"	</footer>\n"
 	"	<script type=\"text/javascript\"\n"
 	"		src=\"http://code.jquery.com/jquery-latest.min.js\"></script>\n"
 	"	<script type=\"text/javascript\"\n"
