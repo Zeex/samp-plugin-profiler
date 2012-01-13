@@ -45,16 +45,36 @@
 #include "plugin.h"
 #include "version.h"
 
+using namespace amx_profiler;
+
 typedef void (*logprintf_t)(const char *format, ...);
 
 extern void *pAMXFunctions;
 
 static logprintf_t logprintf;
 
+// List of loaded scripts, need this to fix AmxUnload bug on Windows
 static std::list<AMX*> loaded_scripts;
+
+// Stores previously set debug hooks (if any)
+static std::map<AMX*, AMX_DEBUG> old_debug_hooks;
 
 static JumpX86 ExecHook;
 static JumpX86 CallbackHook;
+
+static int AMXAPI Debug(AMX *amx) {
+	Profiler *prof = Profiler::GetInstance(amx);
+	if (prof != 0) {
+		prof->AmxDebugHook();
+	}
+	std::map<AMX*, AMX_DEBUG>::iterator iterator = old_debug_hooks.find(amx); 
+	if (iterator != old_debug_hooks.end()) {
+		if (iterator->second != 0) {
+			return (iterator->second)(amx);
+		}
+	}
+	return AMX_ERR_NONE;
+}
 
 static int AMXAPI Exec(AMX *amx, cell *retval, int index) {
 	ExecHook.Remove();
@@ -62,9 +82,9 @@ static int AMXAPI Exec(AMX *amx, cell *retval, int index) {
 
 	int error = AMX_ERR_NONE;
 
-	amx_profiler::Profiler *prof = amx_profiler::Profiler::Get(amx);
+	Profiler *prof = Profiler::GetInstance(amx);
 	if (prof != 0) {
-		error =  prof->Exec(retval, index);
+		error =  prof->AmxExecHook(retval, index);
 	} else {
 		error = amx_Exec(amx, retval, index);
 	}
@@ -83,9 +103,9 @@ static int AMXAPI Callback(AMX *amx, cell index, cell *result, cell *params) {
 
 	int error = AMX_ERR_NONE;
 
-	amx_profiler::Profiler *prof = amx_profiler::Profiler::Get(amx);
+	Profiler *prof = Profiler::GetInstance(amx);
 	if (prof != 0) {
-		error =  prof->Callback(index, result, params);
+		error =  prof->AmxCallbackHook(index, result, params);
 	} else {
 		error = amx_Callback(amx, index, result, params);
 	}
@@ -202,7 +222,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 		return AMX_ERR_NONE;
 	}
 
-	if (!amx_profiler::Profiler::IsScriptProfilable(amx)) {
+	if (!IsAmxProfilable(amx)) {
 		logprintf("[profiler]: Can't profile '%s' (are you using -d0?)", filename.c_str());
 		return AMX_ERR_NONE;
 	}
@@ -214,19 +234,21 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 	}
 
 	if (profiler_enabled || WantsProfiler(filename)) {
-		if (amx_profiler::DebugInfo::HasDebugInfo(amx)) {
-			amx_profiler::DebugInfo debug_info;
+		old_debug_hooks[amx] = amx->debug;
+		amx_SetDebugHook(amx, ::Debug);
+		if (DebugInfo::HasDebugInfo(amx)) {
+			DebugInfo debug_info;
 			debug_info.Load(filename);
 			if (debug_info.IsLoaded()) {
 				logprintf("[profiler]: Loaded debug info from '%s'", filename.c_str());
-				amx_profiler::Profiler::Attach(amx, debug_info);
+				Profiler::Attach(amx, debug_info);
 				logprintf("[profiler]: Attached profiler to '%s'", filename.c_str());
 				return AMX_ERR_NONE;
 			} else {
 				logprintf("[profiler]: Error loading debug info from '%s'", filename.c_str());
 			}
 		}
-		amx_profiler::Profiler::Attach(amx);
+		Profiler::Attach(amx);
 		logprintf("[profiler]: Attached profiler to '%s' (no debug symbols)", filename.c_str());
 	}
 
@@ -234,7 +256,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 }
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
-	amx_profiler::Profiler *prof = amx_profiler::Profiler::Get(amx);
+	Profiler *prof = Profiler::GetInstance(amx);
 
 	if (prof != 0) {
 		std::string amx_path = GetAmxName(amx);
@@ -247,28 +269,28 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 		boost::algorithm::to_lower(format);
 
 		std::string filename = amx_name + "-profile";
-		amx_profiler::Printer *printer = 0;
+		Printer *printer = 0;
 
 		if (format == "html") {
 			filename += ".html";
-			printer = new amx_profiler::HtmlPrinter;
+			printer = new HtmlPrinter;
 		} else if (format == "text") {
 			filename += ".txt";
-			printer = new amx_profiler::TextPrinter;
+			printer = new TextPrinter;
 		} else if (format == "xml") {
 			filename += ".xml";
-			printer = new amx_profiler::XmlPrinter;
+			printer = new XmlPrinter;
 		} else {
 			logprintf("[profiler]: Unknown output format '%s'", format.c_str());
 		}
 
 		if (printer != 0) {
 			std::ofstream ostream(filename.c_str());
-			prof->PrintStats(amx_path, ostream, printer);
+			printer->Print(amx_path, ostream, prof->GetProfile());
 			delete printer;
 		}
 
-		amx_profiler::Profiler::Detach(amx);
+		Profiler::Detach(amx);
 	}
 
 	return AMX_ERR_NONE;
