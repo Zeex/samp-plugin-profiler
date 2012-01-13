@@ -42,19 +42,19 @@ const long &FunctionInfo::num_calls() const {
 	return num_calls_; 
 }
 
-PerformanceCounter::TimeType &FunctionInfo::total_time() { 
+TimeInterval &FunctionInfo::total_time() { 
 	return total_time_; 
 }
 
-const PerformanceCounter::TimeType &FunctionInfo::total_time() const { 
+const TimeInterval &FunctionInfo::total_time() const { 
 	return total_time_; 
 }
 
-PerformanceCounter::TimeType &FunctionInfo::child_time() { 
+TimeInterval &FunctionInfo::child_time() { 
 	return child_time_; 
 }
 
-const PerformanceCounter::TimeType &FunctionInfo::child_time() const { 
+const TimeInterval &FunctionInfo::child_time() const { 
 	return child_time_; 
 }
 

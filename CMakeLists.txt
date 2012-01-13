@@ -52,6 +52,7 @@ add_library(profiler MODULE
 	src/amx_profiler/text_profile_writer.h
 	src/amx_profiler/performance_counter.cpp
 	src/amx_profiler/performance_counter.h
+	src/amx_profiler/time_interval.h
 	src/amx_profiler/xml_profile_writer.cpp
 	src/amx_profiler/xml_profile_writer.h
 	src/amx/amx.h
