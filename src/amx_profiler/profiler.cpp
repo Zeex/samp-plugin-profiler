@@ -18,30 +18,23 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <boost/scoped_ptr.hpp>
 #include <amx/amx.h>
 #include "function.h"
 #include "function_profile.h"
 #include "native_function.h"
 #include "normal_function.h"
-#include "printer.h"
 #include "profiler.h"
 #include "public_function.h"
-
-namespace {
-
-int AMXAPI Debug(AMX *amx) {
-	return amx_profiler::Profiler::Get(amx)->Debug();
-}
-
-} // anonymous namespace
 
 namespace amx_profiler {
 
 // statics
 std::map<AMX*, Profiler*> Profiler::instances_;
 
-Profiler::Profiler() {
+Profiler::Profiler(AMX *amx, DebugInfo debug_info)
+	: amx_(amx)
+	, debug_info_(debug_info)
+{
 }
 
 Profiler::~Profiler() {
@@ -51,96 +44,39 @@ Profiler::~Profiler() {
 	}
 }
 
-bool Profiler::IsScriptProfilable(AMX *amx) {
-	uint16_t flags;
-	amx_Flags(amx, &flags);
-
-	if ((flags & AMX_FLAG_DEBUG) != 0) {
-		return true;
-	}
-
-	if ((flags & AMX_FLAG_NOCHECKS) == 0) {
-		return true;
-	}
-
-	return false;
-}
-
 // static
-void Profiler::Attach(AMX *amx) {
-	Profiler *prof = new Profiler(amx);
-	instances_[amx] = prof;
-	prof->Activate();
-}
-
-// static
-void Profiler::Attach(AMX *amx, const DebugInfo &debug_info) {
-	Attach(amx);
-	Get(amx)->SetDebugInfo(debug_info);
+void Profiler::Attach(AMX *amx, DebugInfo debug_info) {
+	instances_[amx] = new Profiler(amx, debug_info);
 }
 
 // static
 void Profiler::Detach(AMX *amx) {
-	Profiler *prof = Profiler::Get(amx);
+	Profiler *prof = Profiler::GetInstance(amx);
 	if (prof != 0) {
-		prof->Deactivate();
 		delete prof;
 	}
 	instances_.erase(amx);
 }
 
 // static
-Profiler *Profiler::Get(AMX *amx) {
-	std::map<AMX*, Profiler*>::iterator it = instances_.find(amx);
-	if (it != instances_.end()) {
-		return it->second;
+Profiler *Profiler::GetInstance(AMX *amx) {
+	std::map<AMX*, Profiler*>::iterator iterator = instances_.find(amx);
+	if (iterator != instances_.end()) {
+		return iterator->second;
 	}
 	return 0;
 }
 
-Profiler::Profiler(AMX *amx) 
-	: active_(false)
-	, amx_(amx)
-	, debug_(amx->debug)
-{
-}
-
-void Profiler::SetDebugInfo(const DebugInfo &info) {
-	debug_info_ = info;
-}
-
-void Profiler::Activate() {
-	if (!active_) {
-		active_ = true;
-		amx_SetDebugHook(amx_, ::Debug);
-	}
-}
-
-bool Profiler::IsActive() const {
-	return active_;
-}
-
-void Profiler::Deactivate() {
-	if (active_) {
-		active_ = false;
-		amx_SetDebugHook(amx_, debug_);
-	}
-}
-
-void Profiler::ResetStats() {
-	functions_.clear();
-}
-
-void Profiler::PrintStats(const std::string &script_name, std::ostream &stream, Printer *printer) const {
-	std::vector<const FunctionProfile*> stats;
+std::vector<const FunctionProfile*> Profiler::GetProfile() const {
+	std::vector<const FunctionProfile*> profile;
 	for (Functions::const_iterator iterator = functions_.begin(); 
 			iterator != functions_.end(); ++iterator) {
-		stats.push_back(&iterator->second);
+		profile.push_back(&iterator->second);
 	}
-	printer->Print(script_name, stream, stats);
+	return profile;
 }
 
-int Profiler::Debug() {
+int Profiler::AmxDebugHook() {
 	cell prevFrame = amx_->stp;
 	if (!call_stack_.IsEmpty()) {
 		prevFrame = call_stack_.GetTop().frame();
@@ -148,29 +84,26 @@ int Profiler::Debug() {
 	if (amx_->frm < prevFrame) {
 		cell address = amx_->cip - 2*sizeof(cell);   
 		if (call_stack_.GetTop().frame() != amx_->frm) {
-			boost::scoped_ptr<NormalFunction> fn(new NormalFunction(address, &debug_info_));
-			EnterFunction(fn.get(), amx_->frm);
+			NormalFunction fn(address, &debug_info_);
+			EnterFunction(&fn, amx_->frm);
 		}
 	} else if (amx_->frm > prevFrame) {
 		Function *fn = call_stack_.GetTop().function();
 		assert(fn->type() == "normal" && "Call stack messed up");
 		LeaveFunction(fn);
 	}
-	if (debug_ != 0) {
-		return debug_(amx_);
-	}   
 	return AMX_ERR_NONE;      
 }
 
-int Profiler::Callback(cell index, cell *result, cell *params) {
-	boost::scoped_ptr<NativeFunction> fn(new NativeFunction(amx_, index));
-	EnterFunction(fn.get(), amx_->frm);
+int Profiler::AmxCallbackHook(cell index, cell *result, cell *params) {
+	NativeFunction fn(amx_, index);
+	EnterFunction(&fn, amx_->frm);
 	int error = amx_Callback(amx_, index, result, params);
-	LeaveFunction(fn.get());
+	LeaveFunction(&fn);
 	return error;
 }
 
-int Profiler::Exec(cell *retval, int index) {	
+int Profiler::AmxExecHook(cell *retval, int index) {	
 	if (index >= 0 || index == AMX_EXEC_MAIN) {		
 		AMX_HEADER *hdr = reinterpret_cast<AMX_HEADER*>(amx_->base);
 		cell address = 0;
@@ -180,10 +113,10 @@ int Profiler::Exec(cell *retval, int index) {
 			AMX_FUNCSTUBNT *publics = reinterpret_cast<AMX_FUNCSTUBNT*>(amx_->base + hdr->publics);
 			address = publics[index].address;
 		}        
-		boost::scoped_ptr<PublicFunction> fn(new PublicFunction(amx_, index));
-		EnterFunction(fn.get(), amx_->stk - 3*sizeof(cell));
+		PublicFunction fn(amx_, index);
+		EnterFunction(&fn, amx_->stk - 3*sizeof(cell));
 		int error = amx_Exec(amx_, retval, index);
-		LeaveFunction(fn.get());
+		LeaveFunction(&fn);
 		return error;
 	} else {
 		return amx_Exec(amx_, retval, index);

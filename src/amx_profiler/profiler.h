@@ -32,42 +32,29 @@
 
 namespace amx_profiler {
 
-class Printer;
-
 class Profiler {
 public:
-	static bool IsScriptProfilable(AMX *amx);
-
 	Profiler(AMX *amx);
+	Profiler(AMX *amx, DebugInfo debug_info = DebugInfo());
 	~Profiler();
 
-	static void Attach(AMX *amx);
-	static void Attach(AMX *amx, const DebugInfo &debug_info);
+	static void Attach(AMX *amx, DebugInfo debug_info = DebugInfo());
 	static void Detach(AMX *amx);
 
-	static Profiler *Get(AMX *amx);
+	static Profiler *GetInstance(AMX *amx);
 
-	void Activate();
-	bool IsActive() const;
-	void Deactivate();
+	std::vector<const FunctionProfile*> GetProfile() const;
 
-	void SetDebugInfo(const DebugInfo &info);
-
-	void ResetStats();
-	void PrintStats(const std::string &script_name, std::ostream &stream, Printer *printer) const;
-
-	int Debug();
-	int Callback(cell index, cell *result, cell *params);
-	int Exec(cell *retval, int index);	
+	int AmxDebugHook();
+	int AmxExecHook(cell *retval, int index);	
+	int AmxCallbackHook(cell index, cell *result, cell *params);
 
 private:
 	Profiler();
 
-	bool active_;
-
+private:
 	AMX       *amx_;
 	DebugInfo debug_info_;
-	AMX_DEBUG debug_;
 
 	CallStack call_stack_;
 
@@ -86,6 +73,18 @@ private:
 
 	static std::map<AMX*, Profiler*> instances_;
 };
+
+inline bool IsAmxProfilable(AMX *amx) {
+	uint16_t flags;
+	amx_Flags(amx, &flags);
+	if ((flags & AMX_FLAG_DEBUG) != 0) {
+		return true;
+	}
+	if ((flags & AMX_FLAG_NOCHECKS) == 0) {
+		return true; 
+	}
+	return false;
+}
 
 } // namespace amx_profiler
 
