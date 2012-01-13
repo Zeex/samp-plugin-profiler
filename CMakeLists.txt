@@ -26,6 +26,16 @@ include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 
 add_library(profiler MODULE
+	src/amx/amx.h
+	src/amx/amxaux.c
+	src/amx/amxaux.h
+	src/amx/amxdbg.c
+	src/amx/amxdbg.h
+	src/amx/getch.h
+	src/amx/osdefs.h
+	src/amx/sclinux.h
+	src/amx_name.cpp
+	src/amx_name.h
 	src/amx_profiler/call_stack.cpp
 	src/amx_profiler/call_stack.h
 	src/amx_profiler/cloneable.h
@@ -55,16 +65,6 @@ add_library(profiler MODULE
 	src/amx_profiler/time_interval.h
 	src/amx_profiler/xml_profile_writer.cpp
 	src/amx_profiler/xml_profile_writer.h
-	src/amx/amx.h
-	src/amx/amxaux.c
-	src/amx/amxaux.h
-	src/amx/amxdbg.c
-	src/amx/amxdbg.h
-	src/amx/getch.h
-	src/amx/osdefs.h
-	src/amx/sclinux.h
-	src/amx_name.cpp
-	src/amx_name.h
 	src/amxplugin.cpp
 	src/config_reader.cpp
 	src/config_reader.h
