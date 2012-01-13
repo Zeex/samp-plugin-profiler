@@ -27,7 +27,7 @@
 #include "call_stack.h"
 #include "debug_info.h"
 #include "function.h"
-#include "function_profile.h"
+#include "function_info.h"
 #include "timer.h"
 
 namespace amx_profiler {
@@ -43,7 +43,7 @@ public:
 
 	static Profiler *GetInstance(AMX *amx);
 
-	std::vector<const FunctionProfile*> GetProfile() const;
+	std::vector<const FunctionInfo*> GetProfile() const;
 
 	int AmxDebugHook();
 	int AmxExecHook(cell *retval, int index);	
@@ -68,7 +68,7 @@ private:
 		}
 	};
 
-	typedef std::map<Function*, FunctionProfile, CompFunByPtr> Functions;
+	typedef std::map<Function*, FunctionInfo, CompFunByPtr> Functions;
 	Functions functions_;
 
 	static std::map<AMX*, Profiler*> instances_;

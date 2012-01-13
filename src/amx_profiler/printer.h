@@ -22,12 +22,12 @@
 
 namespace amx_profiler {
 
-class FunctionProfile;
+class FunctionInfo;
 
 class Printer {
 public:
 	virtual void Print(const std::string &script_name, std::ostream &stream, 
-			const std::vector<const FunctionProfile*> &stats) = 0;
+			const std::vector<const FunctionInfo*> &stats) = 0;
 };
 
 } // namespace amx_profiler

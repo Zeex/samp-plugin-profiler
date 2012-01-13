@@ -19,14 +19,14 @@
 #include <vector>
 #include <boost/date_time.hpp>
 #include "function.h"
-#include "function_profile.h"
+#include "function_info.h"
 #include "timer.h"
 #include "xml_printer.h"
 
 namespace amx_profiler {
 
 void XmlPrinter::Print(const std::string &script_name, std::ostream &stream, 
-	const std::vector<const FunctionProfile*> &stats) 
+	const std::vector<const FunctionInfo*> &stats) 
 {
 	stream << 
 	"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
@@ -34,18 +34,18 @@ void XmlPrinter::Print(const std::string &script_name, std::ostream &stream,
 		"date=\"" << boost::posix_time::second_clock::local_time() << "\">";
 
 	Timer::TimeType time_all = 0;
-	for (std::vector<const FunctionProfile*>::const_iterator iterator = stats.begin();
+	for (std::vector<const FunctionInfo*>::const_iterator iterator = stats.begin();
 			iterator != stats.end(); ++iterator) {
 		time_all += (*iterator)->total_time() - (*iterator)->child_time();
 	}    
 
 	Timer::TimeType total_time_all = 0;
-	for (std::vector<const FunctionProfile*>::const_iterator iterator = stats.begin();
+	for (std::vector<const FunctionInfo*>::const_iterator iterator = stats.begin();
 			iterator != stats.end(); ++iterator) {
 		total_time_all += (*iterator)->total_time();
 	}
 
-	for (std::vector<const FunctionProfile*>::const_iterator iterator = stats.begin();
+	for (std::vector<const FunctionInfo*>::const_iterator iterator = stats.begin();
 			iterator != stats.end(); ++iterator) {
 		stream << "		<function";
 		stream << " type=\"" << (*iterator)->function()->type() << "\"";
