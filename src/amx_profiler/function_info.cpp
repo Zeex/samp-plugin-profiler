@@ -14,11 +14,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "function_profile.h"
+#include "function_info.h"
 
 namespace amx_profiler {
 
-FunctionProfile::FunctionProfile(Function *f)
+FunctionInfo::FunctionInfo(Function *f)
 	: func_(f)
 	, num_calls_(1)
 	, total_time_(0)
@@ -26,35 +26,35 @@ FunctionProfile::FunctionProfile(Function *f)
 {
 }
 
-Function *FunctionProfile::function() {
+Function *FunctionInfo::function() {
 	return func_;
 }
 
-const Function *FunctionProfile::function() const {
+const Function *FunctionInfo::function() const {
 	return func_;
 }
 
-long &FunctionProfile::num_calls() { 
+long &FunctionInfo::num_calls() { 
 	return num_calls_; 
 }
 
-const long &FunctionProfile::num_calls() const { 
+const long &FunctionInfo::num_calls() const { 
 	return num_calls_; 
 }
 
-Timer::TimeType &FunctionProfile::total_time() { 
+Timer::TimeType &FunctionInfo::total_time() { 
 	return total_time_; 
 }
 
-const Timer::TimeType &FunctionProfile::total_time() const { 
+const Timer::TimeType &FunctionInfo::total_time() const { 
 	return total_time_; 
 }
 
-Timer::TimeType &FunctionProfile::child_time() { 
+Timer::TimeType &FunctionInfo::child_time() { 
 	return child_time_; 
 }
 
-const Timer::TimeType &FunctionProfile::child_time() const { 
+const Timer::TimeType &FunctionInfo::child_time() const { 
 	return child_time_; 
 }
 

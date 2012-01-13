@@ -15,7 +15,7 @@
 // limitations under the License.
 
 #include "call_stack.h"
-#include "function_profile.h"
+#include "function_info.h"
 
 namespace amx_profiler {
 

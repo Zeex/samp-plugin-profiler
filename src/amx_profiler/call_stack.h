@@ -23,7 +23,7 @@
 
 namespace amx_profiler {
 
-class FunctionProfile;
+class FunctionInfo;
 
 class CallStack {
 public:

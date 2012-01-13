@@ -19,14 +19,14 @@
 #include <vector>
 #include <boost/date_time.hpp>
 #include "function.h"
-#include "function_profile.h"
+#include "function_info.h"
 #include "text_printer.h"
 #include "timer.h"
 
 namespace amx_profiler {
 
 void TextPrinter::Print(const std::string &script_name, std::ostream &stream,
-		const std::vector<const FunctionProfile*> &stats)
+		const std::vector<const FunctionInfo*> &stats)
 {
 	stream << "Profile of '" << script_name 
 		<< "' generated on " << boost::posix_time::second_clock::local_time() << "\n" << std::endl;
@@ -40,18 +40,18 @@ void TextPrinter::Print(const std::string &script_name, std::ostream &stream,
 	<< std::endl;
 
 	Timer::TimeType time_all = 0;
-	for (std::vector<const FunctionProfile*>::const_iterator iterator = stats.begin();
+	for (std::vector<const FunctionInfo*>::const_iterator iterator = stats.begin();
 			iterator != stats.end(); ++iterator) {
 		time_all += (*iterator)->total_time() - (*iterator)->child_time();
 	}    
 
 	Timer::TimeType total_time_all = 0;
-	for (std::vector<const FunctionProfile*>::const_iterator iterator = stats.begin();
+	for (std::vector<const FunctionInfo*>::const_iterator iterator = stats.begin();
 			iterator != stats.end(); ++iterator) {
 		total_time_all += (*iterator)->total_time();
 	}
 
-	for (std::vector<const FunctionProfile*>::const_iterator iterator = stats.begin();
+	for (std::vector<const FunctionInfo*>::const_iterator iterator = stats.begin();
 			iterator != stats.end(); ++iterator) {
 		stream 
 			<< std::setw(kTypeWidth) << (*iterator)->function()->type()

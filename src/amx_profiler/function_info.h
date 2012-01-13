@@ -23,11 +23,11 @@ namespace amx_profiler {
 
 class Function;
 
-class FunctionProfile {
+class FunctionInfo {
 public:
 	friend class Function;
 
-	explicit FunctionProfile(Function *f);
+	explicit FunctionInfo(Function *f);
 
 	Function *function();
 	const Function *function() const;

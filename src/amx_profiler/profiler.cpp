@@ -20,7 +20,7 @@
 #include <vector>
 #include <amx/amx.h>
 #include "function.h"
-#include "function_profile.h"
+#include "function_info.h"
 #include "native_function.h"
 #include "normal_function.h"
 #include "profiler.h"
@@ -67,8 +67,8 @@ Profiler *Profiler::GetInstance(AMX *amx) {
 	return 0;
 }
 
-std::vector<const FunctionProfile*> Profiler::GetProfile() const {
-	std::vector<const FunctionProfile*> profile;
+std::vector<const FunctionInfo*> Profiler::GetProfile() const {
+	std::vector<const FunctionInfo*> profile;
 	for (Functions::const_iterator iterator = functions_.begin(); 
 			iterator != functions_.end(); ++iterator) {
 		profile.push_back(&iterator->second);
@@ -127,7 +127,7 @@ void Profiler::EnterFunction(const Function *fn, ucell frame) {
 	Functions::iterator iterator = functions_.find(const_cast<Function*>(fn));
 	if (iterator == functions_.end()) {	
 		Function *new_fn = fn->Clone();
-		functions_.insert(std::make_pair(new_fn, FunctionProfile(new_fn)));
+		functions_.insert(std::make_pair(new_fn, FunctionInfo(new_fn)));
 		call_stack_.Push(new_fn, frame);
 	} else {
 		iterator->second.num_calls()++;
