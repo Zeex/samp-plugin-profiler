@@ -14,8 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef AMX_PROFILER_FUNCTION_PROFILE_H
-#define AMX_PROFILER_FUNCTION_PROFILE_H
+#ifndef AMX_PROFILER_FUNCTION_INFO_H
+#define AMX_PROFILER_FUNCTION_INFO_H
 
 #include "timer.h"
 
@@ -51,4 +51,4 @@ private:
 
 } // namespace amx_profiler
 
-#endif // !AMX_PROFILER_FUNCTION_PROFILE_H
+#endif // !AMX_PROFILER_FUNCTION_INFO_H
