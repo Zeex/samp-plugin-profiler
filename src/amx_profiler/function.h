@@ -18,7 +18,6 @@
 #define AMX_PROFILER_FUNCTION_FUNCTION_H
 
 #include <string>
-#include <boost/shared_ptr.hpp>
 #include <amx/amx.h>
 #include "cloneable.h"
 
