@@ -20,7 +20,7 @@
 #include <boost/date_time.hpp>
 #include "function.h"
 #include "function_info.h"
-#include "timer.h"
+#include "performance_counter.h"
 #include "xml_profile_writer.h"
 
 namespace amx_profiler {
@@ -33,13 +33,13 @@ void XmlProfileWriter::Write(const std::string &script_name, std::ostream &strea
 	"<profile script=\"" << script_name << "\""
 		"date=\"" << boost::posix_time::second_clock::local_time() << "\">";
 
-	Timer::TimeType time_all = 0;
+	PerformanceCounter::TimeType time_all = 0;
 	for (std::vector<const FunctionInfo*>::const_iterator iterator = stats.begin();
 			iterator != stats.end(); ++iterator) {
 		time_all += (*iterator)->total_time() - (*iterator)->child_time();
 	}    
 
-	Timer::TimeType total_time_all = 0;
+	PerformanceCounter::TimeType total_time_all = 0;
 	for (std::vector<const FunctionInfo*>::const_iterator iterator = stats.begin();
 			iterator != stats.end(); ++iterator) {
 		total_time_all += (*iterator)->total_time();
