@@ -23,6 +23,7 @@
 #include "function_info.h"
 #include "native_function.h"
 #include "normal_function.h"
+#include "printer.h"
 #include "profiler.h"
 #include "public_function.h"
 
@@ -75,6 +76,14 @@ std::vector<const FunctionInfo*> Profiler::GetProfile() const {
 	}
 	return profile;
 }
+
+void Profiler::WriteProfile(const std::string &script_name,
+	                        Printer *printer,
+	                        std::ostream &stream) const
+{
+	printer->Print(script_name, stream, GetProfile());
+}
+
 
 int Profiler::AmxDebugHook() {
 	cell prevFrame = amx_->stp;
