@@ -28,7 +28,7 @@
 #include "debug_info.h"
 #include "function.h"
 #include "function_info.h"
-#include "timer.h"
+#include "performance_counter.h"
 
 namespace amx_profiler {
 

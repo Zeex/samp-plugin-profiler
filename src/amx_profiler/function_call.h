@@ -19,7 +19,7 @@
 
 #include <amx/amx.h>
 #include "function.h"
-#include "timer.h"
+#include "performance_counter.h"
 
 namespace amx_profiler {
 
@@ -31,9 +31,9 @@ public:
 		{ return fn_; }
 	cell frame() const
 		{ return frame_; }
-	Timer &timer()
+	PerformanceCounter &timer()
 		{ return timer_; }
-	const Timer &timer() const
+	const PerformanceCounter &timer() const
 		{ return timer_; }
 	bool IsRecursive() const
 		{ return recursive_; }
@@ -42,7 +42,7 @@ private:
 	Function *fn_;
 	FunctionCall *parent_;
 	cell frame_; // frame address on AMX stack
-	Timer timer_;
+	PerformanceCounter timer_;
 	bool recursive_; // whether it's a recursive call
 };
 

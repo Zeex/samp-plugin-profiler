@@ -14,21 +14,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef AMX_PROFILER_TIMER_H
-#define AMX_PROFILER_TIMER_H
+#ifndef AMX_PROFILER_PERFORMANCE_COUNTER_H
+#define AMX_PROFILER_PERFORMANCE_COUNTER_H
 
 #include <boost/chrono.hpp>
 #include <boost/integer.hpp>
 
 namespace amx_profiler {
 
-class Timer {
+class PerformanceCounter {
 public:
 	typedef boost::int64_t TimeType;
 	typedef boost::chrono::high_resolution_clock ClockType;
 
-	Timer(Timer *parent = 0);
-	~Timer();
+	PerformanceCounter(PerformanceCounter *parent = 0);
+	~PerformanceCounter();
 
 	void Start();
 	void Stop();
@@ -41,7 +41,7 @@ public:
 
 private:
 	bool started_;
-	Timer *parent_;
+	PerformanceCounter *parent_;
 	ClockType::time_point start_point_;
 	ClockType::duration child_time_;
 	ClockType::duration total_time_;
@@ -49,4 +49,4 @@ private:
 
 } // namespace amx_profiler
 
-#endif // !AMX_PROFILER_TIMER_H
+#endif // !AMX_PROFILER_PERFORMANCE_COUNTER_H

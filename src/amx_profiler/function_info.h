@@ -17,7 +17,7 @@
 #ifndef AMX_PROFILER_FUNCTION_INFO_H
 #define AMX_PROFILER_FUNCTION_INFO_H
 
-#include "timer.h"
+#include "performance_counter.h"
 
 namespace amx_profiler {
 
@@ -35,18 +35,18 @@ public:
 	long &num_calls();
 	const long &num_calls() const;
 
-	Timer::TimeType &total_time();
-	const Timer::TimeType &total_time() const; 
+	PerformanceCounter::TimeType &total_time();
+	const PerformanceCounter::TimeType &total_time() const; 
 
-	Timer::TimeType &child_time();
-	const Timer::TimeType &child_time() const;
+	PerformanceCounter::TimeType &child_time();
+	const PerformanceCounter::TimeType &child_time() const;
 
 private:
 	Function *func_;
 
 	long num_calls_;
-	Timer::TimeType total_time_;
-	Timer::TimeType child_time_;
+	PerformanceCounter::TimeType total_time_;
+	PerformanceCounter::TimeType child_time_;
 };
 
 } // namespace amx_profiler

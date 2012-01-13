@@ -15,28 +15,28 @@
 // limitations under the License.
 
 #include <boost/chrono.hpp>
-#include "timer.h"
+#include "performance_counter.h"
 
 namespace amx_profiler {
 
-Timer::Timer(Timer *parent) 
+PerformanceCounter::PerformanceCounter(PerformanceCounter *parent) 
 	: started_(false)
 	, parent_(parent)
 {
 }
 
-Timer::~Timer() {
+PerformanceCounter::~PerformanceCounter() {
 	Stop();
 }
 
-void Timer::Start() {
+void PerformanceCounter::Start() {
 	if (!started_) {			
 		start_point_ = ClockType::now();
 		started_ = true;
 	}
 }
 
-void Timer::Stop() {
+void PerformanceCounter::Stop() {
 	if (started_) {
 		ClockType::duration interval = ClockType::now() - start_point_;
 		total_time_+= interval;
@@ -47,12 +47,12 @@ void Timer::Stop() {
 	} 
 }
 
-Timer::TimeType Timer::child_time() const {
+PerformanceCounter::TimeType PerformanceCounter::child_time() const {
 	using namespace boost::chrono;
 	return duration_cast<microseconds>(child_time_).count();
 }
 
-Timer::TimeType Timer::total_time() const {
+PerformanceCounter::TimeType PerformanceCounter::total_time() const {
 	using namespace boost::chrono;
 	return duration_cast<microseconds>(total_time_).count();
 }
