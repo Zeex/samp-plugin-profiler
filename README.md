@@ -30,12 +30,6 @@ The output consists of a table with these data:
 
 	The type of a function, can be one of: public, native, normal.
 
-	*Public* functions are the ones denoted by the `public` keyword. 
-
-	*Native* functions are native code procedures exported by the server or a plugin.
-
-	*Normal* functions are the rest.
-
 *	Function Name
 
 	The function name. Since normal functions' names are not usually exported the profied script
