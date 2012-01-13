@@ -269,25 +269,25 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 		boost::algorithm::to_lower(format);
 
 		std::string filename = amx_name + "-profile";
-		ProfileWriter *printer = 0;
+		ProfileWriter *writer = 0;
 
 		if (format == "html") {
 			filename += ".html";
-			printer = new HtmlProfileWriter;
+			writer = new HtmlProfileWriter;
 		} else if (format == "text") {
 			filename += ".txt";
-			printer = new TextProfileWriter;
+			writer = new TextProfileWriter;
 		} else if (format == "xml") {
 			filename += ".xml";
-			printer = new XmlProfileWriter;
+			writer = new XmlProfileWriter;
 		} else {
 			logprintf("[profiler] Unknown output format '%s'", format.c_str());
 		}
 
-		if (printer != 0) {
+		if (writer != 0) {
 			std::ofstream ostream(filename.c_str());
-			prof->WriteProfile(amx_path, printer, ostream);
-			delete printer;
+			prof->WriteProfile(amx_path, writer, ostream);
+			delete writer;
 		}
 
 		Profiler::Detach(amx);
