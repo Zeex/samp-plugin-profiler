@@ -14,21 +14,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef AMX_PROFILER_XML_PRINTER_H
-#define AMX_PROFILER_XML_PRINTER_H
+#ifndef AMX_PROFILER_PROFILE_WRITER_H
+#define AMX_PROFILER_PROFILE_WRITER_H
 
-#include <string>
+#include <ostream>
 #include <vector>
-#include "printer.h"
 
 namespace amx_profiler {
 
-class XmlPrinter : public Printer {
+class FunctionInfo;
+
+class ProfileWriter {
 public:
-	virtual void Print(const std::string &script_name, std::ostream &stream, 
-			const std::vector<const FunctionInfo*> &stats);
+	virtual void Write(const std::string &script_name, std::ostream &stream, 
+			const std::vector<const FunctionInfo*> &stats) = 0;
 };
 
 } // namespace amx_profiler
 
-#endif // !AMX_PROFILER_XML_PRINTER_H
+#endif // !AMX_PROFILER_PROFILE_WRITER_H

@@ -23,7 +23,7 @@
 #include "function_info.h"
 #include "native_function.h"
 #include "normal_function.h"
-#include "printer.h"
+#include "profile_writer.h"
 #include "profiler.h"
 #include "public_function.h"
 
@@ -78,10 +78,10 @@ std::vector<const FunctionInfo*> Profiler::GetProfile() const {
 }
 
 void Profiler::WriteProfile(const std::string &script_name,
-	                        Printer *printer,
+	                        ProfileWriter *writer,
 	                        std::ostream &stream) const
 {
-	printer->Print(script_name, stream, GetProfile());
+	writer->Write(script_name, stream, GetProfile());
 }
 
 

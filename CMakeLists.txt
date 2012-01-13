@@ -37,23 +37,23 @@ add_library(profiler MODULE
 	src/amx_profiler/function_call.h
 	src/amx_profiler/function_info.cpp
 	src/amx_profiler/function_info.h
-	src/amx_profiler/html_printer.cpp
-	src/amx_profiler/html_printer.h
+	src/amx_profiler/html_profile_writer.cpp
+	src/amx_profiler/html_profile_writer.h
 	src/amx_profiler/native_function.cpp
 	src/amx_profiler/native_function.h
 	src/amx_profiler/normal_function.cpp
 	src/amx_profiler/normal_function.h
-	src/amx_profiler/printer.h
+	src/amx_profiler/profile_writer.h
 	src/amx_profiler/profiler.cpp
 	src/amx_profiler/profiler.h
 	src/amx_profiler/public_function.cpp
 	src/amx_profiler/public_function.h
-	src/amx_profiler/text_printer.cpp
-	src/amx_profiler/text_printer.h
+	src/amx_profiler/text_profile_writer.cpp
+	src/amx_profiler/text_profile_writer.h
 	src/amx_profiler/timer.cpp
 	src/amx_profiler/timer.h
-	src/amx_profiler/xml_printer.cpp
-	src/amx_profiler/xml_printer.h
+	src/amx_profiler/xml_profile_writer.cpp
+	src/amx_profiler/xml_profile_writer.h
 	src/amx/amx.h
 	src/amx/amxaux.c
 	src/amx/amxaux.h

@@ -34,10 +34,10 @@
 #include <boost/algorithm/string.hpp>
 
 #include <amx_profiler/debug_info.h>
-#include <amx_profiler/html_printer.h>
+#include <amx_profiler/html_profile_writer.h>
 #include <amx_profiler/profiler.h>
-#include <amx_profiler/text_printer.h>
-#include <amx_profiler/xml_printer.h>
+#include <amx_profiler/text_profile_writer.h>
+#include <amx_profiler/xml_profile_writer.h>
 
 #include "amx_name.h"
 #include "config_reader.h"
@@ -269,17 +269,17 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 		boost::algorithm::to_lower(format);
 
 		std::string filename = amx_name + "-profile";
-		Printer *printer = 0;
+		ProfileWriter *printer = 0;
 
 		if (format == "html") {
 			filename += ".html";
-			printer = new HtmlPrinter;
+			printer = new HtmlProfileWriter;
 		} else if (format == "text") {
 			filename += ".txt";
-			printer = new TextPrinter;
+			printer = new TextProfileWriter;
 		} else if (format == "xml") {
 			filename += ".xml";
-			printer = new XmlPrinter;
+			printer = new XmlProfileWriter;
 		} else {
 			logprintf("[profiler]: Unknown output format '%s'", format.c_str());
 		}
