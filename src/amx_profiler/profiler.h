@@ -32,7 +32,7 @@
 
 namespace amx_profiler {
 
-class Printer;
+class ProfileWriter;
 
 class Profiler {
 public:
@@ -46,7 +46,7 @@ public:
 	static Profiler *GetInstance(AMX *amx);
 
 	void WriteProfile(const std::string &script_name,
-	                  Printer *printer,
+	                  ProfileWriter *writer,
 	                  std::ostream &stream) const;
 	std::vector<const FunctionInfo*> GetProfile() const;
 

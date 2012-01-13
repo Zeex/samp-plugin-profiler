@@ -14,27 +14,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef AMX_PROFILER_TEXT_PRINTER_H
-#define AMX_PROFILER_TEXT_PRINTER_H
+#ifndef AMX_PROFILER_XML_PROFILE_WRITER_H
+#define AMX_PROFILER_XML_PROFILE_WRITER_H
 
 #include <string>
 #include <vector>
-#include "printer.h"
+#include "profile_writer.h"
 
 namespace amx_profiler {
 
-class TextPrinter : public Printer {
+class XmlProfileWriter : public ProfileWriter {
 public:
-	static const int kTypeWidth = 15;
-	static const int kNameWidth = 32;
-	static const int kCallsWidth = 15;
-	static const int kSelfTimeWidth = 15;
-	static const int kTotalTimeWidth = 15;
-
-	virtual void Print(const std::string &script_name, std::ostream &stream, 
+	virtual void Write(const std::string &script_name, std::ostream &stream, 
 			const std::vector<const FunctionInfo*> &stats);
 };
 
 } // namespace amx_profiler
 
-#endif // !AMX_PROFILER_TEXT_PRINTER_H
+#endif // !AMX_PROFILER_XML_PROFILE_WRITER_H

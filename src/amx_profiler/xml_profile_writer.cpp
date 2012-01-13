@@ -21,11 +21,11 @@
 #include "function.h"
 #include "function_info.h"
 #include "timer.h"
-#include "xml_printer.h"
+#include "xml_profile_writer.h"
 
 namespace amx_profiler {
 
-void XmlPrinter::Print(const std::string &script_name, std::ostream &stream, 
+void XmlProfileWriter::Write(const std::string &script_name, std::ostream &stream, 
 	const std::vector<const FunctionInfo*> &stats) 
 {
 	stream << 

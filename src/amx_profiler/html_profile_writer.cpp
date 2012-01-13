@@ -20,12 +20,12 @@
 #include <boost/date_time.hpp>
 #include "function.h"
 #include "function_info.h"
-#include "html_printer.h"
+#include "html_profile_writer.h"
 #include "timer.h"
 
 namespace amx_profiler {
 
-void HtmlPrinter::Print(const std::string &script_name, std::ostream &stream, 
+void HtmlProfileWriter::Write(const std::string &script_name, std::ostream &stream, 
 		const std::vector<const FunctionInfo*> &stats) 
 {
 	stream << 

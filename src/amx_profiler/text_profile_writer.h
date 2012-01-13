@@ -14,22 +14,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef AMX_PROFILER_PRINTER_H
-#define AMX_PROFILER_PRINTER_H
+#ifndef AMX_PROFILER_TEXT_PROFILE_WRITER_H
+#define AMX_PROFILER_TEXT_PROFILE_WRITER_H
 
-#include <ostream>
+#include <string>
 #include <vector>
+#include "profile_writer.h"
 
 namespace amx_profiler {
 
-class FunctionInfo;
-
-class Printer {
+class TextProfileWriter : public ProfileWriter {
 public:
-	virtual void Print(const std::string &script_name, std::ostream &stream, 
-			const std::vector<const FunctionInfo*> &stats) = 0;
+	static const int kTypeWidth = 15;
+	static const int kNameWidth = 32;
+	static const int kCallsWidth = 15;
+	static const int kSelfTimeWidth = 15;
+	static const int kTotalTimeWidth = 15;
+
+	virtual void Write(const std::string &script_name, std::ostream &stream, 
+			const std::vector<const FunctionInfo*> &stats);
 };
 
 } // namespace amx_profiler
 
-#endif // !AMX_PROFILER_PRINTER_H
+#endif // !AMX_PROFILER_TEXT_PROFILE_WRITER_H
