@@ -39,13 +39,13 @@ void TextProfileWriter::Write(const std::string &script_name, std::ostream &stre
 		<< std::setw(kTotalTimeWidth) << "Total Time"
 	<< std::endl;
 
-	PerformanceCounter::TimeType time_all = 0;
+	TimeInterval time_all = 0;
 	for (std::vector<const FunctionInfo*>::const_iterator iterator = stats.begin();
 			iterator != stats.end(); ++iterator) {
 		time_all += (*iterator)->total_time() - (*iterator)->child_time();
 	}    
 
-	PerformanceCounter::TimeType total_time_all = 0;
+	TimeInterval total_time_all = 0;
 	for (std::vector<const FunctionInfo*>::const_iterator iterator = stats.begin();
 			iterator != stats.end(); ++iterator) {
 		total_time_all += (*iterator)->total_time();

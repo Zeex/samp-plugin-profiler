@@ -35,18 +35,18 @@ public:
 	long &num_calls();
 	const long &num_calls() const;
 
-	PerformanceCounter::TimeType &total_time();
-	const PerformanceCounter::TimeType &total_time() const; 
+	TimeInterval &total_time();
+	const TimeInterval &total_time() const; 
 
-	PerformanceCounter::TimeType &child_time();
-	const PerformanceCounter::TimeType &child_time() const;
+	TimeInterval &child_time();
+	const TimeInterval &child_time() const;
 
 private:
 	Function *func_;
 
 	long num_calls_;
-	PerformanceCounter::TimeType total_time_;
-	PerformanceCounter::TimeType child_time_;
+	TimeInterval total_time_;
+	TimeInterval child_time_;
 };
 
 } // namespace amx_profiler

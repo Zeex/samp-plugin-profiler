@@ -18,13 +18,12 @@
 #define AMX_PROFILER_PERFORMANCE_COUNTER_H
 
 #include <boost/chrono.hpp>
-#include <boost/integer.hpp>
+#include "time_interval.h"
 
 namespace amx_profiler {
 
 class PerformanceCounter {
 public:
-	typedef boost::int64_t TimeType;
 	typedef boost::chrono::high_resolution_clock ClockType;
 
 	PerformanceCounter(PerformanceCounter *parent = 0);
@@ -33,11 +32,20 @@ public:
 	void Start();
 	void Stop();
 
-	TimeType child_time() const;
-	TimeType total_time() const;
+	template<typename Resolution>
+	inline TimeInterval child_time() const {
+		return boost::chrono::duration_cast<Resolution>(child_time_).count();
+	}
 
-	inline TimeType self_time() const 
-		{ return total_time() - child_time(); }
+	template<typename Resolution>
+	inline TimeInterval total_time() const {
+		return boost::chrono::duration_cast<Resolution>(total_time_).count();
+	}
+
+	template<typename Resolution>
+	inline TimeInterval self_time() const { 
+		return total_time<Resolution>() - child_time<Resolution>(); 
+	}
 
 private:
 	bool started_;

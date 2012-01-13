@@ -150,13 +150,13 @@ void Profiler::LeaveFunction(const Function *fn) {
 		FunctionCall current = call_stack_.Pop();
 		Functions::iterator current_it = functions_.find(current.function());
 		if (current.IsRecursive()) {			
-			current_it->second.child_time() -= current.timer().child_time();
+			current_it->second.child_time() -= current.timer().child_time<Microseconds>();
 		} else {
-			current_it->second.total_time() += current.timer().total_time();
+			current_it->second.total_time() += current.timer().total_time<Microseconds>();
 		}	
 		if (!call_stack_.IsEmpty()) {
 			FunctionCall &top = call_stack_.GetTop();
-			functions_.find(top.function())->second.child_time() += current.timer().total_time();
+			functions_.find(top.function())->second.child_time() += current.timer().total_time<Microseconds>();
 		}
 		if (fn == 0 || (current.function()->address() == fn->address())) {
 			break;
