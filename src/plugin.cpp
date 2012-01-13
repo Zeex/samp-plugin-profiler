@@ -218,12 +218,12 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 
 	std::string filename = GetAmxName(amx);
 	if (filename.empty()) {
-		logprintf("[profiler]: Can't find matching .amx file");
+		logprintf("[profiler] Can't find matching .amx file");
 		return AMX_ERR_NONE;
 	}
 
 	if (!IsAmxProfilable(amx)) {
-		logprintf("[profiler]: Can't profile '%s' (are you using -d0?)", filename.c_str());
+		logprintf("[profiler] Can't profile '%s' (are you using -d0?)", filename.c_str());
 		return AMX_ERR_NONE;
 	}
 
@@ -240,16 +240,16 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 			DebugInfo debug_info;
 			debug_info.Load(filename);
 			if (debug_info.IsLoaded()) {
-				logprintf("[profiler]: Loaded debug info from '%s'", filename.c_str());
+				logprintf("[profiler] Loaded debug info from '%s'", filename.c_str());
 				Profiler::Attach(amx, debug_info);
-				logprintf("[profiler]: Attached profiler to '%s'", filename.c_str());
+				logprintf("[profiler] Attached profiler to '%s'", filename.c_str());
 				return AMX_ERR_NONE;
 			} else {
-				logprintf("[profiler]: Error loading debug info from '%s'", filename.c_str());
+				logprintf("[profiler] Error loading debug info from '%s'", filename.c_str());
 			}
 		}
 		Profiler::Attach(amx);
-		logprintf("[profiler]: Attached profiler to '%s' (no debug symbols)", filename.c_str());
+		logprintf("[profiler] Attached profiler to '%s' (no debug symbols)", filename.c_str());
 	}
 
 	return AMX_ERR_NONE;
@@ -281,7 +281,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 			filename += ".xml";
 			printer = new XmlProfileWriter;
 		} else {
-			logprintf("[profiler]: Unknown output format '%s'", format.c_str());
+			logprintf("[profiler] Unknown output format '%s'", format.c_str());
 		}
 
 		if (printer != 0) {
