@@ -24,6 +24,11 @@
 #include <string>
 #include "config_reader.h"
 
+ConfigReader::ConfigReader() 
+	: loaded_(false)
+{
+}
+
 ConfigReader::ConfigReader(const std::string &filename) 
 	: loaded_(false)
 {
