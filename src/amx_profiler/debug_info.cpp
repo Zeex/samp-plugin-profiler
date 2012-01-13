@@ -22,7 +22,19 @@
 
 namespace amx_profiler {
 
-DebugInfo::DebugInfo() {}
+DebugInfo::DebugInfo()
+{
+}
+
+DebugInfo::DebugInfo(boost::shared_ptr<AMX_DBG> amxdbg)
+	: amxdbg_(amxdbg)
+{
+}
+
+DebugInfo::DebugInfo(const AMX_DBG &amxdbg)
+	: amxdbg_(new AMX_DBG(amxdbg))
+{
+}
 
 DebugInfo::DebugInfo(const std::string &filename) {
 	Load(filename);
@@ -42,33 +54,33 @@ void DebugInfo::FreeAmxDbg(AMX_DBG *amxdbg) {
 }
 
 bool DebugInfo::IsLoaded() const {
-	return (amxdbgPtr_.get() != 0);
+	return (amxdbg_.get() != 0);
 }
 
 void DebugInfo::Load(const std::string &filename) {
 	std::FILE* fp = std::fopen(filename.c_str(), "rb");
 	if (fp != 0) {
-		amxdbgPtr_.reset(new AMX_DBG, FreeAmxDbg);
-		if (dbg_LoadInfo(amxdbgPtr_.get(), fp) != AMX_ERR_NONE) 
-			amxdbgPtr_.reset();
+		amxdbg_.reset(new AMX_DBG, FreeAmxDbg);
+		if (dbg_LoadInfo(amxdbg_.get(), fp) != AMX_ERR_NONE) 
+			amxdbg_.reset();
 		fclose(fp);
 	}
 }
 
 void DebugInfo::Free() {
-	amxdbgPtr_.reset();
+	amxdbg_.reset();
 }
 
 long DebugInfo::GetLine(cell address) const {
 	long line = 0;
-	dbg_LookupLine(amxdbgPtr_.get(), address, &line);
+	dbg_LookupLine(amxdbg_.get(), address, &line);
 	return line;
 }
 
 std::string DebugInfo::GetFile(cell address) const {
 	std::string result;
 	const char *file;
-	if (dbg_LookupFile(amxdbgPtr_.get(), address, &file) == AMX_ERR_NONE)
+	if (dbg_LookupFile(amxdbg_.get(), address, &file) == AMX_ERR_NONE)
 		result.assign(file);
 	return result;
 }
@@ -76,7 +88,7 @@ std::string DebugInfo::GetFile(cell address) const {
 std::string DebugInfo::GetFunction(cell address) const {
 	std::string result;
 	const char *function;
-	if (dbg_LookupFunction(amxdbgPtr_.get(), address, &function) == AMX_ERR_NONE)
+	if (dbg_LookupFunction(amxdbg_.get(), address, &function) == AMX_ERR_NONE)
 		result.assign(function);
 	return result;
 }
