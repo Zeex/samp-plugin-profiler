@@ -31,6 +31,14 @@ public:
 	virtual std::string name() const = 0;
 	virtual std::string type() const = 0;
 	virtual ucell address() const = 0;
+
+	bool operator==(const Function &other) const {
+		return this->address() == other.address();
+	}
+
+	bool operator<(const Function &other) const {
+		return this->address() < other.address();
+	}
 };
 
 } // namespace amx_profiler
