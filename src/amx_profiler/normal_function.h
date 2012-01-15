@@ -25,7 +25,7 @@ class DebugInfo;
 
 class NormalFunction : public Function {
 public:
-	NormalFunction(ucell address, DebugInfo *debug_info = 0);
+	NormalFunction(ucell address, const DebugInfo &debug_info);
 
 	virtual std::string name() const;
 	virtual std::string type() const;

@@ -77,73 +77,108 @@ int Profiler::AmxDebugHook() {
 		prevFrame = call_stack_.GetTop()->frame();
 	}
 	if (amx_->frm < prevFrame) {
-		cell address = amx_->cip - 2*sizeof(cell);
 		if (call_stack_.GetTop()->frame() != amx_->frm) {
-			std::shared_ptr<NormalFunction> fn(new NormalFunction(address, &debug_info_));
-			EnterFunction(fn, amx_->frm);
+			auto address = static_cast<ucell>(amx_->cip) - 2*sizeof(cell);
+			if (functions_.find(address) == functions_.end()) {
+				std::shared_ptr<Function> fn(new NormalFunction(address, debug_info_));
+				functions_.insert(std::make_pair(address,
+						std::shared_ptr<FunctionInfo>(new FunctionInfo(fn))));
+			}
+			EnterFunction(address, amx_->frm);
 		}
 	} else if (amx_->frm > prevFrame) {
-		auto fn = call_stack_.GetTop()->function();
-		assert(fn->type() == "normal" && "Call stack messed up");
-		LeaveFunction(fn);
+		assert(call_stack_.GetTop()->function()->type() == "normal");
+		LeaveFunction();
 	}
 	return AMX_ERR_NONE;
 }
 
 int Profiler::AmxCallbackHook(cell index, cell *result, cell *params) {
-	std::shared_ptr<NativeFunction> fn(new NativeFunction(amx_, index));
-	EnterFunction(fn, amx_->frm);
-	int error = amx_Callback(amx_, index, result, params);
-	LeaveFunction(fn);
-	return error;
+	if (index >= 0) {
+		auto address = GetNativeAddress(index);
+		if (functions_.find(address) == functions_.end()) {
+			std::shared_ptr<Function> fn(new NativeFunction(amx_, index));
+			functions_.insert(std::make_pair(address,
+					std::shared_ptr<FunctionInfo>(new FunctionInfo(fn))));
+		}
+		EnterFunction(address, amx_->frm);
+		int error = amx_Callback(amx_, index, result, params);
+		assert(call_stack_.GetTop()->function()->type() == "native");
+		LeaveFunction(address);
+		return error;
+	} else {
+		return amx_Callback(amx_, index, result, params);
+	}
 }
 
 int Profiler::AmxExecHook(cell *retval, int index) {
 	if (index >= 0 || index == AMX_EXEC_MAIN) {
-		AMX_HEADER *hdr = reinterpret_cast<AMX_HEADER*>(amx_->base);
-		cell address = 0;
-		if (index == AMX_EXEC_MAIN) {
-			address = hdr->cip;
-		} else {
-			AMX_FUNCSTUBNT *publics = reinterpret_cast<AMX_FUNCSTUBNT*>(amx_->base + hdr->publics);
-			address = publics[index].address;
+		auto address = GetPublicAddress(index);
+		if (functions_.find(address) == functions_.end()) {
+			std::shared_ptr<Function> fn(new PublicFunction(amx_, index));
+			functions_.insert(std::make_pair(address,
+					std::shared_ptr<FunctionInfo>(new FunctionInfo(fn))));
 		}
-		std::shared_ptr<PublicFunction> fn(new PublicFunction(amx_, index));
-		EnterFunction(fn, amx_->stk - 3*sizeof(cell));
+		EnterFunction(address, amx_->stk - 3*sizeof(cell));
 		int error = amx_Exec(amx_, retval, index);
-		LeaveFunction(fn);
+		assert(call_stack_.GetTop()->function()->type() == "public");
+		LeaveFunction(address);
 		return error;
 	} else {
 		return amx_Exec(amx_, retval, index);
 	}
 }
 
-void Profiler::EnterFunction(const std::shared_ptr<Function> &fn, ucell frame) {
-	auto iterator = functions_.find(fn);
-	if (iterator == functions_.end()) {
-		functions_.insert(std::make_pair(fn, new FunctionInfo(fn)));
-		call_stack_.Push(fn, frame);
-	} else {
-		iterator->second->num_calls()++;
-		call_stack_.Push(iterator->second->function(), frame);
+ucell Profiler::GetNativeAddress(cell index) {
+	if (index >= 0) {
+		auto hdr = reinterpret_cast<AMX_HEADER*>(amx_->base);
+		auto natives = reinterpret_cast<AMX_FUNCSTUBNT*>(amx_->base + hdr->natives);
+		return natives[index].address;
 	}
+	assert(0 && "Invalid native index");
+	return 0;
 }
 
-void Profiler::LeaveFunction(const std::shared_ptr<Function> &fn) {
+ucell Profiler::GetPublicAddress(cell index) {
+	auto hdr = reinterpret_cast<AMX_HEADER*>(amx_->base);
+	if (index >= 0) {
+		auto publics = reinterpret_cast<AMX_FUNCSTUBNT*>(amx_->base + hdr->publics);
+		return publics[index].address;
+	} else if (index == AMX_EXEC_MAIN) {
+		return hdr->cip;
+	}
+	assert(0 && "Invalid public index");
+	return 0;
+}
+
+void Profiler::EnterFunction(ucell address, ucell frm) {
+	assert(functions_.find(address) == functions_.end()
+			&& "EnterFunction() called with invalid address");
+	std::shared_ptr<FunctionInfo> &info = functions_[address];
+	call_stack_.Push(info->function(), frm);
+	info->num_calls()++;
+}
+
+void Profiler::LeaveFunction(ucell address) {
 	assert(!call_stack_.IsEmpty());
+	assert(functions_.find(address) == functions_.end()
+			&& "LeaveFunction() called with invalid address");
 	while (true) {
-		std::shared_ptr<FunctionCall> current = call_stack_.Pop();
-		auto current_it = functions_.find(current->function());
+		auto current = call_stack_.Pop();
+		auto current_it = functions_.find(current->function()->address());
+		assert(current_it != functions_.end());
 		if (current->IsRecursive()) {
 			current_it->second->child_time() -= current->timer().child_time<Microseconds>();
 		} else {
 			current_it->second->total_time() += current->timer().total_time<Microseconds>();
 		}
 		if (!call_stack_.IsEmpty()) {
-			std::shared_ptr<FunctionCall> top = call_stack_.GetTop();
-			functions_.find(top->function())->second->child_time() += current->timer().total_time<Microseconds>();
+			auto top = call_stack_.GetTop();
+			auto top_it = functions_.find(top->function()->address());
+			assert(top_it != functions_.end());
+			top_it->second->child_time() += current->timer().total_time<Microseconds>();
 		}
-		if (fn == 0 || (current->function()->address() == fn->address())) {
+		if (address == 0 || (current->function()->address() == address)) {
 			break;
 		}
 	}
