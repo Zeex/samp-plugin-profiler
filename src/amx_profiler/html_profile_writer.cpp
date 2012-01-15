@@ -14,6 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <algorithm>
 #include <fstream>
 #include <iomanip>
 #include <string>
@@ -51,16 +52,16 @@ void HtmlProfileWriter::Write(const std::string &script_name, std::ostream &stre
 	;
 
 	TimeInterval time_all = 0;
-	for (auto info : stats) {
-		time_all += info->total_time() - info->child_time();
-	}
+	std::for_each(stats.begin(), stats.end(), [&](const std::shared_ptr<FunctionInfo> &info) { 
+		time_all += info->total_time() - info->child_time(); 
+	});
 
 	TimeInterval total_time_all = 0;
-	for (auto info : stats) {
-		total_time_all += info->total_time();
-	}
+	std::for_each(stats.begin(), stats.end(), [&](const std::shared_ptr<FunctionInfo> &info) { 
+		total_time_all += info->total_time(); 
+	});
 
-	for (auto info : stats) {
+	std::for_each(stats.begin(), stats.end(), [&](const std::shared_ptr<FunctionInfo> &info) {
 		stream
 		<< "		<tr>\n"
 		<< "			<td>" << info->function()->type() << "</td>\n"
@@ -71,7 +72,7 @@ void HtmlProfileWriter::Write(const std::string &script_name, std::ostream &stre
 		<< "			<td>" << std::fixed << std::setprecision(2)
 			<< static_cast<double>(info->total_time() * 100) / total_time_all << "</td>\n"
 		<< "		</tr>\n";
-	}
+	});
 
 	stream <<
 	"		</tbody>\n"

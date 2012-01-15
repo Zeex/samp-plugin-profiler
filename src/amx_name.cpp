@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <algorithm>
 #include <cstring>
 #include <ctime>
 #include <exception>
@@ -86,7 +87,7 @@ void AmxFile::FreeAmx(AMX *amx) {
 	delete amx;
 }
 
-static std::unordered_map<std::string, AmxFile> script_its;
+static std::unordered_map<std::string, AmxFile> scripts;
 static std::unordered_map<AMX*, std::string> cachedNames;
 
 template<typename OutputIterator>
@@ -126,24 +127,24 @@ std::string GetAmxName(AMX_HEADER *amxhdr) {
 	GetFilesInDirectory("gamemodes", "*.amx", std::back_inserter(files));
 	GetFilesInDirectory("filterscripts", "*.amx", std::back_inserter(files));
 
-	for (const std::string &file : files) {
-		auto script_it = script_its.find(file);
-		if (script_it == script_its.end() ||
+	std::for_each(files.begin(), files.end(), [](const std::string &file) {
+		auto script_it = scripts.find(file);
+		if (script_it == scripts.end() ||
 				script_it->second.GetLastWriteTime() < GetMtime(file)) {
-			if (script_it != script_its.end()) {
-				script_its.erase(script_it);
+			if (script_it != scripts.end()) {
+				scripts.erase(script_it);
 			}
 			AmxFile script_it(file);
 			if (script_it.IsLoaded()) {
-				script_its.insert(std::make_pair(file, script_it));
+				scripts.insert(std::make_pair(file, script_it));
 			}
 		}
-	}
+	});
 
-	for (auto script_it : script_its) {
-		void *amxhdr2 = script_it.second.GetAmx()->base;
+	for (auto iterator = scripts.begin(); iterator != scripts.end(); ++iterator) {
+		void *amxhdr2 = iterator->second.GetAmx()->base;
 		if (std::memcmp(amxhdr, amxhdr2, sizeof(AMX_HEADER)) == 0) {
-			result = script_it.first;
+			result = iterator->first;
 			break;
 		}
 	}

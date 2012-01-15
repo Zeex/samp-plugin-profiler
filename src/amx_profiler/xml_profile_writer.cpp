@@ -14,7 +14,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <algorithm>
 #include <fstream>
+#include <functional>
 #include <iomanip>
 #include <string>
 #include <vector>
@@ -33,16 +35,16 @@ void XmlProfileWriter::Write(const std::string &script_name, std::ostream &strea
 	"<profile script=\"" << script_name << "\"";
 
 	TimeInterval time_all = 0;
-	for (auto info : stats) {
-		time_all += info->total_time() - info->child_time();
-	}
+	std::for_each(stats.begin(), stats.end(), [&](const std::shared_ptr<FunctionInfo> &info) { 
+		time_all += info->total_time() - info->child_time(); 
+	});
 
 	TimeInterval total_time_all = 0;
-	for (auto info : stats) {
-		total_time_all += info->total_time();
-	}
+	std::for_each(stats.begin(), stats.end(), [&](const std::shared_ptr<FunctionInfo> &info) { 
+		total_time_all += info->total_time(); 
+	});
 
-	for (auto info : stats) {
+	std::for_each(stats.begin(), stats.end(), [&](const std::shared_ptr<FunctionInfo> &info) {
 		stream << "		<function";
 		stream << " type=\"" << info->function()->type() << "\"";
 		stream << " name=\"" << info->function()->name() << "\"";
@@ -52,7 +54,7 @@ void XmlProfileWriter::Write(const std::string &script_name, std::ostream &strea
 		stream << " total_time=\"" <<  std::fixed << std::setprecision(2)
 			<< static_cast<double>(info->total_time() * 100) / total_time_all << "\"";
 		stream << " />\n";
-	}
+	});
 
 	stream << "</profile>";
 }

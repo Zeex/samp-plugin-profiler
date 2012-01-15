@@ -129,7 +129,7 @@ static bool IsFilterScript(const std::string &amxName) {
 }
 
 static bool GetPublicVariable(AMX *amx, const char *name, cell &value) {
-	cell  amx_addr;
+	cell amx_addr;
 	if (amx_FindPubVar(amx, name, &amx_addr) == AMX_ERR_NONE) {
 		cell *phys_addr;
 		amx_GetAddr(amx, amx_addr, &phys_addr);
