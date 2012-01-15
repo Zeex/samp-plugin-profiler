@@ -49,8 +49,4 @@ ucell PublicFunction::address() const {
 	return address_;
 }
 
-Function *PublicFunction::Clone() const {
-	return new PublicFunction(*this);
-}
-
 } // namespace amx_profiler

@@ -47,8 +47,4 @@ ucell NativeFunction::address() const {
 	return address_;
 }
 
-Function *NativeFunction::Clone() const {
-	return new NativeFunction(*this);
-}
-
 } // namespace amx_profiler

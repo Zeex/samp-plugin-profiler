@@ -19,11 +19,10 @@
 
 #include <string>
 #include <amx/amx.h>
-#include "cloneable.h"
 
 namespace amx_profiler {
 
-class Function : public Cloneable<Function> {
+class Function {
 public:
 	virtual ~Function();
 

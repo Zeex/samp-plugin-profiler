@@ -45,8 +45,4 @@ ucell NormalFunction::address() const {
 	return address_;
 }
 
-Function *NormalFunction::Clone() const {
-	return new NormalFunction(*this);
-}
-
 } // namespace amx_profiler
