@@ -26,7 +26,7 @@ DebugInfo::DebugInfo()
 {
 }
 
-DebugInfo::DebugInfo(boost::shared_ptr<AMX_DBG> amxdbg)
+DebugInfo::DebugInfo(std::shared_ptr<AMX_DBG> amxdbg)
 	: amxdbg_(amxdbg)
 {
 }

@@ -15,9 +15,9 @@
 // limitations under the License.
 
 #include <fstream>
+#include <iomanip>
 #include <string>
 #include <vector>
-#include <boost/date_time.hpp>
 #include "function.h"
 #include "function_info.h"
 #include "performance_counter.h"
@@ -28,10 +28,9 @@ namespace amx_profiler {
 void TextProfileWriter::Write(const std::string &script_name, std::ostream &stream,
 		const std::vector<const FunctionInfo*> &stats)
 {
-	stream << "Profile of '" << script_name 
-		<< "' generated on " << boost::posix_time::second_clock::local_time() << "\n" << std::endl;
+	stream << "Profile of '" << script_name;
 
-	stream 
+	stream
 		<< std::setw(kTypeWidth) << "Type"
 		<< std::setw(kNameWidth) << "Name"
 		<< std::setw(kCallsWidth) << "Calls"
@@ -43,7 +42,7 @@ void TextProfileWriter::Write(const std::string &script_name, std::ostream &stre
 	for (std::vector<const FunctionInfo*>::const_iterator iterator = stats.begin();
 			iterator != stats.end(); ++iterator) {
 		time_all += (*iterator)->total_time() - (*iterator)->child_time();
-	}    
+	}
 
 	TimeInterval total_time_all = 0;
 	for (std::vector<const FunctionInfo*>::const_iterator iterator = stats.begin();
@@ -53,13 +52,13 @@ void TextProfileWriter::Write(const std::string &script_name, std::ostream &stre
 
 	for (std::vector<const FunctionInfo*>::const_iterator iterator = stats.begin();
 			iterator != stats.end(); ++iterator) {
-		stream 
+		stream
 			<< std::setw(kTypeWidth) << (*iterator)->function()->type()
 			<< std::setw(kNameWidth) << (*iterator)->function()->name()
 			<< std::setw(kCallsWidth) << (*iterator)->num_calls()
-			<< std::setw(kSelfTimeWidth) << std::setprecision(2) << std::fixed 
+			<< std::setw(kSelfTimeWidth) << std::setprecision(2) << std::fixed
 				<< static_cast<double>(((*iterator)->total_time() - (*iterator)->child_time()) * 100) / time_all
-			<< std::setw(kTotalTimeWidth) << std::setprecision(2) << std::fixed 
+			<< std::setw(kTotalTimeWidth) << std::setprecision(2) << std::fixed
 				<< static_cast<double>((*iterator)->total_time() * 100) / total_time_all
 		<< std::endl;
 	}

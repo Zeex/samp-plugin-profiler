@@ -14,13 +14,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <cassert>
-#include <boost/lexical_cast.hpp>
+#include <sstream>
 #include "public_function.h"
 
 namespace amx_profiler {
 
-PublicFunction::PublicFunction(AMX *amx, cell index) 
+PublicFunction::PublicFunction(AMX *amx, cell index)
 	: index_(index), address_(0), name_()
 {
 	AMX_HEADER *amxhdr = reinterpret_cast<AMX_HEADER*>(amx->base);
@@ -28,11 +27,13 @@ PublicFunction::PublicFunction(AMX *amx, cell index)
 	if (index_ >= 0 && index_ < num_publics) {
 		AMX_FUNCSTUBNT *publics = reinterpret_cast<AMX_FUNCSTUBNT*>(amxhdr->publics + amx->base);
 		address_ = publics[index].address;
-		name_.assign(reinterpret_cast<char*>(publics[index_].nameofs + amx->base));		
+		name_.assign(reinterpret_cast<char*>(publics[index_].nameofs + amx->base));
 	} else if (index_ == AMX_EXEC_MAIN) {
 		name_.assign("main");
 	} else {
-		name_.append(std::string("unknown_public@")).append(boost::lexical_cast<std::string>(index_));
+		std::stringstream ss;
+		ss << index_;
+		name_.append(std::string("unknown_public@")).append(ss.str());
 	}
 }
 

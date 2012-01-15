@@ -19,8 +19,8 @@
 #ifndef AMX_PROFILER_DEBUG_INFO_H
 #define AMX_PROFILER_DEBUG_INFO_H
 
+#include <memory>
 #include <string>
-#include <boost/shared_ptr.hpp>
 #include <amx/amx.h>
 #include <amxdbg.h>
 
@@ -30,7 +30,7 @@ class DebugInfo {
 public:
 	DebugInfo();
 	explicit DebugInfo(const AMX_DBG &amxdbg);
-	explicit DebugInfo(boost::shared_ptr<AMX_DBG> amxdbg);
+	explicit DebugInfo(std::shared_ptr<AMX_DBG> amxdbg);
 	explicit DebugInfo(const std::string &filename);
 
 	static bool HasDebugInfo(AMX *amx);
@@ -45,7 +45,7 @@ public:
 	std::string GetFunction(cell address) const;
 
 private:
-	boost::shared_ptr<AMX_DBG> amxdbg_;
+	std::shared_ptr<AMX_DBG> amxdbg_;
 };
 
 } // namespace amx_profiler

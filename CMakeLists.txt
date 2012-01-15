@@ -8,12 +8,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
 include(CheckHeader)
 include(GetGitRevisionDescription)
 
-# Configure Boost
-find_package(Boost 1.47 REQUIRED COMPONENTS chrono filesystem system)
-
-# Disable the auto-link feature 
-add_definitions(-DBOOST_ALL_NO_LIB)
-
 check_header(alloca.h)
 check_header(inttypes.h)
 check_header(malloc.h)
@@ -21,9 +15,6 @@ check_header(stdint.h)
 
 include_directories("src")
 include_directories("src/amx")
-include_directories(${Boost_INCLUDE_DIRS})
-
-link_directories(${Boost_LIBRARY_DIRS})
 
 add_library(profiler MODULE
 	src/amx/amx.h
@@ -78,16 +69,18 @@ add_library(profiler MODULE
 
 set_property(TARGET profiler PROPERTY PREFIX "")
 
-target_link_Libraries(profiler ${Boost_LIBRARIES})
-
 if(UNIX OR MINGW)
 	set_property(TARGET profiler APPEND_STRING PROPERTY 
 		COMPILE_FLAGS " -m32 -Wno-attributes")
 	set_property(TARGET profiler APPEND_STRING PROPERTY 
 		LINK_FLAGS " -m32 -Wl,--no-undefined")
+	set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -std=c++0x)
 	if(UNIX)
 		set_property(TARGET profiler APPEND_STRING PROPERTY 
 			LINK_FLAGS " -lrt")
+	elseif(WIN32)
+		set_property(TARGET profiler APPEND_STRING PROPERTY 
+			LINK_FLAGS " -static-libgcc -static-libstdc++")
 	endif()
 endif()
 

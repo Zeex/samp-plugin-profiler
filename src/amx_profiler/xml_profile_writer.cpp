@@ -15,9 +15,9 @@
 // limitations under the License.
 
 #include <fstream>
+#include <iomanip>
 #include <string>
 #include <vector>
-#include <boost/date_time.hpp>
 #include "function.h"
 #include "function_info.h"
 #include "performance_counter.h"
@@ -25,19 +25,18 @@
 
 namespace amx_profiler {
 
-void XmlProfileWriter::Write(const std::string &script_name, std::ostream &stream, 
-	const std::vector<const FunctionInfo*> &stats) 
+void XmlProfileWriter::Write(const std::string &script_name, std::ostream &stream,
+	const std::vector<const FunctionInfo*> &stats)
 {
-	stream << 
+	stream <<
 	"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-	"<profile script=\"" << script_name << "\""
-		"date=\"" << boost::posix_time::second_clock::local_time() << "\">";
+	"<profile script=\"" << script_name << "\"";
 
 	TimeInterval time_all = 0;
 	for (std::vector<const FunctionInfo*>::const_iterator iterator = stats.begin();
 			iterator != stats.end(); ++iterator) {
 		time_all += (*iterator)->total_time() - (*iterator)->child_time();
-	}    
+	}
 
 	TimeInterval total_time_all = 0;
 	for (std::vector<const FunctionInfo*>::const_iterator iterator = stats.begin();
@@ -51,9 +50,9 @@ void XmlProfileWriter::Write(const std::string &script_name, std::ostream &strea
 		stream << " type=\"" << (*iterator)->function()->type() << "\"";
 		stream << " name=\"" << (*iterator)->function()->name() << "\"";
 		stream << " calls=\"" << (*iterator)->num_calls() << "\"";
-		stream << " total_time=\"" <<  std::fixed << std::setprecision(2) 
+		stream << " total_time=\"" <<  std::fixed << std::setprecision(2)
 			<< static_cast<double>(((*iterator)->total_time() - (*iterator)->child_time()) * 100) / time_all << "\"";
-		stream << " total_time=\"" <<  std::fixed << std::setprecision(2) 
+		stream << " total_time=\"" <<  std::fixed << std::setprecision(2)
 			<< static_cast<double>((*iterator)->total_time() * 100) / total_time_all << "\"";
 		stream << " />\n";
 	}
