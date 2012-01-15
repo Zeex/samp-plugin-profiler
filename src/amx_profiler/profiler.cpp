@@ -14,7 +14,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <algorithm>
 #include <cassert>
+#include <cstdio>
+#include <functional>
 #include <map>
 #include <string>
 #include <vector>
@@ -57,8 +60,8 @@ std::shared_ptr<Profiler> Profiler::GetInstance(AMX *amx) {
 
 std::vector<std::shared_ptr<FunctionInfo>> Profiler::GetProfile() const {
 	std::vector<std::shared_ptr<FunctionInfo>> profile;
-	for (auto x : functions_) {
-		profile.push_back(x.second);
+	for (auto iterator = functions_.begin(); iterator != functions_.end(); ++iterator) {
+		profile.push_back(iterator->second);
 	}
 	return profile;
 }

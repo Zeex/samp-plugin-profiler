@@ -18,7 +18,6 @@
 #define AMX_PROFILER_PROFILER_H
 
 #include <ostream>
-#include <map>
 #include <stack>
 #include <string>
 #include <vector>
@@ -69,7 +68,7 @@ private:
 
 	CallStack call_stack_;
 
-	std::map<
+	std::unordered_map<
 		ucell,  // address
 		std::shared_ptr<FunctionInfo>
 	> functions_;
