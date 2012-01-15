@@ -26,9 +26,13 @@ namespace amx_profiler {
 
 class FunctionCall {
 public:
-	FunctionCall(std::shared_ptr<Function> function, cell frame, std::shared_ptr<FunctionCall> parent = 0);
+	FunctionCall(const std::shared_ptr<Function> &function,
+                 cell frame,
+                 const std::shared_ptr<FunctionCall> &parent = 0);
 
-	std::shared_ptr<Function> function() const
+	std::shared_ptr<Function> &function()
+		{ return fn_; }
+	const std::shared_ptr<Function> &function() const
 		{ return fn_; }
 	cell frame() const
 		{ return frame_; }

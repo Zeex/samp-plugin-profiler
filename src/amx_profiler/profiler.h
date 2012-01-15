@@ -17,7 +17,6 @@
 #ifndef AMX_PROFILER_PROFILER_H
 #define AMX_PROFILER_PROFILER_H
 
-#include <functional>
 #include <ostream>
 #include <map>
 #include <stack>
@@ -64,10 +63,10 @@ private:
 
 	CallStack call_stack_;
 
-	void EnterFunction(std::shared_ptr<Function> function, ucell frm);
-	void LeaveFunction(std::shared_ptr<Function> function = 0);
+	void EnterFunction(const std::shared_ptr<Function> &function, ucell frm);
+	void LeaveFunction(const std::shared_ptr<Function> &function = 0);
 
-	class CompFunByPtr : public std::binary_function<const Function*, const Function*, bool> {
+	class CompFunByPtr {
 	public:
 		bool operator()(const std::shared_ptr<Function> left,
 						const std::shared_ptr<Function> right) {
