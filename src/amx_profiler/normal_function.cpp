@@ -14,21 +14,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <cassert>
-#include <boost/lexical_cast.hpp>
+#include <sstream>
 #include "debug_info.h"
 #include "normal_function.h"
 
 namespace amx_profiler {
 
-NormalFunction::NormalFunction(ucell address, DebugInfo *debug_info) 
+NormalFunction::NormalFunction(ucell address, DebugInfo *debug_info)
 	: address_(address), name_()
 {
 	if (debug_info != 0 && debug_info->IsLoaded()) {
 		name_ = debug_info->GetFunction(address);
 	}
 	if (name_.empty()) {
-		name_.append("unknown_function@").append(boost::lexical_cast<std::string>(address));
+		std::stringstream ss;
+		ss << address_;
+		name_.append("unknown_function@").append(ss.str());
 	}
 }
 

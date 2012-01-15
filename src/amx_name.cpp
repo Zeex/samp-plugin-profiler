@@ -13,16 +13,35 @@
 // limitations under the License.
 
 #include <cstring>
+#include <ctime>
 #include <exception>
 #include <iterator>
 #include <list>
-#include <map>
+#include <memory>
 #include <string>
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string.hpp>
+#include <unordered_map>
+#include <vector>
 #include <amx/amx.h>
 #include <amxaux.h>
+#ifdef _WIN32
+	#include <windows.h>
+	#include <sys/types.h>
+	#include <sys/stat.h>
+	#if !defined stat
+		#define stat _stat
+	#endif
+#else
+	#include <dirent.h>
+	#include <fnmatch.h>
+	#include <sys/stat.h>
+#endif
 #include "amx_name.h"
+
+static time_t GetMtime(const std::string filename) {
+	struct stat attrib;
+	stat(filename.c_str(), &attrib);
+	return attrib.st_mtime;
+}
 
 class AmxFile {
 public:
@@ -30,21 +49,31 @@ public:
 
 	explicit AmxFile(const std::string &name);
 
-	bool IsLoaded() const { return amxPtr_.get() != 0; }
+	bool IsLoaded() const {
+		return amxPtr_.get() != 0;
+	}
 
-	const AMX *GetAmx() const { return amxPtr_.get(); }
-	const std::string &GetName() const { return name_; }
-	std::time_t GetLastWriteTime() const { return last_write_; }
+	const AMX *GetAmx() const {
+		return amxPtr_.get();
+	}
+
+	const std::string &GetName() const {
+		return name_;
+	}
+
+	std::time_t GetLastWriteTime() const {
+		return last_write_;
+	}
 
 private:
-	boost::shared_ptr<AMX> amxPtr_;
+	std::shared_ptr<AMX> amxPtr_;
 	std::string name_;
 	std::time_t last_write_;
 };
 
 AmxFile::AmxFile(const std::string &name)
 	: name_(name)
-	, last_write_(boost::filesystem::last_write_time(name))
+	, last_write_(GetMtime(name))
 	, amxPtr_(new AMX, FreeAmx)
 {
 	if (aux_LoadProgram(amxPtr_.get(), const_cast<char*>(name.c_str()), 0) != AMX_ERR_NONE) {
@@ -57,52 +86,64 @@ void AmxFile::FreeAmx(AMX *amx) {
 	delete amx;
 }
 
-static std::map<std::string, AmxFile> scripts;
-static std::map<AMX*, std::string> cachedNames;
+static std::unordered_map<std::string, AmxFile> script_its;
+static std::unordered_map<AMX*, std::string> cachedNames;
+
+template<typename OutputIterator>
+static void GetFilesInDirectory(const std::string &dir,
+								const std::string &pattern,
+								OutputIterator result) {
+#if defined _WIN32
+	WIN32_FIND_DATA findFileData;
+	HANDLE hFindFile = FindFirstFile((dir + "\\" + pattern).c_str(), &findFileData);
+	if (hFindFile != INVALID_HANDLE_VALUE) {
+		do {
+			if (!(findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+				*result++ = dir + "\\" + findFileData.cFileName;
+			}
+		} while (FindNextFile(hFindFile, &findFileData) != 0);
+		FindClose(hFindFile);
+	}
+#else
+	DIR *dp;
+	if ((dp = opendir(dir.c_str())) != 0) {
+		struct dirent *dirp;
+		while ((dirp = readdir(dp)) != 0) {
+			if (!fnmatch(pattern.c_str(), dirp->d_name,
+							FNM_CASEFOLD | FNM_NOESCAPE | FNM_PERIOD)) {
+				*result++ = dir + "/" + dirp->d_name;
+			}
+		}
+		closedir(dp);
+	}
+#endif
+}
 
 std::string GetAmxName(AMX_HEADER *amxhdr) {
 	std::string result;
 
-	std::list<boost::filesystem::path> dirs;
-	dirs.push_back(boost::filesystem::path("gamemodes/"));
-	dirs.push_back(boost::filesystem::path("filterscripts/"));
+	std::list<std::string> files;
+	GetFilesInDirectory("gamemodes", "*.amx", std::back_inserter(files));
+	GetFilesInDirectory("filterscripts", "*.amx", std::back_inserter(files));
 
-	for (std::list<boost::filesystem::path>::const_iterator d = dirs.begin();
-			d != dirs.end(); ++d) {
-		if (!boost::filesystem::exists(*d) || !boost::filesystem::is_directory(*d)) {
-			continue;
-		}
-		for (boost::filesystem::directory_iterator f(*d);
-				f != boost::filesystem::directory_iterator(); ++f) {
-			if (!boost::filesystem::is_regular_file(f->path()) ||
-					!boost::algorithm::ends_with(f->path().string(), ".amx")) {
-				continue;
+	for (const std::string &file : files) {
+		auto script_it = script_its.find(file);
+		if (script_it == script_its.end() ||
+				script_it->second.GetLastWriteTime() < GetMtime(file)) {
+			if (script_it != script_its.end()) {
+				script_its.erase(script_it);
 			}
-
-			std::string filename = f->path().string();
-			std::time_t last_write = boost::filesystem::last_write_time(filename);
-
-			std::map<std::string, AmxFile>::iterator script_it = scripts.find(filename);
-
-			if (script_it == scripts.end() ||
-					script_it->second.GetLastWriteTime() < last_write) {
-				if (script_it != scripts.end()) {
-					scripts.erase(script_it);
-				}
-				AmxFile script(filename);
-				if (script.IsLoaded()) {
-					scripts.insert(std::make_pair(filename, script));
-				}
+			AmxFile script_it(file);
+			if (script_it.IsLoaded()) {
+				script_its.insert(std::make_pair(file, script_it));
 			}
 		}
 	}
 
-	for (std::map<std::string, AmxFile>::const_iterator script_it = scripts.begin();
-			script_it != scripts.end(); ++script_it)
-	{
-		void *amxhdr2 = script_it->second.GetAmx()->base;
+	for (auto script_it : script_its) {
+		void *amxhdr2 = script_it.second.GetAmx()->base;
 		if (std::memcmp(amxhdr, amxhdr2, sizeof(AMX_HEADER)) == 0) {
-			result = script_it->first;
+			result = script_it.first;
 			break;
 		}
 	}
@@ -113,7 +154,7 @@ std::string GetAmxName(AMX_HEADER *amxhdr) {
 std::string GetAmxName(AMX *amx) {
 	std::string result;
 
-	std::map<AMX*, std::string>::const_iterator it = cachedNames.find(amx);
+	auto it = cachedNames.find(amx);
 	if (it != cachedNames.end()) {
 		result = it->second;
 	} else {

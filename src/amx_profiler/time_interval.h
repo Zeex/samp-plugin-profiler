@@ -17,16 +17,16 @@
 #ifndef AMX_PROFILER_TIMER_INTERVAL_H
 #define AMX_PROFILER_TIME_INTERVAL_H
 
-#include <boost/chrono.hpp>
-#include <boost/integer.hpp>
+#include <chrono>
+#include <cstdint>
 
 namespace amx_profiler {
 
-typedef boost::int64_t TimeInterval;
+typedef std::int64_t TimeInterval;
 
-typedef boost::chrono::nanoseconds  Nanoseconds;
-typedef boost::chrono::microseconds Microseconds;
-typedef boost::chrono::milliseconds Milliseconds;
+typedef std::chrono::nanoseconds  Nanoseconds;
+typedef std::chrono::microseconds Microseconds;
+typedef std::chrono::milliseconds Milliseconds;
 
 } // namespace amx_profiler
 

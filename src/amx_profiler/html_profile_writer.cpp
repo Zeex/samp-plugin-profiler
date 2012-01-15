@@ -15,9 +15,9 @@
 // limitations under the License.
 
 #include <fstream>
+#include <iomanip>
 #include <string>
 #include <vector>
-#include <boost/date_time.hpp>
 #include "function.h"
 #include "function_info.h"
 #include "html_profile_writer.h"
@@ -25,16 +25,16 @@
 
 namespace amx_profiler {
 
-void HtmlProfileWriter::Write(const std::string &script_name, std::ostream &stream, 
-		const std::vector<const FunctionInfo*> &stats) 
+void HtmlProfileWriter::Write(const std::string &script_name, std::ostream &stream,
+		const std::vector<const FunctionInfo*> &stats)
 {
-	stream << 
+	stream <<
 	"<html>\n"
 	"<head>\n"
 	"	<title>" << "Profile of '" << script_name << "'</title>\n"
 	"</head>\n"
 	"<body>\n"
-	"	<h1>\n" << 
+	"	<h1>\n" <<
 	"		Profile of '" << script_name << "'\n"
 	"	</h1>\n"
 	"	<table id=\"stats\" class=\"tablesorter\" border=\"1\" width=\"100%\">\n"
@@ -54,7 +54,7 @@ void HtmlProfileWriter::Write(const std::string &script_name, std::ostream &stre
 	for (std::vector<const FunctionInfo*>::const_iterator iterator = stats.begin();
 			iterator != stats.end(); ++iterator) {
 		time_all += (*iterator)->total_time() - (*iterator)->child_time();
-	}    
+	}
 
 	TimeInterval total_time_all = 0;
 	for (std::vector<const FunctionInfo*>::const_iterator iterator = stats.begin();
@@ -64,19 +64,19 @@ void HtmlProfileWriter::Write(const std::string &script_name, std::ostream &stre
 
 	for (std::vector<const FunctionInfo*>::const_iterator iterator = stats.begin();
 			iterator != stats.end(); ++iterator) {
-		stream 
+		stream
 		<< "		<tr>\n"
 		<< "			<td>" << (*iterator)->function()->type() << "</td>\n"
 		<< "			<td>" << (*iterator)->function()->name() << "</td>\n"
 		<< "			<td>" << (*iterator)->num_calls() << "</td>\n"
-		<< "			<td>" << std::fixed << std::setprecision(2) 
+		<< "			<td>" << std::fixed << std::setprecision(2)
 			<< static_cast<double>(((*iterator)->total_time() - (*iterator)->child_time()) * 100) / time_all << "</td>\n"
-		<< "			<td>" << std::fixed << std::setprecision(2) 
+		<< "			<td>" << std::fixed << std::setprecision(2)
 			<< static_cast<double>((*iterator)->total_time() * 100) / total_time_all << "</td>\n"
 		<< "		</tr>\n";
 	}
 
-	stream << 
+	stream <<
 	"		</tbody>\n"
 	"	</table>\n"
 	;
@@ -84,7 +84,7 @@ void HtmlProfileWriter::Write(const std::string &script_name, std::ostream &stre
 	stream <<
 	"	<br/>"
 	"	<footer>\n"
-	"		Generated on " << boost::posix_time::second_clock::local_time() << "\n"
+	//"		Generated on " << boost::posix_time::second_clock::local_time() << "\n"
 	"	</footer>\n"
 	"	<script type=\"text/javascript\"\n"
 	"		src=\"http://code.jquery.com/jquery-latest.min.js\"></script>\n"

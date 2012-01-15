@@ -14,13 +14,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <cassert>
-#include <boost/lexical_cast.hpp>
+#include <sstream>
 #include "native_function.h"
 
 namespace amx_profiler {
 
-NativeFunction::NativeFunction(AMX *amx, cell index) 
+NativeFunction::NativeFunction(AMX *amx, cell index)
 	: index_(index), address_(0), name_()
 {
 	AMX_HEADER *amxhdr = reinterpret_cast<AMX_HEADER*>(amx->base);
@@ -30,7 +29,9 @@ NativeFunction::NativeFunction(AMX *amx, cell index)
 		address_ = natives[index].address;
 		name_.assign(reinterpret_cast<char*>(natives[index_].nameofs + amx->base));
 	} else {
-		name_.append("unknown_native@").append(boost::lexical_cast<std::string>(index_));
+		std::stringstream ss;
+		ss << index_;
+		name_.append("unknown_native@").append(ss.str());
 	}
 }
 

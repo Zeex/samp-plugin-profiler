@@ -17,14 +17,14 @@
 #ifndef AMX_PROFILER_PERFORMANCE_COUNTER_H
 #define AMX_PROFILER_PERFORMANCE_COUNTER_H
 
-#include <boost/chrono.hpp>
+#include <chrono>
 #include "time_interval.h"
 
 namespace amx_profiler {
 
 class PerformanceCounter {
 public:
-	typedef boost::chrono::high_resolution_clock ClockType;
+	typedef std::chrono::high_resolution_clock ClockType;
 
 	PerformanceCounter(PerformanceCounter *parent = 0);
 	~PerformanceCounter();
@@ -34,17 +34,17 @@ public:
 
 	template<typename Resolution>
 	inline TimeInterval child_time() const {
-		return boost::chrono::duration_cast<Resolution>(child_time_).count();
+		return std::chrono::duration_cast<Resolution>(child_time_).count();
 	}
 
 	template<typename Resolution>
 	inline TimeInterval total_time() const {
-		return boost::chrono::duration_cast<Resolution>(total_time_).count();
+		return std::chrono::duration_cast<Resolution>(total_time_).count();
 	}
 
 	template<typename Resolution>
-	inline TimeInterval self_time() const { 
-		return total_time<Resolution>() - child_time<Resolution>(); 
+	inline TimeInterval self_time() const {
+		return total_time<Resolution>() - child_time<Resolution>();
 	}
 
 private:

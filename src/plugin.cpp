@@ -31,8 +31,6 @@
 	#include <Windows.h>
 #endif
 
-#include <boost/algorithm/string.hpp>
-
 #include <amx_profiler/debug_info.h>
 #include <amx_profiler/html_profile_writer.h>
 #include <amx_profiler/profiler.h>
@@ -67,7 +65,7 @@ static int AMXAPI Debug(AMX *amx) {
 	if (prof != 0) {
 		prof->AmxDebugHook();
 	}
-	std::map<AMX*, AMX_DEBUG>::iterator iterator = old_debug_hooks.find(amx); 
+	std::map<AMX*, AMX_DEBUG>::iterator iterator = old_debug_hooks.find(amx);
 	if (iterator != old_debug_hooks.end()) {
 		if (iterator->second != 0) {
 			return (iterator->second)(amx);
@@ -266,7 +264,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 
 		std::string format =
 			server_cfg.GetOption("profile_format", std::string("html"));
-		boost::algorithm::to_lower(format);
+		//boost::algorithm::to_lower(format);
 
 		std::string filename = amx_name + "-profile";
 		ProfileWriter *writer = 0;
