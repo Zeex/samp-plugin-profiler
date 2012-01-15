@@ -14,26 +14,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <memory>
 #include "call_stack.h"
 #include "function_info.h"
 
 namespace amx_profiler {
 
-void CallStack::Push(Function *function, ucell frame) { 
-	Push(FunctionCall(function, frame, calls_.empty() ? 0 : &calls_.top()));
+void CallStack::Push(std::shared_ptr<Function> function, ucell frame) {
+	Push(std::shared_ptr<FunctionCall>(new FunctionCall(function, frame, calls_.empty() ? 0 : calls_.top())));
 }
 
-void CallStack::Push(const FunctionCall &call) { 
-	calls_.push(call); 
-	calls_.top().timer().Start();
+void CallStack::Push(std::shared_ptr<FunctionCall> call) {
+	calls_.push(call);
+	calls_.top()->timer().Start();
 }
 
-FunctionCall CallStack::Pop() {
-	FunctionCall &top = calls_.top();
-	top.timer().Stop();
-	FunctionCall top_copy(top);
+std::shared_ptr<FunctionCall> CallStack::Pop() {
+	std::shared_ptr<FunctionCall> top = calls_.top();
 	calls_.pop();
-	return top_copy;
+	top->timer().Stop();
+	return top;
 }
 
 } // namespace amx_profiler

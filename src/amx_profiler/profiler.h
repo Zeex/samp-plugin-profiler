@@ -23,6 +23,7 @@
 #include <stack>
 #include <string>
 #include <vector>
+#include <unordered_map>
 #include <amx/amx.h>
 #include "call_stack.h"
 #include "debug_info.h"
@@ -43,15 +44,15 @@ public:
 	static void Attach(AMX *amx, DebugInfo debug_info = DebugInfo());
 	static void Detach(AMX *amx);
 
-	static Profiler *GetInstance(AMX *amx);
+	static std::shared_ptr<Profiler> GetInstance(AMX *amx);
 
 	void WriteProfile(const std::string &script_name,
 	                  ProfileWriter *writer,
 	                  std::ostream &stream) const;
-	std::vector<const FunctionInfo*> GetProfile() const;
+	std::vector<std::shared_ptr<FunctionInfo>> GetProfile() const;
 
 	int AmxDebugHook();
-	int AmxExecHook(cell *retval, int index);	
+	int AmxExecHook(cell *retval, int index);
 	int AmxCallbackHook(cell index, cell *result, cell *params);
 
 private:
@@ -63,20 +64,27 @@ private:
 
 	CallStack call_stack_;
 
-	void EnterFunction(const Function *function, ucell frm);
-	void LeaveFunction(const Function *function = 0);	
+	void EnterFunction(std::shared_ptr<Function> function, ucell frm);
+	void LeaveFunction(std::shared_ptr<Function> function = 0);
 
 	class CompFunByPtr : public std::binary_function<const Function*, const Function*, bool> {
 	public:
-		bool operator()(const Function *left, const Function *right) {
+		bool operator()(const std::shared_ptr<Function> left,
+						const std::shared_ptr<Function> right) {
 			return left->address() < right->address();
 		}
 	};
 
-	typedef std::map<Function*, FunctionInfo, CompFunByPtr> Functions;
-	Functions functions_;
+	std::map<
+		std::shared_ptr<Function>,
+		std::shared_ptr<FunctionInfo>,
+		CompFunByPtr
+	> functions_;
 
-	static std::map<AMX*, Profiler*> instances_;
+	static std::unordered_map<
+		AMX*,
+		std::shared_ptr<Profiler>
+	> instances_;
 };
 
 inline bool IsAmxProfilable(AMX *amx) {
@@ -86,7 +94,7 @@ inline bool IsAmxProfilable(AMX *amx) {
 		return true;
 	}
 	if ((flags & AMX_FLAG_NOCHECKS) == 0) {
-		return true; 
+		return true;
 	}
 	return false;
 }

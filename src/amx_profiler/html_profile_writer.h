@@ -25,8 +25,8 @@ namespace amx_profiler {
 
 class HtmlProfileWriter : public ProfileWriter {
 public:
-	virtual void Write(const std::string &script_name, std::ostream &stream, 
-			const std::vector<const FunctionInfo*> &stats);
+	virtual void Write(const std::string &script_name, std::ostream &stream,
+			const std::vector<std::shared_ptr<FunctionInfo>> &stats);
 };
 
 } // namespace amx_profiler
