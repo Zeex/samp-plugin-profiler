@@ -18,7 +18,7 @@
 
 namespace amx_profiler {
 
-FunctionInfo::FunctionInfo(const std::shared_ptr<Function> &func)
+FunctionInfo::FunctionInfo(const FunctionPtr &func)
 	: func_(func)
 	, num_calls_(1)
 	, total_time_(0)

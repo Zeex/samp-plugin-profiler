@@ -20,17 +20,17 @@
 
 namespace amx_profiler {
 
-void CallStack::Push(std::shared_ptr<Function> function, ucell frame) {
-	Push(std::shared_ptr<FunctionCall>(new FunctionCall(function, frame, calls_.empty() ? 0 : calls_.top())));
+void CallStack::Push(FunctionPtr function, ucell frame) {
+	Push(FunctionCallPtr(new FunctionCall(function, frame, calls_.empty() ? 0 : calls_.top())));
 }
 
-void CallStack::Push(std::shared_ptr<FunctionCall> call) {
+void CallStack::Push(FunctionCallPtr call) {
 	calls_.push(call);
 	calls_.top()->timer().Start();
 }
 
-std::shared_ptr<FunctionCall> CallStack::Pop() {
-	std::shared_ptr<FunctionCall> top = calls_.top();
+FunctionCallPtr CallStack::Pop() {
+	FunctionCallPtr top = calls_.top();
 	calls_.pop();
 	top->timer().Stop();
 	return top;

@@ -58,8 +58,8 @@ std::shared_ptr<Profiler> Profiler::GetInstance(AMX *amx) {
 	return instances_[amx];
 }
 
-std::vector<std::shared_ptr<FunctionInfo>> Profiler::GetProfile() const {
-	std::vector<std::shared_ptr<FunctionInfo>> profile;
+std::vector<FunctionInfoPtr> Profiler::GetProfile() const {
+	std::vector<FunctionInfoPtr> profile;
 	for (auto iterator = functions_.begin(); iterator != functions_.end(); ++iterator) {
 		profile.push_back(iterator->second);
 	}
@@ -83,9 +83,9 @@ int Profiler::AmxDebugHook() {
 		if (call_stack_.GetTop()->frame() != amx_->frm) {
 			auto address = static_cast<ucell>(amx_->cip) - 2*sizeof(cell);
 			if (functions_.find(address) == functions_.end()) {
-				std::shared_ptr<Function> fn(new NormalFunction(address, debug_info_));
+				FunctionPtr fn(new NormalFunction(address, debug_info_));
 				functions_.insert(std::make_pair(address,
-						std::shared_ptr<FunctionInfo>(new FunctionInfo(fn))));
+						FunctionInfoPtr(new FunctionInfo(fn))));
 			}
 			EnterFunction(address, amx_->frm);
 		}
@@ -100,9 +100,9 @@ int Profiler::AmxCallbackHook(cell index, cell *result, cell *params) {
 	if (index >= 0) {
 		auto address = GetNativeAddress(index);
 		if (functions_.find(address) == functions_.end()) {
-			std::shared_ptr<Function> fn(new NativeFunction(amx_, index));
+			FunctionPtr fn(new NativeFunction(amx_, index));
 			functions_.insert(std::make_pair(address,
-					std::shared_ptr<FunctionInfo>(new FunctionInfo(fn))));
+					FunctionInfoPtr(new FunctionInfo(fn))));
 		}
 		EnterFunction(address, amx_->frm);
 		int error = amx_Callback(amx_, index, result, params);
@@ -118,9 +118,9 @@ int Profiler::AmxExecHook(cell *retval, int index) {
 	if (index >= 0 || index == AMX_EXEC_MAIN) {
 		auto address = GetPublicAddress(index);
 		if (functions_.find(address) == functions_.end()) {
-			std::shared_ptr<Function> fn(new PublicFunction(amx_, index));
+			FunctionPtr fn(new PublicFunction(amx_, index));
 			functions_.insert(std::make_pair(address,
-					std::shared_ptr<FunctionInfo>(new FunctionInfo(fn))));
+					FunctionInfoPtr(new FunctionInfo(fn))));
 		}
 		EnterFunction(address, amx_->stk - 3*sizeof(cell));
 		int error = amx_Exec(amx_, retval, index);
@@ -157,7 +157,7 @@ ucell Profiler::GetPublicAddress(cell index) {
 void Profiler::EnterFunction(ucell address, ucell frm) {
 	assert(functions_.find(address) != functions_.end() && address != 0
 			&& "EnterFunction() called with invalid address");
-	std::shared_ptr<FunctionInfo> &info = functions_[address];
+	FunctionInfoPtr &info = functions_[address];
 	call_stack_.Push(info->function(), frm);
 	info->num_calls()++;
 }
