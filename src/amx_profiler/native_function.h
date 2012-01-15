@@ -29,8 +29,6 @@ public:
 	virtual std::string type() const;
 	virtual ucell address() const;
 
-	virtual Function *Clone() const;
-
 	cell index() const { return index_; }
 
 private:

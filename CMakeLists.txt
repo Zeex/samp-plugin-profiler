@@ -29,7 +29,6 @@ add_library(profiler MODULE
 	src/amx_name.h
 	src/amx_profiler/call_stack.cpp
 	src/amx_profiler/call_stack.h
-	src/amx_profiler/cloneable.h
 	src/amx_profiler/debug_info.cpp
 	src/amx_profiler/debug_info.h
 	src/amx_profiler/function.cpp
