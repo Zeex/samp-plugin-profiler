@@ -47,7 +47,7 @@ public:
 	void WriteProfile(const std::string &script_name,
 	                  ProfileWriter *writer,
 	                  std::ostream &stream) const;
-	std::vector<std::shared_ptr<FunctionInfo>> GetProfile() const;
+	std::vector<FunctionInfoPtr> GetProfile() const;
 
 	int AmxDebugHook();
 	int AmxExecHook(cell *retval, int index);
@@ -70,7 +70,7 @@ private:
 
 	std::unordered_map<
 		ucell,  // address
-		std::shared_ptr<FunctionInfo>
+		FunctionInfoPtr
 	> functions_;
 
 	static std::unordered_map<

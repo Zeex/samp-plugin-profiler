@@ -17,10 +17,14 @@
 #ifndef AMX_PROFILER_FUNCTION_FUNCTION_H
 #define AMX_PROFILER_FUNCTION_FUNCTION_H
 
+#include <memory>
 #include <string>
 #include <amx/amx.h>
 
 namespace amx_profiler {
+
+class Function;
+typedef std::shared_ptr<Function> FunctionPtr;
 
 class Function {
 public:

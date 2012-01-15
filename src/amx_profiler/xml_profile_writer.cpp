@@ -28,23 +28,23 @@
 namespace amx_profiler {
 
 void XmlProfileWriter::Write(const std::string &script_name, std::ostream &stream,
-	const std::vector<std::shared_ptr<FunctionInfo>> &stats)
+	const std::vector<FunctionInfoPtr> &stats)
 {
 	stream <<
 	"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
 	"<profile script=\"" << script_name << "\"";
 
 	TimeInterval time_all = 0;
-	std::for_each(stats.begin(), stats.end(), [&](const std::shared_ptr<FunctionInfo> &info) { 
+	std::for_each(stats.begin(), stats.end(), [&](const FunctionInfoPtr &info) { 
 		time_all += info->total_time() - info->child_time(); 
 	});
 
 	TimeInterval total_time_all = 0;
-	std::for_each(stats.begin(), stats.end(), [&](const std::shared_ptr<FunctionInfo> &info) { 
+	std::for_each(stats.begin(), stats.end(), [&](const FunctionInfoPtr &info) { 
 		total_time_all += info->total_time(); 
 	});
 
-	std::for_each(stats.begin(), stats.end(), [&](const std::shared_ptr<FunctionInfo> &info) {
+	std::for_each(stats.begin(), stats.end(), [&](const FunctionInfoPtr &info) {
 		stream << "		<function";
 		stream << " type=\"" << info->function()->type() << "\"";
 		stream << " name=\"" << info->function()->name() << "\"";
