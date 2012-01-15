@@ -155,7 +155,7 @@ ucell Profiler::GetPublicAddress(cell index) {
 }
 
 void Profiler::EnterFunction(ucell address, ucell frm) {
-	assert(functions_.find(address) == functions_.end()
+	assert(functions_.find(address) != functions_.end() && address != 0
 			&& "EnterFunction() called with invalid address");
 	std::shared_ptr<FunctionInfo> &info = functions_[address];
 	call_stack_.Push(info->function(), frm);
@@ -164,7 +164,7 @@ void Profiler::EnterFunction(ucell address, ucell frm) {
 
 void Profiler::LeaveFunction(ucell address) {
 	assert(!call_stack_.IsEmpty());
-	assert(functions_.find(address) == functions_.end()
+	assert(address == 0 || functions_.find(address) != functions_.end()
 			&& "LeaveFunction() called with invalid address");
 	while (true) {
 		auto current = call_stack_.Pop();
