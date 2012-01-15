@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <sstream>
+#include <cassert>
 #include "native_function.h"
 
 namespace amx_profiler {
@@ -29,9 +29,7 @@ NativeFunction::NativeFunction(AMX *amx, cell index)
 		address_ = natives[index].address;
 		name_.assign(reinterpret_cast<char*>(natives[index_].nameofs + amx->base));
 	} else {
-		std::stringstream ss;
-		ss << index_;
-		name_.append("unknown_native@").append(ss.str());
+		assert(0 && "Invalid native index");
 	}
 }
 

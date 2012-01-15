@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <sstream>
+#include <cassert>
 #include "public_function.h"
 
 namespace amx_profiler {
@@ -30,10 +30,9 @@ PublicFunction::PublicFunction(AMX *amx, cell index)
 		name_.assign(reinterpret_cast<char*>(publics[index_].nameofs + amx->base));
 	} else if (index_ == AMX_EXEC_MAIN) {
 		name_.assign("main");
+		address_ = amxhdr->cip;
 	} else {
-		std::stringstream ss;
-		ss << index_;
-		name_.append(std::string("unknown_public@")).append(ss.str());
+		assert(0 && "Invalid public index");
 	}
 }
 
