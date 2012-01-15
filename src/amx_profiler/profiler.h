@@ -57,27 +57,21 @@ public:
 private:
 	Profiler();
 
+	ucell GetNativeAddress(cell index);
+	ucell GetPublicAddress(cell index);
+
+	void EnterFunction(ucell address, ucell frm);
+	void LeaveFunction(ucell address = 0);
+
 private:
 	AMX       *amx_;
 	DebugInfo debug_info_;
 
 	CallStack call_stack_;
 
-	void EnterFunction(const std::shared_ptr<Function> &function, ucell frm);
-	void LeaveFunction(const std::shared_ptr<Function> &function = 0);
-
-	class CompFunByPtr {
-	public:
-		bool operator()(const std::shared_ptr<Function> left,
-						const std::shared_ptr<Function> right) {
-			return left->address() < right->address();
-		}
-	};
-
 	std::map<
-		std::shared_ptr<Function>,
-		std::shared_ptr<FunctionInfo>,
-		CompFunByPtr
+		ucell,  // address
+		std::shared_ptr<FunctionInfo>
 	> functions_;
 
 	static std::unordered_map<
