@@ -17,6 +17,7 @@
 #ifndef AMX_PROFILER_CALL_STACK_H
 #define AMX_PROFILER_CALL_STACK_H
 
+#include <memory>
 #include <stack>
 #include <amx/amx.h>
 #include "function_call.h"
@@ -27,19 +28,17 @@ class FunctionInfo;
 
 class CallStack {
 public:
-	void Push(Function *function, ucell frame);
-	void Push(const FunctionCall &info);
-	FunctionCall Pop();
+	void Push(std::shared_ptr<Function> function, ucell frame);
+	void Push(std::shared_ptr<FunctionCall> info);
+	std::shared_ptr<FunctionCall> Pop();
 
 	bool IsEmpty() const
 		{ return calls_.empty(); }
-	FunctionCall &GetTop()
-		{ return calls_.top(); }
-	const FunctionCall &GetTop() const
+	std::shared_ptr<FunctionCall> GetTop() const
 		{ return calls_.top(); }
 
 private:
-	std::stack<FunctionCall> calls_;
+	std::stack<std::shared_ptr<FunctionCall>> calls_;
 };
 
 } // namespace amx_profiler

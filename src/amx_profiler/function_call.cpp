@@ -14,11 +14,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <memory>
 #include "function_call.h"
 
 namespace amx_profiler {
 
-FunctionCall::FunctionCall(Function *function, cell frame, FunctionCall *parent)
+FunctionCall::FunctionCall(std::shared_ptr<Function> function, cell frame, std::shared_ptr<FunctionCall> parent)
 		: fn_(function)
 		, parent_(parent)
 		, frame_(frame)
@@ -26,7 +27,7 @@ FunctionCall::FunctionCall(Function *function, cell frame, FunctionCall *parent)
 		, recursive_(false)
 {
 	// Check if this is a recursive call
-	FunctionCall *current = parent;
+	std::shared_ptr<FunctionCall> current = parent;
 	while (current != 0) {
 		if (current->fn_ == this->fn_) {
 			recursive_ = true;

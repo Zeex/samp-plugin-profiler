@@ -17,6 +17,7 @@
 #ifndef AMX_PROFILER_PROFILE_WRITER_H
 #define AMX_PROFILER_PROFILE_WRITER_H
 
+#include <memory>
 #include <ostream>
 #include <vector>
 
@@ -26,8 +27,8 @@ class FunctionInfo;
 
 class ProfileWriter {
 public:
-	virtual void Write(const std::string &script_name, std::ostream &stream, 
-			const std::vector<const FunctionInfo*> &stats) = 0;
+	virtual void Write(const std::string &script_name, std::ostream &stream,
+			const std::vector<std::shared_ptr<FunctionInfo>> &stats) = 0;
 };
 
 } // namespace amx_profiler

@@ -26,34 +26,31 @@
 namespace amx_profiler {
 
 void XmlProfileWriter::Write(const std::string &script_name, std::ostream &stream,
-	const std::vector<const FunctionInfo*> &stats)
+	const std::vector<std::shared_ptr<FunctionInfo>> &stats)
 {
 	stream <<
 	"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
 	"<profile script=\"" << script_name << "\"";
 
 	TimeInterval time_all = 0;
-	for (std::vector<const FunctionInfo*>::const_iterator iterator = stats.begin();
-			iterator != stats.end(); ++iterator) {
-		time_all += (*iterator)->total_time() - (*iterator)->child_time();
+	for (auto info : stats) {
+		time_all += info->total_time() - info->child_time();
 	}
 
 	TimeInterval total_time_all = 0;
-	for (std::vector<const FunctionInfo*>::const_iterator iterator = stats.begin();
-			iterator != stats.end(); ++iterator) {
-		total_time_all += (*iterator)->total_time();
+	for (auto info : stats) {
+		total_time_all += info->total_time();
 	}
 
-	for (std::vector<const FunctionInfo*>::const_iterator iterator = stats.begin();
-			iterator != stats.end(); ++iterator) {
+	for (auto info : stats) {
 		stream << "		<function";
-		stream << " type=\"" << (*iterator)->function()->type() << "\"";
-		stream << " name=\"" << (*iterator)->function()->name() << "\"";
-		stream << " calls=\"" << (*iterator)->num_calls() << "\"";
+		stream << " type=\"" << info->function()->type() << "\"";
+		stream << " name=\"" << info->function()->name() << "\"";
+		stream << " calls=\"" << info->num_calls() << "\"";
 		stream << " total_time=\"" <<  std::fixed << std::setprecision(2)
-			<< static_cast<double>(((*iterator)->total_time() - (*iterator)->child_time()) * 100) / time_all << "\"";
+			<< static_cast<double>((info->total_time() - info->child_time()) * 100) / time_all << "\"";
 		stream << " total_time=\"" <<  std::fixed << std::setprecision(2)
-			<< static_cast<double>((*iterator)->total_time() * 100) / total_time_all << "\"";
+			<< static_cast<double>(info->total_time() * 100) / total_time_all << "\"";
 		stream << " />\n";
 	}
 

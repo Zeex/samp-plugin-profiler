@@ -26,7 +26,7 @@
 namespace amx_profiler {
 
 void HtmlProfileWriter::Write(const std::string &script_name, std::ostream &stream,
-		const std::vector<const FunctionInfo*> &stats)
+		const std::vector<std::shared_ptr<FunctionInfo>> &stats)
 {
 	stream <<
 	"<html>\n"
@@ -51,28 +51,25 @@ void HtmlProfileWriter::Write(const std::string &script_name, std::ostream &stre
 	;
 
 	TimeInterval time_all = 0;
-	for (std::vector<const FunctionInfo*>::const_iterator iterator = stats.begin();
-			iterator != stats.end(); ++iterator) {
-		time_all += (*iterator)->total_time() - (*iterator)->child_time();
+	for (auto info : stats) {
+		time_all += info->total_time() - info->child_time();
 	}
 
 	TimeInterval total_time_all = 0;
-	for (std::vector<const FunctionInfo*>::const_iterator iterator = stats.begin();
-			iterator != stats.end(); ++iterator) {
-		total_time_all += (*iterator)->total_time();
+	for (auto info : stats) {
+		total_time_all += info->total_time();
 	}
 
-	for (std::vector<const FunctionInfo*>::const_iterator iterator = stats.begin();
-			iterator != stats.end(); ++iterator) {
+	for (auto info : stats) {
 		stream
 		<< "		<tr>\n"
-		<< "			<td>" << (*iterator)->function()->type() << "</td>\n"
-		<< "			<td>" << (*iterator)->function()->name() << "</td>\n"
-		<< "			<td>" << (*iterator)->num_calls() << "</td>\n"
+		<< "			<td>" << info->function()->type() << "</td>\n"
+		<< "			<td>" << info->function()->name() << "</td>\n"
+		<< "			<td>" << info->num_calls() << "</td>\n"
 		<< "			<td>" << std::fixed << std::setprecision(2)
-			<< static_cast<double>(((*iterator)->total_time() - (*iterator)->child_time()) * 100) / time_all << "</td>\n"
+			<< static_cast<double>((info->total_time() - info->child_time()) * 100) / time_all << "</td>\n"
 		<< "			<td>" << std::fixed << std::setprecision(2)
-			<< static_cast<double>((*iterator)->total_time() * 100) / total_time_all << "</td>\n"
+			<< static_cast<double>(info->total_time() * 100) / total_time_all << "</td>\n"
 		<< "		</tr>\n";
 	}
 

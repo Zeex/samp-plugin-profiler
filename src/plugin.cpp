@@ -61,9 +61,9 @@ static JumpX86 ExecHook;
 static JumpX86 CallbackHook;
 
 static int AMXAPI Debug(AMX *amx) {
-	Profiler *prof = Profiler::GetInstance(amx);
-	if (prof != 0) {
-		prof->AmxDebugHook();
+	std::shared_ptr<Profiler> profiler = Profiler::GetInstance(amx);
+	if (profiler != 0) {
+		profiler->AmxDebugHook();
 	}
 	std::map<AMX*, AMX_DEBUG>::iterator iterator = old_debug_hooks.find(amx);
 	if (iterator != old_debug_hooks.end()) {
@@ -80,9 +80,9 @@ static int AMXAPI Exec(AMX *amx, cell *retval, int index) {
 
 	int error = AMX_ERR_NONE;
 
-	Profiler *prof = Profiler::GetInstance(amx);
-	if (prof != 0) {
-		error =  prof->AmxExecHook(retval, index);
+	std::shared_ptr<Profiler> profiler = Profiler::GetInstance(amx);
+	if (profiler != 0) {
+		error =  profiler->AmxExecHook(retval, index);
 	} else {
 		error = amx_Exec(amx, retval, index);
 	}
@@ -101,9 +101,9 @@ static int AMXAPI Callback(AMX *amx, cell index, cell *result, cell *params) {
 
 	int error = AMX_ERR_NONE;
 
-	Profiler *prof = Profiler::GetInstance(amx);
-	if (prof != 0) {
-		error =  prof->AmxCallbackHook(index, result, params);
+	std::shared_ptr<Profiler> profiler = Profiler::GetInstance(amx);
+	if (profiler != 0) {
+		error =  profiler->AmxCallbackHook(index, result, params);
 	} else {
 		error = amx_Callback(amx, index, result, params);
 	}
@@ -254,9 +254,9 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 }
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
-	Profiler *prof = Profiler::GetInstance(amx);
+	std::shared_ptr<Profiler> profiler = Profiler::GetInstance(amx);
 
-	if (prof != 0) {
+	if (profiler != 0) {
 		std::string amx_path = GetAmxName(amx);
 		std::string amx_name = std::string(amx_path, 0, amx_path.find_last_of("."));
 
@@ -284,7 +284,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 
 		if (writer != 0) {
 			std::ofstream ostream(filename.c_str());
-			prof->WriteProfile(amx_path, writer, ostream);
+			profiler->WriteProfile(amx_path, writer, ostream);
 			delete writer;
 		}
 

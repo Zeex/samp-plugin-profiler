@@ -26,7 +26,7 @@
 namespace amx_profiler {
 
 void TextProfileWriter::Write(const std::string &script_name, std::ostream &stream,
-		const std::vector<const FunctionInfo*> &stats)
+		const std::vector<std::shared_ptr<FunctionInfo>> &stats)
 {
 	stream << "Profile of '" << script_name;
 
@@ -39,27 +39,24 @@ void TextProfileWriter::Write(const std::string &script_name, std::ostream &stre
 	<< std::endl;
 
 	TimeInterval time_all = 0;
-	for (std::vector<const FunctionInfo*>::const_iterator iterator = stats.begin();
-			iterator != stats.end(); ++iterator) {
-		time_all += (*iterator)->total_time() - (*iterator)->child_time();
+	for (auto info : stats) {
+		time_all += info->total_time() - info->child_time();
 	}
 
 	TimeInterval total_time_all = 0;
-	for (std::vector<const FunctionInfo*>::const_iterator iterator = stats.begin();
-			iterator != stats.end(); ++iterator) {
-		total_time_all += (*iterator)->total_time();
+	for (auto info : stats) {
+		total_time_all += info->total_time();
 	}
 
-	for (std::vector<const FunctionInfo*>::const_iterator iterator = stats.begin();
-			iterator != stats.end(); ++iterator) {
+	for (auto info : stats) {
 		stream
-			<< std::setw(kTypeWidth) << (*iterator)->function()->type()
-			<< std::setw(kNameWidth) << (*iterator)->function()->name()
-			<< std::setw(kCallsWidth) << (*iterator)->num_calls()
+			<< std::setw(kTypeWidth) << info->function()->type()
+			<< std::setw(kNameWidth) << info->function()->name()
+			<< std::setw(kCallsWidth) << info->num_calls()
 			<< std::setw(kSelfTimeWidth) << std::setprecision(2) << std::fixed
-				<< static_cast<double>(((*iterator)->total_time() - (*iterator)->child_time()) * 100) / time_all
+				<< static_cast<double>((info->total_time() - info->child_time()) * 100) / time_all
 			<< std::setw(kTotalTimeWidth) << std::setprecision(2) << std::fixed
-				<< static_cast<double>((*iterator)->total_time() * 100) / total_time_all
+				<< static_cast<double>(info->total_time() * 100) / total_time_all
 		<< std::endl;
 	}
 }

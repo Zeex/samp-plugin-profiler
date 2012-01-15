@@ -30,7 +30,7 @@
 namespace amx_profiler {
 
 // statics
-std::map<AMX*, Profiler*> Profiler::instances_;
+std::unordered_map<AMX*, std::shared_ptr<Profiler>> Profiler::instances_;
 
 Profiler::Profiler(AMX *amx, DebugInfo debug_info)
 	: amx_(amx)
@@ -38,41 +38,27 @@ Profiler::Profiler(AMX *amx, DebugInfo debug_info)
 {
 }
 
-Profiler::~Profiler() {
-	for (Functions::const_iterator iterator = functions_.begin(); 
-			iterator != functions_.end(); ++iterator) {
-		delete iterator->first;
-	}
-}
+Profiler::~Profiler() {}
 
 // static
 void Profiler::Attach(AMX *amx, DebugInfo debug_info) {
-	instances_[amx] = new Profiler(amx, debug_info);
+	instances_[amx] = std::shared_ptr<Profiler>(new Profiler(amx, debug_info));
 }
 
 // static
 void Profiler::Detach(AMX *amx) {
-	Profiler *prof = Profiler::GetInstance(amx);
-	if (prof != 0) {
-		delete prof;
-	}
 	instances_.erase(amx);
 }
 
 // static
-Profiler *Profiler::GetInstance(AMX *amx) {
-	std::map<AMX*, Profiler*>::iterator iterator = instances_.find(amx);
-	if (iterator != instances_.end()) {
-		return iterator->second;
-	}
-	return 0;
+std::shared_ptr<Profiler> Profiler::GetInstance(AMX *amx) {
+	return instances_[amx];
 }
 
-std::vector<const FunctionInfo*> Profiler::GetProfile() const {
-	std::vector<const FunctionInfo*> profile;
-	for (Functions::const_iterator iterator = functions_.begin(); 
-			iterator != functions_.end(); ++iterator) {
-		profile.push_back(&iterator->second);
+std::vector<std::shared_ptr<FunctionInfo>> Profiler::GetProfile() const {
+	std::vector<std::shared_ptr<FunctionInfo>> profile;
+	for (auto x : functions_) {
+		profile.push_back(x.second);
 	}
 	return profile;
 }
@@ -88,32 +74,32 @@ void Profiler::WriteProfile(const std::string &script_name,
 int Profiler::AmxDebugHook() {
 	cell prevFrame = amx_->stp;
 	if (!call_stack_.IsEmpty()) {
-		prevFrame = call_stack_.GetTop().frame();
+		prevFrame = call_stack_.GetTop()->frame();
 	}
 	if (amx_->frm < prevFrame) {
-		cell address = amx_->cip - 2*sizeof(cell);   
-		if (call_stack_.GetTop().frame() != amx_->frm) {
-			NormalFunction fn(address, &debug_info_);
-			EnterFunction(&fn, amx_->frm);
+		cell address = amx_->cip - 2*sizeof(cell);
+		if (call_stack_.GetTop()->frame() != amx_->frm) {
+			std::shared_ptr<NormalFunction> fn(new NormalFunction(address, &debug_info_));
+			EnterFunction(fn, amx_->frm);
 		}
 	} else if (amx_->frm > prevFrame) {
-		Function *fn = call_stack_.GetTop().function();
+		auto fn = call_stack_.GetTop()->function();
 		assert(fn->type() == "normal" && "Call stack messed up");
 		LeaveFunction(fn);
 	}
-	return AMX_ERR_NONE;      
+	return AMX_ERR_NONE;
 }
 
 int Profiler::AmxCallbackHook(cell index, cell *result, cell *params) {
-	NativeFunction fn(amx_, index);
-	EnterFunction(&fn, amx_->frm);
+	std::shared_ptr<NativeFunction> fn(new NativeFunction(amx_, index));
+	EnterFunction(fn, amx_->frm);
 	int error = amx_Callback(amx_, index, result, params);
-	LeaveFunction(&fn);
+	LeaveFunction(fn);
 	return error;
 }
 
-int Profiler::AmxExecHook(cell *retval, int index) {	
-	if (index >= 0 || index == AMX_EXEC_MAIN) {		
+int Profiler::AmxExecHook(cell *retval, int index) {
+	if (index >= 0 || index == AMX_EXEC_MAIN) {
 		AMX_HEADER *hdr = reinterpret_cast<AMX_HEADER*>(amx_->base);
 		cell address = 0;
 		if (index == AMX_EXEC_MAIN) {
@@ -121,44 +107,43 @@ int Profiler::AmxExecHook(cell *retval, int index) {
 		} else {
 			AMX_FUNCSTUBNT *publics = reinterpret_cast<AMX_FUNCSTUBNT*>(amx_->base + hdr->publics);
 			address = publics[index].address;
-		}        
-		PublicFunction fn(amx_, index);
-		EnterFunction(&fn, amx_->stk - 3*sizeof(cell));
+		}
+		std::shared_ptr<PublicFunction> fn(new PublicFunction(amx_, index));
+		EnterFunction(fn, amx_->stk - 3*sizeof(cell));
 		int error = amx_Exec(amx_, retval, index);
-		LeaveFunction(&fn);
+		LeaveFunction(fn);
 		return error;
 	} else {
 		return amx_Exec(amx_, retval, index);
 	}
 }
 
-void Profiler::EnterFunction(const Function *fn, ucell frame) {
-	Functions::iterator iterator = functions_.find(const_cast<Function*>(fn));
-	if (iterator == functions_.end()) {	
-		Function *new_fn = fn->Clone();
-		functions_.insert(std::make_pair(new_fn, FunctionInfo(new_fn)));
-		call_stack_.Push(new_fn, frame);
+void Profiler::EnterFunction(std::shared_ptr<Function> fn, ucell frame) {
+	auto iterator = functions_.find(fn);
+	if (iterator == functions_.end()) {
+		functions_.insert(std::make_pair(fn, new FunctionInfo(fn)));
+		call_stack_.Push(fn, frame);
 	} else {
-		iterator->second.num_calls()++;
-		call_stack_.Push(iterator->second.function(), frame);
+		iterator->second->num_calls()++;
+		call_stack_.Push(iterator->second->function(), frame);
 	}
 }
 
-void Profiler::LeaveFunction(const Function *fn) {
+void Profiler::LeaveFunction(std::shared_ptr<Function> fn) {
 	assert(!call_stack_.IsEmpty());
 	while (true) {
-		FunctionCall current = call_stack_.Pop();
-		Functions::iterator current_it = functions_.find(current.function());
-		if (current.IsRecursive()) {			
-			current_it->second.child_time() -= current.timer().child_time<Microseconds>();
+		std::shared_ptr<FunctionCall> current = call_stack_.Pop();
+		auto current_it = functions_.find(current->function());
+		if (current->IsRecursive()) {
+			current_it->second->child_time() -= current->timer().child_time<Microseconds>();
 		} else {
-			current_it->second.total_time() += current.timer().total_time<Microseconds>();
-		}	
-		if (!call_stack_.IsEmpty()) {
-			FunctionCall &top = call_stack_.GetTop();
-			functions_.find(top.function())->second.child_time() += current.timer().total_time<Microseconds>();
+			current_it->second->total_time() += current->timer().total_time<Microseconds>();
 		}
-		if (fn == 0 || (current.function()->address() == fn->address())) {
+		if (!call_stack_.IsEmpty()) {
+			std::shared_ptr<FunctionCall> top = call_stack_.GetTop();
+			functions_.find(top->function())->second->child_time() += current->timer().total_time<Microseconds>();
+		}
+		if (fn == 0 || (current->function()->address() == fn->address())) {
 			break;
 		}
 	}
