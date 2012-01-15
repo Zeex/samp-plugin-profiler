@@ -28,18 +28,27 @@ class FunctionInfo {
 public:
 	friend class Function;
 
-	explicit FunctionInfo(std::shared_ptr<Function> f);
+	explicit FunctionInfo(const std::shared_ptr<Function> &func);
 
-	std::shared_ptr<Function> function() const;
+	std::shared_ptr<Function> &function()
+		{ return func_; }
+	const std::shared_ptr<Function> &function() const
+		{ return func_; }
 
-	long &num_calls();
-	const long &num_calls() const;
+	long &num_calls()
+		{ return num_calls_; }
+	const long &num_calls() const
+		{ return num_calls_; }
 
-	TimeInterval &total_time();
-	const TimeInterval &total_time() const;
+	TimeInterval &total_time()
+		{ return total_time_; }
+	const TimeInterval &total_time() const
+		{ return total_time_; }
 
-	TimeInterval &child_time();
-	const TimeInterval &child_time() const;
+	TimeInterval &child_time()
+		{ return child_time_; }
+	const TimeInterval &child_time() const
+		{ return child_time_; }
 
 private:
 	std::shared_ptr<Function> func_;

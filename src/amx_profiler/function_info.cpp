@@ -18,40 +18,12 @@
 
 namespace amx_profiler {
 
-FunctionInfo::FunctionInfo(std::shared_ptr<Function> f)
-	: func_(f)
+FunctionInfo::FunctionInfo(const std::shared_ptr<Function> &func)
+	: func_(func)
 	, num_calls_(1)
 	, total_time_(0)
 	, child_time_(0)
 {
-}
-
-std::shared_ptr<Function> FunctionInfo::function() const {
-	return func_;
-}
-
-long &FunctionInfo::num_calls() {
-	return num_calls_;
-}
-
-const long &FunctionInfo::num_calls() const {
-	return num_calls_;
-}
-
-TimeInterval &FunctionInfo::total_time() {
-	return total_time_;
-}
-
-const TimeInterval &FunctionInfo::total_time() const {
-	return total_time_;
-}
-
-TimeInterval &FunctionInfo::child_time() {
-	return child_time_;
-}
-
-const TimeInterval &FunctionInfo::child_time() const {
-	return child_time_;
 }
 
 } // namespace amx_profiler

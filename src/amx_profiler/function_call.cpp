@@ -19,7 +19,9 @@
 
 namespace amx_profiler {
 
-FunctionCall::FunctionCall(std::shared_ptr<Function> function, cell frame, std::shared_ptr<FunctionCall> parent)
+FunctionCall::FunctionCall(const std::shared_ptr<Function> &function,
+                           cell frame,
+                           const std::shared_ptr<FunctionCall> &parent)
 		: fn_(function)
 		, parent_(parent)
 		, frame_(frame)
@@ -27,13 +29,13 @@ FunctionCall::FunctionCall(std::shared_ptr<Function> function, cell frame, std::
 		, recursive_(false)
 {
 	// Check if this is a recursive call
-	std::shared_ptr<FunctionCall> current = parent;
+	FunctionCall *current = parent.get();
 	while (current != 0) {
 		if (current->fn_ == this->fn_) {
 			recursive_ = true;
 			break;
 		}
-		current = current->parent_;
+		current = current->parent_.get();
 	}
 }
 

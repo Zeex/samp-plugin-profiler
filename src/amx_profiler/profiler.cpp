@@ -118,7 +118,7 @@ int Profiler::AmxExecHook(cell *retval, int index) {
 	}
 }
 
-void Profiler::EnterFunction(std::shared_ptr<Function> fn, ucell frame) {
+void Profiler::EnterFunction(const std::shared_ptr<Function> &fn, ucell frame) {
 	auto iterator = functions_.find(fn);
 	if (iterator == functions_.end()) {
 		functions_.insert(std::make_pair(fn, new FunctionInfo(fn)));
@@ -129,7 +129,7 @@ void Profiler::EnterFunction(std::shared_ptr<Function> fn, ucell frame) {
 	}
 }
 
-void Profiler::LeaveFunction(std::shared_ptr<Function> fn) {
+void Profiler::LeaveFunction(const std::shared_ptr<Function> &fn) {
 	assert(!call_stack_.IsEmpty());
 	while (true) {
 		std::shared_ptr<FunctionCall> current = call_stack_.Pop();
