@@ -71,6 +71,8 @@ if(Boost_FOUND)
 	add_definitions(-DHAVE_BOOST=${Boost_VERSION})
 	# Disable Boost auto-link feature 
 	add_definitions(-DBOOST_ALL_NO_LIB)
+	# Workaround swprintf() error related to lexical_cast<> on MinGW
+	add_definitions(-DBOOST_LCAST_NO_WCHAR_T)
 	if(Boost_CHRONO_FOUND)
 		add_definitions(-DHAVE_BOOST_CHRONO)
 	endif()
