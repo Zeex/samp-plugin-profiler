@@ -44,10 +44,14 @@ public:
 
 	static std::shared_ptr<Profiler> GetInstance(AMX *amx);
 
-	void WriteProfile(const std::string &script_name,
+	void WriteProfile(const std::string &script_name, 
 	                  ProfileWriter *writer,
 	                  std::ostream &stream) const;
 	std::vector<FunctionInfoPtr> GetProfile() const;
+
+	inline const CallStack &GetCallStack() const {
+		return call_stack_;
+	}
 
 	int AmxDebugHook();
 	int AmxExecHook(cell *retval, int index);
