@@ -94,7 +94,7 @@ void HtmlProfileWriter::Write(const std::string &script_name, std::ostream &stre
 	"	});\n"
 	"	</script>\n"
 	#ifdef HAVE_BOOST_DATE_TIME
-	"	<br/>"
+	"	<br/>\n"
 	"	<footer>\n"
 	"		Generated on " << boost::posix_time::second_clock::local_time() << "\n"
 	"	</footer>\n"
