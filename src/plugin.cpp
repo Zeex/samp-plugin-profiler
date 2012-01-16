@@ -95,9 +95,7 @@ static int AMXAPI Exec(AMX *amx, cell *retval, int index) {
 
 static int AMXAPI Callback(AMX *amx, cell index, cell *result, cell *params) {
 	CallbackHook.Remove();
-	ExecHook.Install();
-
-	amx->sysreq_d = 0;
+	ExecHook.Install();	
 
 	int error = AMX_ERR_NONE;
 
@@ -232,8 +230,14 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 	}
 
 	if (profiler_enabled || WantsProfiler(filename)) {
+		// Disable SYSREQ.D 
+		amx->sysreq_d = 0;
+
+		// Store previous debug hook somewhere before setting a new one
 		old_debug_hooks[amx] = amx->debug;
 		amx_SetDebugHook(amx, ::Debug);
+
+		// Load debug info if available
 		if (DebugInfo::HasDebugInfo(amx)) {
 			DebugInfo debug_info;
 			debug_info.Load(filename);
@@ -246,6 +250,8 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 				logprintf("[profiler] Error loading debug info from '%s'", filename.c_str());
 			}
 		}
+
+		// No debug info loaded
 		Profiler::Attach(amx);
 		logprintf("[profiler] Attached profiler to '%s' (no debug symbols)", filename.c_str());
 	}
