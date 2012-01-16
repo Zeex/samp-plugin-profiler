@@ -40,12 +40,6 @@ DebugInfo::DebugInfo(const std::string &filename) {
 	Load(filename);
 }
 
-bool DebugInfo::HasDebugInfo(AMX *amx) {
-	uint16_t flags;
-	amx_Flags(amx, &flags);
-	return ((flags & AMX_FLAG_DEBUG) != 0);
-}
-
 void DebugInfo::FreeAmxDbg(AMX_DBG *amxdbg) {
 	if (amxdbg != 0) {
 		dbg_FreeInfo(amxdbg);
