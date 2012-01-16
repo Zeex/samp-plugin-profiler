@@ -22,10 +22,10 @@
 #include <fstream>
 #include <iterator>
 #include <list>
-#include <map>
 #include <sstream>
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 #ifdef _WIN32
 	#include <Windows.h>
@@ -55,17 +55,17 @@ static logprintf_t logprintf;
 static std::list<AMX*> loaded_scripts;
 
 // Stores previously set debug hooks (if any)
-static std::map<AMX*, AMX_DEBUG> old_debug_hooks;
+static std::unordered_map<AMX*, AMX_DEBUG> old_debug_hooks;
 
-static JumpX86 ExecHook;
-static JumpX86 CallbackHook;
+static JumpX86 AmxExecHook;
+static JumpX86 AmxCallbackHook;
 
-static int AMXAPI Debug(AMX *amx) {
+static int AMXAPI AmxDebug(AMX *amx) {
 	auto profiler = Profiler::GetInstance(amx);
 	if (profiler) {
 		profiler->AmxDebugHook();
 	}
-	std::map<AMX*, AMX_DEBUG>::iterator iterator = old_debug_hooks.find(amx);
+	auto iterator = old_debug_hooks.find(amx);
 	if (iterator != old_debug_hooks.end()) {
 		if (iterator->second != 0) {
 			return (iterator->second)(amx);
@@ -74,28 +74,9 @@ static int AMXAPI Debug(AMX *amx) {
 	return AMX_ERR_NONE;
 }
 
-static int AMXAPI Exec(AMX *amx, cell *retval, int index) {
-	ExecHook.Remove();
-	CallbackHook.Install();
-
-	int error = AMX_ERR_NONE;
-
-	auto profiler = Profiler::GetInstance(amx);
-	if (profiler) {
-		error =  profiler->AmxExecHook(retval, index);
-	} else {
-		error = amx_Exec(amx, retval, index);
-	}
-
-	CallbackHook.Remove();
-	ExecHook.Install();
-
-	return error;
-}
-
-static int AMXAPI Callback(AMX *amx, cell index, cell *result, cell *params) {
-	CallbackHook.Remove();
-	ExecHook.Install();	
+static int AMXAPI AmxCallback(AMX *amx, cell index, cell *result, cell *params) {
+	AmxCallbackHook.Remove();
+	AmxExecHook.Install();	
 
 	int error = AMX_ERR_NONE;
 
@@ -106,8 +87,27 @@ static int AMXAPI Callback(AMX *amx, cell index, cell *result, cell *params) {
 		error = amx_Callback(amx, index, result, params);
 	}
 
-	ExecHook.Remove();
-	CallbackHook.Install();
+	AmxExecHook.Remove();
+	AmxCallbackHook.Install();
+
+	return error;
+}
+
+static int AMXAPI AmxExec(AMX *amx, cell *retval, int index) {
+	AmxExecHook.Remove();
+	AmxCallbackHook.Install();
+
+	int error = AMX_ERR_NONE;
+
+	auto profiler = Profiler::GetInstance(amx);
+	if (profiler) {
+		error =  profiler->AmxExecHook(retval, index);
+	} else {
+		error = amx_Exec(amx, retval, index);
+	}
+
+	AmxCallbackHook.Remove();
+	AmxExecHook.Install();
 
 	return error;
 }
@@ -193,12 +193,12 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
 	((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Align32] = (void*)my_amx_Align;
 	((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Align64] = (void*)my_amx_Align;
 
-	ExecHook.Install(
+	AmxExecHook.Install(
 		((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Exec],
-		(void*)::Exec);
-	CallbackHook.Install(
+		(void*)::AmxExec);
+	AmxCallbackHook.Install(
 		((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Callback],
-		(void*)::Callback);
+		(void*)::AmxCallback);
 
 	#ifdef _WIN32
 		SetConsoleCtrlHandler(ConsoleCtrlHandler, TRUE);
@@ -234,8 +234,8 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 		amx->sysreq_d = 0;
 
 		// Store previous debug hook somewhere before setting a new one
-		old_debug_hooks[amx] = amx->debug;
-		amx_SetDebugHook(amx, ::Debug);
+		::old_debug_hooks[amx] = amx->debug;
+		amx_SetDebugHook(amx, ::AmxDebug);
 
 		// Load debug info if available
 		if (DebugInfo::HasDebugInfo(amx)) {
