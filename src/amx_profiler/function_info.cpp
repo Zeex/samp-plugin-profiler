@@ -20,7 +20,7 @@ namespace amx_profiler {
 
 FunctionInfo::FunctionInfo(const FunctionPtr &func)
 	: func_(func)
-	, num_calls_(1)
+	, num_calls_(0)
 	, total_time_(0)
 	, child_time_(0)
 {
