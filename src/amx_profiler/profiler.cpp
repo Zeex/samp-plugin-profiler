@@ -73,8 +73,7 @@ void Profiler::WriteProfile(const std::string &script_name,
 	writer->Write(script_name, stream, GetProfile());
 }
 
-
-int Profiler::AmxDebugHook() {
+int Profiler::AmxDebugHook(int (AMXAPI *debug)(AMX *amx)) {
 	cell prevFrame = amx_->stp;
 	if (!call_stack_.IsEmpty()) {
 		prevFrame = call_stack_.GetTop()->frame();
@@ -93,10 +92,17 @@ int Profiler::AmxDebugHook() {
 		assert(call_stack_.GetTop()->function()->type() == "normal");
 		LeaveFunction();
 	}
+	if (debug != 0) {
+		return debug(amx_);
+	}
 	return AMX_ERR_NONE;
 }
 
-int Profiler::AmxCallbackHook(cell index, cell *result, cell *params) {
+int Profiler::AmxCallbackHook(cell index, cell *result, cell *params,
+	int (AMXAPI *callback)(AMX *amx, cell index, cell *result, cell *params)) {
+	if (callback == 0) {
+		callback = ::amx_Callback;
+	}
 	if (index >= 0) {
 		auto address = GetNativeAddress(index);
 		if (functions_.find(address) == functions_.end()) {
@@ -105,16 +111,20 @@ int Profiler::AmxCallbackHook(cell index, cell *result, cell *params) {
 					FunctionInfoPtr(new FunctionInfo(fn))));
 		}
 		EnterFunction(address, amx_->frm);
-		int error = amx_Callback(amx_, index, result, params);
+		int error = callback(amx_, index, result, params);
 		assert(call_stack_.GetTop()->function()->type() == "native");
 		LeaveFunction(address);
 		return error;
 	} else {
-		return amx_Callback(amx_, index, result, params);
+		return callback(amx_, index, result, params);
 	}
 }
 
-int Profiler::AmxExecHook(cell *retval, int index) {
+int Profiler::AmxExecHook(cell *retval, int index, 
+	int (AMXAPI *exec)(AMX *amx, cell *retval, int index)) {
+	if (exec == 0) {
+		exec = ::amx_Exec;
+	}
 	if (index >= 0 || index == AMX_EXEC_MAIN) {
 		auto address = GetPublicAddress(index);
 		if (functions_.find(address) == functions_.end()) {
@@ -123,12 +133,12 @@ int Profiler::AmxExecHook(cell *retval, int index) {
 					FunctionInfoPtr(new FunctionInfo(fn))));
 		}
 		EnterFunction(address, amx_->stk - 3*sizeof(cell));
-		int error = amx_Exec(amx_, retval, index);
+		int error = exec(amx_, retval, index);
 		assert(call_stack_.GetTop()->function()->type() == "public");
 		LeaveFunction(address);
 		return error;
 	} else {
-		return amx_Exec(amx_, retval, index);
+		return exec(amx_, retval, index);
 	}
 }
 
