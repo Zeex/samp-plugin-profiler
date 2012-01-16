@@ -33,7 +33,6 @@ public:
 	explicit DebugInfo(std::shared_ptr<AMX_DBG> amxdbg);
 	explicit DebugInfo(const std::string &filename);
 
-	static bool HasDebugInfo(AMX *amx);
 	static void FreeAmxDbg(AMX_DBG *amxdbg);
 
 	void Load(const std::string &filename);
@@ -47,6 +46,12 @@ public:
 private:
 	std::shared_ptr<AMX_DBG> amxdbg_;
 };
+
+inline bool HasDebugInfo(AMX *amx) {
+	uint16_t flags;
+	amx_Flags(amx, &flags);
+	return ((flags & AMX_FLAG_DEBUG) != 0);
+}	
 
 } // namespace amx_profiler
 

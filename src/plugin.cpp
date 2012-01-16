@@ -76,7 +76,7 @@ static int AMXAPI AmxDebug(AMX *amx) {
 
 static int AMXAPI AmxCallback(AMX *amx, cell index, cell *result, cell *params) {
 	AmxCallbackHook.Remove();
-	AmxExecHook.Install();	
+	AmxExecHook.Install();
 
 	int error = AMX_ERR_NONE;
 
@@ -230,7 +230,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 	}
 
 	if (profiler_enabled || WantsProfiler(filename)) {
-		// Disable SYSREQ.D 
+		// Disable SYSREQ.D
 		amx->sysreq_d = 0;
 
 		// Store previous debug hook somewhere before setting a new one
@@ -238,7 +238,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 		amx_SetDebugHook(amx, ::AmxDebug);
 
 		// Load debug info if available
-		if (DebugInfo::HasDebugInfo(amx)) {
+		if (HasDebugInfo(amx)) {
 			DebugInfo debug_info;
 			debug_info.Load(filename);
 			if (debug_info.IsLoaded()) {
