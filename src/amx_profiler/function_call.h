@@ -24,18 +24,15 @@
 
 namespace amx_profiler {
 
-class FunctionCall;
-typedef std::shared_ptr<FunctionCall> FunctionCallPtr;
-
 class FunctionCall {
 public:
-	FunctionCall(const FunctionPtr &function,
+	FunctionCall(const std::shared_ptr<Function> &function,
                  cell frame,
-                 const FunctionCallPtr &parent = 0);
+                 const std::shared_ptr<FunctionCall> &parent = 0);
 
-	FunctionPtr &function()
+	std::shared_ptr<Function> &function()
 		{ return fn_; }
-	const FunctionPtr &function() const
+	const std::shared_ptr<Function> &function() const
 		{ return fn_; }
 	cell frame() const
 		{ return frame_; }
@@ -47,8 +44,8 @@ public:
 		{ return recursive_; }
 
 private:
-	FunctionPtr fn_;
-	FunctionCallPtr parent_;
+	std::shared_ptr<Function> fn_;
+	std::shared_ptr<FunctionCall> parent_;
 	cell frame_; // frame address on AMX stack
 	PerformanceCounter timer_;
 	bool recursive_; // whether it's a recursive call
