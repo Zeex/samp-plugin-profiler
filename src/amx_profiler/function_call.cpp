@@ -19,9 +19,9 @@
 
 namespace amx_profiler {
 
-FunctionCall::FunctionCall(const FunctionPtr &function,
+FunctionCall::FunctionCall(const std::shared_ptr<Function> &function,
                            cell frame,
-                           const FunctionCallPtr &parent)
+                           const std::shared_ptr<FunctionCall> &parent)
 		: fn_(function)
 		, parent_(parent)
 		, frame_(frame)

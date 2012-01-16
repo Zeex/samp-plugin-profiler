@@ -18,23 +18,21 @@
 #define AMX_PROFILER_FUNCTION_INFO_H
 
 #include <memory>
-#include "function.h"
 #include "performance_counter.h"
 
 namespace amx_profiler {
 
-class FunctionInfo;
-typedef std::shared_ptr<FunctionInfo> FunctionInfoPtr;
+class Function;
 
 class FunctionInfo {
 public:
 	friend class Function;
 
-	explicit FunctionInfo(const FunctionPtr &func);
+	explicit FunctionInfo(const std::shared_ptr<Function> &func);
 
-	FunctionPtr &function()
+	std::shared_ptr<Function> &function()
 		{ return func_; }
-	const FunctionPtr &function() const
+	const std::shared_ptr<Function> &function() const
 		{ return func_; }
 
 	long &num_calls()
@@ -53,7 +51,7 @@ public:
 		{ return child_time_; }
 
 private:
-	FunctionPtr func_;
+	std::shared_ptr<Function> func_;
 
 	long num_calls_;
 	TimeInterval total_time_;

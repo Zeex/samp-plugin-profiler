@@ -30,7 +30,7 @@
 namespace amx_profiler {
 
 void TextProfileWriter::Write(const std::string &script_name, std::ostream &stream,
-		const std::vector<FunctionInfoPtr> &stats)
+		const std::vector<std::shared_ptr<FunctionInfo>> &stats)
 {
 	stream << "Profile of '" << script_name << "'";
 	#ifdef HAVE_BOOST_DATE_TIME
@@ -46,16 +46,16 @@ void TextProfileWriter::Write(const std::string &script_name, std::ostream &stre
 	<< std::endl;
 
 	TimeInterval time_all = 0;
-	std::for_each(stats.begin(), stats.end(), [&](const FunctionInfoPtr &info) {
-		time_all += info->total_time() - info->child_time();
+	std::for_each(stats.begin(), stats.end(), [&](const std::shared_ptr<FunctionInfo> &info) { 
+		time_all += info->total_time() - info->child_time(); 
 	});
 
 	TimeInterval total_time_all = 0;
-	std::for_each(stats.begin(), stats.end(), [&](const FunctionInfoPtr &info) {
-		total_time_all += info->total_time();
+	std::for_each(stats.begin(), stats.end(), [&](const std::shared_ptr<FunctionInfo> &info) { 
+		total_time_all += info->total_time(); 
 	});
 
-	std::for_each(stats.begin(), stats.end(), [&](const FunctionInfoPtr &info) {
+	std::for_each(stats.begin(), stats.end(), [&](const std::shared_ptr<FunctionInfo> &info) {
 		stream
 			<< std::setw(kTypeWidth) << info->function()->type()
 			<< std::setw(kNameWidth) << info->function()->name()

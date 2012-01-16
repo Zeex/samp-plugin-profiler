@@ -47,7 +47,7 @@ public:
 	void WriteProfile(const std::string &script_name, 
 	                  ProfileWriter *writer,
 	                  std::ostream &stream) const;
-	std::vector<FunctionInfoPtr> GetProfile() const;
+	std::vector<std::shared_ptr<FunctionInfo>> GetProfile() const;
 
 	inline const CallStack &GetCallStack() const {
 		return call_stack_;
@@ -82,7 +82,7 @@ private:
 
 	std::unordered_map<
 		ucell,  // address
-		FunctionInfoPtr
+		std::shared_ptr<FunctionInfo>
 	> functions_;
 
 	static std::unordered_map<

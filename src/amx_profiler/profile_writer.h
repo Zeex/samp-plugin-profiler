@@ -20,14 +20,15 @@
 #include <memory>
 #include <ostream>
 #include <vector>
-#include "function_info.h"
 
 namespace amx_profiler {
+
+class FunctionInfo;
 
 class ProfileWriter {
 public:
 	virtual void Write(const std::string &script_name, std::ostream &stream,
-			const std::vector<FunctionInfoPtr> &stats) = 0;
+			const std::vector<std::shared_ptr<FunctionInfo>> &stats) = 0;
 };
 
 } // namespace amx_profiler

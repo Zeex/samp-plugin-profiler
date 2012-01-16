@@ -32,7 +32,7 @@ public:
 	static const int kTotalTimeWidth = 15;
 
 	virtual void Write(const std::string &script_name, std::ostream &stream,
-			const std::vector<FunctionInfoPtr> &stats);
+			const std::vector<std::shared_ptr<FunctionInfo>> &stats);
 };
 
 } // namespace amx_profiler

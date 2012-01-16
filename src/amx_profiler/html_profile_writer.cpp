@@ -31,7 +31,7 @@
 namespace amx_profiler {
 
 void HtmlProfileWriter::Write(const std::string &script_name, std::ostream &stream,
-		const std::vector<FunctionInfoPtr> &stats)
+		const std::vector<std::shared_ptr<FunctionInfo>> &stats)
 {
 	stream <<
 	"<html>\n"
@@ -56,16 +56,16 @@ void HtmlProfileWriter::Write(const std::string &script_name, std::ostream &stre
 	;
 
 	TimeInterval time_all = 0;
-	std::for_each(stats.begin(), stats.end(), [&](const FunctionInfoPtr &info) {
-		time_all += info->total_time() - info->child_time();
+	std::for_each(stats.begin(), stats.end(), [&](const std::shared_ptr<FunctionInfo> &info) { 
+		time_all += info->total_time() - info->child_time(); 
 	});
 
 	TimeInterval total_time_all = 0;
-	std::for_each(stats.begin(), stats.end(), [&](const FunctionInfoPtr &info) {
-		total_time_all += info->total_time();
+	std::for_each(stats.begin(), stats.end(), [&](const std::shared_ptr<FunctionInfo> &info) { 
+		total_time_all += info->total_time(); 
 	});
 
-	std::for_each(stats.begin(), stats.end(), [&](const FunctionInfoPtr &info) {
+	std::for_each(stats.begin(), stats.end(), [&](const std::shared_ptr<FunctionInfo> &info) {
 		stream
 		<< "		<tr>\n"
 		<< "			<td>" << info->function()->type() << "</td>\n"

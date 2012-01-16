@@ -24,19 +24,21 @@
 
 namespace amx_profiler {
 
+class FunctionInfo;
+
 class CallStack {
 public:
-	void Push(FunctionPtr function, ucell frame);
-	void Push(FunctionCallPtr info);
-	FunctionCallPtr Pop();
+	void Push(std::shared_ptr<Function> function, ucell frame);
+	void Push(std::shared_ptr<FunctionCall> info);
+	std::shared_ptr<FunctionCall> Pop();
 
 	bool IsEmpty() const
 		{ return calls_.empty(); }
-	FunctionCallPtr GetTop() const
+	std::shared_ptr<FunctionCall> GetTop() const
 		{ return calls_.top(); }
 
 private:
-	std::stack<FunctionCallPtr> calls_;
+	std::stack<std::shared_ptr<FunctionCall>> calls_;
 };
 
 } // namespace amx_profiler
