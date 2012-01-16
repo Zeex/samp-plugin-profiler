@@ -66,6 +66,21 @@ add_library(profiler MODULE
 	src/plugin.rc
 )
 
+find_package(Boost 1.47 COMPONENTS chrono date_time system)
+if(Boost_FOUND)
+	add_definitions(-DHAVE_BOOST=${Boost_VERSION})
+	# Disable Boost auto-link feature 
+	add_definitions(-DBOOST_ALL_NO_LIB)
+	if(Boost_CHRONO_FOUND)
+		add_definitions(-DHAVE_BOOST_CHRONO)
+	endif()
+	if(Boost_DATE_TIME_FOUND)
+		add_definitions(-DHAVE_BOOST_DATE_TIME)
+	endif()
+	include_directories(${Boost_INCLUDE_DIRS})
+	target_link_libraries(profiler ${Boost_LIBRARIES})
+endif()
+
 set_property(TARGET profiler PROPERTY PREFIX "")
 
 if(UNIX OR MINGW)
