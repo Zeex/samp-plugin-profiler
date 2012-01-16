@@ -15,10 +15,14 @@
 // limitations under the License.
 
 #include <algorithm>
+#include <cstdio>
 #include <fstream>
 #include <iomanip>
 #include <string>
 #include <vector>
+#ifdef HAVE_BOOST_DATE_TIME
+	#include <boost/date_time.hpp>
+#endif
 #include "function.h"
 #include "function_info.h"
 #include "html_profile_writer.h"
@@ -52,13 +56,13 @@ void HtmlProfileWriter::Write(const std::string &script_name, std::ostream &stre
 	;
 
 	TimeInterval time_all = 0;
-	std::for_each(stats.begin(), stats.end(), [&](const FunctionInfoPtr &info) { 
-		time_all += info->total_time() - info->child_time(); 
+	std::for_each(stats.begin(), stats.end(), [&](const FunctionInfoPtr &info) {
+		time_all += info->total_time() - info->child_time();
 	});
 
 	TimeInterval total_time_all = 0;
-	std::for_each(stats.begin(), stats.end(), [&](const FunctionInfoPtr &info) { 
-		total_time_all += info->total_time(); 
+	std::for_each(stats.begin(), stats.end(), [&](const FunctionInfoPtr &info) {
+		total_time_all += info->total_time();
 	});
 
 	std::for_each(stats.begin(), stats.end(), [&](const FunctionInfoPtr &info) {
@@ -80,10 +84,6 @@ void HtmlProfileWriter::Write(const std::string &script_name, std::ostream &stre
 	;
 
 	stream <<
-	"	<br/>"
-	"	<footer>\n"
-	//"		Generated on " << boost::posix_time::second_clock::local_time() << "\n"
-	"	</footer>\n"
 	"	<script type=\"text/javascript\"\n"
 	"		src=\"http://code.jquery.com/jquery-latest.min.js\"></script>\n"
 	"	<script type=\"text/javascript\"\n"
@@ -93,6 +93,12 @@ void HtmlProfileWriter::Write(const std::string &script_name, std::ostream &stre
 	"		$(\"#stats\").tablesorter();\n"
 	"	});\n"
 	"	</script>\n"
+	#ifdef HAVE_BOOST_DATE_TIME
+	"	<br/>"
+	"	<footer>\n"
+	"		Generated on " << boost::posix_time::second_clock::local_time() << "\n"
+	"	</footer>\n"
+	#endif
 	"</body>\n"
 	"</html>\n"
 	;
