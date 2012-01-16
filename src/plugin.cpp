@@ -264,7 +264,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 
 		std::string format =
 			server_cfg.GetOption("profile_format", std::string("html"));
-		//boost::algorithm::to_lower(format);
+		std::transform(format.begin(), format.end(), format.begin(), ::tolower);
 
 		std::string filename = amx_name + "-profile";
 		ProfileWriter *writer = 0;
