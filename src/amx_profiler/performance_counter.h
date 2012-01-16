@@ -24,7 +24,7 @@ namespace amx_profiler {
 
 class PerformanceCounter {
 public:
-	typedef std::chrono::high_resolution_clock ClockType;
+	typedef chrono::high_resolution_clock ClockType;
 
 	PerformanceCounter(PerformanceCounter *parent = 0);
 	~PerformanceCounter();
@@ -34,12 +34,12 @@ public:
 
 	template<typename Resolution>
 	inline TimeInterval child_time() const {
-		return std::chrono::duration_cast<Resolution>(child_time_).count();
+		return chrono::duration_cast<Resolution>(child_time_).count();
 	}
 
 	template<typename Resolution>
 	inline TimeInterval total_time() const {
-		return std::chrono::duration_cast<Resolution>(total_time_).count();
+		return chrono::duration_cast<Resolution>(total_time_).count();
 	}
 
 	template<typename Resolution>
