@@ -112,7 +112,6 @@ int Profiler::AmxCallbackHook(cell index, cell *result, cell *params,
 		}
 		EnterFunction(address, amx_->frm);
 		int error = callback(amx_, index, result, params);
-		assert(call_stack_.GetTop()->function()->type() == "native");
 		LeaveFunction(address);
 		return error;
 	} else {
@@ -134,7 +133,6 @@ int Profiler::AmxExecHook(cell *retval, int index,
 		}
 		EnterFunction(address, amx_->stk - 3*sizeof(cell));
 		int error = exec(amx_, retval, index);
-		assert(call_stack_.GetTop()->function()->type() == "public");
 		LeaveFunction(address);
 		return error;
 	} else {
