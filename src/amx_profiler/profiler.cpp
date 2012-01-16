@@ -179,15 +179,15 @@ void Profiler::LeaveFunction(ucell address) {
 		auto current_it = functions_.find(current->function()->address());
 		assert(current_it != functions_.end());
 		if (current->IsRecursive()) {
-			current_it->second->child_time() -= current->timer().child_time<Microseconds>();
+			current_it->second->child_time() -= current->timer().child_time<Nanoseconds>();
 		} else {
-			current_it->second->total_time() += current->timer().total_time<Microseconds>();
+			current_it->second->total_time() += current->timer().total_time<Nanoseconds>();
 		}
 		if (!call_stack_.IsEmpty()) {
 			auto top = call_stack_.GetTop();
 			auto top_it = functions_.find(top->function()->address());
 			assert(top_it != functions_.end());
-			top_it->second->child_time() += current->timer().total_time<Microseconds>();
+			top_it->second->child_time() += current->timer().total_time<Nanoseconds>();
 		}
 		if (address == 0 || (current->function()->address() == address)) {
 			break;
