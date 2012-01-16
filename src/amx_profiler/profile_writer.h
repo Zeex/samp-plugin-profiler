@@ -24,8 +24,6 @@
 
 namespace amx_profiler {
 
-class FunctionInfo;
-
 class ProfileWriter {
 public:
 	virtual void Write(const std::string &script_name, std::ostream &stream,
