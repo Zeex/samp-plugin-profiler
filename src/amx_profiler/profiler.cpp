@@ -54,7 +54,7 @@ void Profiler::WriteProfile(const std::string &script_name,
 	writer->Write(script_name, stream, GetProfile());
 }
 
-int Profiler::AmxDebugHook(int (AMXAPI *debug)(AMX *amx)) {
+int Profiler::amx_Debug(int (AMXAPI *debug)(AMX *amx)) {
 	cell prevFrame = amx_->stp;
 	if (!call_stack_.IsEmpty()) {
 		prevFrame = call_stack_.GetTop()->frame();
@@ -67,11 +67,11 @@ int Profiler::AmxDebugHook(int (AMXAPI *debug)(AMX *amx)) {
 				functions_.insert(std::make_pair(address,
 						std::shared_ptr<FunctionInfo>(new FunctionInfo(fn))));
 			}
-			EnterFunction(address, amx_->frm);
+			BeginFunction(address, amx_->frm);
 		}
 	} else if (amx_->frm > prevFrame) {
 		assert(call_stack_.GetTop()->function()->type() == "normal");
-		LeaveFunction();
+		EndFunction();
 	}
 	if (debug != 0) {
 		return debug(amx_);
@@ -79,7 +79,7 @@ int Profiler::AmxDebugHook(int (AMXAPI *debug)(AMX *amx)) {
 	return AMX_ERR_NONE;
 }
 
-int Profiler::AmxCallbackHook(cell index, cell *result, cell *params,
+int Profiler::amx_Callback(cell index, cell *result, cell *params,
 	int (AMXAPI *callback)(AMX *amx, cell index, cell *result, cell *params)) {
 	if (callback == 0) {
 		callback = ::amx_Callback;
@@ -91,16 +91,16 @@ int Profiler::AmxCallbackHook(cell index, cell *result, cell *params,
 			functions_.insert(std::make_pair(address,
 					std::shared_ptr<FunctionInfo>(new FunctionInfo(fn))));
 		}
-		EnterFunction(address, amx_->frm);
+		BeginFunction(address, amx_->frm);
 		int error = callback(amx_, index, result, params);
-		LeaveFunction(address);
+		EndFunction(address);
 		return error;
 	} else {
 		return callback(amx_, index, result, params);
 	}
 }
 
-int Profiler::AmxExecHook(cell *retval, int index,
+int Profiler::amx_Exec(cell *retval, int index,
 	int (AMXAPI *exec)(AMX *amx, cell *retval, int index)) {
 	if (exec == 0) {
 		exec = ::amx_Exec;
@@ -112,9 +112,9 @@ int Profiler::AmxExecHook(cell *retval, int index,
 			functions_.insert(std::make_pair(address,
 					std::shared_ptr<FunctionInfo>(new FunctionInfo(fn))));
 		}
-		EnterFunction(address, amx_->stk - 3*sizeof(cell));
+		BeginFunction(address, amx_->stk - 3*sizeof(cell));
 		int error = exec(amx_, retval, index);
-		LeaveFunction(address);
+		EndFunction(address);
 		return error;
 	} else {
 		return exec(amx_, retval, index);
@@ -143,18 +143,18 @@ ucell Profiler::GetPublicAddress(cell index) {
 	return 0;
 }
 
-void Profiler::EnterFunction(ucell address, ucell frm) {
+void Profiler::BeginFunction(ucell address, ucell frm) {
 	assert(functions_.find(address) != functions_.end() && address != 0
-			&& "EnterFunction() called with invalid address");
+			&& "BeginFunction() called with invalid address");
 	std::shared_ptr<FunctionInfo> &info = functions_[address];
 	info->num_calls()++;
 	call_stack_.Push(info->function(), frm);
 }
 
-void Profiler::LeaveFunction(ucell address) {
+void Profiler::EndFunction(ucell address) {
 	assert(!call_stack_.IsEmpty());
 	assert(address == 0 || functions_.find(address) != functions_.end()
-			&& "LeaveFunction() called with invalid address");
+			&& "EndFunction() called with invalid address");
 	while (true) {
 		auto current = call_stack_.Pop();
 		auto current_it = functions_.find(current->function()->address());

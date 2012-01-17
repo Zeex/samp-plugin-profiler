@@ -46,17 +46,12 @@ public:
 		return call_stack_;
 	}
 
-	// These methods should be called by Profiler client code to make
-	// it actually do something.
-	// All *Hooks can accept a pointer to the function they have to
-	// invoke in place of the original amx_* routine, e.g. for AmxExecHook
-	// this could be amx_Exec(), etc.
-	int AmxDebugHook(
+	int amx_Debug(
 		int (AMXAPI *debug)(AMX *amx) = 0);
-	int AmxExecHook(cell *retval, int index,
-		int (AMXAPI *exec)(AMX *amx, cell *retval, int index) = 0);
-	int AmxCallbackHook(cell index, cell *result, cell *params,
-		int (AMXAPI *callback)(AMX *amx, cell index, cell *result, cell *params) = 0);
+	int amx_Exec(cell *retval, int index,
+		int (AMXAPI *exec)(AMX *amx, cell *retval, int index) = ::amx_Exec);
+	int amx_Callback(cell index, cell *result, cell *params,
+		int (AMXAPI *callback)(AMX *amx, cell index, cell *result, cell *params) = ::amx_Callback);
 
 private:
 	Profiler();
@@ -64,8 +59,8 @@ private:
 	ucell GetNativeAddress(cell index);
 	ucell GetPublicAddress(cell index);
 
-	void EnterFunction(ucell address, ucell frm);
-	void LeaveFunction(ucell address = 0);
+	void BeginFunction(ucell address, ucell frm);
+	void EndFunction(ucell address = 0);
 
 private:
 	AMX       *amx_;
