@@ -23,6 +23,7 @@
 #include <vector>
 #include <amx/amx.h>
 #include "function.h"
+#include "function_call.h"
 #include "function_info.h"
 #include "native_function.h"
 #include "normal_function.h"
@@ -166,8 +167,8 @@ void Profiler::EnterFunction(ucell address, ucell frm) {
 	assert(functions_.find(address) != functions_.end() && address != 0
 			&& "EnterFunction() called with invalid address");
 	std::shared_ptr<FunctionInfo> &info = functions_[address];
-	call_stack_.Push(info->function(), frm);
 	info->num_calls()++;
+	call_stack_.Push(info->function(), frm);
 }
 
 void Profiler::LeaveFunction(ucell address) {
