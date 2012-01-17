@@ -35,16 +35,9 @@ class ProfileWriter;
 
 class Profiler {
 public:
-	Profiler(AMX *amx);
 	Profiler(AMX *amx, DebugInfo debug_info = DebugInfo());
-	~Profiler();
 
-	static void Attach(AMX *amx, DebugInfo debug_info = DebugInfo());
-	static void Detach(AMX *amx);
-
-	static std::shared_ptr<Profiler> GetInstance(AMX *amx);
-
-	void WriteProfile(const std::string &script_name, 
+	void WriteProfile(const std::string &script_name,
 	                  ProfileWriter *writer,
 	                  std::ostream &stream) const;
 	std::vector<std::shared_ptr<FunctionInfo>> GetProfile() const;
@@ -53,14 +46,14 @@ public:
 		return call_stack_;
 	}
 
-	// These methods should be called by Profiler client code to make 
-	// it actually do something. 
-	// All *Hooks can accept a pointer to the function they have to 
-	// invoke in place of the original amx_* routine, e.g. for AmxExecHook 
+	// These methods should be called by Profiler client code to make
+	// it actually do something.
+	// All *Hooks can accept a pointer to the function they have to
+	// invoke in place of the original amx_* routine, e.g. for AmxExecHook
 	// this could be amx_Exec(), etc.
 	int AmxDebugHook(
 		int (AMXAPI *debug)(AMX *amx) = 0);
-	int AmxExecHook(cell *retval, int index, 
+	int AmxExecHook(cell *retval, int index,
 		int (AMXAPI *exec)(AMX *amx, cell *retval, int index) = 0);
 	int AmxCallbackHook(cell index, cell *result, cell *params,
 		int (AMXAPI *callback)(AMX *amx, cell index, cell *result, cell *params) = 0);
@@ -84,11 +77,6 @@ private:
 		ucell,  // address
 		std::shared_ptr<FunctionInfo>
 	> functions_;
-
-	static std::unordered_map<
-		AMX*,
-		std::shared_ptr<Profiler>
-	> instances_;
 };
 
 inline bool IsAmxProfilable(AMX *amx) {

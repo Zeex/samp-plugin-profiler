@@ -51,6 +51,9 @@ extern void *pAMXFunctions;
 
 static logprintf_t logprintf;
 
+// Profiler instances
+static std::unordered_map<AMX*, std::shared_ptr<Profiler>> profilers;
+
 // List of loaded scripts, need this to fix AmxUnload bug on Windows
 static std::list<AMX*> loaded_scripts;
 
@@ -61,7 +64,7 @@ static JumpX86 AmxExecHook;
 static JumpX86 AmxCallbackHook;
 
 static int AMXAPI AmxDebug(AMX *amx) {
-	auto profiler = Profiler::GetInstance(amx);
+	auto profiler = ::profilers[amx];
 	if (profiler) {
 		profiler->AmxDebugHook();
 	}
@@ -80,7 +83,7 @@ static int AMXAPI AmxCallback(AMX *amx, cell index, cell *result, cell *params) 
 
 	int error = AMX_ERR_NONE;
 
-	auto profiler = Profiler::GetInstance(amx);
+	auto profiler = ::profilers[amx];
 	if (profiler) {
 		error =  profiler->AmxCallbackHook(index, result, params);
 	} else {
@@ -99,7 +102,7 @@ static int AMXAPI AmxExec(AMX *amx, cell *retval, int index) {
 
 	int error = AMX_ERR_NONE;
 
-	auto profiler = Profiler::GetInstance(amx);
+	auto profiler = ::profilers[amx];
 	if (profiler) {
 		error =  profiler->AmxExecHook(retval, index);
 	} else {
@@ -243,7 +246,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 			debug_info.Load(filename);
 			if (debug_info.IsLoaded()) {
 				logprintf("[profiler] Loaded debug info from '%s'", filename.c_str());
-				Profiler::Attach(amx, debug_info);
+				::profilers[amx] = std::shared_ptr<Profiler>(new Profiler(amx, debug_info));
 				logprintf("[profiler] Attached profiler to '%s'", filename.c_str());
 				return AMX_ERR_NONE;
 			} else {
@@ -252,7 +255,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 		}
 
 		// No debug info loaded
-		Profiler::Attach(amx);
+		::profilers[amx] = std::shared_ptr<Profiler>(new Profiler(amx));
 		logprintf("[profiler] Attached profiler to '%s' (no debug symbols)", filename.c_str());
 	}
 
@@ -260,7 +263,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 }
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
-	auto profiler = Profiler::GetInstance(amx);
+	auto profiler = ::profilers[amx];
 
 	if (profiler) {
 		std::string amx_path = GetAmxName(amx);
@@ -294,7 +297,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 			delete writer;
 		}
 
-		Profiler::Detach(amx);
+		profilers.erase(amx);
 	}
 
 	return AMX_ERR_NONE;
