@@ -60,13 +60,15 @@ static std::list<AMX*> loaded_scripts;
 // Stores previously set debug hooks (if any)
 static std::unordered_map<AMX*, AMX_DEBUG> old_debug_hooks;
 
-static JumpX86 AmxExecHook;
-static JumpX86 AmxCallbackHook;
+namespace hooks {
 
-static int AMXAPI AmxDebug(AMX *amx) {
+JumpX86 amx_Exec_hook;
+JumpX86 amx_Callback_hook;
+
+static int AMXAPI amx_Debug(AMX *amx) {
 	auto profiler = ::profilers[amx];
 	if (profiler) {
-		profiler->AmxDebugHook();
+		profiler->amx_Debug();
 	}
 	auto iterator = old_debug_hooks.find(amx);
 	if (iterator != old_debug_hooks.end()) {
@@ -77,43 +79,45 @@ static int AMXAPI AmxDebug(AMX *amx) {
 	return AMX_ERR_NONE;
 }
 
-static int AMXAPI AmxCallback(AMX *amx, cell index, cell *result, cell *params) {
-	AmxCallbackHook.Remove();
-	AmxExecHook.Install();
+static int AMXAPI amx_Callback(AMX *amx, cell index, cell *result, cell *params) {
+	amx_Callback_hook.Remove();
+	amx_Exec_hook.Install();
 
 	int error = AMX_ERR_NONE;
 
 	auto profiler = ::profilers[amx];
 	if (profiler) {
-		error =  profiler->AmxCallbackHook(index, result, params);
+		error =  profiler->amx_Callback(index, result, params);
 	} else {
-		error = amx_Callback(amx, index, result, params);
+		error = ::amx_Callback(amx, index, result, params);
 	}
 
-	AmxExecHook.Remove();
-	AmxCallbackHook.Install();
+	amx_Exec_hook.Remove();
+	amx_Callback_hook.Install();
 
 	return error;
 }
 
-static int AMXAPI AmxExec(AMX *amx, cell *retval, int index) {
-	AmxExecHook.Remove();
-	AmxCallbackHook.Install();
+static int AMXAPI amx_Exec(AMX *amx, cell *retval, int index) {
+	amx_Exec_hook.Remove();
+	amx_Callback_hook.Install();
 
 	int error = AMX_ERR_NONE;
 
 	auto profiler = ::profilers[amx];
 	if (profiler) {
-		error =  profiler->AmxExecHook(retval, index);
+		error =  profiler->amx_Exec(retval, index);
 	} else {
-		error = amx_Exec(amx, retval, index);
+		error = ::amx_Exec(amx, retval, index);
 	}
 
-	AmxCallbackHook.Remove();
-	AmxExecHook.Install();
+	amx_Callback_hook.Remove();
+	amx_Exec_hook.Install();
 
 	return error;
 }
+
+} // namespace hooks
 
 static std::string ToUnixPath(const std::string &path) {
 	std::string fsPath = path;
@@ -196,12 +200,12 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
 	((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Align32] = (void*)my_amx_Align;
 	((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Align64] = (void*)my_amx_Align;
 
-	AmxExecHook.Install(
+	hooks::amx_Exec_hook.Install(
 		((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Exec],
-		(void*)::AmxExec);
-	AmxCallbackHook.Install(
+		(void*)hooks::amx_Exec);
+	hooks::amx_Callback_hook.Install(
 		((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Callback],
-		(void*)::AmxCallback);
+		(void*)hooks::amx_Callback);
 
 	#ifdef _WIN32
 		SetConsoleCtrlHandler(ConsoleCtrlHandler, TRUE);
@@ -238,7 +242,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 
 		// Store previous debug hook somewhere before setting a new one
 		::old_debug_hooks[amx] = amx->debug;
-		amx_SetDebugHook(amx, ::AmxDebug);
+		amx_SetDebugHook(amx, hooks::amx_Debug);
 
 		// Load debug info if available
 		if (HasDebugInfo(amx)) {
