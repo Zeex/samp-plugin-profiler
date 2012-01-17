@@ -27,19 +27,27 @@ namespace amx_profiler {
 class FunctionCall {
 public:
 	FunctionCall(const std::shared_ptr<Function> &function,
-                 cell frame,
-                 const std::shared_ptr<FunctionCall> &parent = 0);
+	             cell frame,
+	             const std::shared_ptr<FunctionCall> &parent = 0);
 
 	std::shared_ptr<Function> &function()
 		{ return fn_; }
 	const std::shared_ptr<Function> &function() const
 		{ return fn_; }
+
+	std::shared_ptr<FunctionCall> &parent()
+		{ return parent_; }
+	const std::shared_ptr<FunctionCall> &parent() const
+		{ return parent_; }
+
 	cell frame() const
 		{ return frame_; }
+
 	PerformanceCounter &timer()
 		{ return timer_; }
 	const PerformanceCounter &timer() const
 		{ return timer_; }
+
 	bool IsRecursive() const
 		{ return recursive_; }
 
