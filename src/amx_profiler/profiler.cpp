@@ -33,30 +33,10 @@
 
 namespace amx_profiler {
 
-// statics
-std::unordered_map<AMX*, std::shared_ptr<Profiler>> Profiler::instances_;
-
 Profiler::Profiler(AMX *amx, DebugInfo debug_info)
 	: amx_(amx)
 	, debug_info_(debug_info)
 {
-}
-
-Profiler::~Profiler() {}
-
-// static
-void Profiler::Attach(AMX *amx, DebugInfo debug_info) {
-	instances_[amx] = std::shared_ptr<Profiler>(new Profiler(amx, debug_info));
-}
-
-// static
-void Profiler::Detach(AMX *amx) {
-	instances_.erase(amx);
-}
-
-// static
-std::shared_ptr<Profiler> Profiler::GetInstance(AMX *amx) {
-	return instances_[amx];
 }
 
 std::vector<std::shared_ptr<FunctionInfo>> Profiler::GetProfile() const {
@@ -120,7 +100,7 @@ int Profiler::AmxCallbackHook(cell index, cell *result, cell *params,
 	}
 }
 
-int Profiler::AmxExecHook(cell *retval, int index, 
+int Profiler::AmxExecHook(cell *retval, int index,
 	int (AMXAPI *exec)(AMX *amx, cell *retval, int index)) {
 	if (exec == 0) {
 		exec = ::amx_Exec;
