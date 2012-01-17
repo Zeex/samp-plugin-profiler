@@ -16,22 +16,23 @@
 
 #include <memory>
 #include "call_stack.h"
-#include "function_info.h"
+#include "function_call.h"
+#include "performance_counter.h"
 
 namespace amx_profiler {
 
-void CallStack::Push(std::shared_ptr<Function> function, ucell frame) {
-	Push(std::shared_ptr<FunctionCall>(new FunctionCall(function, frame, calls_.empty() ? 0 : calls_.top())));
+void CallStack::Push(const std::shared_ptr<Function> &function, ucell frame) {
+	Push(std::shared_ptr<FunctionCall>(new FunctionCall(function, frame, calls_.empty() ? 0 : calls_.back())));
 }
 
-void CallStack::Push(std::shared_ptr<FunctionCall> call) {
-	calls_.push(call);
-	calls_.top()->timer().Start();
+void CallStack::Push(const std::shared_ptr<FunctionCall> &call) {
+	call->timer().Start();
+	calls_.push_back(call);
 }
 
 std::shared_ptr<FunctionCall> CallStack::Pop() {
-	std::shared_ptr<FunctionCall> top = calls_.top();
-	calls_.pop();
+	std::shared_ptr<FunctionCall> top = calls_.back();
+	calls_.pop_back();
 	top->timer().Stop();
 	return top;
 }
