@@ -46,6 +46,7 @@ public:
 	const std::shared_ptr<FunctionCall> &GetBottom() const
 		{ return calls_.front(); }
 
+	// Iterator support
 	typedef std::list<std::shared_ptr<FunctionCall>>::iterator iterator;
 	typedef std::list<std::shared_ptr<FunctionCall>>::const_iterator const_iterator;
 	typedef std::list<std::shared_ptr<FunctionCall>>::reverse_iterator reverse_iterator;

@@ -37,15 +37,19 @@ class Profiler {
 public:
 	Profiler(AMX *amx, DebugInfo debug_info = DebugInfo());
 
+	// Write profile to a stream with a given writer.
 	void WriteProfile(const std::string &script_name,
 	                  ProfileWriter *writer,
 	                  std::ostream &stream) const;
+	// Get profiling data.
 	std::vector<std::shared_ptr<FunctionInfo>> GetProfile() const;
 
 	inline const CallStack &GetCallStack() const {
 		return call_stack_;
 	}
 
+	// These methods must be invoked by Profiler class user
+	// to make it do the job.
 	int amx_Debug(
 		int (AMXAPI *debug)(AMX *amx) = 0);
 	int amx_Exec(cell *retval, int index,
@@ -63,9 +67,13 @@ private:
 	void EndFunction(ucell address = 0);
 
 private:
-	AMX       *amx_;
+	// The AMX instance associated with this Profiler instance.
+	AMX *amx_;
+
+	// AMX debug info, used to extract function names.
 	DebugInfo debug_info_;
 
+	// The current call stack.
 	CallStack call_stack_;
 
 	std::unordered_map<
@@ -74,13 +82,16 @@ private:
 	> functions_;
 };
 
+// Check if an AMX program can be profiled.
 inline bool IsAmxProfilable(AMX *amx) {
 	uint16_t flags;
 	amx_Flags(amx, &flags);
 	if ((flags & AMX_FLAG_DEBUG) != 0) {
-		return true;
+		// Have debug info.
+		return true; 
 	}
 	if ((flags & AMX_FLAG_NOCHECKS) == 0) {
+		// Have BREAK instructions.
 		return true;
 	}
 	return false;
