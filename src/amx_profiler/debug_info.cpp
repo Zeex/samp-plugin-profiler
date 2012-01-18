@@ -16,6 +16,7 @@
 
 #include <cassert>
 #include <cstdio>
+#include <cstring>
 #include <amx/amx.h>
 #include <amxdbg.h>
 #include "debug_info.h"
@@ -29,6 +30,12 @@ DebugInfo::DebugInfo()
 DebugInfo::DebugInfo(std::shared_ptr<AMX_DBG> amxdbg)
 	: amxdbg_(amxdbg)
 {
+}
+
+DebugInfo::DebugInfo(const AMX_DBG *amxdbg) 
+	: amxdbg_(new AMX_DBG)
+{
+	std::memcpy(amxdbg_.get(), amxdbg, sizeof(AMX_DBG));
 }
 
 DebugInfo::DebugInfo(const AMX_DBG &amxdbg)
