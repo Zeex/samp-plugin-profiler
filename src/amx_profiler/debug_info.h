@@ -29,6 +29,7 @@ namespace amx_profiler {
 class DebugInfo {
 public:
 	DebugInfo();
+	explicit DebugInfo(const AMX_DBG *amxdbg);
 	explicit DebugInfo(const AMX_DBG &amxdbg);
 	explicit DebugInfo(std::shared_ptr<AMX_DBG> amxdbg);
 	explicit DebugInfo(const std::string &filename);
