@@ -27,6 +27,8 @@ add_library(profiler MODULE
 	src/amx/sclinux.h
 	src/amx_name.cpp
 	src/amx_name.h
+	src/amx_profiler/c_interface.cpp
+	src/amx_profiler/c_interface.h
 	src/amx_profiler/call_stack.cpp
 	src/amx_profiler/call_stack.h
 	src/amx_profiler/debug_info.cpp
