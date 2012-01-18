@@ -24,6 +24,7 @@ namespace amx_profiler {
 
 class Function;
 
+// Various runtime information about a function.
 class FunctionInfo {
 public:
 	friend class Function;
