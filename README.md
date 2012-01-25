@@ -21,6 +21,11 @@ You can configure profiler via `server.cfg`, by setting the following options:
 	Set statistics output format. Default is html. 
 	Note for HTML: it is possible to sort stats by clicking on column names!!
 
+*	call_graph &lt;0|1&gt;
+
+	Set this option to 1 if you want profiler to generate a call graph.
+	The graph is generated as [GraphViz](http://www.graphviz.org GraphViz) dot file.
+
 Output explanation
 ------------------
 
