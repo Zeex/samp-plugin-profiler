@@ -17,7 +17,6 @@
 #ifndef AMX_PROFILER_PERFORMANCE_COUNTER_H
 #define AMX_PROFILER_PERFORMANCE_COUNTER_H
 
-#include <chrono>
 #include "time_interval.h"
 
 namespace amx_profiler {
