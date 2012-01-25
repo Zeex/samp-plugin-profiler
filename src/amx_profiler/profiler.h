@@ -23,6 +23,7 @@
 #include <vector>
 #include <unordered_map>
 #include <amx/amx.h>
+#include "call_graph.h"
 #include "call_stack.h"
 #include "debug_info.h"
 #include "function.h"
@@ -44,8 +45,12 @@ public:
 	// Get profiling data.
 	std::vector<std::shared_ptr<FunctionInfo>> GetProfile() const;
 
-	inline const CallStack &GetCallStack() const {
+	inline const CallStack &call_stack() const {
 		return call_stack_;
+	}
+
+	inline const CallGraph &call_graph() const {
+		return call_graph_;
 	}
 
 	// These methods must be invoked by Profiler class user
@@ -73,8 +78,8 @@ private:
 	// AMX debug info, used to extract function names.
 	DebugInfo debug_info_;
 
-	// The current call stack.
 	CallStack call_stack_;
+	CallGraph call_graph_;
 
 	std::unordered_map<
 		ucell,  // address

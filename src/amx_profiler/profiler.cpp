@@ -157,8 +157,11 @@ void Profiler::BeginFunction(ucell address, ucell frm) {
 	assert(functions_.find(address) != functions_.end() && address != 0
 			&& "BeginFunction() called with invalid address");
 	std::shared_ptr<FunctionInfo> &info = functions_[address];
-	info->num_calls()++;
+	info->num_calls()++;	
 	call_stack_.Push(info->function(), frm);
+	auto node = std::shared_ptr<CallGraphNode>(new CallGraphNode(info->function(), call_graph_.root()));
+	call_graph_.root()->AddCallee(node);
+	call_graph_.set_root(node);	
 }
 
 // EndFunction() gets called when Profiler has left a function.
@@ -183,6 +186,9 @@ void Profiler::EndFunction(ucell address) {
 			assert(top_it != functions_.end());
 			top_it->second->child_time() += current->timer().total_time<Nanoseconds>();
 		}
+		assert(call_graph_.root() != call_graph_.sentinel().lock()
+				&& "Call graph sentinel reached");
+		call_graph_.set_root(call_graph_.root()->caller());
 		if (address == 0 || (current->function()->address() == address)) {
 			break;
 		}
