@@ -54,7 +54,7 @@ public:
 	void Traverse(Func f) const {
 		f(shared_from_this());
 		for (auto iterator = callees_.begin(); iterator != callees_.end(); ++iterator) {
-			f(*iterator);
+			(*iterator)->Traverse(f);
 		}
 	}	
 
