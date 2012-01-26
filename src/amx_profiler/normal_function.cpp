@@ -14,6 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <iomanip>
 #include <sstream>
 #include "debug_info.h"
 #include "normal_function.h"
@@ -28,8 +29,8 @@ NormalFunction::NormalFunction(ucell address, const DebugInfo &debug_info)
 	}
 	if (name_.empty()) {
 		std::stringstream ss;
-		ss << "0x" << std::hex << address_;
-		name_.append("unknown_").append(ss.str());
+		ss << "0x" << std::setw(8) << std::setfill('0') << std::hex << address_;
+		name_.append("unknown@").append(ss.str());
 	}
 }
 

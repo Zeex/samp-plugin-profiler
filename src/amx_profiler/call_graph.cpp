@@ -52,7 +52,7 @@ void CallGraphNode::Write(std::ostream &stream) const {
 		if (info_) {
 			caller_name = info_->function()->name();
 		} else {
-			caller_name = "HOST";
+			caller_name = "<host>";
 		}
 		for (auto iterator = callees_.begin(); iterator != callees_.end(); ++iterator) {			
 			std::tuple<double, double, double> color;
@@ -64,8 +64,8 @@ void CallGraphNode::Write(std::ostream &stream) const {
 			} else {
 				color = std::make_tuple(0.000, 0.000, 0.000);
 			}
-			stream << '\t' << caller_name << " -> " << (*iterator)->info()->function()->name() 
-				<< " [color=\""
+			stream << "\t\"" << caller_name << "\" -> \"" << (*iterator)->info()->function()->name() 
+				<< "\" [color=\""
 					<< std::get<0>(color) << ","
 					<< std::get<1>(color) << ","
 					<< std::get<2>(color)
