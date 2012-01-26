@@ -18,7 +18,7 @@
 #define AMX_PROFILER_FUNCTION_INFO_H
 
 #include <memory>
-#include "performance_counter.h"
+#include "time_interval.h"
 
 namespace amx_profiler {
 

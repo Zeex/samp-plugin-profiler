@@ -17,7 +17,7 @@
 #ifndef AMX_PROFILER_PROFILER_H
 #define AMX_PROFILER_PROFILER_H
 
-#include <ostream>
+#include <iosfwd>
 #include <stack>
 #include <string>
 #include <vector>
@@ -26,12 +26,10 @@
 #include "call_graph.h"
 #include "call_stack.h"
 #include "debug_info.h"
-#include "function.h"
-#include "function_info.h"
-#include "performance_counter.h"
 
 namespace amx_profiler {
 
+class FunctionInfo;
 class ProfileWriter;
 
 class Profiler {

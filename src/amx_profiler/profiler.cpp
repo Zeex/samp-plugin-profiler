@@ -19,6 +19,7 @@
 #include <cstdio>
 #include <functional>
 #include <map>
+#include <ostream>
 #include <string>
 #include <vector>
 #include <amx/amx.h>
@@ -186,7 +187,7 @@ void Profiler::EndFunction(ucell address) {
 			assert(top_it != functions_.end());
 			top_it->second->child_time() += current->timer().total_time<Nanoseconds>();
 		}
-		assert(call_graph_.root() != call_graph_.sentinel().lock()
+		assert(call_graph_.root() != call_graph_.sentinel()
 				&& "Call graph sentinel reached");
 		call_graph_.set_root(call_graph_.root()->caller());
 		if (address == 0 || (current->function()->address() == address)) {
