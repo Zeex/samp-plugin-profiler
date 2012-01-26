@@ -72,7 +72,7 @@ void HtmlProfileWriter::Write(const std::string &script_name, std::ostream &stre
 		<< "			<td>" << info->function()->name() << "</td>\n"
 		<< "			<td>" << info->num_calls() << "</td>\n"
 		<< "			<td>" << std::fixed << std::setprecision(2)
-			<< static_cast<double>((info->total_time() - info->child_time()) * 100) / time_all << "</td>\n"
+			<< static_cast<double>(info->GetSelfTime() * 100) / time_all << "</td>\n"
 		<< "			<td>" << std::fixed << std::setprecision(2)
 			<< static_cast<double>(info->total_time() * 100) / total_time_all << "</td>\n"
 		<< "		</tr>\n";
