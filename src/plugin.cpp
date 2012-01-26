@@ -168,6 +168,46 @@ static bool WantsProfiler(const std::string &amxName) {
 	return false;
 }
 
+static std::string FindGraphViz() {
+	std::string gv_path;
+
+	#ifdef _WIN32
+		// Try to read InstallPath from Windows registry.
+		HKEY att_key;
+		if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, "SOFTWARE\\AT&T Research Labs", 0, 
+				KEY_READ, &att_key) == ERROR_SUCCESS) {
+			char gv_key_name[40];
+			DWORD gv_key_size = sizeof(gv_key_name);
+			DWORD index = 0;
+			while (RegEnumKeyEx(att_key, index, gv_key_name, &gv_key_size, 0, 0, 0, 0) == ERROR_SUCCESS) {
+				HKEY gv_key;
+				if (RegOpenKeyEx(att_key, gv_key_name, 0, KEY_READ, &gv_key) == ERROR_SUCCESS) {
+					char value[MAX_PATH];
+					DWORD value_size = sizeof(value);
+					if (RegGetValue(gv_key, 0, "InstallPath", RRF_RT_ANY, 0, 
+							value, &value_size) == ERROR_SUCCESS) {
+						gv_path.assign(value);
+					}
+					RegCloseKey(gv_key);
+				}
+				++index;
+			}
+			RegCloseKey(att_key);
+		}
+
+	#endif
+
+	if (gv_path.empty()) {			
+		// Read the GV_HOME variable if still not found.
+		char *gv_home = getenv("GV_HOME");
+		if (gv_home != 0) {
+			gv_path.assign(gv_home);
+		}
+	}
+
+	return gv_path;
+}
+
 #ifdef _WIN32
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx);
@@ -275,11 +315,10 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 
 		ConfigReader server_cfg("server.cfg");
 
-		std::string format =
-			server_cfg.GetOption("profile_format", std::string("html"));
+		auto format = server_cfg.GetOption("profile_format", std::string("html"));
 		std::transform(format.begin(), format.end(), format.begin(), ::tolower);
 
-		std::string filename = amx_name + "-profile";
+		auto filename = amx_name + "-profile";
 		ProfileWriter *writer = 0;
 
 		if (format == "html") {
@@ -301,10 +340,25 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 			delete writer;
 		}
 
-		bool call_graph = server_cfg.GetOption("call_graph", false);
+		auto call_graph = server_cfg.GetOption("call_graph", false);
 		if (call_graph) {
-			std::ofstream ostream(amx_name + "-calls.gv");
+			// Save the call graph as a dot script.
+			std::string gv_file = amx_name + "-calls.gv";
+			std::ofstream ostream(gv_file.c_str());
 			profiler->call_graph().Write(ostream);
+			
+			auto call_graph_format = server_cfg.GetOption("call_graph_format", std::string());
+			if (!call_graph_format.empty()) {
+				// Convert the .gv to viewable format e.g. pdf if GraphViz is installed.
+				std::string path = FindGraphViz();
+				if (!path.empty()) {
+					path.append("/bin/");
+				};
+				std::string cmd = "\"" + path + "dot\" -T" + call_graph_format + " -O " + gv_file;
+				if (system(cmd.c_str()) != 0) {
+					logprintf("[profiler] Error executing command: %s", cmd.c_str());
+				}
+			}
 		}
 
 		profilers.erase(amx);
