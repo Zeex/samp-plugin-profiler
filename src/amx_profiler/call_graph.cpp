@@ -86,7 +86,7 @@ CallGraph::CallGraph(const std::shared_ptr<CallGraphNode> &root)
 
 void CallGraph::Write(std::ostream &stream) const {
 	stream << 
-	"digraph prof {\n"
+	"digraph Profile {\n"
 	"	size=\"6,4\"; ratio = fill;\n"
 	"	node [style=filled];\n"
 	;
