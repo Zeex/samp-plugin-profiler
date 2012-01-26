@@ -49,6 +49,15 @@ public:
 	// Used by CallGraph::Write(), see below.
 	void Write(std::ostream &stream) const;
 
+	// Recursive parent-to-child traversing.
+	template<typename Func>
+	void Traverse(Func f) const {
+		f(shared_from_this());
+		for (auto iterator = callees_.begin(); iterator != callees_.end(); ++iterator) {
+			f(*iterator);
+		}
+	}	
+
 private:
 	std::shared_ptr<FunctionInfo> info_;
 	std::shared_ptr<CallGraphNode> caller_;
@@ -74,6 +83,12 @@ public:
 	// Write the whole graph to "stream" in GraphViz format:
 	// http://www.graphviz.org/content/profile
 	void Write(std::ostream &stream) const;
+
+	// Walk through the whole graph calling Func against each node.
+	template<typename Func>
+	void Traverse(Func f) const {
+		sentinel_->Traverse(f);
+	}
 
 private:
 	std::shared_ptr<CallGraphNode> root_;
