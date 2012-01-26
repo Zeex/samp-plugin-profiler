@@ -26,7 +26,7 @@ You can configure profiler via `server.cfg`, by setting the following options:
 	Set this option to 1 if you want profiler to generate a call graph.
 	The graph is generated as a [GraphViz](http://www.graphviz.org GraphViz) dot file.
 
-*	call_graph_format <format>
+*	call_graph_format &lt;format&gt;
 
 	If specified, profiler will try to convert the .gv file into one of the formats supported by dot. 
 
