@@ -27,8 +27,6 @@ class Function;
 // Various runtime information about a function.
 class FunctionInfo {
 public:
-	friend class Function;
-
 	explicit FunctionInfo(const std::shared_ptr<Function> &func);
 
 	std::shared_ptr<Function> &function()
