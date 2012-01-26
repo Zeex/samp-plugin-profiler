@@ -52,7 +52,7 @@ void CallGraphNode::Write(std::ostream &stream) const {
 		if (info_) {
 			caller_name = info_->function()->name();
 		} else {
-			caller_name = "Application";
+			caller_name = "HOST";
 		}
 		for (auto iterator = callees_.begin(); iterator != callees_.end(); ++iterator) {			
 			std::tuple<double, double, double> color;
