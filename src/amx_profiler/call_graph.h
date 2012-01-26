@@ -21,17 +21,18 @@
 #include <list>
 #include <memory>
 #include "call_stack.h"
-#include "function.h"
 
 namespace amx_profiler {
 
+class FunctionInfo;
+
 class CallGraphNode : public std::enable_shared_from_this<CallGraphNode> {
 public:
-	CallGraphNode(const std::shared_ptr<Function> &fn, 
+	CallGraphNode(const std::shared_ptr<FunctionInfo> &info, 
 	              const std::shared_ptr<CallGraphNode> &caller = 0);
 
-	inline const std::shared_ptr<Function> &function() const {
-		return fn_;
+	inline const std::shared_ptr<FunctionInfo> &info() const {
+		return info_;
 	}
 
 	inline std::shared_ptr<CallGraphNode> caller() const {
@@ -42,13 +43,14 @@ public:
 		return callees_;
 	}
 
-	void AddCallee(const std::shared_ptr<Function> &fn);
+	void AddCallee(const std::shared_ptr<FunctionInfo> &info);
 	void AddCallee(const std::shared_ptr<CallGraphNode> &node);
 
+	// Used by CallGraph::Write(), see below.
 	void Write(std::ostream &stream) const;
 
 private:
-	std::shared_ptr<Function> fn_;
+	std::shared_ptr<FunctionInfo> info_;
 	std::shared_ptr<CallGraphNode> caller_;
 	std::list<std::shared_ptr<CallGraphNode>> callees_;
 };

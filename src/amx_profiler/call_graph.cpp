@@ -14,20 +14,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <functional>
 #include <iostream>
+#include <tuple>
 #include "call_graph.h"
+#include "function.h"
+#include "function_info.h"
 
 namespace amx_profiler {
 
-CallGraphNode::CallGraphNode(const std::shared_ptr<Function> &fn, 
+CallGraphNode::CallGraphNode(const std::shared_ptr<FunctionInfo> &info, 
                              const std::shared_ptr<CallGraphNode> &caller) 
-	: fn_(fn)
+	: info_(info)
 	, caller_(caller)
 	, std::enable_shared_from_this<CallGraphNode>()
 {
 }
 
-void CallGraphNode::AddCallee(const std::shared_ptr<Function> &fn) {
+void CallGraphNode::AddCallee(const std::shared_ptr<FunctionInfo> &fn) {
 	auto new_node = std::shared_ptr<CallGraphNode>(new CallGraphNode(fn, shared_from_this()));
 	AddCallee(new_node);
 }
@@ -35,7 +39,7 @@ void CallGraphNode::AddCallee(const std::shared_ptr<Function> &fn) {
 void CallGraphNode::AddCallee(const std::shared_ptr<CallGraphNode> &node) {
 	// Avoid duplicate functions
 	for (auto iterator = callees_.begin(); iterator != callees_.end(); ++iterator) {
-		if ((*iterator)->function()->address() == node->function()->address()) {
+		if ((*iterator)->info()->function()->address() == node->info()->function()->address()) {
 			return;
 		}
 	}
@@ -44,14 +48,14 @@ void CallGraphNode::AddCallee(const std::shared_ptr<CallGraphNode> &node) {
 
 void CallGraphNode::Write(std::ostream &stream) const {
 	if (!callees_.empty()) {
-		std::string name;
-		if (fn_) {
-			name = fn_->name();
+		std::string caller_name;
+		if (info_) {
+			caller_name = info_->function()->name();
 		} else {
-			name = "Application";
+			caller_name = "Application";
 		}
 		for (auto iterator = callees_.begin(); iterator != callees_.end(); ++iterator) {			
-			stream << '\t' << name << " -> " << (*iterator)->function()->name() << std::endl;
+			stream << '\t' << caller_name << " -> " << (*iterator)->info()->function()->name();
 			(*iterator)->Write(stream);
 		}
 	}

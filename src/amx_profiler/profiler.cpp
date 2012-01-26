@@ -159,7 +159,7 @@ void Profiler::BeginFunction(ucell address, ucell frm) {
 	std::shared_ptr<FunctionInfo> &info = functions_[address];
 	info->num_calls()++;	
 	call_stack_.Push(info->function(), frm);
-	auto node = std::shared_ptr<CallGraphNode>(new CallGraphNode(info->function(), call_graph_.root()));
+	auto node = std::shared_ptr<CallGraphNode>(new CallGraphNode(info, call_graph_.root()));
 	call_graph_.root()->AddCallee(node);
 	call_graph_.set_root(node);	
 }
