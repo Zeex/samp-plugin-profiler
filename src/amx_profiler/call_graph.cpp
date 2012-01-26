@@ -65,7 +65,6 @@ void CallGraphNode::Write(std::ostream &stream) const {
 			}
 			stream << "\t\"" << caller_name << "\" -> \"" << c->info()->function()->name() 
 				<< "\" [color=\"" << color << "\"];" << std::endl;
-			c->Write(stream);
 		});
 	}
 }
@@ -87,7 +86,9 @@ void CallGraph::Write(std::ostream &stream) const {
 	;
 
 	// Write all nodes recrusively
-	sentinel_->Write(stream);
+	Traverse([&stream](const std::shared_ptr<const CallGraphNode> &node) {
+		node->Write(stream);
+	});
 
 	stream <<
 	"}\n";
