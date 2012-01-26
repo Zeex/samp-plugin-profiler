@@ -61,7 +61,7 @@ void TextProfileWriter::Write(const std::string &script_name, std::ostream &stre
 			<< std::setw(kNameWidth) << info->function()->name()
 			<< std::setw(kCallsWidth) << info->num_calls()
 			<< std::setw(kSelfTimeWidth) << std::setprecision(2) << std::fixed
-				<< static_cast<double>((info->total_time() - info->child_time()) * 100) / time_all
+				<< static_cast<double>(info->GetSelfTime() * 100) / time_all
 			<< std::setw(kTotalTimeWidth) << std::setprecision(2) << std::fixed
 				<< static_cast<double>(info->total_time() * 100) / total_time_all
 		<< std::endl;

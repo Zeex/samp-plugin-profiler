@@ -58,7 +58,7 @@ void XmlProfileWriter::Write(const std::string &script_name, std::ostream &strea
 		stream << " name=\"" << info->function()->name() << "\"";
 		stream << " calls=\"" << info->num_calls() << "\"";
 		stream << " total_time=\"" <<  std::fixed << std::setprecision(2)
-			<< static_cast<double>((info->total_time() - info->child_time()) * 100) / time_all << "\"";
+			<< static_cast<double>(info->GetSelfTime() * 100) / time_all << "\"";
 		stream << " total_time=\"" <<  std::fixed << std::setprecision(2)
 			<< static_cast<double>(info->total_time() * 100) / total_time_all << "\"";
 		stream << " />\n";

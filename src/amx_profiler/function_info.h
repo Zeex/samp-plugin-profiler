@@ -51,6 +51,9 @@ public:
 	const TimeInterval &child_time() const
 		{ return child_time_; }
 
+	TimeInterval GetSelfTime() const 
+		{ return total_time() - child_time(); }
+
 private:
 	std::shared_ptr<Function> func_;
 
