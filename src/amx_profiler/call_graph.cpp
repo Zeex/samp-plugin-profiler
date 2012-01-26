@@ -55,7 +55,25 @@ void CallGraphNode::Write(std::ostream &stream) const {
 			caller_name = "Application";
 		}
 		for (auto iterator = callees_.begin(); iterator != callees_.end(); ++iterator) {			
-			stream << '\t' << caller_name << " -> " << (*iterator)->info()->function()->name();
+			std::tuple<double, double, double> color;
+			if (!info_) {
+				color = std::make_tuple(0.002, 1.000, 1.000);
+			} else {
+				auto fn = (*iterator)->info()->function();
+				if (fn->type() == "native") {
+					color = std::make_tuple(0.002, 1.000, 1.000);
+				} else if (fn->type() == "public") {
+					color = std::make_tuple(0.666, 1.000, 1.000);					
+				} else {
+					color = std::make_tuple(0.000, 0.000, 0.000);
+				}
+			}
+			stream << '\t' << caller_name << " -> " << (*iterator)->info()->function()->name() 
+				<< " [color=\""
+					<< std::get<0>(color) << ","
+					<< std::get<1>(color) << ","
+					<< std::get<2>(color)
+				<< "\"];" << std::endl;
 			(*iterator)->Write(stream);
 		}
 	}
@@ -77,7 +95,7 @@ void CallGraph::Write(std::ostream &stream) const {
 	"	node [style=filled];\n"
 	;
 
-	// Recursively write all nodes 
+	// Write all nodes recrusively
 	sentinel_->Write(stream);
 
 	stream <<
