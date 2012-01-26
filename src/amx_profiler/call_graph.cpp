@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <functional>
+#include <algorithm>
 #include <iostream>
 #include <tuple>
 #include "call_graph.h"
@@ -54,20 +54,19 @@ void CallGraphNode::Write(std::ostream &stream) const {
 		} else {
 			caller_name = "<host>";
 		}
-		for (auto iterator = callees_.begin(); iterator != callees_.end(); ++iterator) {			
+		std::for_each(callees_.begin(), callees_.end(), [&](const std::shared_ptr<CallGraphNode> &c) {
 			std::string color;
-			auto type = (*iterator)->info()->function()->type();
-			if (!info_ || type == "public") {
+			if (!info_ || c->info()->function()->type() == "public") {
 				color = "#0000FF";
-			} else if (type == "native") {
+			} else if (c->info()->function()->type() == "native") {
 				color = "#FF0000";
 			} else {
 				color = "#000000";
 			}
-			stream << "\t\"" << caller_name << "\" -> \"" << (*iterator)->info()->function()->name() 
+			stream << "\t\"" << caller_name << "\" -> \"" << c->info()->function()->name() 
 				<< "\" [color=\"" << color << "\"];" << std::endl;
-			(*iterator)->Write(stream);
-		}
+			c->Write(stream);
+		});
 	}
 }
 
