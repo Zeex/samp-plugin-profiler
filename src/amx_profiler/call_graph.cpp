@@ -55,21 +55,17 @@ void CallGraphNode::Write(std::ostream &stream) const {
 			caller_name = "<host>";
 		}
 		for (auto iterator = callees_.begin(); iterator != callees_.end(); ++iterator) {			
-			std::tuple<double, double, double> color;
+			std::string color;
 			auto type = (*iterator)->info()->function()->type();
 			if (!info_ || type == "public") {
-				color = std::make_tuple(0.666, 1.000, 1.000);
+				color = "#0000FF";
 			} else if (type == "native") {
-				color = std::make_tuple(0.002, 1.000, 1.000);
+				color = "#FF0000";
 			} else {
-				color = std::make_tuple(0.000, 0.000, 0.000);
+				color = "#000000";
 			}
 			stream << "\t\"" << caller_name << "\" -> \"" << (*iterator)->info()->function()->name() 
-				<< "\" [color=\""
-					<< std::get<0>(color) << ","
-					<< std::get<1>(color) << ","
-					<< std::get<2>(color)
-				<< "\"];" << std::endl;
+				<< "\" [color=\"" << color << "\"];" << std::endl;
 			(*iterator)->Write(stream);
 		}
 	}
