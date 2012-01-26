@@ -303,7 +303,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 
 		bool call_graph = server_cfg.GetOption("call_graph", false);
 		if (call_graph) {
-			std::ofstream ostream(amx_path + "-calls.gv");
+			std::ofstream ostream(amx_name + "-calls.gv");
 			profiler->call_graph().Write(ostream);
 		}
 
