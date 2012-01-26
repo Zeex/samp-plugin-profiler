@@ -28,8 +28,8 @@ NormalFunction::NormalFunction(ucell address, const DebugInfo &debug_info)
 	}
 	if (name_.empty()) {
 		std::stringstream ss;
-		ss << address_;
-		name_.append("unknown_function@").append(ss.str());
+		ss << "0x" << std::hex << address_;
+		name_.append("unknown_").append(ss.str());
 	}
 }
 
