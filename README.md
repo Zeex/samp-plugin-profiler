@@ -26,6 +26,16 @@ You can configure profiler via `server.cfg`, by setting the following options:
 	Set this option to 1 if you want profiler to generate a call graph.
 	The graph is generated as [GraphViz](http://www.graphviz.org GraphViz) dot file.
 
+*	call_graph_format <format>
+
+	If specified, profiler will try to convert the .gv file into one of the formats supported by dot. 
+
+	dot command is invoked as follows:
+	`<install_path>/dot -T<format> <some_script-calls.gv> -O`
+
+	On Windows, *install_path* is looked up in registry first, then in GV_HOME variable (as on *nix).
+	If GraphViz install path is not found it is assumed that it's already in PATH.
+
 Output explanation
 ------------------
 
