@@ -20,6 +20,7 @@
 #include "call_graph.h"
 #include "function.h"
 #include "function_info.h"
+#include "time_interval.h"
 
 namespace amx_profiler {
 
@@ -56,10 +57,10 @@ void CallGraphNode::Write(std::ostream &stream) const {
 		}
 		std::for_each(callees_.begin(), callees_.end(), [&](const std::shared_ptr<CallGraphNode> &c) {
 			std::string color;
-			if (!info_ || c->info()->function()->type() == "public") {
-				color = "#0000FF";
+			if (c->info()->function()->type() == "public") {
+				color = "#001EE0";
 			} else if (c->info()->function()->type() == "native") {
-				color = "#FF0000";
+				color = "#9900E0";
 			} else {
 				color = "#000000";
 			}
@@ -85,9 +86,35 @@ void CallGraph::Write(std::ostream &stream) const {
 	"	node [style=filled];\n"
 	;
 
-	// Write all nodes recrusively
+	// Write basic graph (nodes + arrows).
 	Traverse([&stream](const std::shared_ptr<const CallGraphNode> &node) {
-		node->Write(stream);
+		node->Write(stream);		
+	});
+
+	// Get maximum execution time.
+	TimeInterval max_time = 0;
+	Traverse([&max_time, this](const std::shared_ptr<const CallGraphNode> &node) {
+		if (node != sentinel_) {
+			auto time = node->info()->GetSelfTime();
+			if (time > max_time) {
+				max_time = time;
+			}
+		}
+	});
+
+	// Color nodes depending to draw attention to hot spots.
+	Traverse([&max_time, &stream, this](const std::shared_ptr<const CallGraphNode> &node) {
+		if (node != sentinel_) {
+			auto time = node->info()->GetSelfTime();
+			auto ratio = static_cast<double>(time) / static_cast<double>(max_time);
+			// We encode color in hue-saturation-brightness.
+			auto hsb = std::make_tuple((1.0 - ratio) * 0.65, (ratio * 0.8) + 0.2, 1.0);
+			stream << "\t\"" << node->info()->function()->name() << "\" [color=\""
+				<< std::get<0>(hsb) << ", "
+				<< std::get<1>(hsb) << ", "
+				<< std::get<2>(hsb)
+			<< "\"];" << std::endl;
+		}
 	});
 
 	stream <<

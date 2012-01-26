@@ -20,7 +20,7 @@
 #include <iosfwd>
 #include <list>
 #include <memory>
-#include "call_stack.h"
+#include <vector>
 
 namespace amx_profiler {
 
@@ -76,15 +76,15 @@ public:
 		root_ = root;
 	}
 
-	std::weak_ptr<CallGraphNode> sentinel() const {
+	std::shared_ptr<CallGraphNode> sentinel() const {
 		return sentinel_;
 	}
 
-	// Write the whole graph to "stream" in GraphViz format:
+	// Write graph to "stream" in GraphViz format:
 	// http://www.graphviz.org/content/profile
 	void Write(std::ostream &stream) const;
 
-	// Walk through the whole graph calling Func against each node.
+	// Walk through all nodes calling Func against each one.
 	template<typename Func>
 	void Traverse(Func f) const {
 		sentinel_->Traverse(f);
