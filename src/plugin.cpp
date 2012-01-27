@@ -15,6 +15,7 @@
 // limitations under the License.
 
 #include <algorithm>
+#include <cassert>
 #include <cerrno>
 #include <cstdio>
 #include <cstdlib>
@@ -80,41 +81,27 @@ static int AMXAPI amx_Debug(AMX *amx) {
 }
 
 static int AMXAPI amx_Callback(AMX *amx, cell index, cell *result, cell *params) {
-	amx_Callback_hook.Remove();
-	amx_Exec_hook.Install();
-
-	int error = AMX_ERR_NONE;
+	JumpX86::ScopedRemove r(&amx_Callback_hook);
+	JumpX86::ScopedInstall i(&amx_Exec_hook);
 
 	auto profiler = ::profilers[amx];
 	if (profiler) {
-		error =  profiler->amx_Callback(index, result, params);
+		return profiler->amx_Callback(index, result, params);
 	} else {
-		error = ::amx_Callback(amx, index, result, params);
+		return ::amx_Callback(amx, index, result, params);
 	}
-
-	amx_Exec_hook.Remove();
-	amx_Callback_hook.Install();
-
-	return error;
 }
 
 static int AMXAPI amx_Exec(AMX *amx, cell *retval, int index) {
-	amx_Exec_hook.Remove();
-	amx_Callback_hook.Install();
-
-	int error = AMX_ERR_NONE;
+	JumpX86::ScopedRemove r(&amx_Exec_hook);
+	JumpX86::ScopedInstall i(&amx_Callback_hook);
 
 	auto profiler = ::profilers[amx];
 	if (profiler) {
-		error =  profiler->amx_Exec(retval, index);
+		return profiler->amx_Exec(retval, index);
 	} else {
-		error = ::amx_Exec(amx, retval, index);
+		return ::amx_Exec(amx, retval, index);
 	}
-
-	amx_Callback_hook.Remove();
-	amx_Exec_hook.Install();
-
-	return error;
 }
 
 } // namespace hooks
