@@ -14,10 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <algorithm>
-#include <iostream>
-#include <tuple>
 #include "call_graph.h"
+#include "call_graph_writer.h"
 #include "function.h"
 #include "function_info.h"
 #include "time_interval.h"
@@ -47,29 +45,6 @@ void CallGraphNode::AddCallee(const std::shared_ptr<CallGraphNode> &node) {
 	callees_.push_back(node);
 }
 
-void CallGraphNode::Write(std::ostream &stream) const {
-	if (!callees_.empty()) {
-		std::string caller_name;
-		if (info_) {
-			caller_name = info_->function()->name();
-		} else {
-			caller_name = "<host>";
-		}
-		std::for_each(callees_.begin(), callees_.end(), [&](const std::shared_ptr<CallGraphNode> &c) {
-			std::string color;
-			if (c->info()->function()->type() == "public") {
-				color = "#001EE0";
-			} else if (c->info()->function()->type() == "native") {
-				color = "#9900E0";
-			} else {
-				color = "#000000";
-			}
-			stream << "\t\"" << caller_name << "\" -> \"" << c->info()->function()->name() 
-				<< "\" [color=\"" << color << "\"];" << std::endl;
-		});
-	}
-}
-
 CallGraph::CallGraph(const std::shared_ptr<CallGraphNode> &root)
 	: root_(root)
 	, sentinel_(new CallGraphNode(0))
@@ -79,46 +54,8 @@ CallGraph::CallGraph(const std::shared_ptr<CallGraphNode> &root)
 	}
 }
 
-void CallGraph::Write(std::ostream &stream) const {
-	stream << 
-	"digraph Profile {\n"
-	"	size=\"6,4\"; ratio = fill;\n"
-	"	node [style=filled];\n"
-	;
-
-	// Write basic graph (nodes + arrows).
-	Traverse([&stream](const std::shared_ptr<const CallGraphNode> &node) {
-		node->Write(stream);		
-	});
-
-	// Get maximum execution time.
-	TimeInterval max_time = 0;
-	Traverse([&max_time, this](const std::shared_ptr<const CallGraphNode> &node) {
-		if (node != sentinel_) {
-			auto time = node->info()->GetSelfTime();
-			if (time > max_time) {
-				max_time = time;
-			}
-		}
-	});
-
-	// Color nodes depending to draw attention to hot spots.
-	Traverse([&max_time, &stream, this](const std::shared_ptr<const CallGraphNode> &node) {
-		if (node != sentinel_) {
-			auto time = node->info()->GetSelfTime();
-			auto ratio = static_cast<double>(time) / static_cast<double>(max_time);
-			// We encode color in hue-saturation-brightness.
-			auto hsb = std::make_tuple((1.0 - ratio) * 0.65, (ratio * 0.8) + 0.2, 1.0);
-			stream << "\t\"" << node->info()->function()->name() << "\" [color=\""
-				<< std::get<0>(hsb) << ", "
-				<< std::get<1>(hsb) << ", "
-				<< std::get<2>(hsb)
-			<< "\"];" << std::endl;
-		}
-	});
-
-	stream <<
-	"}\n";
+void CallGraph::Write(CallGraphWriter &writer) const {
+	writer.Write(*this);
 }
 
 } // namespace amx_profiler
