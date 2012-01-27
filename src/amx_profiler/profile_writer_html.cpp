@@ -16,8 +16,8 @@
 
 #include <algorithm>
 #include <cstdio>
-#include <fstream>
 #include <iomanip>
+#include <iostream>
 #include <string>
 #include <vector>
 #ifdef HAVE_BOOST_DATE_TIME
@@ -25,22 +25,27 @@
 #endif
 #include "function.h"
 #include "function_info.h"
-#include "html_profile_writer.h"
+#include "profile_writer_html.h"
 #include "performance_counter.h"
 
 namespace amx_profiler {
 
-void HtmlProfileWriter::Write(const std::string &script_name, std::ostream &stream,
-		const std::vector<std::shared_ptr<FunctionInfo>> &stats)
+ProfileWriterHtml::ProfileWriterHtml(std::ostream *stream, const std::string script_name)
+	: stream_(stream)
+	, script_name_(script_name)
 {
-	stream <<
+}
+
+void ProfileWriterHtml::Write(const std::vector<std::shared_ptr<FunctionInfo>> &stats)
+{
+	*stream_ <<
 	"<html>\n"
 	"<head>\n"
-	"	<title>" << "Profile of '" << script_name << "'</title>\n"
+	"	<title>" << "Profile of '" << script_name_ << "'</title>\n"
 	"</head>\n"
 	"<body>\n"
 	"	<h1>\n" <<
-	"		Profile of '" << script_name << "'\n"
+	"		Profile of '" << script_name_ << "'\n"
 	"	</h1>\n"
 	"	<table id=\"stats\" class=\"tablesorter\" border=\"1\" width=\"100%\">\n"
 	"		<thead>\n"
@@ -66,7 +71,7 @@ void HtmlProfileWriter::Write(const std::string &script_name, std::ostream &stre
 	});
 
 	std::for_each(stats.begin(), stats.end(), [&](const std::shared_ptr<FunctionInfo> &info) {
-		stream
+		*stream_
 		<< "		<tr>\n"
 		<< "			<td>" << info->function()->type() << "</td>\n"
 		<< "			<td>" << info->function()->name() << "</td>\n"
@@ -78,12 +83,12 @@ void HtmlProfileWriter::Write(const std::string &script_name, std::ostream &stre
 		<< "		</tr>\n";
 	});
 
-	stream <<
+	*stream_ <<
 	"		</tbody>\n"
 	"	</table>\n"
 	;
 
-	stream <<
+	*stream_ <<
 	"	<script type=\"text/javascript\"\n"
 	"		src=\"http://code.jquery.com/jquery-latest.min.js\"></script>\n"
 	"	<script type=\"text/javascript\"\n"
