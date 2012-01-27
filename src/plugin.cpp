@@ -335,8 +335,8 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 			logprintf("[profiler] Unknown output format '%s'", cfg::profile_format.c_str());
 		}
 
-		if (writer != 0) {			
-			writer->Write(profiler->GetProfile());
+		if (writer != 0) {
+			profiler->WriteProfile(writer);
 			delete writer;
 		}
 

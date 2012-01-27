@@ -52,6 +52,10 @@ std::vector<std::shared_ptr<FunctionInfo>> Profiler::GetProfile() const {
 	return profile;
 }
 
+void Profiler::WriteProfile(ProfileWriter *writer) const {
+	writer->Write(GetProfile());
+}
+
 // Profile normal function call.
 int Profiler::amx_Debug(int (AMXAPI *debug)(AMX *amx)) {
 	// Check if the stack frame has changed.
