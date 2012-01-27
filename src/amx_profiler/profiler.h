@@ -30,6 +30,7 @@
 namespace amx_profiler {
 
 class FunctionInfo;
+class ProfileWriter;
 
 class Profiler {
 public:
@@ -39,6 +40,9 @@ public:
 
 	// Get profiling results.
 	std::vector<std::shared_ptr<FunctionInfo>> GetProfile() const;
+
+	// Output data using a given profile writer.
+	void WriteProfile(ProfileWriter *writer) const;
 
 	// Get the current call stack.
 	inline const CallStack &call_stack() const {
