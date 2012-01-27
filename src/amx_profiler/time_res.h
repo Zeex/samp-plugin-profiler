@@ -14,16 +14,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef AMX_PROFILER_TIME_INTERVAL_H
-#define AMX_PROFILER_TIME_INTERVAL_H
+#ifndef AMX_PROFILER_TIME_RES_H
+#define AMX_PROFILER_TIME_RES_H
 
-#include <cstdint>
 #include "chrono.h"
 
 namespace amx_profiler {
 
-typedef std::int64_t TimeInterval;
+typedef chrono::nanoseconds  Nanoseconds;
+typedef chrono::microseconds Microseconds;
+typedef chrono::milliseconds Milliseconds;
 
-} // namespace amx_profiler
+}; // namespace amx_profiler
 
-#endif // !AMX_PROFILER_TIME_INTERVAL_H
+#endif // !AMX_PROFILER_TIME_RES_H

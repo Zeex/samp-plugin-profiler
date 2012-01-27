@@ -14,16 +14,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef AMX_PROFILER_TIME_INTERVAL_H
-#define AMX_PROFILER_TIME_INTERVAL_H
+#ifndef AMX_PROFILER_CHRONO_H
+#define AMX_PROFILER_CHRONO_H
 
-#include <cstdint>
-#include "chrono.h"
+#ifdef HAVE_BOOST_CHRONO
+	#include <boost/chrono.hpp>
+	namespace amx_profiler { namespace chrono = boost::chrono; }
+#else
+	#include <chrono>
+	namespace amx_profiler { namespace chrono = std::chrono; }
+#endif
 
-namespace amx_profiler {
-
-typedef std::int64_t TimeInterval;
-
-} // namespace amx_profiler
-
-#endif // !AMX_PROFILER_TIME_INTERVAL_H
+#endif // !AMX_PROFILER_CHRONO_H
