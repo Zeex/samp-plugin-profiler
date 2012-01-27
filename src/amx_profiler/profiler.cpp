@@ -34,9 +34,10 @@
 
 namespace amx_profiler {
 
-Profiler::Profiler(AMX *amx, DebugInfo debug_info)
+Profiler::Profiler(AMX *amx, DebugInfo debug_info, bool enable_call_graph)
 	: amx_(amx)
 	, debug_info_(debug_info)
+	, call_graph_enabled_(enable_call_graph)
 {
 	// nothing
 }
@@ -153,9 +154,11 @@ void Profiler::BeginFunction(ucell address, ucell frm) {
 	std::shared_ptr<FunctionInfo> &info = functions_[address];
 	info->num_calls()++;	
 	call_stack_.Push(info->function(), frm);
-	auto node = std::shared_ptr<CallGraphNode>(new CallGraphNode(info, call_graph_.root()));
-	call_graph_.root()->AddCallee(node);
-	call_graph_.set_root(node);	
+	if (call_graph_enabled_) {
+		auto node = std::shared_ptr<CallGraphNode>(new CallGraphNode(info, call_graph_.root()));
+		call_graph_.root()->AddCallee(node);
+		call_graph_.set_root(node);	
+	}
 }
 
 // EndFunction() gets called when Profiler has left a function.
@@ -182,7 +185,9 @@ void Profiler::EndFunction(ucell address) {
 		}
 		assert(call_graph_.root() != call_graph_.sentinel()
 				&& "Call graph sentinel reached");
-		call_graph_.set_root(call_graph_.root()->caller());
+		if (call_graph_enabled_) {
+			call_graph_.set_root(call_graph_.root()->caller());
+		}
 		if (address == 0 || (current->function()->address() == address)) {
 			break;
 		}

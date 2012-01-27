@@ -33,7 +33,9 @@ class FunctionInfo;
 
 class Profiler {
 public:
-	Profiler(AMX *amx, DebugInfo debug_info = DebugInfo());
+	Profiler(AMX *amx,                           // The AMX script to be profiled.
+	         DebugInfo debug_info = DebugInfo(), // Debug info used to obtain non-public functions' names.
+	         bool enable_call_graph = true);     // Maintain a call graph?
 
 	// Get profiling results.
 	std::vector<std::shared_ptr<FunctionInfo>> GetProfile() const;
@@ -68,11 +70,9 @@ private:
 	void EndFunction(ucell address = 0);
 
 private:
-	// The AMX instance associated with this Profiler instance.
 	AMX *amx_;
-
-	// AMX debug info, used to extract function names.
 	DebugInfo debug_info_;
+	bool call_graph_enabled_;
 
 	CallStack call_stack_;
 	CallGraph call_graph_;
