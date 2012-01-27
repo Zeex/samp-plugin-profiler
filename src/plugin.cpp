@@ -345,7 +345,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 			std::string gv_file = amx_name + "-calls.gv";
 			std::ofstream ostream(gv_file.c_str());
 
-			CallGraphWriterGV graph_writer(&ostream, amx_path);
+			CallGraphWriterGV graph_writer(&ostream, amx_path, "SA-MP Server");
 			profiler->call_graph().Write(graph_writer);
 			
 			if (!cfg::call_graph_format.empty()) {

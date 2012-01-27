@@ -28,9 +28,10 @@
 
 namespace amx_profiler {
 
-CallGraphWriterGV::CallGraphWriterGV(std::ostream *stream, const std::string &name) 
+CallGraphWriterGV::CallGraphWriterGV(std::ostream *stream, const std::string &name, const std::string top_node_name) 
 	: stream_(stream)
 	, name_(name)
+	, top_name_(top_node_name)
 {
 }
 
@@ -48,7 +49,7 @@ void CallGraphWriterGV::Write(const CallGraph &graph) {
 			if (node->info()) {
 				caller_name = node->info()->function()->name();
 			} else {
-				caller_name = "<host>";
+				caller_name = top_name_;
 			}
 			std::for_each(node->callees().begin(), node->callees().end(), [&](const std::shared_ptr<CallGraphNode> &c) {
 				std::string color;
