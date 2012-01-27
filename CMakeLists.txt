@@ -33,6 +33,7 @@ add_library(profiler MODULE
 	src/amx_profiler/call_graph.h
 	src/amx_profiler/call_stack.cpp
 	src/amx_profiler/call_stack.h
+	src/amx_profiler/chrono.h
 	src/amx_profiler/debug_info.cpp
 	src/amx_profiler/debug_info.h
 	src/amx_profiler/function.cpp
@@ -57,6 +58,7 @@ add_library(profiler MODULE
 	src/amx_profiler/performance_counter.cpp
 	src/amx_profiler/performance_counter.h
 	src/amx_profiler/time_interval.h
+	src/amx_profiler/time_res.h
 	src/amx_profiler/xml_profile_writer.cpp
 	src/amx_profiler/xml_profile_writer.h
 	src/amxplugin.cpp
