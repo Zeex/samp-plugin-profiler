@@ -36,7 +36,7 @@ CallGraphWriterGV::CallGraphWriterGV(std::ostream *stream, const std::string &na
 
 void CallGraphWriterGV::Write(const CallGraph &graph) {
 	*stream_ << 
-	"digraph Profile {\n"
+	"digraph \"Call graph of " << name_ << "\" {\n"
 	"	size=\"6,4\"; ratio = fill;\n"
 	"	node [style=filled];\n"
 	;
