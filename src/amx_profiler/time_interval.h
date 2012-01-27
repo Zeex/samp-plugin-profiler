@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef AMX_PROFILER_TIMER_INTERVAL_H
+#ifndef AMX_PROFILER_TIME_INTERVAL_H
 #define AMX_PROFILER_TIME_INTERVAL_H
 
 #include <cstdint>
