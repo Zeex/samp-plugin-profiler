@@ -14,23 +14,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef AMX_PROFILER_PROFILE_WRITER_H
-#define AMX_PROFILER_PROFILE_WRITER_H
+#ifndef AMX_PROFILER_CALL_GRAPH_WRITER_GV_H
+#define AMX_PROFILER_CALL_GRAPH_WRITER_GV_H
 
-#include <memory>
 #include <iosfwd>
-#include <vector>
+#include <string>
+#include "call_graph_writer.h"
 
 namespace amx_profiler {
 
-class FunctionInfo;
-
-class ProfileWriter {
+// GraphViz writer
+class CallGraphWriterGV : public CallGraphWriter {
 public:
-	virtual void Write(const std::string &script_name, std::ostream &stream,
-			const std::vector<std::shared_ptr<FunctionInfo>> &stats) = 0;
+	CallGraphWriterGV(std::ostream *stream, const std::string &name = std::string());
+
+	virtual void Write(const CallGraph &graph);
+
+private:
+	std::ostream *stream_;
+	std::string   name_;
 };
 
 } // namespace amx_profiler
 
-#endif // !AMX_PROFILER_PROFILE_WRITER_H
+#endif // !AMX_PROFILER_CALL_GRAPH_WRITER_GV_H
+
+

@@ -32,6 +32,7 @@
 	#include <Windows.h>
 #endif
 
+#include <amx_profiler/call_graph_writer_gv.h>
 #include <amx_profiler/debug_info.h>
 #include <amx_profiler/html_profile_writer.h>
 #include <amx_profiler/profiler.h>
@@ -346,7 +347,9 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 			// Save the call graph as a dot script.
 			std::string gv_file = amx_name + "-calls.gv";
 			std::ofstream ostream(gv_file.c_str());
-			profiler->call_graph().Write(ostream);
+
+			CallGraphWriterGV graph_writer(&ostream, amx_path);
+			profiler->call_graph().Write(graph_writer);
 			
 			if (!cfg::call_graph_format.empty()) {
 				// Convert the .gv to viewable format e.g. pdf if GraphViz is installed.

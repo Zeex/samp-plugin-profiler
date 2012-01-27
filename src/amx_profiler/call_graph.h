@@ -17,13 +17,13 @@
 #ifndef AMX_PROFILER_CALL_GRAPH_H
 #define AMX_PROFILER_CALL_GRAPH_H
 
-#include <iosfwd>
 #include <list>
 #include <memory>
 #include <vector>
 
 namespace amx_profiler {
 
+class CallGraphWriter;
 class FunctionInfo;
 
 class CallGraphNode : public std::enable_shared_from_this<CallGraphNode> {
@@ -45,9 +45,6 @@ public:
 
 	void AddCallee(const std::shared_ptr<FunctionInfo> &info);
 	void AddCallee(const std::shared_ptr<CallGraphNode> &node);
-
-	// Used by CallGraph::Write(), see below.
-	void Write(std::ostream &stream) const;
 
 	// Recursive parent-to-child traversing.
 	template<typename Func>
@@ -80,15 +77,14 @@ public:
 		return sentinel_;
 	}
 
-	// Write graph to "stream" in GraphViz format:
-	// http://www.graphviz.org/content/profile
-	void Write(std::ostream &stream) const;
-
 	// Walk through all nodes calling Func against each one.
 	template<typename Func>
 	void Traverse(Func f) const {
 		sentinel_->Traverse(f);
 	}
+
+	// Output to a file.
+	void Write(CallGraphWriter &writer) const;
 
 private:
 	std::shared_ptr<CallGraphNode> root_;
