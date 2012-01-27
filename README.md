@@ -16,7 +16,7 @@ You can configure profiler via `server.cfg`, by setting the following options:
 
 	A list of filter scripts to be profiled. Can be empty.
 
-*	profile_format &lt;xml|html|text&gt;
+*	profile_format &lt;xml|html|txt&gt;
 
 	Set statistics output format. Default is html. 
 	Note for HTML: it is possible to sort stats by clicking on column names!!

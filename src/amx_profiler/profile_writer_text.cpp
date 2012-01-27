@@ -15,9 +15,8 @@
 // limitations under the License.
 
 #include <algorithm>
-#include <fstream>
-#include <functional>
 #include <iomanip>
+#include <iostream>
 #include <string>
 #include <vector>
 #ifdef HAVE_BOOST_DATE_TIME
@@ -26,21 +25,30 @@
 #include "function.h"
 #include "function_info.h"
 #include "performance_counter.h"
-#include "xml_profile_writer.h"
+#include "profile_writer_text.h"
 
 namespace amx_profiler {
 
-void XmlProfileWriter::Write(const std::string &script_name, std::ostream &stream,
-	const std::vector<std::shared_ptr<FunctionInfo>> &stats)
+ProfileWriterText::ProfileWriterText(std::ostream *stream, const std::string script_name)
+	: stream_(stream)
+	, script_name_(script_name)
 {
-	stream <<
-	"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-	"<profile script=\"" << script_name << "\""
+}
+
+void ProfileWriterText::Write(const std::vector<std::shared_ptr<FunctionInfo>> &stats)
+{
+	*stream_ << "Profile of '" << script_name_ << "'";
 	#ifdef HAVE_BOOST_DATE_TIME
-		<< "date=\"" << boost::posix_time::second_clock::local_time() << "\">";
-	#else
-		<< ">";
+		*stream_ << " generated on " << boost::posix_time::second_clock::local_time() << "\n" << std::endl;
 	#endif
+
+	*stream_
+		<< std::setw(kTypeWidth) << "Type"
+		<< std::setw(kNameWidth) << "Name"
+		<< std::setw(kCallsWidth) << "Calls"
+		<< std::setw(kSelfTimeWidth) << "Self Time"
+		<< std::setw(kTotalTimeWidth) << "Total Time"
+	<< std::endl;
 
 	TimeInterval time_all = 0;
 	std::for_each(stats.begin(), stats.end(), [&](const std::shared_ptr<FunctionInfo> &info) { 
@@ -53,19 +61,16 @@ void XmlProfileWriter::Write(const std::string &script_name, std::ostream &strea
 	});
 
 	std::for_each(stats.begin(), stats.end(), [&](const std::shared_ptr<FunctionInfo> &info) {
-		stream << "		<function";
-		stream << " type=\"" << info->function()->type() << "\"";
-		stream << " name=\"" << info->function()->name() << "\"";
-		stream << " calls=\"" << info->num_calls() << "\"";
-		stream << " total_time=\"" <<  std::fixed << std::setprecision(2)
-			<< static_cast<double>(info->GetSelfTime() * 100) / time_all << "\"";
-		stream << " total_time=\"" <<  std::fixed << std::setprecision(2)
-			<< static_cast<double>(info->total_time() * 100) / total_time_all << "\"";
-		stream << " />\n";
+		*stream_
+			<< std::setw(kTypeWidth) << info->function()->type()
+			<< std::setw(kNameWidth) << info->function()->name()
+			<< std::setw(kCallsWidth) << info->num_calls()
+			<< std::setw(kSelfTimeWidth) << std::setprecision(2) << std::fixed
+				<< static_cast<double>(info->GetSelfTime() * 100) / time_all
+			<< std::setw(kTotalTimeWidth) << std::setprecision(2) << std::fixed
+				<< static_cast<double>(info->total_time() * 100) / total_time_all
+		<< std::endl;
 	});
-
-	stream << "</profile>";
 }
 
 } // namespace amx_profiler
-

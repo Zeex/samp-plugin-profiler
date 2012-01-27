@@ -45,8 +45,8 @@ add_library(profiler MODULE
 	src/amx_profiler/function_call.h
 	src/amx_profiler/function_info.cpp
 	src/amx_profiler/function_info.h
-	src/amx_profiler/html_profile_writer.cpp
-	src/amx_profiler/html_profile_writer.h
+	src/amx_profiler/profile_writer_html.cpp
+	src/amx_profiler/profile_writer_html.h
 	src/amx_profiler/native_function.cpp
 	src/amx_profiler/native_function.h
 	src/amx_profiler/normal_function.cpp
@@ -56,14 +56,14 @@ add_library(profiler MODULE
 	src/amx_profiler/profiler.h
 	src/amx_profiler/public_function.cpp
 	src/amx_profiler/public_function.h
-	src/amx_profiler/text_profile_writer.cpp
-	src/amx_profiler/text_profile_writer.h
+	src/amx_profiler/profile_writer_text.cpp
+	src/amx_profiler/profile_writer_text.h
 	src/amx_profiler/performance_counter.cpp
 	src/amx_profiler/performance_counter.h
 	src/amx_profiler/time_interval.h
 	src/amx_profiler/time_res.h
-	src/amx_profiler/xml_profile_writer.cpp
-	src/amx_profiler/xml_profile_writer.h
+	src/amx_profiler/profile_writer_xml.cpp
+	src/amx_profiler/profile_writer_xml.h
 	src/amxplugin.cpp
 	src/config_reader.cpp
 	src/config_reader.h

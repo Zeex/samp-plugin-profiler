@@ -14,27 +14,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef AMX_PROFILER_TEXT_PROFILE_WRITER_H
-#define AMX_PROFILER_TEXT_PROFILE_WRITER_H
+#ifndef AMX_PROFILER_PROFILE_WRITER_XML_H
+#define AMX_PROFILER_PROFILE_WRITER_XML_H
 
+#include <iosfwd>
+#include <memory>
 #include <string>
 #include <vector>
 #include "profile_writer.h"
 
 namespace amx_profiler {
 
-class TextProfileWriter : public ProfileWriter {
+class ProfileWriterXml : public ProfileWriter {
 public:
-	static const int kTypeWidth = 15;
-	static const int kNameWidth = 32;
-	static const int kCallsWidth = 15;
-	static const int kSelfTimeWidth = 15;
-	static const int kTotalTimeWidth = 15;
+	ProfileWriterXml(std::ostream *stream, const std::string script_name);
 
-	virtual void Write(const std::string &script_name, std::ostream &stream,
-			const std::vector<std::shared_ptr<FunctionInfo>> &stats);
+	virtual void Write(const std::vector<std::shared_ptr<FunctionInfo>> &stats);
+
+private:
+	std::ostream *stream_;
+	std::string   script_name_;
 };
 
 } // namespace amx_profiler
 
-#endif // !AMX_PROFILER_TEXT_PROFILE_WRITER_H
+#endif // !AMX_PROFILER_PROFILE_WRITER_XML_H
