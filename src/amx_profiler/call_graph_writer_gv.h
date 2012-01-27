@@ -26,13 +26,16 @@ namespace amx_profiler {
 // GraphViz writer
 class CallGraphWriterGV : public CallGraphWriter {
 public:
-	CallGraphWriterGV(std::ostream *stream, const std::string &name = std::string());
+	CallGraphWriterGV(std::ostream *stream, 
+	                 const std::string &name = std::string(), 
+	                 const std::string top_node_name = "<host>");
 
 	virtual void Write(const CallGraph &graph);
 
 private:
 	std::ostream *stream_;
 	std::string   name_;
+	std::string   top_name_;
 };
 
 } // namespace amx_profiler
