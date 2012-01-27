@@ -30,23 +30,21 @@
 namespace amx_profiler {
 
 class FunctionInfo;
-class ProfileWriter;
 
 class Profiler {
 public:
 	Profiler(AMX *amx, DebugInfo debug_info = DebugInfo());
 
-	// Write profile to a stream with a given writer.
-	void WriteProfile(const std::string &script_name,
-	                  ProfileWriter *writer,
-	                  std::ostream &stream) const;
-	// Get profiling data.
+	// Get profiling results.
 	std::vector<std::shared_ptr<FunctionInfo>> GetProfile() const;
 
+	// Get the current call stack.
 	inline const CallStack &call_stack() const {
 		return call_stack_;
 	}
 
+	// Get the call graph.
+	// The root node points out to the currently executng function.
 	inline const CallGraph &call_graph() const {
 		return call_graph_;
 	}
