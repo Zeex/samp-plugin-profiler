@@ -52,14 +52,23 @@ extern void *pAMXFunctions;
 
 static logprintf_t logprintf;
 
-// Profiler instances
+// Profiler instances.
 static std::unordered_map<AMX*, std::shared_ptr<Profiler>> profilers;
 
-// List of loaded scripts, need this to fix AmxUnload bug on Windows
+// List of loaded scripts, need this to fix AmxUnload bug on Windows.
 static std::list<AMX*> loaded_scripts;
 
-// Stores previously set debug hooks (if any)
+// Stores previously set debug hooks (if any).
 static std::unordered_map<AMX*, AMX_DEBUG> old_debug_hooks;
+
+// Plugin settings and their defauls.
+namespace cfg {
+	bool          profile_gamemode        = false;
+	std::string   profile_filterscripts   = "";
+	std::string   profile_format          = "html";
+	bool          call_graph              = false;
+	std::string   call_graph_format       = "";
+};
 
 namespace hooks {
 
@@ -134,13 +143,12 @@ static bool GetPublicVariable(AMX *amx, const char *name, cell &value) {
 static bool WantsProfiler(const std::string &amxName) {
 	std::string goodAmxName = ToUnixPath(amxName);
 
-	ConfigReader server_cfg("server.cfg");
 	if (IsGameMode(amxName)) {
-		if (server_cfg.GetOption("profile_gamemode", false)) {
+		if (cfg::profile_gamemode) {
 			return true;
 		}
 	} else if (IsFilterScript(amxName)) {
-		std::string fsList = server_cfg.GetOption("profile_filterscripts", std::string(""));
+		std::string fsList = cfg::profile_filterscripts;
 		std::stringstream fsStream(fsList);
 		do {
 			std::string fsName;
@@ -238,6 +246,14 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
 		SetConsoleCtrlHandler(ConsoleCtrlHandler, TRUE);
 	#endif
 
+	// Read plugin settings from server.cfg.
+	ConfigReader server_cfg("server.cfg");
+	cfg::profile_gamemode = server_cfg.GetOption("profile_gamemode", cfg::profile_gamemode);
+	cfg::profile_filterscripts = server_cfg.GetOption("profile_filterscripts", cfg::profile_filterscripts);
+	cfg::profile_format = server_cfg.GetOption("profile_format", cfg::profile_format);
+	cfg::call_graph = server_cfg.GetOption("call_graph", cfg::call_graph);
+	cfg::call_graph_format = server_cfg.GetOption("call_graph_format", cfg::call_graph_format);
+
 	logprintf("  Profiler v"PROFILER_VERSION" is OK.");
 
 	return true;
@@ -272,22 +288,22 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 		amx_SetDebugHook(amx, hooks::amx_Debug);
 
 		// Load debug info if available
+		DebugInfo debug_info;
 		if (HasDebugInfo(amx)) {
-			DebugInfo debug_info;
 			debug_info.Load(filename);
 			if (debug_info.IsLoaded()) {
 				logprintf("[profiler] Loaded debug info from '%s'", filename.c_str());
-				::profilers[amx] = std::shared_ptr<Profiler>(new Profiler(amx, debug_info));
-				logprintf("[profiler] Attached profiler to '%s'", filename.c_str());
-				return AMX_ERR_NONE;
 			} else {
 				logprintf("[profiler] Error loading debug info from '%s'", filename.c_str());
 			}
 		}
 
-		// No debug info loaded
-		::profilers[amx] = std::shared_ptr<Profiler>(new Profiler(amx));
-		logprintf("[profiler] Attached profiler to '%s' (no debug symbols)", filename.c_str());
+		::profilers[amx] = std::shared_ptr<Profiler>(new Profiler(amx, debug_info, cfg::call_graph));
+		if (debug_info.IsLoaded()) {
+			logprintf("[profiler] Attached profiler to '%s'", filename.c_str());
+		} else {
+			logprintf("[profiler] Attached profiler to '%s' (no debug symbols)", filename.c_str());
+		}
 	}
 
 	return AMX_ERR_NONE;
@@ -300,48 +316,45 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 		std::string amx_path = GetAmxName(amx);
 		std::string amx_name = std::string(amx_path, 0, amx_path.find_last_of("."));
 
-		ConfigReader server_cfg("server.cfg");
-
-		auto format = server_cfg.GetOption("profile_format", std::string("html"));
-		std::transform(format.begin(), format.end(), format.begin(), ::tolower);
+		// Convert profile_format to lower case.
+		std::transform(cfg::profile_format.begin(), cfg::profile_format.end(),
+				cfg::profile_format.begin(), ::tolower);
 
 		auto filename = amx_name + "-profile";
 		ProfileWriter *writer = 0;
 
-		if (format == "html") {
+		if (cfg::profile_format == "html") {
 			filename += ".html";
 			writer = new HtmlProfileWriter;
-		} else if (format == "text") {
+		} else if (cfg::profile_format == "text") {
 			filename += ".txt";
 			writer = new TextProfileWriter;
-		} else if (format == "xml") {
+		} else if (cfg::profile_format == "xml") {
 			filename += ".xml";
 			writer = new XmlProfileWriter;
 		} else {
-			logprintf("[profiler] Unknown output format '%s'", format.c_str());
+			logprintf("[profiler] Unknown output format '%s'", cfg::profile_format.c_str());
 		}
 
 		if (writer != 0) {
-			std::ofstream ostream(filename.c_str());
-			profiler->WriteProfile(amx_path, writer, ostream);
+			std::ofstream stream(filename.c_str());
+			writer->Write(amx_path, stream, profiler->GetProfile());
 			delete writer;
 		}
 
-		auto call_graph = server_cfg.GetOption("call_graph", false);
-		if (call_graph) {
+		if (cfg::call_graph) {
 			// Save the call graph as a dot script.
 			std::string gv_file = amx_name + "-calls.gv";
 			std::ofstream ostream(gv_file.c_str());
 			profiler->call_graph().Write(ostream);
 			
-			auto call_graph_format = server_cfg.GetOption("call_graph_format", std::string());
-			if (!call_graph_format.empty()) {
+			if (!cfg::call_graph_format.empty()) {
 				// Convert the .gv to viewable format e.g. pdf if GraphViz is installed.
 				std::string path = FindGraphViz();
 				if (!path.empty()) {
 					path.append("/bin/");
 				};
-				std::string cmd = "\"" + path + "dot\" -T" + call_graph_format + " -O " + gv_file;
+				std::string cmd = "\"" + path + "dot\" -T" + cfg::call_graph_format + " -O " + gv_file;
 				if (system(cmd.c_str()) != 0) {
 					logprintf("[profiler] Error executing command: %s", cmd.c_str());
 				}
