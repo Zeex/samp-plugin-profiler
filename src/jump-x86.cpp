@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2012 Sergey Zolotarev <zeex@rocketmail.com>
+// Copyright (c) 2011 Sergey Zolotarev <zeex@rocketmail.com>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -105,4 +105,15 @@ bool JumpX86::Remove() {
 
 bool JumpX86::IsInstalled() const {
 	return installed_;
+}
+
+// static 
+void *JumpX86::GetTargetAddress(void *jmp) {
+	if (*reinterpret_cast<char*>(jmp) == 0xE9) {
+		uint32_t next_instr = reinterpret_cast<uint32_t>(reinterpret_cast<char*>(jmp) + kJmpInstrSize);
+		uint32_t rel_addr = *reinterpret_cast<uint32_t*>(reinterpret_cast<char*>(jmp) + 1);
+		uint32_t abs_addr = rel_addr + next_instr;
+		return reinterpret_cast<void*>(abs_addr);
+	} 
+	return 0;
 }
