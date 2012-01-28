@@ -22,6 +22,11 @@
 
 namespace amx_profiler {
 
+bool CallGraph::CompareNodes::operator()(const std::shared_ptr<CallGraphNode> &left,
+		        const std::shared_ptr<CallGraphNode> &right) {
+	return left->info()->function()->address() < right->info()->function()->address();
+}
+
 CallGraphNode::CallGraphNode(const std::shared_ptr<FunctionInfo> &info, 
                              const std::shared_ptr<CallGraphNode> &caller) 
 	: info_(info)
@@ -30,19 +35,14 @@ CallGraphNode::CallGraphNode(const std::shared_ptr<FunctionInfo> &info,
 {
 }
 
-void CallGraphNode::AddCallee(const std::shared_ptr<FunctionInfo> &fn) {
-	auto new_node = std::shared_ptr<CallGraphNode>(new CallGraphNode(fn, shared_from_this()));
+void CallGraphNode::AddCallee(const std::shared_ptr<FunctionInfo> &info) {
+	auto new_node = std::shared_ptr<CallGraphNode>(new CallGraphNode(info, shared_from_this()));
 	AddCallee(new_node);
 }
 
 void CallGraphNode::AddCallee(const std::shared_ptr<CallGraphNode> &node) {
-	// Avoid duplicate functions
-	for (auto iterator = callees_.begin(); iterator != callees_.end(); ++iterator) {
-		if ((*iterator)->info()->function()->address() == node->info()->function()->address()) {
-			return;
-		}
-	}
-	callees_.push_back(node);
+	callees_.insert(node);
+
 }
 
 CallGraph::CallGraph(const std::shared_ptr<CallGraphNode> &root)
