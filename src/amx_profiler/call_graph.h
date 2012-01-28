@@ -17,52 +17,26 @@
 #ifndef AMX_PROFILER_CALL_GRAPH_H
 #define AMX_PROFILER_CALL_GRAPH_H
 
-#include <list>
 #include <memory>
+#include <set>
 #include <vector>
 
 namespace amx_profiler {
 
+class CallGraphNode;
 class CallGraphWriter;
 class FunctionInfo;
 
-class CallGraphNode : public std::enable_shared_from_this<CallGraphNode> {
-public:
-	CallGraphNode(const std::shared_ptr<FunctionInfo> &info, 
-	              const std::shared_ptr<CallGraphNode> &caller = 0);
-
-	inline const std::shared_ptr<FunctionInfo> &info() const {
-		return info_;
-	}
-
-	inline std::shared_ptr<CallGraphNode> caller() const {
-		return caller_;
-	}
-
-	inline const std::list<std::shared_ptr<CallGraphNode>> &callees() const {
-		return callees_;
-	}
-
-	void AddCallee(const std::shared_ptr<FunctionInfo> &info);
-	void AddCallee(const std::shared_ptr<CallGraphNode> &node);
-
-	// Recursive parent-to-child traversing.
-	template<typename Func>
-	void Traverse(Func f) const {
-		f(shared_from_this());
-		for (auto iterator = callees_.begin(); iterator != callees_.end(); ++iterator) {
-			(*iterator)->Traverse(f);
-		}
-	}	
-
-private:
-	std::shared_ptr<FunctionInfo> info_;
-	std::shared_ptr<CallGraphNode> caller_;
-	std::list<std::shared_ptr<CallGraphNode>> callees_;
-};
-
 class CallGraph {
 public:
+	class CompareNodes { 
+	public:
+		bool operator()(const std::shared_ptr<CallGraphNode> &left,
+		                const std::shared_ptr<CallGraphNode> &right);
+	};
+
+	typedef std::set<std::shared_ptr<CallGraphNode>, CompareNodes> NodeSet;
+
 	CallGraph(const std::shared_ptr<CallGraphNode> &root = 0);
 
 	inline std::shared_ptr<CallGraphNode> root() const {
@@ -77,6 +51,9 @@ public:
 		return sentinel_;
 	}
 
+	void AddCallee(const std::shared_ptr<CallGraphNode> &callee, 
+	               const std::shared_ptr<CallGraphNode> &caller);
+
 	// Walk through all nodes calling Func against each one.
 	template<typename Func>
 	void Traverse(Func f) const {
@@ -89,6 +66,42 @@ public:
 private:
 	std::shared_ptr<CallGraphNode> root_;
 	std::shared_ptr<CallGraphNode> sentinel_;
+};
+
+class CallGraphNode : public std::enable_shared_from_this<CallGraphNode> {
+public:
+	CallGraphNode(const std::shared_ptr<FunctionInfo> &info, 
+	              const std::shared_ptr<CallGraphNode> &caller = 0);
+
+	inline const std::shared_ptr<FunctionInfo> &info() const {
+		return info_;
+	}
+
+	inline std::shared_ptr<CallGraphNode> caller() const {
+		return caller_;
+	}
+
+	inline const CallGraph::NodeSet &callees() const {
+		return callees_;
+	}
+
+	void AddCallee(const std::shared_ptr<FunctionInfo> &info);
+	void AddCallee(const std::shared_ptr<CallGraphNode> &node);
+
+	// Recursive parent-to-child traversing.
+	template<typename Func>
+	void Traverse(Func f) const {
+		f(shared_from_this());
+		for (auto iterator = callees_.begin(); iterator != callees_.end(); ++iterator) {
+			(*iterator)->Traverse(f);
+		}
+	}
+
+private:
+	std::shared_ptr<FunctionInfo> info_;
+	std::shared_ptr<CallGraphNode> caller_;
+
+	CallGraph::NodeSet callees_;
 };
 
 } // namespace amx_profiler
