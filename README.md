@@ -2,10 +2,10 @@ Profiler plugin for SA-MP server
 ================================
 
 Profiler provides detailed information about how long each function takes to execute, how many times 
-it is called, etc. This is helpful in finding bottlenecks or hot spots in code.
+it is called, etc. This is helpful in finding bottlenecks or "hot spots" in code (for further optimization).
 
-Settings
---------
+Profiler Settings
+-----------------
 
 New `server.cfg` options:
 
