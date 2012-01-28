@@ -29,6 +29,7 @@ class FunctionInfo;
 
 class CallGraph {
 public:
+	// This allows us to sort nodes by their Functions.
 	class CompareNodes { 
 	public:
 		bool operator()(const std::shared_ptr<CallGraphNode> &left,
@@ -56,9 +57,7 @@ public:
 
 	// Walk through all nodes calling Func against each one.
 	template<typename Func>
-	void Traverse(Func f) const {
-		sentinel_->Traverse(f);
-	}
+	inline void Traverse(Func f) const;
 
 	// Output to a file.
 	void Write(CallGraphWriter &writer) const;
@@ -90,12 +89,7 @@ public:
 
 	// Recursive parent-to-child traversing.
 	template<typename Func>
-	void Traverse(Func f) const {
-		f(shared_from_this());
-		for (auto iterator = callees_.begin(); iterator != callees_.end(); ++iterator) {
-			(*iterator)->Traverse(f);
-		}
-	}
+	inline void Traverse(Func f) const;
 
 private:
 	std::shared_ptr<FunctionInfo> info_;
@@ -103,6 +97,19 @@ private:
 
 	CallGraph::NodeSet callees_;
 };
+
+template<typename Func>
+inline void CallGraph::Traverse(Func f) const {
+	sentinel_->Traverse(f);
+}
+
+template<typename Func>
+inline void CallGraphNode::Traverse(Func f) const {
+	f(shared_from_this());
+	for (auto iterator = callees_.begin(); iterator != callees_.end(); ++iterator) {
+		(*iterator)->Traverse(f);
+	}
+}
 
 } // namespace amx_profiler
 
