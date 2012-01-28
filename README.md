@@ -1,10 +1,10 @@
 Profiler plugin for SA-MP server
 ================================
 
-Profiler can measure how long each function executes and how often it is called.
+Profiler provides detailed information about how long each function takes to execute, often it is called, etc.
 
-Profiler Settings
------------------
+Settings
+--------
 
 New `server.cfg` options:
 
