@@ -255,7 +255,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
 	cfg::call_graph = server_cfg.GetOption("call_graph", cfg::call_graph);
 	cfg::call_graph_format = server_cfg.GetOption("call_graph_format", cfg::call_graph_format);
 
-	logprintf("  Profiler v"PROFILER_VERSION" is OK.");
+	logprintf("  Profiler v" PROFILER_VERSION " is OK.");
 
 	return true;
 }
