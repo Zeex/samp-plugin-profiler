@@ -3,10 +3,10 @@ Profiler plugin for SA-MP server
 
 Profiler can measure how long each function executes and how often it is called.
 
-Configuration
--------------
+Profiler Settings
+-----------------
 
-You can configure profiler via `server.cfg`, by setting the following options:
+New `server.cfg` options:
 
 *	profile_gamemode &lt;0|1&gt;
 
@@ -36,33 +36,6 @@ You can configure profiler via `server.cfg`, by setting the following options:
 
 	On Windows, *install_path* is looked up in registry first, then in GV_HOME variable (as on *nix).
 	If GraphViz install path is not found it is assumed that it's already in PATH.
-
-Output explanation
-------------------
-
-The output consists of a table with these data:
-
-*	Function Type
-
-	The type of a function, can be one of: public, native, normal.
-
-*	Function Name
-
-	The function name. Since normal functions' names are not usually exported the profied script
-	must be compiled with debug info, otherwise you will see something like `unknown_function@123456`
-	in place of the actual name.
-
-*	Calls
-
-	The number of times the function has been called. 
-
-*	Self Time
-
-	The total amount of time spent inside the function.
-
-*	Total Time
-
-	This is function's Self Time + Total Time of all its callees.
 
 License
 -------
