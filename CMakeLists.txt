@@ -94,12 +94,24 @@ endif()
 
 set_property(TARGET profiler PROPERTY PREFIX "")
 
+# Make sure we have proper C++11 support
+if(CMAKE_COMPILER_IS_GNUCXX)
+	execute_process(COMMAND ${CMAKE_CXX_COMPILER} -dumpversion OUTPUT_VARIABLE GCC_VERSION)
+	if(GCC_VERSION VERSION_LESS 4.6)
+		message(FATAL_ERROR "You need GCC 4.6 or later")
+	endif()
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+elseif(MSVC)
+	if (MSVC_VERSION LESS 1600) 
+		message(FATAL_ERROR "You need MSVC 10.0 or later")
+	endif()
+endif()
+
 if(UNIX OR MINGW)
 	set_property(TARGET profiler APPEND_STRING PROPERTY 
 		COMPILE_FLAGS " -m32 -Wno-attributes")
 	set_property(TARGET profiler APPEND_STRING PROPERTY 
 		LINK_FLAGS " -m32 -Wl,--no-undefined")
-	set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -std=c++0x)
 	if(UNIX)
 		set_property(TARGET profiler APPEND_STRING PROPERTY 
 			LINK_FLAGS " -lrt")
