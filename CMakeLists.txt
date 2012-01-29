@@ -89,6 +89,10 @@ if(Boost_FOUND)
 		add_definitions(-DHAVE_BOOST_DATE_TIME)
 	endif()
 	include_directories(${Boost_INCLUDE_DIRS})
+	if(CMAKE_COMPILER_IS_GNUCXX)
+		# Chrono needs -lrt for clock_gettime()
+		set(Boost_LIBRARIES ${Boost_LIBRARIES} -lrt)
+	endif()
 	target_link_libraries(profiler ${Boost_LIBRARIES})
 endif()
 
@@ -112,10 +116,8 @@ if(UNIX OR MINGW)
 		COMPILE_FLAGS " -m32 -Wno-attributes")
 	set_property(TARGET profiler APPEND_STRING PROPERTY 
 		LINK_FLAGS " -m32 -Wl,--no-undefined")
-	if(UNIX)
-		set_property(TARGET profiler APPEND_STRING PROPERTY 
-			LINK_FLAGS " -lrt")
-	elseif(WIN32)
+	if(WIN32)
+		# Link with static runtime
 		set_property(TARGET profiler APPEND_STRING PROPERTY 
 			LINK_FLAGS " -static-libgcc -static-libstdc++")
 	endif()
