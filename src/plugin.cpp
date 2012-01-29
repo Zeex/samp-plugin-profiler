@@ -344,12 +344,13 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 			// Save the call graph as a dot script.
 			std::string gv_file = amx_name + "-calls.gv";
 			std::ofstream ostream(gv_file.c_str());
-
 			CallGraphWriterGV graph_writer(&ostream, amx_path, "SA-MP Server");
 			profiler->call_graph().Write(graph_writer);
+			ostream.close();
 			
-			if (!cfg::call_graph_format.empty()) {
-				// Convert the .gv to viewable format e.g. pdf if GraphViz is installed.
+			// Convert the .gv to viewable format e.g. pdf if GraphViz is installed
+			// and call_graph_format is set.
+			if (!cfg::call_graph_format.empty()) {				
 				std::string path = FindGraphViz();
 				if (!path.empty()) {
 					path.append("/bin/");

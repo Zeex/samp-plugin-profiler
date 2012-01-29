@@ -38,7 +38,7 @@ CallGraphWriterGV::CallGraphWriterGV(std::ostream *stream, const std::string &na
 void CallGraphWriterGV::Write(const CallGraph &graph) {
 	*stream_ << 
 	"digraph \"Call graph of " << name_ << "\" {\n"
-	"	size=\"6,4\"; ratio = fill;\n"
+	"	size=\"10,8\"; ratio=fill; rankdir=LR\n"
 	"	node [style=filled];\n"
 	;
 
@@ -52,16 +52,18 @@ void CallGraphWriterGV::Write(const CallGraph &graph) {
 				caller_name = top_name_;
 			}
 			std::for_each(node->callees().begin(), node->callees().end(), [&](const std::shared_ptr<CallGraphNode> &c) {
-				std::string color;
-				if (c->info()->function()->type() == "public") {
-					color = "#001EE0";
-				} else if (c->info()->function()->type() == "native") {
-					color = "#9900E0";
-				} else {
-					color = "#000000";
-				}
 				*stream_ << "\t\"" << caller_name << "\" -> \"" << c->info()->function()->name() 
-					<< "\" [color=\"" << color << "\"];" << std::endl;
+					<< "\" [color=\"";
+				// Arrow color is associated with callee type.
+				std::string fn_type = c->info()->function()->type();
+				if (fn_type == "public") {
+					*stream_ << "#4B4E99";
+				} else if (fn_type == "native") {
+					*stream_ << "#7C4B99";
+				} else {
+					*stream_ << "#777777";
+				}
+				*stream_ << "\"];\n";
 			});
 		}	
 	});
@@ -82,13 +84,29 @@ void CallGraphWriterGV::Write(const CallGraph &graph) {
 		if (node != graph.sentinel()) {
 			auto time = node->info()->GetSelfTime();
 			auto ratio = static_cast<double>(time) / static_cast<double>(max_time);
-			// We encode color in hue-saturation-brightness.
-			auto hsb = std::make_tuple((1.0 - ratio) * 0.65, (ratio * 0.8) + 0.2, 1.0);
+			// We encode color in HSB.
+			auto hsb = std::make_tuple(
+				(1.0 - ratio) * 0.6, // hue
+				(ratio * 0.9) + 0.1, // saturation
+				1.0                  // brightness
+			);
 			*stream_ << "\t\"" << node->info()->function()->name() << "\" [color=\""
 				<< std::get<0>(hsb) << ", "
 				<< std::get<1>(hsb) << ", "
-				<< std::get<2>(hsb)
-			<< "\"];" << std::endl;
+				<< std::get<2>(hsb) << "\""
+			// Choose different shape depending on funciton type.
+			<< ", shape=";
+			std::string fn_type = node->info()->function()->type();
+			if (fn_type == "public") {
+				*stream_ << "octagon";
+			} else if (fn_type == "native") {
+				*stream_ << "box";
+			} else {
+				*stream_ << "oval";
+			}
+			*stream_ << "];\n";
+		} else {
+			*stream_ << "\t\"" << top_name_ << "\" [shape=diamond];\n";
 		}
 	});
 
