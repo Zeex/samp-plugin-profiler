@@ -178,11 +178,17 @@ static std::string FindGraphViz() {
 			while (RegEnumKeyEx(att_key, index, gv_key_name, &gv_key_size, 0, 0, 0, 0) == ERROR_SUCCESS) {
 				HKEY gv_key;
 				if (RegOpenKeyEx(att_key, gv_key_name, 0, KEY_READ, &gv_key) == ERROR_SUCCESS) {
+					char name[13];
+					DWORD name_size = sizeof(name);
 					char value[MAX_PATH];
 					DWORD value_size = sizeof(value);
-					if (RegGetValue(gv_key, 0, "InstallPath", RRF_RT_ANY, 0, 
-							value, &value_size) == ERROR_SUCCESS) {
-						gv_path.assign(value);
+					int index = 0;
+					while (RegEnumValue(gv_key, index++, name, &name_size, nullptr, nullptr, 
+							reinterpret_cast<LPBYTE>(value), &value_size) == ERROR_SUCCESS) {
+						if (strncmp(name, "InstallPath", sizeof(name)) == 0) {
+							gv_path.assign(value);
+							break;
+						}
 					}
 					RegCloseKey(gv_key);
 				}
