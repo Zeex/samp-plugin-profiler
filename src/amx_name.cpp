@@ -23,7 +23,7 @@
 #include <unordered_map>
 #include <vector>
 #include <amx/amx.h>
-#include <amxaux.h>
+#include <amx/amxaux.h>
 #ifdef _WIN32
 	#include <windows.h>
 	#include <sys/types.h>
