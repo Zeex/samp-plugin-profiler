@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2012 Sergey Zolotarev
+// Copyright (C) 2011-2012 Sergey Zolotarev <zeex@rocketmail.com>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,11 +11,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-// Basic configuration file reader. 
-// Each line of an input file is a key-value pair: values begin after the first space, 
-// so the keys cannot contain spaces. 
-// Comments, multiple lines, quotes, escape sequences - these are not supported.
 
 #include <map>
 #include <sstream>
