@@ -38,8 +38,3 @@ New `server.cfg` options:
 	On Windows, *install_path* is looked up in registry first, then in GV_HOME variable (as on *nix).
 	If GraphViz install path is not found it is assumed that it's already in PATH.
 
-License
--------
-
-Licensed under the Apache License version 2.0, see LICENSE.txt.
-
