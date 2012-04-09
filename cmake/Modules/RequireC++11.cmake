@@ -1,8 +1,8 @@
 # Make sure the current compiler has proper C++11 support
 if(CMAKE_COMPILER_IS_GNUCXX)
 	execute_process(COMMAND ${CMAKE_CXX_COMPILER} -dumpversion OUTPUT_VARIABLE GCC_VERSION)
-	if(GCC_VERSION VERSION_LESS 4.4.1)
-		message(FATAL_ERROR "You need GCC 4.4.1 or later")
+	if(GCC_VERSION VERSION_LESS 4.6)
+		message(FATAL_ERROR "You need GCC 4.6 or later")
 	endif()
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 elseif(MSVC)
