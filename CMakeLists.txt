@@ -5,13 +5,30 @@ project(profiler)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} 
 	"${CMAKE_SOURCE_DIR}/cmake/Modules")
 
+include(CheckIncludeFile)
 include(GetGitRevisionDescription)
-include(RequireC++11)
 
-include_directories(src)
-include_directories(src/amx)
+check_include_file(alloca.h HAVE_ALLOCA_H)                                                                                                                         
+if(HAVE_ALLOCA_H)
+	add_definitions(-DHAVE_ALLOCA_H)
+endif()
+check_include_file(inttypes.h HAVE_INTTYPES_H)
+if(HAVE_INTTYPES_H)
+	add_definitions(-DHAVE_INTTYPES_H)
+endif()
+check_include_file(malloc.h HAVE_MALLOC_H)
+if(HAVE_MALLOC_H)
+	add_definitions(-DHAVE_MALLOC_H)
+endif()
+check_include_file(stdint.h HAVE_STDINT_H)
+if(HAVE_STDINT_H)
+	add_definitions(-DHAVE_STDINT_H)
+endif()
 
-set(PLUGIN_SOURCES
+include_directories("src")
+include_directories("src/amx")
+
+add_library(profiler MODULE
 	src/amx/amx.h
 	src/amx/amxaux.c
 	src/amx/amxaux.h
@@ -70,8 +87,6 @@ set(PLUGIN_SOURCES
 	src/plugin.rc
 )
 
-include(SampPlugin)
-
 find_package(Boost 1.47 COMPONENTS chrono date_time system)
 if(Boost_FOUND)
 	add_definitions(-DHAVE_BOOST=${Boost_VERSION})
@@ -90,23 +105,51 @@ if(Boost_FOUND)
 		# Chrono needs -lrt for clock_gettime()
 		set(Boost_LIBRARIES ${Boost_LIBRARIES} -lrt)
 	endif()
-	target_link_libraries(${PLUGIN_TARGET} ${Boost_LIBRARIES})
+	target_link_libraries(profiler ${Boost_LIBRARIES})
+endif()
+
+set_property(TARGET profiler PROPERTY PREFIX "")
+
+# Make sure we have proper C++11 support
+if(CMAKE_COMPILER_IS_GNUCXX)
+	execute_process(COMMAND ${CMAKE_CXX_COMPILER} -dumpversion OUTPUT_VARIABLE GCC_VERSION)
+	if(GCC_VERSION VERSION_LESS 4.6)
+		message(FATAL_ERROR "You need GCC 4.6 or later")
+	endif()
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+elseif(MSVC)
+	if (MSVC_VERSION LESS 1600) 
+		message(FATAL_ERROR "You need MSVC 10.0 or later")
+	endif()
 endif()
 
 if(UNIX OR MINGW)
-	set_property(TARGET ${PLUGIN_TARGET} APPEND_STRING PROPERTY 
+	set_property(TARGET profiler APPEND_STRING PROPERTY 
 		COMPILE_FLAGS " -m32 -Wno-attributes")
-	set_property(TARGET ${PLUGIN_TARGET} APPEND_STRING PROPERTY 
+	set_property(TARGET profiler APPEND_STRING PROPERTY 
 		LINK_FLAGS " -m32 -Wl,--no-undefined")
 	if(WIN32)
 		# Link with static runtime
-		set_property(TARGET ${PLUGIN_TARGET} APPEND_STRING PROPERTY 
+		set_property(TARGET profiler APPEND_STRING PROPERTY 
 			LINK_FLAGS " -static-libgcc -static-libstdc++")
 	endif()
 endif()
 
 if(UNIX AND NOT WIN32)
 	add_definitions(-DLINUX)
+endif()
+
+if(WIN32)
+	add_definitions(-DWIN32 -D_WIN32)
+	set(def_file "${profiler_SOURCE_DIR}/src/plugin.def")
+	if(MSVC)
+		set_property(TARGET profiler APPEND_STRING PROPERTY 
+			LINK_FLAGS " /DEF:${def_file}")
+		add_definitions(-D_CRT_SECURE_NO_WARNINGS)  
+	elseif(MINGW)
+		set_property(TARGET profiler APPEND_STRING PROPERTY 
+			LINK_FLAGS " -Wl,--kill-at --def ${def_file}")
+	endif()
 endif()
 
 find_package(Git)
@@ -139,7 +182,7 @@ file(WRITE "src/version.h"
 
 message(STATUS "You're going to build Profiler v${version}")
 
-install(TARGETS ${PLUGIN_TARGET} LIBRARY DESTINATION ".")
+install(TARGETS profiler LIBRARY DESTINATION ".")
 install(FILES README.md DESTINATION ".")
 
 set(CPACK_PACKAGE_NAME ${CMAKE_PROJECT_NAME})
