@@ -173,12 +173,21 @@ string(REGEX REPLACE "[.-]" "," version_rc ${version})
 string(REGEX REPLACE "^([0-9]+,[0-9]+)$" "\\1,0,0" version_rc ${version_rc})
 string(REGEX REPLACE "^([0-9]+,[0-9]+,[0-9]+)$" "\\1,0" version_rc ${version_rc})
 
-# Generate version.h to be included from source files
-file(WRITE "src/version.h" 
-"/* This file is auto-generated, do not edit */
-#define PROFILER_VERSION \"${version}\"
-#define PROFILER_VERSION_RC ${version_rc}
-")
+# Generate version.h and plugin.rc
+set(PLUGIN_NAME ${CMAKE_PROJECT_NAME})
+set(PLUGIN_DESCRIPTION "Profiler plugin for SA-MP server")
+set(PLUGIN_COPYRIGHT "Copyright (c) 2011-2012 Zeex")
+set(PLUGIN_VERSION ${version})
+set(PLUGIN_VERSION_RC ${version_rc})
+
+configure_file(
+	"${profiler_SOURCE_DIR}/src/plugin.rc.in"
+	"${profiler_SOURCE_DIR}/src/plugin.rc"
+	@ONLY)
+configure_file(
+	"${profiler_SOURCE_DIR}/src/version.h.in"
+	"${profiler_SOURCE_DIR}/src/version.h"
+	@ONLY)
 
 message(STATUS "You're going to build Profiler v${version}")
 
