@@ -99,7 +99,7 @@ void ProfileWriterHtml::Write(const std::vector<std::shared_ptr<FunctionInfo>> &
 	"	<script type=\"text/javascript\"\n"
 	"		src=\"http://code.jquery.com/jquery-latest.min.js\"></script>\n"
 	"	<script type=\"text/javascript\"\n"
-	"		src=\"http://autobahn.tablesorter.com/jquery.tablesorter.min.js\"></script>\n"
+	"		src=\"http://tablesorter.com/__jquery.tablesorter.min.js\"></script>\n"
 	"	<script type=\"text/javascript\">\n"
 	"	$(document).ready(function() {\n"
 	"		$(\"#stats\").tablesorter();\n"
