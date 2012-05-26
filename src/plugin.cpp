@@ -282,10 +282,10 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 		return AMX_ERR_NONE;
 	}
 
-	if (!IsAmxProfilable(amx)) {
-		logprintf("[profiler] Can't profile '%s' (are you using -d0?)", filename.c_str());
-		return AMX_ERR_NONE;
-	}
+	//if (!IsAmxProfilable(amx)) {
+	//	logprintf("[profiler] Can't profile '%s' (are you using -d0?)", filename.c_str());
+	//	return AMX_ERR_NONE;
+	//}
 
 	cell profiler_enabled = false;
 	if (GetPublicVariable(amx, "profiler_enabled", profiler_enabled)
