@@ -70,6 +70,10 @@ add_library(profiler MODULE
 	src/plugin.rc
 )
 
+source_group(src REGULAR_EXPRESSION src/[^/\\]+\\..*)
+source_group(src\\amx REGULAR_EXPRESSION src/amx/[^/\\]+\\..*)
+source_group(src\\amx_profiler REGULAR_EXPRESSION src/amx_profiler/[^/\\]+\\..*)
+
 find_package(Boost 1.47 COMPONENTS chrono date_time system)
 if(Boost_FOUND)
 	add_definitions(-DHAVE_BOOST=${Boost_VERSION})
