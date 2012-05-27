@@ -65,15 +65,21 @@ void ProfileWriterXml::Write(const std::vector<std::shared_ptr<FunctionInfo>> &s
 	});
 
 	std::for_each(stats.begin(), stats.end(), [&](const std::shared_ptr<FunctionInfo> &info) {
-		*stream_ << "		<function";
-		*stream_ << " type=\"" << info->function()->type() << "\"";
-		*stream_ << " name=\"" << info->function()->name() << "\"";
-		*stream_ << " calls=\"" << info->num_calls() << "\"";
-		*stream_ << " self_time=\"" <<  std::fixed << std::setprecision(2)
-			<< static_cast<double>(info->GetSelfTime() * 100) / time_all << "\"";
-		*stream_ << " total_time=\"" <<  std::fixed << std::setprecision(2)
-			<< static_cast<double>(info->total_time() * 100) / total_time_all << "\"";
-		*stream_ << " />\n";
+		double self_time_sec = static_cast<double>(info->GetSelfTime()) / 1E+9;
+		double self_time_percent = static_cast<double>(info->GetSelfTime() * 100) / time_all;
+		double total_time_sec = static_cast<double>(info->total_time()) / 1E+9;
+		double total_time_percent =  static_cast<double>(info->total_time() * 100) / total_time_all;
+		*stream_ << "\t<function"
+			<< " type=\"" << info->function()->type() << "\""
+			<< " name=\"" << info->function()->name() << "\""
+			<< " calls=\"" << info->num_calls() << "\""
+			<< " self_time=\"" << info->GetSelfTime() << "\""
+			<< " self_time_sec=\"" << self_time_sec << "\""
+			<< " self_time_percent=\"" <<  std::fixed << std::setprecision(2) << self_time_percent << "\""
+			<< " total_time=\"" << info->total_time() << "\""
+			<< " total_time_sec=\"" << total_time_sec << "\""
+			<< " total_time_percent=\"" <<  std::fixed << std::setprecision(2) << total_time_percent << "\""
+		<< "/>\n";
 	});
 
 	*stream_ << "</profile>";
