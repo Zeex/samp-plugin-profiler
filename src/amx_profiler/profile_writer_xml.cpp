@@ -69,7 +69,7 @@ void ProfileWriterXml::Write(const std::vector<std::shared_ptr<FunctionInfo>> &s
 		*stream_ << " type=\"" << info->function()->type() << "\"";
 		*stream_ << " name=\"" << info->function()->name() << "\"";
 		*stream_ << " calls=\"" << info->num_calls() << "\"";
-		*stream_ << " total_time=\"" <<  std::fixed << std::setprecision(2)
+		*stream_ << " self_time=\"" <<  std::fixed << std::setprecision(2)
 			<< static_cast<double>(info->GetSelfTime() * 100) / time_all << "\"";
 		*stream_ << " total_time=\"" <<  std::fixed << std::setprecision(2)
 			<< static_cast<double>(info->total_time() * 100) / total_time_all << "\"";
