@@ -34,6 +34,19 @@
 #include "performance_counter.h"
 #include "profile_writer_text.h"
 
+static const int kTypeWidth = 7;
+static const int kNameWidth = 32;
+static const int kCallsWidth = 10;
+static const int kSelfTimeSecWidth = 16;
+static const int kSelfTimePercentWidth = 13;
+static const int kTotalTimeSecWidth = 17;
+static const int kTotalTimePercentWidth = 14;
+
+static const int kWidthAll = kTypeWidth + kNameWidth + kCallsWidth 
+	+ kSelfTimeSecWidth + kSelfTimePercentWidth + kTotalTimeSecWidth + kTotalTimePercentWidth;
+
+static const int kNumColumns = 7;
+
 namespace amx_profiler {
 
 ProfileWriterText::ProfileWriterText(std::ostream *stream, const std::string script_name)
@@ -49,13 +62,23 @@ void ProfileWriterText::Write(const std::vector<std::shared_ptr<FunctionInfo>> &
 		*stream_ << " generated on " << boost::posix_time::second_clock::local_time() << "\n" << std::endl;
 	#endif
 
-	*stream_
-		<< std::setw(kTypeWidth) << "Type"
-		<< std::setw(kNameWidth) << "Name"
-		<< std::setw(kCallsWidth) << "Calls"
-		<< std::setw(kSelfTimeWidth) << "Self Time"
-		<< std::setw(kTotalTimeWidth) << "Total Time"
-	<< std::endl;
+	auto DoHLine = [&]() {
+		char fillch = stream_->fill();
+		*stream_ << std::setw(kWidthAll + kNumColumns * 2 + 1) 
+			<< std::setfill('-') << "" << std::setfill(fillch) << '\n';
+	};
+
+	DoHLine();
+	*stream_ << std::left
+		<< "| " << std::setw(kTypeWidth) << "Type"
+		<< "| " << std::setw(kNameWidth) << "Name"
+		<< "| " << std::setw(kCallsWidth) << "Calls"
+		<< "| " << std::setw(kSelfTimeSecWidth) << "Self Time (sec.)"
+		<< "| " << std::setw(kSelfTimePercentWidth) << "Self Time (%)"
+		<< "| " << std::setw(kTotalTimeSecWidth) << "Total Time (sec.)"
+		<< "| " << std::setw(kTotalTimePercentWidth) << "Total Time (%)"
+		<< "|\n";
+	DoHLine();
 
 	TimeInterval time_all = 0;
 	std::for_each(stats.begin(), stats.end(), [&](const std::shared_ptr<FunctionInfo> &info) { 
@@ -68,15 +91,20 @@ void ProfileWriterText::Write(const std::vector<std::shared_ptr<FunctionInfo>> &
 	});
 
 	std::for_each(stats.begin(), stats.end(), [&](const std::shared_ptr<FunctionInfo> &info) {
+		double self_time_sec = static_cast<double>(info->GetSelfTime()) / 1E+9;
+		double self_time_percent = static_cast<double>(info->GetSelfTime() * 100) / time_all;
+		double total_time_sec = static_cast<double>(info->total_time()) / 1E+9;
+		double total_time_percent =  static_cast<double>(info->total_time() * 100) / total_time_all;
 		*stream_
-			<< std::setw(kTypeWidth) << info->function()->type()
-			<< std::setw(kNameWidth) << info->function()->name()
-			<< std::setw(kCallsWidth) << info->num_calls()
-			<< std::setw(kSelfTimeWidth) << std::setprecision(2) << std::fixed
-				<< static_cast<double>(info->GetSelfTime() * 100) / time_all
-			<< std::setw(kTotalTimeWidth) << std::setprecision(2) << std::fixed
-				<< static_cast<double>(info->total_time() * 100) / total_time_all
-		<< std::endl;
+			<< "| " << std::setw(kTypeWidth) << info->function()->type()
+			<< "| " << std::setw(kNameWidth) << info->function()->name()
+			<< "| " << std::setw(kCallsWidth) << info->num_calls()
+			<< "| " << std::setw(kSelfTimeSecWidth) << std::fixed << std::setprecision(3) << self_time_sec
+			<< "| " << std::setw(kSelfTimePercentWidth) << std::fixed << std::setprecision(2) << self_time_percent
+			<< "| " << std::setw(kTotalTimeSecWidth) << std::fixed << std::setprecision(2) << total_time_percent
+			<< "| " << std::setw(kTotalTimePercentWidth) << std::fixed << std::setprecision(3) << total_time_sec
+			<< "|\n";
+		DoHLine();
 	});
 }
 

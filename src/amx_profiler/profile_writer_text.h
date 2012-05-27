@@ -34,12 +34,6 @@ namespace amx_profiler {
 
 class ProfileWriterText : public ProfileWriter {
 public:
-	static const int kTypeWidth = 15;
-	static const int kNameWidth = 32;
-	static const int kCallsWidth = 15;
-	static const int kSelfTimeWidth = 15;
-	static const int kTotalTimeWidth = 15;
-
 	ProfileWriterText(std::ostream *stream, const std::string script_name);
 
 	virtual void Write(const std::vector<std::shared_ptr<FunctionInfo>> &stats);
