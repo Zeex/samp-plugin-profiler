@@ -78,15 +78,19 @@ void ProfileWriterHtml::Write(const std::vector<std::shared_ptr<FunctionInfo>> &
 	});
 
 	std::for_each(stats.begin(), stats.end(), [&](const std::shared_ptr<FunctionInfo> &info) {
+		double self_time_sec = static_cast<double>(info->GetSelfTime()) / 1E+9;
+		double self_time_percent = static_cast<double>(info->GetSelfTime() * 100) / time_all;
+		double total_time_sec = static_cast<double>(info->total_time()) / 1E+9;
+		double total_time_percent =  static_cast<double>(info->total_time() * 100) / total_time_all;
 		*stream_
 		<< "		<tr>\n"
 		<< "			<td>" << info->function()->type() << "</td>\n"
 		<< "			<td>" << info->function()->name() << "</td>\n"
 		<< "			<td>" << info->num_calls() << "</td>\n"
-		<< "			<td>" << std::fixed << std::setprecision(2)
-			<< static_cast<double>(info->GetSelfTime() * 100) / time_all << "</td>\n"
-		<< "			<td>" << std::fixed << std::setprecision(2)
-			<< static_cast<double>(info->total_time() * 100) / total_time_all << "</td>\n"
+		<< "			<td><b>" << std::fixed << std::setprecision(2) << self_time_percent << "%</b>"
+			<< " (" << std::setprecision(3) << self_time_sec << "s)</td>\n"
+		<< "			<td><b>" << std::fixed << std::setprecision(2) << total_time_percent << "%</b>"
+			<< " (" << std::setprecision(3) << total_time_sec << "s)</td>\n"
 		<< "		</tr>\n";
 	});
 
