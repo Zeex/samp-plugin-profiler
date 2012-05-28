@@ -20,8 +20,6 @@ add_library(profiler MODULE
 	src/amx/getch.h
 	src/amx/osdefs.h
 	src/amx/sclinux.h
-	src/amx_name.cpp
-	src/amx_name.h
 	src/amx_profiler/c_interface.cpp
 	src/amx_profiler/c_interface.h
 	src/amx_profiler/call_graph.cpp
@@ -59,6 +57,8 @@ add_library(profiler MODULE
 	src/amx_profiler/time_res.h
 	src/amx_profiler/profile_writer_xml.cpp
 	src/amx_profiler/profile_writer_xml.h
+	src/amx_path.cpp
+	src/amx_path.h
 	src/amxplugin.cpp
 	src/config_reader.cpp
 	src/config_reader.h

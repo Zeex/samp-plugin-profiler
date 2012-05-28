@@ -46,7 +46,7 @@
 #include <amx_profiler/profile_writer_xml.h>
 #include <amx_profiler/profiler.h>
 
-#include "amx_name.h"
+#include "amx_path.h"
 #include "config_reader.h"
 #include "jump-x86.h"
 #include "plugin.h"
@@ -276,7 +276,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
 PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 	::loaded_scripts.push_back(amx);
 
-	std::string filename = GetAmxName(amx);
+	std::string filename = GetAmxPath(amx);
 	if (filename.empty()) {
 		logprintf("[profiler] Can't find matching .amx file");
 		return AMX_ERR_NONE;
@@ -327,7 +327,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 	auto profiler = ::profilers[amx];
 
 	if (profiler) {
-		std::string amx_path = GetAmxName(amx);
+		std::string amx_path = GetAmxPath(amx);
 		std::string amx_name = std::string(amx_path, 0, amx_path.find_last_of("."));
 
 		// Convert profile_format to lower case.

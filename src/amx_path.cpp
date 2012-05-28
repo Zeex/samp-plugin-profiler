@@ -45,7 +45,7 @@
 	#include <fnmatch.h>
 	#include <sys/stat.h>
 #endif
-#include "amx_name.h"
+#include "amx_path.h"
 
 static time_t GetMtime(const std::string filename) {
 	struct stat attrib;
@@ -129,7 +129,7 @@ static void GetFilesInDirectory(const std::string &dir,
 #endif
 }
 
-std::string GetAmxName(AMX_HEADER *amxhdr) {
+std::string GetAmxPath(AMX_HEADER *amxhdr) {
 	std::string result;
 
 	std::list<std::string> files;
@@ -161,14 +161,14 @@ std::string GetAmxName(AMX_HEADER *amxhdr) {
 	return result;
 }
 
-std::string GetAmxName(AMX *amx) {
+std::string GetAmxPath(AMX *amx) {
 	std::string result;
 
 	auto it = cachedNames.find(amx);
 	if (it != cachedNames.end()) {
 		result = it->second;
 	} else {
-		result = GetAmxName(reinterpret_cast<AMX_HEADER*>(amx->base));
+		result = GetAmxPath(reinterpret_cast<AMX_HEADER*>(amx->base));
 		if (!result.empty()) {
 			cachedNames.insert(std::make_pair(amx, result));
 		}

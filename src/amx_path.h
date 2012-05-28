@@ -20,13 +20,14 @@
 // ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 #ifndef AMX_NAME_H
 #define AMX_NAME_H
 
 #include <string>
 #include <amx/amx.h>
 
-std::string GetAmxName(AMX_HEADER *amxhdr);
-std::string GetAmxName(AMX *amx);
+std::string GetAmxPath(AMX_HEADER *amxhdr);
+std::string GetAmxPath(AMX *amx);
 
 #endif // !AMX_NAME_H
