@@ -60,8 +60,8 @@ void ProfileWriterHtml::Write(const std::vector<std::shared_ptr<FunctionInfo>> &
 	"				<th>Type</th>\n"
 	"				<th>Name</th>\n"
 	"				<th>Calls</th>\n"
-	"				<th>Self Time</th>\n"
-	"				<th>Total Time</th>\n"
+	"				<th colspan=\"2\">Self Time</th>\n"
+	"				<th colspan=\"2\">Total Time</th>\n"
 	"			</tr>\n"
 	"		</thead>\n"
 	"		<tbody>\n"
@@ -87,10 +87,11 @@ void ProfileWriterHtml::Write(const std::vector<std::shared_ptr<FunctionInfo>> &
 		<< "			<td>" << info->function()->type() << "</td>\n"
 		<< "			<td>" << info->function()->name() << "</td>\n"
 		<< "			<td>" << info->num_calls() << "</td>\n"
-		<< "			<td><b>" << std::fixed << std::setprecision(2) << self_time_percent << "%</b>"
-			<< " (" << std::setprecision(3) << self_time_sec << "s)</td>\n"
-		<< "			<td><b>" << std::fixed << std::setprecision(2) << total_time_percent << "%</b>"
-			<< " (" << std::setprecision(3) << total_time_sec << "s)</td>\n"
+		<< "			<td>" << std::fixed << std::setprecision(2) << self_time_percent << "%</td>\n"
+		<< "			<td>" << std::fixed << std::setprecision(3) << self_time_sec << "s</td>\n"
+		<< "			<td>" << std::fixed << std::setprecision(2) << total_time_percent << "%</td>\n"
+		<< "			<td>" << std::fixed << std::setprecision(3) << total_time_sec << "s</td>\n"
+		<< "			</td>\n"
 		<< "		</tr>\n";
 	});
 
