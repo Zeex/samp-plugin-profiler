@@ -46,6 +46,8 @@ ProfileWriterHtml::ProfileWriterHtml(std::ostream *stream, const std::string scr
 void ProfileWriterHtml::Write(const std::vector<std::shared_ptr<FunctionInfo>> &stats)
 {
 	*stream_ <<
+	"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\n"
+	"\"http://www.w3.org/TR/html4/loose.dtd\">\n"
 	"<html>\n"
 	"<head>\n"
 	"	<title>" << "Profile of '" << script_name_ << "'</title>\n"
