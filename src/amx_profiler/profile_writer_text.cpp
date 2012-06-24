@@ -73,10 +73,10 @@ void ProfileWriterText::Write(const std::vector<std::shared_ptr<FunctionInfo>> &
 		<< "| " << std::setw(kTypeWidth) << "Type"
 		<< "| " << std::setw(kNameWidth) << "Name"
 		<< "| " << std::setw(kCallsWidth) << "Calls"
-		<< "| " << std::setw(kSelfTimeSecWidth) << "Self Time (sec.)"
 		<< "| " << std::setw(kSelfTimePercentWidth) << "Self Time (%)"
-		<< "| " << std::setw(kTotalTimeSecWidth) << "Total Time (sec.)"
+		<< "| " << std::setw(kSelfTimeSecWidth) << "Self Time (sec.)"
 		<< "| " << std::setw(kTotalTimePercentWidth) << "Total Time (%)"
+		<< "| " << std::setw(kTotalTimeSecWidth) << "Total Time (sec.)"
 		<< "|\n";
 	DoHLine();
 
@@ -99,10 +99,10 @@ void ProfileWriterText::Write(const std::vector<std::shared_ptr<FunctionInfo>> &
 			<< "| " << std::setw(kTypeWidth) << info->function()->type()
 			<< "| " << std::setw(kNameWidth) << info->function()->name()
 			<< "| " << std::setw(kCallsWidth) << info->num_calls()
-			<< "| " << std::setw(kSelfTimeSecWidth) << std::fixed << std::setprecision(3) << self_time_sec
 			<< "| " << std::setw(kSelfTimePercentWidth) << std::fixed << std::setprecision(2) << self_time_percent
-			<< "| " << std::setw(kTotalTimeSecWidth) << std::fixed << std::setprecision(2) << total_time_percent
-			<< "| " << std::setw(kTotalTimePercentWidth) << std::fixed << std::setprecision(3) << total_time_sec
+			<< "| " << std::setw(kSelfTimeSecWidth) << std::fixed << std::setprecision(3) << self_time_sec
+			<< "| " << std::setw(kTotalTimePercentWidth) << std::fixed << std::setprecision(2) << total_time_percent
+			<< "| " << std::setw(kTotalTimeSecWidth) << std::fixed << std::setprecision(3) << total_time_sec
 			<< "|\n";
 		DoHLine();
 	});
