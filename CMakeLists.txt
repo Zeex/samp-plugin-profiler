@@ -8,71 +8,71 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
 include(AmxConfig)
 include(GetGitRevisionDescription)
 
-include_directories("src")
-include_directories("src/amx")
+include_directories(.)
+include_directories(amx)
 
 add_library(profiler MODULE
-	src/amx/amx.h
-	src/amx/amxaux.c
-	src/amx/amxaux.h
-	src/amx/amxdbg.c
-	src/amx/amxdbg.h
-	src/amx/getch.h
-	src/amx/osdefs.h
-	src/amx/sclinux.h
-	src/amx_profiler/c_interface.cpp
-	src/amx_profiler/c_interface.h
-	src/amx_profiler/call_graph.cpp
-	src/amx_profiler/call_graph.h
-	src/amx_profiler/call_graph_writer.h
-	src/amx_profiler/call_graph_writer_gv.cpp
-	src/amx_profiler/call_graph_writer_gv.h
-	src/amx_profiler/call_stack.cpp
-	src/amx_profiler/call_stack.h
-	src/amx_profiler/chrono.h
-	src/amx_profiler/debug_info.cpp
-	src/amx_profiler/debug_info.h
-	src/amx_profiler/function.cpp
-	src/amx_profiler/function.h
-	src/amx_profiler/function_call.cpp
-	src/amx_profiler/function_call.h
-	src/amx_profiler/function_info.cpp
-	src/amx_profiler/function_info.h
-	src/amx_profiler/profile_writer_html.cpp
-	src/amx_profiler/profile_writer_html.h
-	src/amx_profiler/native_function.cpp
-	src/amx_profiler/native_function.h
-	src/amx_profiler/normal_function.cpp
-	src/amx_profiler/normal_function.h
-	src/amx_profiler/profile_writer.h
-	src/amx_profiler/profiler.cpp
-	src/amx_profiler/profiler.h
-	src/amx_profiler/public_function.cpp
-	src/amx_profiler/public_function.h
-	src/amx_profiler/profile_writer_text.cpp
-	src/amx_profiler/profile_writer_text.h
-	src/amx_profiler/performance_counter.cpp
-	src/amx_profiler/performance_counter.h
-	src/amx_profiler/time_interval.h
-	src/amx_profiler/time_res.h
-	src/amx_profiler/profile_writer_xml.cpp
-	src/amx_profiler/profile_writer_xml.h
-	src/amx_path.cpp
-	src/amx_path.h
-	src/amxplugin.cpp
-	src/config_reader.cpp
-	src/config_reader.h
-	src/jump-x86.cpp
-	src/jump-x86.h
-	src/plugin.h
-	src/plugincommon.h
-	src/plugin.cpp
-	src/plugin.rc
+	amx/amx.h
+	amx/amxaux.c
+	amx/amxaux.h
+	amx/amxdbg.c
+	amx/amxdbg.h
+	amx/getch.h
+	amx/osdefs.h
+	amx/sclinux.h
+	amx_profiler/c_interface.cpp
+	amx_profiler/c_interface.h
+	amx_profiler/call_graph.cpp
+	amx_profiler/call_graph.h
+	amx_profiler/call_graph_writer.h
+	amx_profiler/call_graph_writer_gv.cpp
+	amx_profiler/call_graph_writer_gv.h
+	amx_profiler/call_stack.cpp
+	amx_profiler/call_stack.h
+	amx_profiler/chrono.h
+	amx_profiler/debug_info.cpp
+	amx_profiler/debug_info.h
+	amx_profiler/function.cpp
+	amx_profiler/function.h
+	amx_profiler/function_call.cpp
+	amx_profiler/function_call.h
+	amx_profiler/function_info.cpp
+	amx_profiler/function_info.h
+	amx_profiler/profile_writer_html.cpp
+	amx_profiler/profile_writer_html.h
+	amx_profiler/native_function.cpp
+	amx_profiler/native_function.h
+	amx_profiler/normal_function.cpp
+	amx_profiler/normal_function.h
+	amx_profiler/profile_writer.h
+	amx_profiler/profiler.cpp
+	amx_profiler/profiler.h
+	amx_profiler/public_function.cpp
+	amx_profiler/public_function.h
+	amx_profiler/profile_writer_text.cpp
+	amx_profiler/profile_writer_text.h
+	amx_profiler/performance_counter.cpp
+	amx_profiler/performance_counter.h
+	amx_profiler/time_interval.h
+	amx_profiler/time_res.h
+	amx_profiler/profile_writer_xml.cpp
+	amx_profiler/profile_writer_xml.h
+	plugin/amx_path.cpp
+	plugin/amx_path.h
+	plugin/amxplugin.cpp
+	plugin/config_reader.cpp
+	plugin/config_reader.h
+	plugin/jump-x86.cpp
+	plugin/jump-x86.h
+	plugin/plugin.h
+	plugin/plugincommon.h
+	plugin/plugin.cpp
+	plugin/plugin.rc
 )
 
-source_group(src REGULAR_EXPRESSION src/[^/\\]+\\..*)
-source_group(src\\amx REGULAR_EXPRESSION src/amx/[^/\\]+\\..*)
-source_group(src\\amx_profiler REGULAR_EXPRESSION src/amx_profiler/[^/\\]+\\..*)
+source_group(amx REGULAR_EXPRESSION ${CMAKE_CURRENT_SOURCE_DIR}/amx/[^/\\]+\\..*)
+source_group(amx_profiler REGULAR_EXPRESSION ${CMAKE_CURRENT_SOURCE_DIR}/amx_profiler/[^/\\]+\\..*)
+source_group(plugin REGULAR_EXPRESSION ${CMAKE_CURRENT_SOURCE_DIR}/plugin/[^/\\]+\\..*)
 
 find_package(Boost 1.47 COMPONENTS chrono date_time system)
 if(Boost_FOUND)
@@ -128,7 +128,7 @@ endif()
 
 if(WIN32)
 	add_definitions(-DWIN32 -D_WIN32)
-	set(def_file "${profiler_SOURCE_DIR}/src/plugin.def")
+	set(def_file "${CMAKE_CURRENT_SOURCE_DIR}/plugin/plugin.def")
 	if(MSVC)
 		set_property(TARGET profiler APPEND_STRING PROPERTY 
 			LINK_FLAGS " /DEF:${def_file}")
@@ -145,7 +145,7 @@ if(description)
 	string(REGEX REPLACE "^v(.*)" "\\1" version ${description})
 else()
 	message(STATUS "Failed to get version from Git, will read VERSION.txt")
-	file(READ "${profiler_SOURCE_DIR}/VERSION.txt" version)
+	file(READ "${CMAKE_CURRENT_SOURCE_DIR}/VERSION.txt" version)
 	string(STRIP ${version} version)
 endif()
 
@@ -163,18 +163,18 @@ set(PLUGIN_VERSION ${version})
 set(PLUGIN_VERSION_RC ${version_rc})
 
 configure_file(
-	"${profiler_SOURCE_DIR}/src/plugin.rc.in"
-	"${profiler_SOURCE_DIR}/src/plugin.rc"
+	"${CMAKE_CURRENT_SOURCE_DIR}/plugin/plugin.rc.in"
+	"${CMAKE_CURRENT_SOURCE_DIR}/plugin/plugin.rc"
 	@ONLY)
 configure_file(
-	"${profiler_SOURCE_DIR}/src/version.h.in"
-	"${profiler_SOURCE_DIR}/src/version.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/plugin/version.h.in"
+	"${CMAKE_CURRENT_SOURCE_DIR}/plugin/version.h"
 	@ONLY)
 
 message(STATUS "You're going to build Profiler v${version}")
 
 install(TARGETS profiler LIBRARY DESTINATION ".")
-install(FILES README.md DESTINATION ".")
+install(FILES "README.md" DESTINATION ".")
 
 set(CPACK_PACKAGE_NAME ${CMAKE_PROJECT_NAME})
 if(WIN32)
