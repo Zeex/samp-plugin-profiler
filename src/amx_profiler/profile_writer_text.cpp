@@ -21,7 +21,6 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <algorithm>
 #include <iomanip>
 #include <iostream>
 #include <string>
@@ -81,16 +80,16 @@ void ProfileWriterText::Write(const std::vector<std::shared_ptr<FunctionInfo>> &
 	DoHLine();
 
 	TimeInterval time_all = 0;
-	std::for_each(stats.begin(), stats.end(), [&](const std::shared_ptr<FunctionInfo> &info) { 
+	for (auto &info : stats) {
 		time_all += info->total_time() - info->child_time(); 
-	});
+	}
 
 	TimeInterval total_time_all = 0;
-	std::for_each(stats.begin(), stats.end(), [&](const std::shared_ptr<FunctionInfo> &info) { 
+	for (auto &info : stats) {
 		total_time_all += info->total_time(); 
-	});
+	}
 
-	std::for_each(stats.begin(), stats.end(), [&](const std::shared_ptr<FunctionInfo> &info) {
+	for (auto &info : stats) {
 		double self_time_sec = static_cast<double>(info->GetSelfTime()) / 1E+9;
 		double self_time_percent = static_cast<double>(info->GetSelfTime() * 100) / time_all;
 		double total_time_sec = static_cast<double>(info->total_time()) / 1E+9;
@@ -105,7 +104,7 @@ void ProfileWriterText::Write(const std::vector<std::shared_ptr<FunctionInfo>> &
 			<< "| " << std::setw(kTotalTimeSecWidth) << std::fixed << std::setprecision(3) << total_time_sec
 			<< "|\n";
 		DoHLine();
-	});
+	}
 }
 
 } // namespace amx_profiler

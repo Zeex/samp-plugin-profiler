@@ -34,18 +34,16 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
-
 #ifdef _WIN32
 	#include <Windows.h>
 #endif
-
+#include <amx/amx.h>
 #include <amx_profiler/call_graph_writer_gv.h>
 #include <amx_profiler/debug_info.h>
 #include <amx_profiler/profile_writer_html.h>
 #include <amx_profiler/profile_writer_text.h>
 #include <amx_profiler/profile_writer_xml.h>
 #include <amx_profiler/profiler.h>
-
 #include "amx_path.h"
 #include "config_reader.h"
 #include "jump-x86.h"
@@ -225,9 +223,8 @@ static BOOL WINAPI ConsoleCtrlHandler(DWORD dwCtrlType) {
 	switch (dwCtrlType) {
 	case CTRL_CLOSE_EVENT:
 	case CTRL_BREAK_EVENT:
-		for (std::list<AMX*>::const_iterator iterator = ::loaded_scripts.begin();
-				iterator != ::loaded_scripts.end(); ++iterator) {
-			AmxUnload(*iterator);
+		for (auto amx : loaded_scripts) {
+			AmxUnload(amx);
 		}
 	}
 	return FALSE;

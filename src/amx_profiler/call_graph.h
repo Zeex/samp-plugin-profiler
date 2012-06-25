@@ -113,8 +113,8 @@ inline void CallGraph::Traverse(Func f) const {
 template<typename Func>
 inline void CallGraphNode::Traverse(Func f) const {
 	f(shared_from_this());
-	for (auto iterator = callees_.begin(); iterator != callees_.end(); ++iterator) {
-		(*iterator)->Traverse(f);
+	for (auto &c : callees_) {
+		c->Traverse(f);
 	}
 }
 

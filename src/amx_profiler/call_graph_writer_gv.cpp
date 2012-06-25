@@ -24,7 +24,6 @@
 #ifndef AMX_PROFILER_CALL_GRAPH_WRITER_H
 #define AMX_PROFILER_CALL_GRAPH_WRITER_H
 
-#include <algorithm>
 #include <iostream>
 #include <tuple>
 #include "call_graph.h"
@@ -58,7 +57,7 @@ void CallGraphWriterGV::Write(const CallGraph &graph) {
 			} else {
 				caller_name = top_name_;
 			}
-			std::for_each(node->callees().begin(), node->callees().end(), [&](const std::shared_ptr<CallGraphNode> &c) {
+			for (auto &c : node->callees()) {
 				*stream_ << "\t\"" << caller_name << "\" -> \"" << c->info()->function()->name() 
 					<< "\" [color=\"";
 				// Arrow color is associated with callee type.
@@ -71,7 +70,7 @@ void CallGraphWriterGV::Write(const CallGraph &graph) {
 					*stream_ << "#777777";
 				}
 				*stream_ << "\"];\n";
-			});
+			}
 		}	
 	});
 

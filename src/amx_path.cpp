@@ -21,7 +21,6 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <algorithm>
 #include <cstring>
 #include <ctime>
 #include <exception>
@@ -136,7 +135,7 @@ std::string GetAmxPath(AMX_HEADER *amxhdr) {
 	GetFilesInDirectory("gamemodes", "*.amx", std::back_inserter(files));
 	GetFilesInDirectory("filterscripts", "*.amx", std::back_inserter(files));
 
-	std::for_each(files.begin(), files.end(), [](const std::string &file) {
+	for (auto &file : files) {
 		auto script_it = scripts.find(file);
 		if (script_it == scripts.end() ||
 				script_it->second.GetLastWriteTime() < GetMtime(file)) {
@@ -148,12 +147,12 @@ std::string GetAmxPath(AMX_HEADER *amxhdr) {
 				scripts.insert(std::make_pair(file, script_it));
 			}
 		}
-	});
+	}
 
-	for (auto iterator = scripts.begin(); iterator != scripts.end(); ++iterator) {
-		void *amxhdr2 = iterator->second.GetAmx()->base;
+	for (auto &string_script : scripts) {
+		void *amxhdr2 = string_script.second.GetAmx()->base;
 		if (std::memcmp(amxhdr, amxhdr2, sizeof(AMX_HEADER)) == 0) {
-			result = iterator->first;
+			result = string_script.first;
 			break;
 		}
 	}

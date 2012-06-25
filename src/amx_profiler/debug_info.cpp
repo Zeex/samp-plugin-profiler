@@ -24,8 +24,6 @@
 #include <cassert>
 #include <cstdio>
 #include <cstring>
-#include <amx/amx.h>
-#include <amxdbg.h>
 #include "debug_info.h"
 
 namespace amx_profiler {

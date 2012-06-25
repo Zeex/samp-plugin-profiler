@@ -47,11 +47,11 @@ private:
 
 template<typename T>
 T ConfigReader::GetOption(const std::string &name, const T &defaultValue) const {
-	std::map<std::string, std::string>::const_iterator it = options_.find(name);
-	if (it == options_.end()) {
+	auto iterator = options_.find(name);
+	if (iterator == options_.end()) {
 		return defaultValue;
 	}
-	std::stringstream sstream(it->second);
+	std::stringstream sstream(iterator->second);
 	T value;
 	sstream >> value;
 	if (!sstream) {

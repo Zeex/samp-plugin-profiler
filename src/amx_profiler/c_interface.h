@@ -28,8 +28,8 @@
 extern "C" {
 #endif
 
-#include "amx/amx.h"
-#include "amx/amxdbg.h"
+#include <amx/amx.h>
+#include <amx/amxdbg.h>
 
 int prof_Init(AMX *amx, AMX_DBG *amxdbg /* = NULL */);
 int prof_Shutdown(AMX *amx);

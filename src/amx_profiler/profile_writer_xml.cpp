@@ -21,8 +21,6 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <algorithm>
-#include <functional>
 #include <iomanip>
 #include <iostream>
 #include <string>
@@ -55,16 +53,16 @@ void ProfileWriterXml::Write(const std::vector<std::shared_ptr<FunctionInfo>> &s
 	#endif
 
 	TimeInterval time_all = 0;
-	std::for_each(stats.begin(), stats.end(), [&](const std::shared_ptr<FunctionInfo> &info) { 
+	for (auto &info : stats) {
 		time_all += info->total_time() - info->child_time(); 
-	});
+	}
 
 	TimeInterval total_time_all = 0;
-	std::for_each(stats.begin(), stats.end(), [&](const std::shared_ptr<FunctionInfo> &info) { 
+	for (auto &info : stats) {
 		total_time_all += info->total_time(); 
-	});
+	}
 
-	std::for_each(stats.begin(), stats.end(), [&](const std::shared_ptr<FunctionInfo> &info) {
+	for (auto &info : stats) {
 		double self_time_sec = static_cast<double>(info->GetSelfTime()) / 1E+9;
 		double self_time_percent = static_cast<double>(info->GetSelfTime() * 100) / time_all;
 		double total_time_sec = static_cast<double>(info->total_time()) / 1E+9;
@@ -80,7 +78,7 @@ void ProfileWriterXml::Write(const std::vector<std::shared_ptr<FunctionInfo>> &s
 			<< " total_time_sec=\"" << total_time_sec << "\""
 			<< " total_time_percent=\"" <<  std::fixed << std::setprecision(2) << total_time_percent << "\""
 		<< "/>\n";
-	});
+	}
 
 	*stream_ << "</profile>";
 }

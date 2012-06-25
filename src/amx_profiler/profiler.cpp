@@ -21,15 +21,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <algorithm>
 #include <cassert>
-#include <cstdio>
-#include <functional>
-#include <map>
-#include <ostream>
-#include <string>
-#include <vector>
-#include <amx/amx.h>
 #include "function.h"
 #include "function_call.h"
 #include "function_info.h"
@@ -51,8 +43,8 @@ Profiler::Profiler(AMX *amx, DebugInfo debug_info, bool enable_call_graph)
 
 std::vector<std::shared_ptr<FunctionInfo>> Profiler::GetProfile() const {
 	std::vector<std::shared_ptr<FunctionInfo>> profile;
-	for (auto iterator = functions_.begin(); iterator != functions_.end(); ++iterator) {
-		profile.push_back(iterator->second);
+	for (auto &address_function : functions_) {
+		profile.push_back(address_function.second);
 	}
 	return profile;
 }

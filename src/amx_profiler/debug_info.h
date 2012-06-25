@@ -27,7 +27,7 @@
 #include <memory>
 #include <string>
 #include <amx/amx.h>
-#include <amxdbg.h>
+#include <amx/amxdbg.h>
 
 namespace amx_profiler {
 

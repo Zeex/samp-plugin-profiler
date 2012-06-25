@@ -24,9 +24,6 @@
 #ifndef AMX_PROFILER_PROFILER_H
 #define AMX_PROFILER_PROFILER_H
 
-#include <iosfwd>
-#include <stack>
-#include <string>
 #include <vector>
 #include <unordered_map>
 #include <amx/amx.h>
