@@ -38,7 +38,6 @@ Profiler::Profiler(AMX *amx, DebugInfo debug_info, bool enable_call_graph)
 	, debug_info_(debug_info)
 	, call_graph_enabled_(enable_call_graph)
 {
-	// nothing
 }
 
 std::vector<std::shared_ptr<FunctionInfo>> Profiler::GetProfile() const {
@@ -53,7 +52,6 @@ void Profiler::WriteProfile(ProfileWriter *writer) const {
 	writer->Write(GetProfile());
 }
 
-// Profile normal function call.
 int Profiler::amx_Debug(int (AMXAPI *debug)(AMX *amx)) {
 	cell prevFrame = amx_->stp;
 	if (!call_stack_.IsEmpty()) {
@@ -79,7 +77,6 @@ int Profiler::amx_Debug(int (AMXAPI *debug)(AMX *amx)) {
 	return AMX_ERR_NONE;
 }
 
-// Profile a native function.
 int Profiler::amx_Callback(cell index, cell *result, cell *params,
 	int (AMXAPI *callback)(AMX *amx, cell index, cell *result, cell *params)) {
 	if (callback == 0) {
@@ -101,7 +98,6 @@ int Profiler::amx_Callback(cell index, cell *result, cell *params,
 	}
 }
 
-// Profile a public function.
 int Profiler::amx_Exec(cell *retval, int index,
 	int (AMXAPI *exec)(AMX *amx, cell *retval, int index)) {
 	if (exec == 0) {
@@ -123,7 +119,6 @@ int Profiler::amx_Exec(cell *retval, int index,
 	}
 }
 
-// Get address of a native function by its index.
 ucell Profiler::GetNativeAddress(cell index) {
 	if (index >= 0) {
 		auto hdr = reinterpret_cast<AMX_HEADER*>(amx_->base);
@@ -134,7 +129,6 @@ ucell Profiler::GetNativeAddress(cell index) {
 	return 0;
 }
 
-// Get address of a public function by its index.
 ucell Profiler::GetPublicAddress(cell index) {
 	auto hdr = reinterpret_cast<AMX_HEADER*>(amx_->base);
 	if (index >= 0) {
@@ -147,7 +141,6 @@ ucell Profiler::GetPublicAddress(cell index) {
 	return 0;
 }
 
-// BeginFunction() is called when Profiler enters a function.
 void Profiler::BeginFunction(ucell address, ucell frm) {
 	assert(functions_.find(address) != functions_.end() && address != 0
 			&& "BeginFunction() called with invalid address");
@@ -166,8 +159,6 @@ void Profiler::EndFunction(ucell address) {
 	assert(!call_stack_.IsEmpty());
 	assert(address == 0 || functions_.find(address) != functions_.end()
 			&& "EndFunction() called with invalid address");
-	// There still can remain a few "normal" functions at the top of the call stack
-	// although they have already returned.
 	while (true) {
 		auto current = call_stack_.Pop();
 		auto current_it = functions_.find(current->function()->address());
