@@ -36,7 +36,7 @@ NormalFunction::NormalFunction(ucell address, const DebugInfo &debug_info)
 	}
 	if (name_.empty()) {
 		std::stringstream ss;
-		ss << "0x" << std::setw(8) << std::setfill('0') << std::hex << address_;
+		ss << std::setw(8) << std::setfill('0') << std::hex << address_;
 		name_.append("unknown@").append(ss.str());
 	}
 }
