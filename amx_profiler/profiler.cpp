@@ -153,9 +153,9 @@ ucell Profiler::GetPublicAddress(cell index) {
 
 void Profiler::BeginFunction(ucell address, ucell frm) {
 	assert(address != 0);
-	auto info_it = address_to_stats_.find(address);
-	assert(info_it != address_to_stats_.end());
-	auto stats = info_it->second;
+	auto stats_it = address_to_stats_.find(address);
+	assert(stats_it != address_to_stats_.end());
+	auto stats = stats_it->second;
 	stats->num_calls()++;	
 	call_stack_.Push(stats->function(), frm);
 	if (call_graph_enabled_) {
