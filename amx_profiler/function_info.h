@@ -24,7 +24,6 @@
 #ifndef AMX_PROFILER_FUNCTION_INFO_H
 #define AMX_PROFILER_FUNCTION_INFO_H
 
-#include <memory>
 #include "time_interval.h"
 
 namespace amx_profiler {
@@ -34,11 +33,11 @@ class Function;
 // Various runtime information about a function.
 class FunctionInfo {
 public:
-	explicit FunctionInfo(const std::shared_ptr<Function> &func);
+	explicit FunctionInfo(Function *func);
 
-	std::shared_ptr<Function> &function()
+	Function *function()
 		{ return func_; }
-	const std::shared_ptr<Function> &function() const
+	const Function *function() const
 		{ return func_; }
 
 	long &num_calls()
@@ -60,7 +59,7 @@ public:
 		{ return total_time() - child_time(); }
 
 private:
-	std::shared_ptr<Function> func_;
+	Function *func_;
 
 	long num_calls_;
 	TimeInterval total_time_;

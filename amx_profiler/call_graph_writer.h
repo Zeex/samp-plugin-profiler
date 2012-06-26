@@ -30,7 +30,7 @@ class CallGraph;
 
 class CallGraphWriter {
 public:
-	virtual void Write(const CallGraph &graph) = 0;
+	virtual void Write(const CallGraph *graph) = 0;
 };
 
 } // namespace amx_profiler

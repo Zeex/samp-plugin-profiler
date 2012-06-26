@@ -25,7 +25,6 @@
 #define AMX_PROFILER_PROFILE_WRITER_XML_H
 
 #include <iosfwd>
-#include <memory>
 #include <string>
 #include <vector>
 #include "profile_writer.h"
@@ -36,7 +35,7 @@ class ProfileWriterXml : public ProfileWriter {
 public:
 	ProfileWriterXml(std::ostream *stream, const std::string script_name);
 
-	virtual void Write(const std::vector<std::shared_ptr<FunctionInfo>> &stats);
+	virtual void Write(const std::vector<FunctionInfo*> statistics);
 
 private:
 	std::ostream *stream_;

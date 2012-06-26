@@ -24,7 +24,6 @@
 #ifndef AMX_PROFILER_PROFILE_WRITER_H
 #define AMX_PROFILER_PROFILE_WRITER_H
 
-#include <memory>
 #include <vector>
 
 namespace amx_profiler {
@@ -33,7 +32,7 @@ class FunctionInfo;
 
 class ProfileWriter {
 public:
-	virtual void Write(const std::vector<std::shared_ptr<FunctionInfo>> &stats) = 0;
+	virtual void Write(const std::vector<FunctionInfo*> statistics) = 0;
 };
 
 } // namespace amx_profiler

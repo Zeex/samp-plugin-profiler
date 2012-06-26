@@ -24,7 +24,6 @@
 #ifndef AMX_PROFILER_CALL_GRAPH_H
 #define AMX_PROFILER_CALL_GRAPH_H
 
-#include <memory>
 #include <set>
 #include <vector>
 
@@ -35,88 +34,87 @@ class CallGraphWriter;
 class FunctionInfo;
 
 class CallGraph {
+	friend class CallGraphNode;
+
 public:
-	// This allows us to sort nodes by their Functions.
-	class CompareNodes { 
-	public:
-		bool operator()(const std::shared_ptr<CallGraphNode> &left,
-		                const std::shared_ptr<CallGraphNode> &right);
-	};
+	CallGraph(CallGraphNode *root = 0);
+	~CallGraph();
 
-	typedef std::set<std::shared_ptr<CallGraphNode>, CompareNodes> NodeSet;
-
-	CallGraph(const std::shared_ptr<CallGraphNode> &root = 0);
-
-	inline std::shared_ptr<CallGraphNode> root() const {
+	inline CallGraphNode *root() const {
 		return root_;
 	}
 
-	inline void set_root(const std::shared_ptr<CallGraphNode> &root) {
+	inline void set_root(CallGraphNode *root) {
 		root_ = root;
 	}
 
-	std::shared_ptr<CallGraphNode> sentinel() const {
+	inline CallGraphNode *sentinel() const {
 		return sentinel_;
 	}
 
-	void AddCallee(const std::shared_ptr<CallGraphNode> &callee, 
-	               const std::shared_ptr<CallGraphNode> &caller);
+	void Write(CallGraphWriter *writer) const;
 
-	// Walk through all nodes calling Func against each one.
-	template<typename Func>
-	inline void Traverse(Func f) const;
-
-	// Output to a file.
-	void Write(CallGraphWriter &writer) const;
+	template<typename F>
+	inline void Traverse(F f) const {
+		sentinel_->Traverse(f);
+	}
 
 private:
-	std::shared_ptr<CallGraphNode> root_;
-	std::shared_ptr<CallGraphNode> sentinel_;
+	void OwnNode(CallGraphNode *node);
+
+private:
+	CallGraphNode *root_;
+	CallGraphNode *sentinel_;
+	std::set<CallGraphNode*> nodes_;
 };
 
-class CallGraphNode : public std::enable_shared_from_this<CallGraphNode> {
+class CallGraphNode {
 public:
-	CallGraphNode(const std::shared_ptr<FunctionInfo> &info, 
-	              const std::shared_ptr<CallGraphNode> &caller = 0);
+	class Compare { 
+	public:
+		bool operator()(const CallGraphNode *n1, const CallGraphNode *n2) const;
+	};
 
-	inline const std::shared_ptr<FunctionInfo> &info() const {
+	CallGraphNode(CallGraph *graph, FunctionInfo *info, CallGraphNode *caller = 0);
+
+	void MakeRoot() {
+		graph_->set_root(this);
+	}
+
+	inline CallGraph *graph() const {
+		return graph_;
+	}
+
+	inline FunctionInfo *info() const {
 		return info_;
 	}
 
-	inline std::shared_ptr<CallGraphNode> caller() const {
+	inline CallGraphNode *caller() const {
 		return caller_;
 	}
 
-	inline const CallGraph::NodeSet &callees() const {
+	inline const std::set<CallGraphNode*, Compare> &callees() const {
 		return callees_;
 	}
 
-	void AddCallee(const std::shared_ptr<FunctionInfo> &info);
-	void AddCallee(const std::shared_ptr<CallGraphNode> &node);
+	CallGraphNode *AddCallee(FunctionInfo *info);
+	CallGraphNode *AddCallee(CallGraphNode *node);
 
 	// Recursive parent-to-child traversing.
-	template<typename Func>
-	inline void Traverse(Func f) const;
+	template<typename F>
+	inline void Traverse(F f) const {
+		f(this);
+		for (auto c : callees_) {
+			c->Traverse(f);
+		}
+	}
 
 private:
-	std::shared_ptr<FunctionInfo> info_;
-	std::shared_ptr<CallGraphNode> caller_;
-
-	CallGraph::NodeSet callees_;
+	CallGraph *graph_;
+	FunctionInfo *info_;
+	CallGraphNode *caller_;
+	std::set<CallGraphNode*, Compare> callees_;
 };
-
-template<typename Func>
-inline void CallGraph::Traverse(Func f) const {
-	sentinel_->Traverse(f);
-}
-
-template<typename Func>
-inline void CallGraphNode::Traverse(Func f) const {
-	f(shared_from_this());
-	for (auto &c : callees_) {
-		c->Traverse(f);
-	}
-}
 
 } // namespace amx_profiler
 

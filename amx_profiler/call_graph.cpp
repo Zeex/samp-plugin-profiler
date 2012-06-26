@@ -29,40 +29,50 @@
 
 namespace amx_profiler {
 
-bool CallGraph::CompareNodes::operator()(const std::shared_ptr<CallGraphNode> &left,
-		        const std::shared_ptr<CallGraphNode> &right) {
-	return left->info()->function()->address() < right->info()->function()->address();
-}
-
-CallGraphNode::CallGraphNode(const std::shared_ptr<FunctionInfo> &info, 
-                             const std::shared_ptr<CallGraphNode> &caller) 
-	: info_(info)
-	, caller_(caller)
-	, std::enable_shared_from_this<CallGraphNode>()
-{
-}
-
-void CallGraphNode::AddCallee(const std::shared_ptr<FunctionInfo> &info) {
-	auto new_node = std::shared_ptr<CallGraphNode>(new CallGraphNode(info, shared_from_this()));
-	AddCallee(new_node);
-}
-
-void CallGraphNode::AddCallee(const std::shared_ptr<CallGraphNode> &node) {
-	callees_.insert(node);
-
-}
-
-CallGraph::CallGraph(const std::shared_ptr<CallGraphNode> &root)
+CallGraph::CallGraph(CallGraphNode *root)
 	: root_(root)
-	, sentinel_(new CallGraphNode(0))
+	, sentinel_(new CallGraphNode(this, 0))
 {
 	if (!root) {
 		root_ = sentinel_;
 	}
 }
 
-void CallGraph::Write(CallGraphWriter &writer) const {
-	writer.Write(*this);
+CallGraph::~CallGraph() {
+	delete sentinel_;
+	for (auto node : nodes_) {
+		delete node;
+	}
+}
+
+void CallGraph::Write(CallGraphWriter *writer) const {
+	writer->Write(this);
+}
+
+void CallGraph::OwnNode(CallGraphNode *node) {
+	nodes_.insert(node);
+}
+
+bool CallGraphNode::Compare::operator()(const CallGraphNode *n1, const CallGraphNode *n2) const {
+	return n1->info()->function()->address() < n2->info()->function()->address();
+}
+
+CallGraphNode::CallGraphNode(CallGraph *graph, FunctionInfo *info, CallGraphNode *caller) 
+	: graph_(graph)
+	, info_(info)
+	, caller_(caller)
+{
+}
+
+CallGraphNode *CallGraphNode::AddCallee(FunctionInfo *info) {
+	auto node = new CallGraphNode(graph_, info, this);
+	return AddCallee(node);
+}
+
+CallGraphNode *CallGraphNode::AddCallee(CallGraphNode *node) {
+	graph_->OwnNode(node);
+	callees_.insert(node);
+	return node;
 }
 
 } // namespace amx_profiler

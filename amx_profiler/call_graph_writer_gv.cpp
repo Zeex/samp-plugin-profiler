@@ -41,7 +41,7 @@ CallGraphWriterGV::CallGraphWriterGV(std::ostream *stream, const std::string &na
 {
 }
 
-void CallGraphWriterGV::Write(const CallGraph &graph) {
+void CallGraphWriterGV::Write(const CallGraph *graph) {
 	*stream_ << 
 	"digraph \"Call graph of " << name_ << "\" {\n"
 	"	size=\"10,8\"; ratio=fill; rankdir=LR\n"
@@ -49,7 +49,7 @@ void CallGraphWriterGV::Write(const CallGraph &graph) {
 	;
 
 	// Write basic graph (nodes + arrows).
-	graph.Traverse([this](const std::shared_ptr<const CallGraphNode> &node) {
+	graph->Traverse([this](const CallGraphNode *node) {
 		if (!node->callees().empty()) {
 			std::string caller_name;
 			if (node->info()) {
@@ -57,7 +57,7 @@ void CallGraphWriterGV::Write(const CallGraph &graph) {
 			} else {
 				caller_name = top_name_;
 			}
-			for (auto &c : node->callees()) {
+			for (auto c : node->callees()) {
 				*stream_ << "\t\"" << caller_name << "\" -> \"" << c->info()->function()->name() 
 					<< "\" [color=\"";
 				// Arrow color is associated with callee type.
@@ -76,8 +76,8 @@ void CallGraphWriterGV::Write(const CallGraph &graph) {
 
 	// Get maximum execution time.
 	TimeInterval max_time = 0;
-	graph.Traverse([&max_time, &graph](const std::shared_ptr<const CallGraphNode> &node) {
-		if (node != graph.sentinel()) {
+	graph->Traverse([&max_time, &graph](const CallGraphNode *node) {
+		if (node != graph->sentinel()) {
 			auto time = node->info()->GetSelfTime();
 			if (time > max_time) {
 				max_time = time;
@@ -86,8 +86,8 @@ void CallGraphWriterGV::Write(const CallGraph &graph) {
 	});
 
 	// Color nodes depending to draw attention to hot spots.
-	graph.Traverse([&max_time, this, &graph](const std::shared_ptr<const CallGraphNode> &node) {
-		if (node != graph.sentinel()) {
+	graph->Traverse([&max_time, this, &graph](const CallGraphNode *node) {
+		if (node != graph->sentinel()) {
 			auto time = node->info()->GetSelfTime();
 			auto ratio = static_cast<double>(time) / static_cast<double>(max_time);
 			// We encode color in HSB.

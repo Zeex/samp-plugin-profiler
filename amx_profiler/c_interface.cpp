@@ -21,7 +21,6 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <memory>
 #include <unordered_map>
 #include "c_interface.h"
 #include "debug_info.h"
@@ -39,7 +38,7 @@ extern "C" int prof_Init(AMX *amx, AMX_DBG *amxdbg /* = NULL */) {
 	if (amxdbg == nullptr) {
 		::profilers[amx] = new Profiler(amx);
 	} else {
-		::profilers[amx] = new Profiler(amx, DebugInfo(amxdbg));
+		::profilers[amx] = new Profiler(amx, DebugInfo(*amxdbg));
 	}
 	return AMX_ERR_NONE;
 }

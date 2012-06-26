@@ -24,7 +24,6 @@
 #ifndef AMX_PROFILER_FUNCTION_CALL_H
 #define AMX_PROFILER_FUNCTION_CALL_H
 
-#include <memory>
 #include <amx/amx.h>
 #include "function.h"
 #include "performance_counter.h"
@@ -33,34 +32,32 @@ namespace amx_profiler {
 
 class FunctionCall {
 public:
-	FunctionCall(const std::shared_ptr<Function> &function,
-	             cell frame,
-	             const std::shared_ptr<FunctionCall> &parent = 0);
+	FunctionCall(Function *function, cell frame, FunctionCall *parent = 0);
 
-	std::shared_ptr<Function> &function()
+	Function *function()
 		{ return fn_; }
-	const std::shared_ptr<Function> &function() const
+	const Function *function() const
 		{ return fn_; }
 
-	std::shared_ptr<FunctionCall> &parent()
+	FunctionCall *parent()
 		{ return parent_; }
-	const std::shared_ptr<FunctionCall> &parent() const
+	const FunctionCall *parent() const
 		{ return parent_; }
 
 	cell frame() const
 		{ return frame_; }
 
-	PerformanceCounter &timer()
-		{ return timer_; }
-	const PerformanceCounter &timer() const
-		{ return timer_; }
+	PerformanceCounter *timer()
+		{ return &timer_; }
+	const PerformanceCounter *timer() const
+		{ return &timer_; }
 
 	bool IsRecursive() const
 		{ return recursive_; }
 
 private:
-	std::shared_ptr<Function> fn_;
-	std::shared_ptr<FunctionCall> parent_;
+	Function *fn_;
+	FunctionCall *parent_;
 	cell frame_; // frame address on AMX stack
 	PerformanceCounter timer_;
 	bool recursive_; // whether it's a recursive call

@@ -39,23 +39,23 @@ ProfileWriterXml::ProfileWriterXml(std::ostream *stream, const std::string scrip
 {
 }
 
-void ProfileWriterXml::Write(const std::vector<std::shared_ptr<FunctionInfo>> &stats)
+void ProfileWriterXml::Write(const std::vector<FunctionInfo*> statistics)
 {
 	*stream_ <<
 	"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
 	"<profile script=\"" << script_name_ << "\"" << " timestamp=\"" << std::time(0) << "\">";
 
 	TimeInterval time_all = 0;
-	for (auto &info : stats) {
+	for (auto info : statistics) {
 		time_all += info->total_time() - info->child_time(); 
 	}
 
 	TimeInterval total_time_all = 0;
-	for (auto &info : stats) {
+	for (auto info : statistics) {
 		total_time_all += info->total_time(); 
 	}
 
-	for (auto &info : stats) {
+	for (auto info : statistics) {
 		double self_time_sec = static_cast<double>(info->GetSelfTime()) / 1E+9;
 		double self_time_percent = static_cast<double>(info->GetSelfTime() * 100) / time_all;
 		double total_time_sec = static_cast<double>(info->total_time()) / 1E+9;

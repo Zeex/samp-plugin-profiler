@@ -25,39 +25,38 @@
 #define AMX_PROFILER_CALL_STACK_H
 
 #include <list>
-#include <memory>
 #include <amx/amx.h>
+#include "function_call.h"
 
 namespace amx_profiler {
 
 class Function;
-class FunctionCall;
 
 class CallStack {
 public:
-	void Push(const std::shared_ptr<Function> &function, ucell frame);
-	void Push(const std::shared_ptr<FunctionCall> &info);
+	void Push(Function *function, ucell frame);
+	void Push(const FunctionCall &call);
 
-	std::shared_ptr<FunctionCall> Pop();
+	FunctionCall Pop();
 
 	bool IsEmpty() const
 		{ return calls_.empty(); }
 
-	std::shared_ptr<FunctionCall> &GetTop()
-		{ return calls_.back(); }
-	const std::shared_ptr<FunctionCall> &GetTop() const
-		{ return calls_.back(); }
+	FunctionCall *top()
+		{ return &calls_.back(); }
+	const FunctionCall *top() const
+		{ return &calls_.back(); }
 
-	std::shared_ptr<FunctionCall> &GetBottom()
-		{ return calls_.front(); }
-	const std::shared_ptr<FunctionCall> &GetBottom() const
-		{ return calls_.front(); }
+	FunctionCall *bottom()
+		{ return &calls_.front(); }
+	const FunctionCall *bottom() const
+		{ return &calls_.front(); }
 
 	// Iterator support
-	typedef std::list<std::shared_ptr<FunctionCall>>::iterator iterator;
-	typedef std::list<std::shared_ptr<FunctionCall>>::const_iterator const_iterator;
-	typedef std::list<std::shared_ptr<FunctionCall>>::reverse_iterator reverse_iterator;
-	typedef std::list<std::shared_ptr<FunctionCall>>::const_reverse_iterator const_reverse_iterator;
+	typedef std::list<FunctionCall>::iterator iterator;
+	typedef std::list<FunctionCall>::const_iterator const_iterator;
+	typedef std::list<FunctionCall>::reverse_iterator reverse_iterator;
+	typedef std::list<FunctionCall>::const_reverse_iterator const_reverse_iterator;
 
 	iterator begin()
 		{ return calls_.begin(); }
@@ -77,7 +76,7 @@ public:
 		{ return calls_.rend(); }
 	
 private:
-	std::list<std::shared_ptr<FunctionCall>> calls_;
+	std::list<FunctionCall> calls_;
 };
 
 } // namespace amx_profiler

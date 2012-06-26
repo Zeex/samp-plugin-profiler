@@ -24,32 +24,34 @@
 #ifndef AMX_PROFILER_PROFILER_H
 #define AMX_PROFILER_PROFILER_H
 
+#include <set>
 #include <vector>
 #include <unordered_map>
 #include <amx/amx.h>
 #include "call_graph.h"
 #include "call_stack.h"
 #include "debug_info.h"
+#include "function_info.h"
 
 namespace amx_profiler {
 
-class FunctionInfo;
 class ProfileWriter;
 
 class Profiler {
 public:
 	Profiler(AMX *amx, DebugInfo debug_info = DebugInfo(), bool enable_call_graph = true);
+	~Profiler();
 
-	std::vector<std::shared_ptr<FunctionInfo>> GetProfile() const;
+	std::vector<FunctionInfo*> GetProfile() const;
 
 	void WriteProfile(ProfileWriter *writer) const;
 
-	inline const CallStack &call_stack() const {
-		return call_stack_;
+	inline const CallStack *call_stack() const {
+		return &call_stack_;
 	}
 
-	inline const CallGraph &call_graph() const {
-		return call_graph_;
+	inline const CallGraph *call_graph() const {
+		return &call_graph_;
 	}
 
 	int amx_Debug(
@@ -76,10 +78,8 @@ private:
 	CallStack call_stack_;
 	CallGraph call_graph_;
 
-	std::unordered_map<
-		ucell,  // address
-		std::shared_ptr<FunctionInfo>
-	> functions_;
+	std::unordered_map<ucell, FunctionInfo*> address_to_info_;
+	std::set<Function*> functions_;
 };
 
 inline bool IsAmxProfilable(AMX *amx) {

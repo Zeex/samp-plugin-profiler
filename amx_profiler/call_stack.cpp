@@ -27,19 +27,20 @@
 
 namespace amx_profiler {
 
-void CallStack::Push(const std::shared_ptr<Function> &function, ucell frame) {
-	Push(std::shared_ptr<FunctionCall>(new FunctionCall(function, frame, calls_.empty() ? 0 : calls_.back())));
+void CallStack::Push(Function *function, ucell frame) {
+	FunctionCall *parent = calls_.empty() ? 0 : &calls_.back();
+	Push(FunctionCall(function, frame, parent));
 }
 
-void CallStack::Push(const std::shared_ptr<FunctionCall> &call) {
-	call->timer().Start();
+void CallStack::Push(const FunctionCall &call) {
 	calls_.push_back(call);
+	calls_.back().timer()->Start();
 }
 
-std::shared_ptr<FunctionCall> CallStack::Pop() {
-	std::shared_ptr<FunctionCall> top = calls_.back();
+FunctionCall CallStack::Pop() {
+	FunctionCall top = calls_.back();
 	calls_.pop_back();
-	top->timer().Stop();
+	top.timer()->Stop();
 	return top;
 }
 
