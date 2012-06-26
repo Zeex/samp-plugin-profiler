@@ -215,7 +215,7 @@ int AMXAPI dbg_LoadInfo(AMX_DBG *amxdbg, FILE *fp)
   return AMX_ERR_NONE;
 }
 
-int AMXAPI dbg_LookupFile(AMX_DBG *amxdbg, ucell address, const char **filename)
+int AMXAPI dbg_LookupFile(const AMX_DBG *amxdbg, ucell address, const char **filename)
 {
   int index;
 
@@ -233,7 +233,7 @@ int AMXAPI dbg_LookupFile(AMX_DBG *amxdbg, ucell address, const char **filename)
   return AMX_ERR_NONE;
 }
 
-int AMXAPI dbg_LookupLine(AMX_DBG *amxdbg, ucell address, long *line)
+int AMXAPI dbg_LookupLine(const AMX_DBG *amxdbg, ucell address, long *line)
 {
   int index;
 
@@ -251,7 +251,7 @@ int AMXAPI dbg_LookupLine(AMX_DBG *amxdbg, ucell address, long *line)
   return AMX_ERR_NONE;
 }
 
-int AMXAPI dbg_LookupFunction(AMX_DBG *amxdbg, ucell address, const char **funcname)
+int AMXAPI dbg_LookupFunction(const AMX_DBG *amxdbg, ucell address, const char **funcname)
 {
   /* dbg_LookupFunction() finds the function a code address is in. It can be
    * used for stack walking, and for stepping through a function while stepping
@@ -277,7 +277,7 @@ int AMXAPI dbg_LookupFunction(AMX_DBG *amxdbg, ucell address, const char **funcn
   return AMX_ERR_NONE;
 }
 
-int AMXAPI dbg_GetTagName(AMX_DBG *amxdbg, int tag, const char **name)
+int AMXAPI dbg_GetTagName(const AMX_DBG *amxdbg, int tag, const char **name)
 {
   int index;
 
@@ -293,7 +293,7 @@ int AMXAPI dbg_GetTagName(AMX_DBG *amxdbg, int tag, const char **name)
   return AMX_ERR_NONE;
 }
 
-int AMXAPI dbg_GetAutomatonName(AMX_DBG *amxdbg, int automaton, const char **name)
+int AMXAPI dbg_GetAutomatonName(const AMX_DBG *amxdbg, int automaton, const char **name)
 {
   int index;
 
@@ -309,7 +309,7 @@ int AMXAPI dbg_GetAutomatonName(AMX_DBG *amxdbg, int automaton, const char **nam
   return AMX_ERR_NONE;
 }
 
-int AMXAPI dbg_GetStateName(AMX_DBG *amxdbg, int state, const char **name)
+int AMXAPI dbg_GetStateName(const AMX_DBG *amxdbg, int state, const char **name)
 {
   int index;
 
@@ -325,7 +325,7 @@ int AMXAPI dbg_GetStateName(AMX_DBG *amxdbg, int state, const char **name)
   return AMX_ERR_NONE;
 }
 
-int AMXAPI dbg_GetLineAddress(AMX_DBG *amxdbg, long line, const char *filename, ucell *address)
+int AMXAPI dbg_GetLineAddress(const AMX_DBG *amxdbg, long line, const char *filename, ucell *address)
 {
   /* Find a suitable "breakpoint address" close to the indicated line (and in
    * the specified file). The address is moved up to the next "breakable" line
@@ -377,7 +377,7 @@ int AMXAPI dbg_GetLineAddress(AMX_DBG *amxdbg, long line, const char *filename, 
   return AMX_ERR_NONE;
 }
 
-int AMXAPI dbg_GetFunctionAddress(AMX_DBG *amxdbg, const char *funcname, const char *filename, ucell *address)
+int AMXAPI dbg_GetFunctionAddress(const AMX_DBG *amxdbg, const char *funcname, const char *filename, ucell *address)
 {
   /* Find a suitable "breakpoint address" close to the indicated line (and in
    * the specified file). The address is moved up to the first "breakable" line
@@ -426,7 +426,7 @@ int AMXAPI dbg_GetFunctionAddress(AMX_DBG *amxdbg, const char *funcname, const c
   return AMX_ERR_NONE;
 }
 
-int AMXAPI dbg_GetVariable(AMX_DBG *amxdbg, const char *symname, ucell scopeaddr, const AMX_DBG_SYMBOL **sym)
+int AMXAPI dbg_GetVariable(const AMX_DBG *amxdbg, const char *symname, ucell scopeaddr, const AMX_DBG_SYMBOL **sym)
 {
   ucell codestart,codeend;
   int index;
@@ -461,7 +461,7 @@ int AMXAPI dbg_GetVariable(AMX_DBG *amxdbg, const char *symname, ucell scopeaddr
   return (*sym == NULL) ? AMX_ERR_NOTFOUND : AMX_ERR_NONE;
 }
 
-int AMXAPI dbg_GetArrayDim(AMX_DBG *amxdbg, const AMX_DBG_SYMBOL *sym, const AMX_DBG_SYMDIM **symdim)
+int AMXAPI dbg_GetArrayDim(const AMX_DBG *amxdbg, const AMX_DBG_SYMBOL *sym, const AMX_DBG_SYMDIM **symdim)
 {
   /* retrieves a pointer to the array dimensions structures of an array symbol */
   const char *ptr;
