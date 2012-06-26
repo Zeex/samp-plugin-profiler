@@ -77,7 +77,7 @@ int Profiler::amx_Debug(int (AMXAPI *debug)(AMX *amx)) {
 			BeginFunction(address, amx_->frm);
 		}
 	} else if (amx_->frm > prev_frame) {
-		if (call_stack_.top()->function()->type() == "normal") {
+		if (typeid(*call_stack_.top()->function()) == typeid(NormalFunction)) {
 			EndFunction();
 		}
 	}
