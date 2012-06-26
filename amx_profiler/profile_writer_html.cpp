@@ -21,14 +21,12 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include <ctime>
 #include <cstdio>
 #include <iomanip>
 #include <iostream>
 #include <string>
 #include <vector>
-#ifdef HAVE_BOOST_DATE_TIME
-	#include <boost/date_time.hpp>
-#endif
 #include "function.h"
 #include "function_info.h"
 #include "profile_writer_html.h"
@@ -101,6 +99,8 @@ void ProfileWriterHtml::Write(const std::vector<std::shared_ptr<FunctionInfo>> &
 	"	</table>\n"
 	;
 
+	std::time_t now = std::time(0);
+
 	*stream_ <<
 	"	<script type=\"text/javascript\"\n"
 	"		src=\"http://code.jquery.com/jquery-latest.min.js\"></script>\n"
@@ -111,12 +111,10 @@ void ProfileWriterHtml::Write(const std::vector<std::shared_ptr<FunctionInfo>> &
 	"		$(\"#stats\").tablesorter();\n"
 	"	});\n"
 	"	</script>\n"
-	#ifdef HAVE_BOOST_DATE_TIME
 	"	<br/>\n"
 	"	<footer>\n"
-	"		Generated on " << boost::posix_time::second_clock::local_time() << "\n"
+	"		Generated on " << ctime(&now) <<
 	"	</footer>\n"
-	#endif
 	"</body>\n"
 	"</html>\n"
 	;

@@ -21,13 +21,11 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include <ctime>
 #include <iomanip>
 #include <iostream>
 #include <string>
 #include <vector>
-#ifdef HAVE_BOOST_DATE_TIME
-	#include <boost/date_time.hpp>
-#endif
 #include "function.h"
 #include "function_info.h"
 #include "performance_counter.h"
@@ -45,12 +43,7 @@ void ProfileWriterXml::Write(const std::vector<std::shared_ptr<FunctionInfo>> &s
 {
 	*stream_ <<
 	"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-	"<profile script=\"" << script_name_ << "\""
-	#ifdef HAVE_BOOST_DATE_TIME
-		<< "date=\"" << boost::posix_time::second_clock::local_time() << "\">";
-	#else
-		<< ">";
-	#endif
+	"<profile script=\"" << script_name_ << "\"" << " timestamp=\"" << std::time(0) << "\">";
 
 	TimeInterval time_all = 0;
 	for (auto &info : stats) {

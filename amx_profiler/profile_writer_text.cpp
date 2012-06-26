@@ -21,13 +21,11 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include <ctime>
 #include <iomanip>
 #include <iostream>
 #include <string>
 #include <vector>
-#ifdef HAVE_BOOST_DATE_TIME
-	#include <boost/date_time.hpp>
-#endif
 #include "function.h"
 #include "function_info.h"
 #include "performance_counter.h"
@@ -56,10 +54,10 @@ ProfileWriterText::ProfileWriterText(std::ostream *stream, const std::string scr
 
 void ProfileWriterText::Write(const std::vector<std::shared_ptr<FunctionInfo>> &stats)
 {
-	*stream_ << "Profile of '" << script_name_ << "'";
-	#ifdef HAVE_BOOST_DATE_TIME
-		*stream_ << " generated on " << boost::posix_time::second_clock::local_time() << "\n" << std::endl;
-	#endif
+	std::time_t now = std::time(0);
+
+	*stream_ << "Profile of '" << script_name_ << "'" << 
+		" generated on " << ctime(&now) << std::endl;
 
 	auto DoHLine = [&]() {
 		char fillch = stream_->fill();

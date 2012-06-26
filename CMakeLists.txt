@@ -74,7 +74,7 @@ source_group(amx REGULAR_EXPRESSION ${CMAKE_CURRENT_SOURCE_DIR}/amx/[^/\\]+\\..*
 source_group(amx_profiler REGULAR_EXPRESSION ${CMAKE_CURRENT_SOURCE_DIR}/amx_profiler/[^/\\]+\\..*)
 source_group(plugin REGULAR_EXPRESSION ${CMAKE_CURRENT_SOURCE_DIR}/plugin/[^/\\]+\\..*)
 
-find_package(Boost 1.47 COMPONENTS chrono date_time system)
+find_package(Boost 1.47 COMPONENTS chrono system)
 if(Boost_FOUND)
 	add_definitions(-DHAVE_BOOST=${Boost_VERSION})
 	# Disable Boost auto-link feature 
@@ -83,9 +83,6 @@ if(Boost_FOUND)
 	add_definitions(-DBOOST_LCAST_NO_WCHAR_T)
 	if(Boost_CHRONO_FOUND)
 		add_definitions(-DHAVE_BOOST_CHRONO)
-	endif()
-	if(Boost_DATE_TIME_FOUND)
-		add_definitions(-DHAVE_BOOST_DATE_TIME)
 	endif()
 	include_directories(${Boost_INCLUDE_DIRS})
 	if(CMAKE_COMPILER_IS_GNUCXX)
