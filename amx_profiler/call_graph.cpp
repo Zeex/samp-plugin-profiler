@@ -24,7 +24,7 @@
 #include "call_graph.h"
 #include "call_graph_writer.h"
 #include "function.h"
-#include "function_info.h"
+#include "function_statistics.h"
 #include "time_interval.h"
 
 namespace amx_profiler {
@@ -54,18 +54,18 @@ void CallGraph::OwnNode(CallGraphNode *node) {
 }
 
 bool CallGraphNode::Compare::operator()(const CallGraphNode *n1, const CallGraphNode *n2) const {
-	return n1->info()->function()->address() < n2->info()->function()->address();
+	return n1->stats()->function()->address() < n2->stats()->function()->address();
 }
 
-CallGraphNode::CallGraphNode(CallGraph *graph, FunctionInfo *info, CallGraphNode *caller) 
+CallGraphNode::CallGraphNode(CallGraph *graph, FunctionStatistics *stats, CallGraphNode *caller) 
 	: graph_(graph)
-	, info_(info)
+	, stats_(stats)
 	, caller_(caller)
 {
 }
 
-CallGraphNode *CallGraphNode::AddCallee(FunctionInfo *info) {
-	auto node = new CallGraphNode(graph_, info, this);
+CallGraphNode *CallGraphNode::AddCallee(FunctionStatistics *stats) {
+	auto node = new CallGraphNode(graph_, stats, this);
 	return AddCallee(node);
 }
 

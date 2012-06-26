@@ -24,7 +24,7 @@
 #include <cassert>
 #include "function.h"
 #include "function_call.h"
-#include "function_info.h"
+#include "function_statistics.h"
 #include "native_function.h"
 #include "normal_function.h"
 #include "profile_writer.h"
@@ -41,18 +41,18 @@ Profiler::Profiler(AMX *amx, DebugInfo debug_info, bool enable_call_graph)
 }
 
 Profiler::~Profiler() {
-	for (auto address_info : address_to_info_) {
-		delete address_info.second;
+	for (auto address_stats : address_to_stats_) {
+		delete address_stats.second;
 	}
 	for (auto function : functions_) {
 		delete function;
 	}
 }
 
-std::vector<FunctionInfo*> Profiler::GetProfile() const {
-	std::vector<FunctionInfo*> profile;
-	for (auto address_info : address_to_info_) {
-		profile.push_back(address_info.second);
+std::vector<FunctionStatistics*> Profiler::GetProfile() const {
+	std::vector<FunctionStatistics*> profile;
+	for (auto address_stats : address_to_stats_) {
+		profile.push_back(address_stats.second);
 	}
 	return profile;
 }
@@ -69,10 +69,10 @@ int Profiler::amx_Debug(int (AMXAPI *debug)(AMX *amx)) {
 	if (amx_->frm < prevFrame) {
 		if (call_stack_.top()->frame() != amx_->frm) {
 			auto address = static_cast<ucell>(amx_->cip) - 2*sizeof(cell);
-			if (address_to_info_.find(address) == address_to_info_.end()) {
+			if (address_to_stats_.find(address) == address_to_stats_.end()) {
 				auto fn = new NormalFunction(address, debug_info_);
 				functions_.insert(fn);
-				address_to_info_.insert(std::make_pair(address, new FunctionInfo(fn)));
+				address_to_stats_.insert(std::make_pair(address, new FunctionStatistics(fn)));
 			}
 			BeginFunction(address, amx_->frm);
 		}
@@ -93,10 +93,10 @@ int Profiler::amx_Callback(cell index, cell *result, cell *params,
 	}
 	if (index >= 0) {
 		auto address = GetNativeAddress(index);
-		if (address_to_info_.find(address) == address_to_info_.end()) {
+		if (address_to_stats_.find(address) == address_to_stats_.end()) {
 			auto fn = new NativeFunction(amx_, index);
 			functions_.insert(fn);
-			address_to_info_.insert(std::make_pair(address, new FunctionInfo(fn)));
+			address_to_stats_.insert(std::make_pair(address, new FunctionStatistics(fn)));
 		}
 		BeginFunction(address, amx_->frm);
 		int error = callback(amx_, index, result, params);
@@ -114,10 +114,10 @@ int Profiler::amx_Exec(cell *retval, int index,
 	}
 	if (index >= 0 || index == AMX_EXEC_MAIN) {
 		auto address = GetPublicAddress(index);
-		if (address_to_info_.find(address) == address_to_info_.end()) {
+		if (address_to_stats_.find(address) == address_to_stats_.end()) {
 			auto fn = new PublicFunction(amx_, index);
 			functions_.insert(fn);
-			address_to_info_.insert(std::make_pair(address, new FunctionInfo(fn)));
+			address_to_stats_.insert(std::make_pair(address, new FunctionStatistics(fn)));
 		}
 		BeginFunction(address, amx_->stk - 3*sizeof(cell));
 		int error = exec(amx_, retval, index);
@@ -152,25 +152,25 @@ ucell Profiler::GetPublicAddress(cell index) {
 
 void Profiler::BeginFunction(ucell address, ucell frm) {
 	assert(address != 0);
-	auto info_it = address_to_info_.find(address);
-	assert(info_it != address_to_info_.end());
-	auto info = info_it->second;
-	info->num_calls()++;	
-	call_stack_.Push(info->function(), frm);
+	auto info_it = address_to_stats_.find(address);
+	assert(info_it != address_to_stats_.end());
+	auto stats = info_it->second;
+	stats->num_calls()++;	
+	call_stack_.Push(stats->function(), frm);
 	if (call_graph_enabled_) {
-		call_graph_.root()->AddCallee(info)->MakeRoot();
+		call_graph_.root()->AddCallee(stats)->MakeRoot();
 	}
 }
 
 // EndFunction() is called when Profiler leaves a function.
 void Profiler::EndFunction(ucell address) {
 	assert(!call_stack_.IsEmpty());
-	assert(address == 0 || address_to_info_.find(address) != address_to_info_.end()
+	assert(address == 0 || address_to_stats_.find(address) != address_to_stats_.end()
 			&& "EndFunction() called with invalid address");
 	while (true) {
 		auto old_top = call_stack_.Pop();
-		auto old_top_it = address_to_info_.find(old_top.function()->address());
-		assert(old_top_it != address_to_info_.end());
+		auto old_top_it = address_to_stats_.find(old_top.function()->address());
+		assert(old_top_it != address_to_stats_.end());
 		if (old_top.IsRecursive()) {
 			old_top_it->second->child_time() -= old_top.timer()->child_time<Nanoseconds>();
 		} else {
@@ -178,8 +178,8 @@ void Profiler::EndFunction(ucell address) {
 		}
 		if (!call_stack_.IsEmpty()) {
 			auto top = call_stack_.top();
-			auto top_it = address_to_info_.find(top->function()->address());
-			assert(top_it != address_to_info_.end());
+			auto top_it = address_to_stats_.find(top->function()->address());
+			assert(top_it != address_to_stats_.end());
 			top_it->second->child_time() += old_top.timer()->total_time<Nanoseconds>();
 		}
 		if (call_graph_enabled_) {

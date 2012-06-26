@@ -299,14 +299,14 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 		::old_debug_hooks[amx] = amx->debug;
 		amx_SetDebugHook(amx, hooks::amx_Debug);
 
-		// Load debug info if available
+		// Load debug stats if available
 		DebugInfo debug_info;
 		if (HasDebugInfo(amx)) {
 			debug_info.Load(filename);
 			if (debug_info.IsLoaded()) {
-				logprintf("[profiler] Loaded debug info from '%s'", filename.c_str());
+				logprintf("[profiler] Loaded debug stats from '%s'", filename.c_str());
 			} else {
-				logprintf("[profiler] Error loading debug info from '%s'", filename.c_str());
+				logprintf("[profiler] Error loading debug stats from '%s'", filename.c_str());
 			}
 		}
 

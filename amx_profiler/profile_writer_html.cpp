@@ -28,7 +28,7 @@
 #include <string>
 #include <vector>
 #include "function.h"
-#include "function_info.h"
+#include "function_statistics.h"
 #include "profile_writer_html.h"
 #include "performance_counter.h"
 
@@ -40,7 +40,7 @@ ProfileWriterHtml::ProfileWriterHtml(std::ostream *stream, const std::string scr
 {
 }
 
-void ProfileWriterHtml::Write(const std::vector<FunctionInfo*> statistics)
+void ProfileWriterHtml::Write(const std::vector<FunctionStatistics*> profile)
 {
 	*stream_ <<
 	"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\n"
@@ -67,25 +67,25 @@ void ProfileWriterHtml::Write(const std::vector<FunctionInfo*> statistics)
 	;
 
 	TimeInterval time_all = 0;
-	for (auto info : statistics) {
-		time_all += info->total_time() - info->child_time(); 
+	for (auto stats : profile) {
+		time_all += stats->total_time() - stats->child_time(); 
 	}
 
 	TimeInterval total_time_all = 0;
-	for (auto info : statistics) {
-		total_time_all += info->total_time(); 
+	for (auto stats : profile) {
+		total_time_all += stats->total_time(); 
 	}
 
-	for (auto info : statistics) {
-		double self_time_sec = static_cast<double>(info->GetSelfTime()) / 1E+9;
-		double self_time_percent = static_cast<double>(info->GetSelfTime() * 100) / time_all;
-		double total_time_sec = static_cast<double>(info->total_time()) / 1E+9;
-		double total_time_percent =  static_cast<double>(info->total_time() * 100) / total_time_all;
+	for (auto stats : profile) {
+		double self_time_sec = static_cast<double>(stats->GetSelfTime()) / 1E+9;
+		double self_time_percent = static_cast<double>(stats->GetSelfTime() * 100) / time_all;
+		double total_time_sec = static_cast<double>(stats->total_time()) / 1E+9;
+		double total_time_percent =  static_cast<double>(stats->total_time() * 100) / total_time_all;
 		*stream_
 		<< "		<tr>\n"
-		<< "			<td>" << info->function()->type() << "</td>\n"
-		<< "			<td>" << info->function()->name() << "</td>\n"
-		<< "			<td>" << info->num_calls() << "</td>\n"
+		<< "			<td>" << stats->function()->type() << "</td>\n"
+		<< "			<td>" << stats->function()->name() << "</td>\n"
+		<< "			<td>" << stats->num_calls() << "</td>\n"
 		<< "			<td>" << std::fixed << std::setprecision(2) << self_time_percent << "%</td>\n"
 		<< "			<td>" << std::fixed << std::setprecision(3) << self_time_sec << "s</td>\n"
 		<< "			<td>" << std::fixed << std::setprecision(2) << total_time_percent << "%</td>\n"

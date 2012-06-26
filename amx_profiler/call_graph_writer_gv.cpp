@@ -29,7 +29,7 @@
 #include "call_graph.h"
 #include "call_graph_writer_gv.h"
 #include "function.h"
-#include "function_info.h"
+#include "function_statistics.h"
 #include "time_interval.h"
 
 namespace amx_profiler {
@@ -52,16 +52,16 @@ void CallGraphWriterGV::Write(const CallGraph *graph) {
 	graph->Traverse([this](const CallGraphNode *node) {
 		if (!node->callees().empty()) {
 			std::string caller_name;
-			if (node->info()) {
-				caller_name = node->info()->function()->name();
+			if (node->stats()) {
+				caller_name = node->stats()->function()->name();
 			} else {
 				caller_name = top_name_;
 			}
 			for (auto c : node->callees()) {
-				*stream_ << "\t\"" << caller_name << "\" -> \"" << c->info()->function()->name() 
+				*stream_ << "\t\"" << caller_name << "\" -> \"" << c->stats()->function()->name() 
 					<< "\" [color=\"";
 				// Arrow color is associated with callee type.
-				std::string fn_type = c->info()->function()->type();
+				std::string fn_type = c->stats()->function()->type();
 				if (fn_type == "public") {
 					*stream_ << "#4B4E99";
 				} else if (fn_type == "native") {
@@ -78,7 +78,7 @@ void CallGraphWriterGV::Write(const CallGraph *graph) {
 	TimeInterval max_time = 0;
 	graph->Traverse([&max_time, &graph](const CallGraphNode *node) {
 		if (node != graph->sentinel()) {
-			auto time = node->info()->GetSelfTime();
+			auto time = node->stats()->GetSelfTime();
 			if (time > max_time) {
 				max_time = time;
 			}
@@ -88,7 +88,7 @@ void CallGraphWriterGV::Write(const CallGraph *graph) {
 	// Color nodes depending to draw attention to hot spots.
 	graph->Traverse([&max_time, this, &graph](const CallGraphNode *node) {
 		if (node != graph->sentinel()) {
-			auto time = node->info()->GetSelfTime();
+			auto time = node->stats()->GetSelfTime();
 			auto ratio = static_cast<double>(time) / static_cast<double>(max_time);
 			// We encode color in HSB.
 			auto hsb = std::make_tuple(
@@ -96,13 +96,13 @@ void CallGraphWriterGV::Write(const CallGraph *graph) {
 				(ratio * 0.9) + 0.1, // saturation
 				1.0                  // brightness
 			);
-			*stream_ << "\t\"" << node->info()->function()->name() << "\" [color=\""
+			*stream_ << "\t\"" << node->stats()->function()->name() << "\" [color=\""
 				<< std::get<0>(hsb) << ", "
 				<< std::get<1>(hsb) << ", "
 				<< std::get<2>(hsb) << "\""
 			// Choose different shape depending on funciton type.
 			<< ", shape=";
-			std::string fn_type = node->info()->function()->type();
+			std::string fn_type = node->stats()->function()->type();
 			if (fn_type == "public") {
 				*stream_ << "octagon";
 			} else if (fn_type == "native") {

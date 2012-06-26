@@ -28,11 +28,11 @@
 
 namespace amx_profiler {
 
-class FunctionInfo;
+class FunctionStatistics;
 
 class ProfileWriter {
 public:
-	virtual void Write(const std::vector<FunctionInfo*> statistics) = 0;
+	virtual void Write(const std::vector<FunctionStatistics*> profile) = 0;
 };
 
 } // namespace amx_profiler

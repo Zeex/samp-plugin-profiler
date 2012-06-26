@@ -35,7 +35,7 @@ class ProfileWriterText : public ProfileWriter {
 public:
 	ProfileWriterText(std::ostream *stream, const std::string script_name);
 
-	virtual void Write(const std::vector<FunctionInfo*> statistics);
+	virtual void Write(const std::vector<FunctionStatistics*> profile);
 
 private:
 	std::ostream *stream_;

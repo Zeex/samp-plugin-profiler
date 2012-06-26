@@ -328,7 +328,7 @@ enum {
 };
 
 /*      AMX_FLAG_CHAR16   0x01     no longer used */
-#define AMX_FLAG_DEBUG    0x02  /* symbolic info. available */
+#define AMX_FLAG_DEBUG    0x02  /* symbolic stats. available */
 #define AMX_FLAG_COMPACT  0x04  /* compact encoding */
 #define AMX_FLAG_BYTEOPC  0x08  /* opcode is a byte (not a cell) */
 #define AMX_FLAG_NOCHECKS 0x10  /* no array bounds checking; no STMT opcode */

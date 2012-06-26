@@ -27,7 +27,7 @@
 #include <string>
 #include <vector>
 #include "function.h"
-#include "function_info.h"
+#include "function_statistics.h"
 #include "performance_counter.h"
 #include "profile_writer_xml.h"
 
@@ -39,35 +39,35 @@ ProfileWriterXml::ProfileWriterXml(std::ostream *stream, const std::string scrip
 {
 }
 
-void ProfileWriterXml::Write(const std::vector<FunctionInfo*> statistics)
+void ProfileWriterXml::Write(const std::vector<FunctionStatistics*> profile)
 {
 	*stream_ <<
 	"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
 	"<profile script=\"" << script_name_ << "\"" << " timestamp=\"" << std::time(0) << "\">";
 
 	TimeInterval time_all = 0;
-	for (auto info : statistics) {
-		time_all += info->total_time() - info->child_time(); 
+	for (auto stats : profile) {
+		time_all += stats->total_time() - stats->child_time(); 
 	}
 
 	TimeInterval total_time_all = 0;
-	for (auto info : statistics) {
-		total_time_all += info->total_time(); 
+	for (auto stats : profile) {
+		total_time_all += stats->total_time(); 
 	}
 
-	for (auto info : statistics) {
-		double self_time_sec = static_cast<double>(info->GetSelfTime()) / 1E+9;
-		double self_time_percent = static_cast<double>(info->GetSelfTime() * 100) / time_all;
-		double total_time_sec = static_cast<double>(info->total_time()) / 1E+9;
-		double total_time_percent =  static_cast<double>(info->total_time() * 100) / total_time_all;
+	for (auto stats : profile) {
+		double self_time_sec = static_cast<double>(stats->GetSelfTime()) / 1E+9;
+		double self_time_percent = static_cast<double>(stats->GetSelfTime() * 100) / time_all;
+		double total_time_sec = static_cast<double>(stats->total_time()) / 1E+9;
+		double total_time_percent =  static_cast<double>(stats->total_time() * 100) / total_time_all;
 		*stream_ << "\t<function"
-			<< " type=\"" << info->function()->type() << "\""
-			<< " name=\"" << info->function()->name() << "\""
-			<< " calls=\"" << info->num_calls() << "\""
-			<< " self_time=\"" << info->GetSelfTime() << "\""
+			<< " type=\"" << stats->function()->type() << "\""
+			<< " name=\"" << stats->function()->name() << "\""
+			<< " calls=\"" << stats->num_calls() << "\""
+			<< " self_time=\"" << stats->GetSelfTime() << "\""
 			<< " self_time_sec=\"" << self_time_sec << "\""
 			<< " self_time_percent=\"" <<  std::fixed << std::setprecision(2) << self_time_percent << "\""
-			<< " total_time=\"" << info->total_time() << "\""
+			<< " total_time=\"" << stats->total_time() << "\""
 			<< " total_time_sec=\"" << total_time_sec << "\""
 			<< " total_time_percent=\"" <<  std::fixed << std::setprecision(2) << total_time_percent << "\""
 		<< "/>\n";

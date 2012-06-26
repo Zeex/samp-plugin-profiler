@@ -27,7 +27,7 @@
 #include <string>
 #include <vector>
 #include "function.h"
-#include "function_info.h"
+#include "function_statistics.h"
 #include "performance_counter.h"
 #include "profile_writer_text.h"
 
@@ -52,7 +52,7 @@ ProfileWriterText::ProfileWriterText(std::ostream *stream, const std::string scr
 {
 }
 
-void ProfileWriterText::Write(const std::vector<FunctionInfo*> statistics)
+void ProfileWriterText::Write(const std::vector<FunctionStatistics*> profile)
 {
 	std::time_t now = std::time(0);
 
@@ -78,24 +78,24 @@ void ProfileWriterText::Write(const std::vector<FunctionInfo*> statistics)
 	DoHLine();
 
 	TimeInterval time_all = 0;
-	for (auto info : statistics) {
-		time_all += info->total_time() - info->child_time(); 
+	for (auto stats : profile) {
+		time_all += stats->total_time() - stats->child_time(); 
 	}
 
 	TimeInterval total_time_all = 0;
-	for (auto info : statistics) {
-		total_time_all += info->total_time(); 
+	for (auto stats : profile) {
+		total_time_all += stats->total_time(); 
 	}
 
-	for (auto info : statistics) {
-		double self_time_sec = static_cast<double>(info->GetSelfTime()) / 1E+9;
-		double self_time_percent = static_cast<double>(info->GetSelfTime() * 100) / time_all;
-		double total_time_sec = static_cast<double>(info->total_time()) / 1E+9;
-		double total_time_percent =  static_cast<double>(info->total_time() * 100) / total_time_all;
+	for (auto stats : profile) {
+		double self_time_sec = static_cast<double>(stats->GetSelfTime()) / 1E+9;
+		double self_time_percent = static_cast<double>(stats->GetSelfTime() * 100) / time_all;
+		double total_time_sec = static_cast<double>(stats->total_time()) / 1E+9;
+		double total_time_percent =  static_cast<double>(stats->total_time() * 100) / total_time_all;
 		*stream_
-			<< "| " << std::setw(kTypeWidth) << info->function()->type()
-			<< "| " << std::setw(kNameWidth) << info->function()->name()
-			<< "| " << std::setw(kCallsWidth) << info->num_calls()
+			<< "| " << std::setw(kTypeWidth) << stats->function()->type()
+			<< "| " << std::setw(kNameWidth) << stats->function()->name()
+			<< "| " << std::setw(kCallsWidth) << stats->num_calls()
 			<< "| " << std::setw(kSelfTimePercentWidth) << std::fixed << std::setprecision(2) << self_time_percent
 			<< "| " << std::setw(kSelfTimeSecWidth) << std::fixed << std::setprecision(3) << self_time_sec
 			<< "| " << std::setw(kTotalTimePercentWidth) << std::fixed << std::setprecision(2) << total_time_percent

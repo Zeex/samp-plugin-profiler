@@ -36,8 +36,8 @@ add_library(profiler MODULE
 	amx_profiler/function.h
 	amx_profiler/function_call.cpp
 	amx_profiler/function_call.h
-	amx_profiler/function_info.cpp
-	amx_profiler/function_info.h
+	amx_profiler/function_statistics.cpp
+	amx_profiler/function_statistics.h
 	amx_profiler/profile_writer_html.cpp
 	amx_profiler/profile_writer_html.h
 	amx_profiler/native_function.cpp

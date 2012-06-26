@@ -31,7 +31,7 @@ namespace amx_profiler {
 
 class CallGraphNode;
 class CallGraphWriter;
-class FunctionInfo;
+class FunctionStatistics;
 
 class CallGraph {
 	friend class CallGraphNode;
@@ -75,7 +75,7 @@ public:
 		bool operator()(const CallGraphNode *n1, const CallGraphNode *n2) const;
 	};
 
-	CallGraphNode(CallGraph *graph, FunctionInfo *info, CallGraphNode *caller = 0);
+	CallGraphNode(CallGraph *graph, FunctionStatistics *stats, CallGraphNode *caller = 0);
 
 	void MakeRoot() {
 		graph_->set_root(this);
@@ -85,8 +85,8 @@ public:
 		return graph_;
 	}
 
-	inline FunctionInfo *info() const {
-		return info_;
+	inline FunctionStatistics *stats() const {
+		return stats_;
 	}
 
 	inline CallGraphNode *caller() const {
@@ -97,7 +97,7 @@ public:
 		return callees_;
 	}
 
-	CallGraphNode *AddCallee(FunctionInfo *info);
+	CallGraphNode *AddCallee(FunctionStatistics *stats);
 	CallGraphNode *AddCallee(CallGraphNode *node);
 
 	// Recursive parent-to-child traversing.
@@ -111,7 +111,7 @@ public:
 
 private:
 	CallGraph *graph_;
-	FunctionInfo *info_;
+	FunctionStatistics *stats_;
 	CallGraphNode *caller_;
 	std::set<CallGraphNode*, Compare> callees_;
 };

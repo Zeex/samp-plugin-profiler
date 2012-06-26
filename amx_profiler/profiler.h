@@ -31,7 +31,7 @@
 #include "call_graph.h"
 #include "call_stack.h"
 #include "debug_info.h"
-#include "function_info.h"
+#include "function_statistics.h"
 
 namespace amx_profiler {
 
@@ -42,8 +42,7 @@ public:
 	Profiler(AMX *amx, DebugInfo debug_info = DebugInfo(), bool enable_call_graph = true);
 	~Profiler();
 
-	std::vector<FunctionInfo*> GetProfile() const;
-
+	std::vector<FunctionStatistics*> GetProfile() const;
 	void WriteProfile(ProfileWriter *writer) const;
 
 	inline const CallStack *call_stack() const {
@@ -78,7 +77,7 @@ private:
 	CallStack call_stack_;
 	CallGraph call_graph_;
 
-	std::unordered_map<ucell, FunctionInfo*> address_to_info_;
+	std::unordered_map<ucell, FunctionStatistics*> address_to_stats_;
 	std::set<Function*> functions_;
 };
 

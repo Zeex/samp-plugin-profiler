@@ -21,16 +21,51 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "function_info.h"
+#ifndef AMX_PROFILER_FUNCTION_INFO_H
+#define AMX_PROFILER_FUNCTION_INFO_H
+
+#include "time_interval.h"
 
 namespace amx_profiler {
 
-FunctionInfo::FunctionInfo(Function *func)
-	: func_(func)
-	, num_calls_(0)
-	, total_time_(0)
-	, child_time_(0)
-{
-}
+class Function;
+
+// Various runtime information about a function.
+class FunctionStatistics {
+public:
+	explicit FunctionStatistics(Function *fn);
+
+	Function *function()
+		{ return fn_; }
+	const Function *function() const
+		{ return fn_; }
+
+	long &num_calls()
+		{ return num_calls_; }
+	const long &num_calls() const
+		{ return num_calls_; }
+
+	TimeInterval &total_time()
+		{ return total_time_; }
+	const TimeInterval &total_time() const
+		{ return total_time_; }
+
+	TimeInterval &child_time()
+		{ return child_time_; }
+	const TimeInterval &child_time() const
+		{ return child_time_; }
+
+	TimeInterval GetSelfTime() const 
+		{ return total_time() - child_time(); }
+
+private:
+	Function *fn_;
+
+	long num_calls_;
+	TimeInterval total_time_;
+	TimeInterval child_time_;
+};
 
 } // namespace amx_profiler
+
+#endif // !AMX_PROFILER_FUNCTION_INFO_H

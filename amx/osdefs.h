@@ -4,7 +4,7 @@
  * __32BIT__    set when compiling in 32-bit "flat" mode (DOS or Windows)
  *
  * Copyright 1998-2005, ITB CompuPhase, The Netherlands.
- * info@compuphase.com.
+ * stats@compuphase.com.
  */
 
 #ifndef _OSDEFS_H
