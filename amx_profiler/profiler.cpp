@@ -94,14 +94,18 @@ int Profiler::amx_Callback(cell index, cell *result, cell *params,
 	}
 	if (index >= 0) {
 		auto address = GetNativeAddress(index);
-		if (address_to_stats_.find(address) == address_to_stats_.end()) {
-			auto fn = new NativeFunction(amx_, index);
-			functions_.insert(fn);
-			address_to_stats_.insert(std::make_pair(address, new FunctionStatistics(fn)));
+		if (address != 0) {
+			if (address_to_stats_.find(address) == address_to_stats_.end()) {
+				auto fn = new NativeFunction(amx_, index);
+				functions_.insert(fn);
+				address_to_stats_.insert(std::make_pair(address, new FunctionStatistics(fn)));
+			}
+			BeginFunction(address, amx_->frm);
 		}
-		BeginFunction(address, amx_->frm);
 		int error = callback(amx_, index, result, params);
-		EndFunction(address);
+		if (address != 0) {
+			EndFunction(address);
+		}
 		return error;
 	} else {
 		return callback(amx_, index, result, params);
@@ -115,14 +119,18 @@ int Profiler::amx_Exec(cell *retval, int index,
 	}
 	if (index >= 0 || index == AMX_EXEC_MAIN) {
 		auto address = GetPublicAddress(index);
-		if (address_to_stats_.find(address) == address_to_stats_.end()) {
-			auto fn = new PublicFunction(amx_, index);
-			functions_.insert(fn);
-			address_to_stats_.insert(std::make_pair(address, new FunctionStatistics(fn)));
+		if (address != 0) {
+			if (address_to_stats_.find(address) == address_to_stats_.end()) {
+				auto fn = new PublicFunction(amx_, index);
+				functions_.insert(fn);
+				address_to_stats_.insert(std::make_pair(address, new FunctionStatistics(fn)));
+			}
+			BeginFunction(address, amx_->stk - 3*sizeof(cell));
 		}
-		BeginFunction(address, amx_->stk - 3*sizeof(cell));
 		int error = exec(amx_, retval, index);
-		EndFunction(address);
+		if (address != 0) {
+			EndFunction(address);
+		}
 		return error;
 	} else {
 		return exec(amx_, retval, index);
@@ -135,7 +143,6 @@ ucell Profiler::GetNativeAddress(cell index) {
 		auto natives = reinterpret_cast<AMX_FUNCSTUBNT*>(amx_->base + hdr->natives);
 		return natives[index].address;
 	}
-	assert(0 && "Invalid native index");
 	return 0;
 }
 
@@ -147,7 +154,6 @@ ucell Profiler::GetPublicAddress(cell index) {
 	} else if (index == AMX_EXEC_MAIN) {
 		return hdr->cip;
 	}
-	assert(0 && "Invalid public index");
 	return 0;
 }
 
