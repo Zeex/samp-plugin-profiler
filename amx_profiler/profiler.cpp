@@ -62,11 +62,11 @@ void Profiler::WriteProfile(ProfileWriter *writer) const {
 }
 
 int Profiler::amx_Debug(int (AMXAPI *debug)(AMX *amx)) {
-	cell prevFrame = amx_->stp;
+	cell prev_frame = amx_->stp;
 	if (!call_stack_.IsEmpty()) {
-		prevFrame = call_stack_.top()->frame();
+		prev_frame = call_stack_.top()->frame();
 	}
-	if (amx_->frm < prevFrame) {
+	if (amx_->frm < prev_frame) {
 		if (call_stack_.top()->frame() != amx_->frm) {
 			auto address = static_cast<ucell>(amx_->cip) - 2*sizeof(cell);
 			if (address_to_stats_.find(address) == address_to_stats_.end()) {
@@ -76,9 +76,10 @@ int Profiler::amx_Debug(int (AMXAPI *debug)(AMX *amx)) {
 			}
 			BeginFunction(address, amx_->frm);
 		}
-	} else if (amx_->frm > prevFrame) {
-		assert(call_stack_.top()->function()->type() == "normal");
-		EndFunction();
+	} else if (amx_->frm > prev_frame) {
+		if (call_stack_.top()->function()->type() == "normal") {
+			EndFunction();
+		}
 	}
 	if (debug != 0) {
 		return debug(amx_);
@@ -162,11 +163,9 @@ void Profiler::BeginFunction(ucell address, ucell frm) {
 	}
 }
 
-// EndFunction() is called when Profiler leaves a function.
 void Profiler::EndFunction(ucell address) {
 	assert(!call_stack_.IsEmpty());
-	assert(address == 0 || address_to_stats_.find(address) != address_to_stats_.end()
-			&& "EndFunction() called with invalid address");
+	assert(address == 0 || address_to_stats_.find(address) != address_to_stats_.end());
 	while (true) {
 		auto old_top = call_stack_.Pop();
 		auto old_top_it = address_to_stats_.find(old_top.function()->address());
