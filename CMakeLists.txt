@@ -11,7 +11,7 @@ include(GetGitRevisionDescription)
 include_directories(.)
 include_directories(amx)
 
-add_library(profiler MODULE
+set(SOURCES
 	amx/amx.h
 	amx/amxaux.c
 	amx/amxaux.h
@@ -62,13 +62,23 @@ add_library(profiler MODULE
 	plugin/amxplugin.cpp
 	plugin/config_reader.cpp
 	plugin/config_reader.h
-	plugin/jump-x86.cpp
-	plugin/jump-x86.h
+	plugin/hook.cpp
+	plugin/hook.h
 	plugin/plugin.h
 	plugin/plugincommon.h
 	plugin/plugin.cpp
 	plugin/plugin.rc
 )
+
+if(WIN32)
+	list(APPEND SOURCES plugin/hook_win32.cpp)
+elseif(UNIX)
+	list(APPEND SOURCES plugin/hook_unix.cpp)
+else()
+	message(FATAL_ERROR Unsupported operating system)
+endif()
+
+add_library(profiler MODULE ${SOURCES})
 
 source_group(amx REGULAR_EXPRESSION ${CMAKE_CURRENT_SOURCE_DIR}/amx/[^/\\]+\\..*)
 source_group(amx_profiler REGULAR_EXPRESSION ${CMAKE_CURRENT_SOURCE_DIR}/amx_profiler/[^/\\]+\\..*)

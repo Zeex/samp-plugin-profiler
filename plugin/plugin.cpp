@@ -47,7 +47,7 @@
 #include <amx_profiler/profiler.h>
 #include "amx_path.h"
 #include "config_reader.h"
-#include "jump-x86.h"
+#include "hook.h"
 #include "plugin.h"
 #include "version.h"
 
@@ -79,8 +79,8 @@ namespace cfg {
 
 namespace hooks {
 
-JumpX86 amx_Exec_hook;
-JumpX86 amx_Callback_hook;
+Hook amx_Exec_hook;
+Hook amx_Callback_hook;
 
 static int AMXAPI amx_Debug(AMX *amx) {
 	auto profiler = ::profilers[amx];
@@ -97,8 +97,8 @@ static int AMXAPI amx_Debug(AMX *amx) {
 }
 
 static int AMXAPI amx_Callback(AMX *amx, cell index, cell *result, cell *params) {
-	JumpX86::ScopedRemove r(&amx_Callback_hook);
-	JumpX86::ScopedInstall i(&amx_Exec_hook);
+	Hook::ScopedRemove r(&amx_Callback_hook);
+	Hook::ScopedInstall i(&amx_Exec_hook);
 
 	auto profiler = ::profilers[amx];
 	if (profiler) {
@@ -109,8 +109,8 @@ static int AMXAPI amx_Callback(AMX *amx, cell index, cell *result, cell *params)
 }
 
 static int AMXAPI amx_Exec(AMX *amx, cell *retval, int index) {
-	JumpX86::ScopedRemove r(&amx_Exec_hook);
-	JumpX86::ScopedInstall i(&amx_Callback_hook);
+	Hook::ScopedRemove r(&amx_Exec_hook);
+	Hook::ScopedInstall i(&amx_Callback_hook);
 
 	auto profiler = ::profilers[amx];
 	if (profiler) {
