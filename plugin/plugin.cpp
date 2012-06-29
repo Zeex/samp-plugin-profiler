@@ -74,7 +74,7 @@ namespace cfg {
 	std::string   profile_filterscripts   = "";
 	std::string   profile_format          = "html";
 	bool          call_graph              = false;
-	std::string   call_graph_format       = "";
+	std::string   call_graph_format       = "gv";
 };
 
 namespace hooks {
@@ -170,52 +170,6 @@ static bool WantsProfiler(const std::string &amxName) {
 	return false;
 }
 
-static std::string FindGraphViz() {
-	std::string gv_path;
-
-	#ifdef _WIN32
-		// Try to read InstallPath from Windows registry.
-		HKEY att_key;
-		if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, "SOFTWARE\\AT&T Research Labs", 0, 
-				KEY_READ, &att_key) == ERROR_SUCCESS) {
-			char gv_key_name[40];
-			DWORD gv_key_size = sizeof(gv_key_name);
-			DWORD index = 0;
-			while (RegEnumKeyEx(att_key, index, gv_key_name, &gv_key_size, 0, 0, 0, 0) == ERROR_SUCCESS) {
-				HKEY gv_key;
-				if (RegOpenKeyEx(att_key, gv_key_name, 0, KEY_READ, &gv_key) == ERROR_SUCCESS) {
-					char name[13];
-					DWORD name_size = sizeof(name);
-					char value[MAX_PATH];
-					DWORD value_size = sizeof(value);
-					int index = 0;
-					while (RegEnumValue(gv_key, index++, name, &name_size, nullptr, nullptr, 
-							reinterpret_cast<LPBYTE>(value), &value_size) == ERROR_SUCCESS) {
-						if (strncmp(name, "InstallPath", sizeof(name)) == 0) {
-							gv_path.assign(value);
-							break;
-						}
-					}
-					RegCloseKey(gv_key);
-				}
-				++index;
-			}
-			RegCloseKey(att_key);
-		}
-
-	#endif
-
-	if (gv_path.empty()) {			
-		// Read the GV_HOME variable if still not found.
-		char *gv_home = getenv("GV_HOME");
-		if (gv_home != 0) {
-			gv_path.assign(gv_home);
-		}
-	}
-
-	return gv_path;
-}
-
 #ifdef _WIN32
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx);
@@ -280,11 +234,6 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 		return AMX_ERR_NONE;
 	}
 
-	//if (!IsAmxProfilable(amx)) {
-	//	logprintf("[profiler] Can't profile '%s' (are you using -d0?)", filename.c_str());
-	//	return AMX_ERR_NONE;
-	//}
-
 	cell profiler_enabled = false;
 	if (GetPublicVariable(amx, "profiler_enabled", profiler_enabled)
 			&& !profiler_enabled) {
@@ -332,44 +281,46 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 		std::transform(cfg::profile_format.begin(), cfg::profile_format.end(),
 				cfg::profile_format.begin(), ::tolower);
 
-		auto filename = amx_name + "-profile." + cfg::profile_format;
-		std::ofstream out_stream(filename.c_str());
+		auto profile_name = amx_name + "-profile." + cfg::profile_format;
+		std::ofstream profile_stream(profile_name.c_str());
 
-		ProfileWriter *writer = 0;
-		if (cfg::profile_format == "html") {
-			writer = new ProfileWriterHtml(&out_stream, amx_path);
-		} else if (cfg::profile_format == "txt") {
-			writer = new ProfileWriterText(&out_stream, amx_path);
-		} else if (cfg::profile_format == "xml") {
-			writer = new ProfileWriterXml(&out_stream, amx_path);
-		} else {
-			logprintf("[profiler] Unknown output format '%s'", cfg::profile_format.c_str());
-		}
-
-		if (writer != 0) {
-			profiler->WriteProfile(writer);
-			delete writer;
+		if (profile_stream.is_open()) {
+			ProfileWriter *writer = 0;
+			if (cfg::profile_format == "html") {
+				writer = new ProfileWriterHtml(&profile_stream, amx_path);
+			} else if (cfg::profile_format == "txt") {
+				writer = new ProfileWriterText(&profile_stream, amx_path);
+			} else if (cfg::profile_format == "xml") {
+				writer = new ProfileWriterXml(&profile_stream, amx_path);
+			} else {
+				logprintf("[profiler] Unknown output format '%s'", cfg::profile_format.c_str());
+			}
+			if (writer != 0) {
+				logprintf("[profiler] Writing '%s'", profile_name.c_str());
+				profiler->WriteProfile(writer);
+				delete writer;
+			}
+			profile_stream.close();
 		}
 
 		if (cfg::call_graph) {
 			// Save the call graph as a dot script.
-			std::string gv_file = amx_name + "-calls.gv";
-			std::ofstream ostream(gv_file.c_str());
-			CallGraphWriterGV graph_writer(&ostream, amx_path, "SA-MP Server");
-			profiler->call_graph()->Write(&graph_writer);
-			ostream.close();
-			
-			// Convert the .gv to viewable format e.g. pdf if GraphViz is installed
-			// and call_graph_format is set.
-			if (!cfg::call_graph_format.empty()) {				
-				std::string path = FindGraphViz();
-				if (!path.empty()) {
-					path.append("/bin/");
-				};
-				std::string cmd = "\"" + path + "dot\" -T" + cfg::call_graph_format + " -O " + gv_file;
-				if (system(cmd.c_str()) != 0) {
-					logprintf("[profiler] Error executing command: %s", cmd.c_str());
+			auto call_graph_name = amx_name + "-calls.gv";
+			std::ofstream call_graph_stream(call_graph_name.c_str());
+
+			if (call_graph_stream.is_open()) {
+				CallGraphWriterGV *call_graph_writer = 0;
+				if (cfg::call_graph_format == "gv") {
+					call_graph_writer = new CallGraphWriterGV(&call_graph_stream, amx_path, "SA-MP Server");
+				} else {
+					logprintf("[profiler] Unknown call graph format '%s'", cfg::call_graph_format.c_str());
 				}
+				if (call_graph_writer != 0) {
+					logprintf("Writing '%s'", call_graph_name.c_str());
+					profiler->call_graph()->Write(call_graph_writer);
+					delete call_graph_writer;
+				}
+				call_graph_stream.close();
 			}
 		}
 
