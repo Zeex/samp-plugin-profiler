@@ -20,8 +20,6 @@ set(SOURCES
 	amx/getch.h
 	amx/osdefs.h
 	amx/sclinux.h
-	amx_profiler/c_interface.cpp
-	amx_profiler/c_interface.h
 	amx_profiler/call_graph.cpp
 	amx_profiler/call_graph.h
 	amx_profiler/call_graph_writer.h
