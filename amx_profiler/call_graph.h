@@ -2,13 +2,13 @@
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met: 
+// modification, are permitted provided that the following conditions are met:
 //
 // 1. Redistributions of source code must retain the above copyright notice, this
-//    list of conditions and the following disclaimer. 
+//    list of conditions and the following disclaimer.
 // 2. Redistributions in binary form must reproduce the above copyright notice,
 //    this list of conditions and the following disclaimer in the documentation
-//    and/or other materials provided with the distribution. 
+//    and/or other materials provided with the distribution.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 // ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -55,9 +55,7 @@ public:
 	void Write(CallGraphWriter *writer) const;
 
 	template<typename F>
-	inline void Traverse(F f) const {
-		sentinel_->Traverse(f);
-	}
+	inline void Traverse(F f) const;
 
 private:
 	void OwnNode(CallGraphNode *node);
@@ -70,7 +68,7 @@ private:
 
 class CallGraphNode {
 public:
-	class Compare { 
+	class Compare {
 	public:
 		bool operator()(const CallGraphNode *n1, const CallGraphNode *n2) const;
 	};
@@ -100,14 +98,8 @@ public:
 	CallGraphNode *AddCallee(FunctionStatistics *stats);
 	CallGraphNode *AddCallee(CallGraphNode *node);
 
-	// Recursive parent-to-child traversing.
 	template<typename F>
-	inline void Traverse(F f) const {
-		f(this);
-		for (auto c : callees_) {
-			c->Traverse(f);
-		}
-	}
+	inline void Traverse(F f) const;
 
 private:
 	CallGraph *graph_;
@@ -115,6 +107,19 @@ private:
 	CallGraphNode *caller_;
 	std::set<CallGraphNode*, Compare> callees_;
 };
+
+template<typename F>
+inline void CallGraph::Traverse(F f) const {
+	sentinel_->Traverse(f);
+}
+
+template<typename F>
+inline void CallGraphNode::Traverse(F f) const {
+	f(this);
+	for (auto c : callees_) {
+		c->Traverse(f);
+	}
+}
 
 } // namespace amx_profiler
 
