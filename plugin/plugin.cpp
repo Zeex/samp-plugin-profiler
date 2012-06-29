@@ -316,7 +316,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 					logprintf("[profiler] Unknown call graph format '%s'", cfg::call_graph_format.c_str());
 				}
 				if (call_graph_writer != 0) {
-					logprintf("Writing '%s'", call_graph_name.c_str());
+					logprintf("[profiler] Writing '%s'", call_graph_name.c_str());
 					profiler->call_graph()->Write(call_graph_writer);
 					delete call_graph_writer;
 				}
