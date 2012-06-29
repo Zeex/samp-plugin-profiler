@@ -30,7 +30,7 @@
 #include "call_graph_writer_gv.h"
 #include "function.h"
 #include "function_statistics.h"
-#include "time_interval.h"
+#include "time.h"
 
 namespace amx_profiler {
 

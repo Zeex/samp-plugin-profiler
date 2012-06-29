@@ -21,58 +21,20 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "call_graph.h"
-#include "call_graph_writer.h"
-#include "function.h"
-#include "function_statistics.h"
-#include "time.h"
+#ifndef AMX_PROFILER_TIME_H
+#define AMX_PROFILER_TIME_H
+
+#include <cstdint>
+#include "chrono.h"
 
 namespace amx_profiler {
 
-CallGraph::CallGraph(CallGraphNode *root)
-	: root_(root)
-	, sentinel_(new CallGraphNode(this, 0))
-{
-	if (!root) {
-		root_ = sentinel_;
-	}
-}
+typedef std::int64_t TimeInterval;
 
-CallGraph::~CallGraph() {
-	delete sentinel_;
-	for (auto node : nodes_) {
-		delete node;
-	}
-}
-
-void CallGraph::Write(CallGraphWriter *writer) const {
-	writer->Write(this);
-}
-
-void CallGraph::OwnNode(CallGraphNode *node) {
-	nodes_.insert(node);
-}
-
-bool CallGraphNode::Compare::operator()(const CallGraphNode *n1, const CallGraphNode *n2) const {
-	return n1->stats()->function()->address() < n2->stats()->function()->address();
-}
-
-CallGraphNode::CallGraphNode(CallGraph *graph, FunctionStatistics *stats, CallGraphNode *caller) 
-	: graph_(graph)
-	, stats_(stats)
-	, caller_(caller)
-{
-}
-
-CallGraphNode *CallGraphNode::AddCallee(FunctionStatistics *stats) {
-	auto node = new CallGraphNode(graph_, stats, this);
-	return AddCallee(node);
-}
-
-CallGraphNode *CallGraphNode::AddCallee(CallGraphNode *node) {
-	graph_->OwnNode(node);
-	callees_.insert(node);
-	return node;
-}
+typedef chrono::nanoseconds  Nanoseconds;
+typedef chrono::microseconds Microseconds;
+typedef chrono::milliseconds Milliseconds;
 
 } // namespace amx_profiler
+
+#endif // !AMX_PROFILER_TIME_INTERVAL_H

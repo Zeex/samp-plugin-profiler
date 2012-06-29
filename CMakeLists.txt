@@ -51,8 +51,7 @@ set(SOURCES
 	amx_profiler/profile_writer_text.h
 	amx_profiler/performance_counter.cpp
 	amx_profiler/performance_counter.h
-	amx_profiler/time_interval.h
-	amx_profiler/time_res.h
+	amx_profiler/time.h
 	amx_profiler/profile_writer_xml.cpp
 	amx_profiler/profile_writer_xml.h
 	plugin/amx_path.cpp

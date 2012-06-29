@@ -24,8 +24,7 @@
 #ifndef AMX_PROFILER_PERFORMANCE_COUNTER_H
 #define AMX_PROFILER_PERFORMANCE_COUNTER_H
 
-#include "time_interval.h"
-#include "time_res.h"
+#include "time.h"
 
 namespace amx_profiler {
 

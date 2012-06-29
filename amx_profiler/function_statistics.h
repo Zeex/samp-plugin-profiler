@@ -24,7 +24,7 @@
 #ifndef AMX_PROFILER_FUNCTION_INFO_H
 #define AMX_PROFILER_FUNCTION_INFO_H
 
-#include "time_interval.h"
+#include "time.h"
 
 namespace amx_profiler {
 
