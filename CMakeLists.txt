@@ -81,6 +81,8 @@ source_group(amx REGULAR_EXPRESSION ${CMAKE_CURRENT_SOURCE_DIR}/amx/[^/\\]+\\..*
 source_group(amx_profiler REGULAR_EXPRESSION ${CMAKE_CURRENT_SOURCE_DIR}/amx_profiler/[^/\\]+\\..*)
 source_group(plugin REGULAR_EXPRESSION ${CMAKE_CURRENT_SOURCE_DIR}/plugin/[^/\\]+\\..*)
 
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 find_package(Boost 1.47 COMPONENTS chrono system)
 if(Boost_FOUND)
 	add_definitions(-DHAVE_BOOST=${Boost_VERSION})
