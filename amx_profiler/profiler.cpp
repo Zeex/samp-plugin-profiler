@@ -162,7 +162,7 @@ void Profiler::BeginFunction(ucell address, ucell frm) {
 	auto stats_it = address_to_stats_.find(address);
 	assert(stats_it != address_to_stats_.end());
 	auto stats = stats_it->second;
-	stats->num_calls()++;	
+	stats->AdjustNumCalls(1);	
 	call_stack_.Push(stats->function(), frm);
 	if (call_graph_enabled_) {
 		call_graph_.root()->AddCallee(stats)->MakeRoot();
@@ -177,15 +177,15 @@ void Profiler::EndFunction(ucell address) {
 		auto old_top_it = address_to_stats_.find(old_top.function()->address());
 		assert(old_top_it != address_to_stats_.end());
 		if (old_top.IsRecursive()) {
-			old_top_it->second->child_time() -= old_top.timer()->child_time<Nanoseconds>();
+			old_top_it->second->AdjustChildTime(-old_top.timer()->child_time<Nanoseconds>());
 		} else {
-			old_top_it->second->total_time() += old_top.timer()->total_time<Nanoseconds>();
+			old_top_it->second->AdjustTotalTime(old_top.timer()->total_time<Nanoseconds>());
 		}
 		if (!call_stack_.IsEmpty()) {
 			auto top = call_stack_.top();
 			auto top_it = address_to_stats_.find(top->function()->address());
 			assert(top_it != address_to_stats_.end());
-			top_it->second->child_time() += old_top.timer()->total_time<Nanoseconds>();
+			top_it->second->AdjustChildTime(old_top.timer()->total_time<Nanoseconds>());
 		}
 		if (call_graph_enabled_) {
 			assert(call_graph_.root() != call_graph_.sentinel());

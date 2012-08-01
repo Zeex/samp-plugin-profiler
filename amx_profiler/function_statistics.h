@@ -40,20 +40,20 @@ public:
 	const Function *function() const
 		{ return fn_; }
 
-	long &num_calls()
+	long num_calls() const
 		{ return num_calls_; }
-	const long &num_calls() const
-		{ return num_calls_; }
+	void AdjustNumCalls(long delta)
+		{ num_calls_ += delta; }
 
-	TimeInterval &total_time()
+	const TimeInterval total_time() const
 		{ return total_time_; }
-	const TimeInterval &total_time() const
-		{ return total_time_; }
+	void AdjustTotalTime(TimeInterval delta)
+		{ total_time_ += delta; }
 
-	TimeInterval &child_time()
+	TimeInterval child_time() const
 		{ return child_time_; }
-	const TimeInterval &child_time() const
-		{ return child_time_; }
+	void AdjustChildTime(TimeInterval delta)
+		{ child_time_ += delta; }
 
 	TimeInterval GetSelfTime() const 
 		{ return total_time() - child_time(); }
