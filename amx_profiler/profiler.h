@@ -31,10 +31,11 @@
 #include "call_graph.h"
 #include "call_stack.h"
 #include "debug_info.h"
-#include "function_statistics.h"
 
 namespace amx_profiler {
 
+class FunctionStatistics;
+class LineStatistics;
 class ProfileWriter;
 
 class Profiler {
@@ -77,8 +78,10 @@ private:
 	CallStack call_stack_;
 	CallGraph call_graph_;
 
-	std::unordered_map<ucell, FunctionStatistics*> address_to_stats_;
+	std::unordered_map<ucell, FunctionStatistics*> address_to_fun_stats_;
 	std::set<Function*> functions_;
+
+	std::unordered_map<ucell, LineStatistics*> address_to_line_stats_;
 };
 
 inline bool IsAmxProfilable(AMX *amx) {

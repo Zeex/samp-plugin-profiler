@@ -36,6 +36,8 @@ set(SOURCES
 	amx_profiler/function_call.h
 	amx_profiler/function_statistics.cpp
 	amx_profiler/function_statistics.h
+	amx_profiler/line_statistics.cpp
+	amx_profiler/line_statistics.h
 	amx_profiler/profile_writer_html.cpp
 	amx_profiler/profile_writer_html.h
 	amx_profiler/native_function.cpp
