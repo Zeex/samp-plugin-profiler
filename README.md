@@ -1,7 +1,7 @@
-Profiler plugin for SA-MP server
+Profiler plugin for SA:MP server
 ================================
 
-https://github.com/Zeex/samp-profiler-plugin
+https://github.com/Zeex/samp-plugin-profiler
 
 Profiler provides detailed information about how long each function takes to execute and how many times
 it is called. This can be helpful in finding bottlenecks or "hot spots" in code for further optimization.
