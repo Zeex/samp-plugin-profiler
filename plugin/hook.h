@@ -2,13 +2,13 @@
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met: 
+// modification, are permitted provided that the following conditions are met:
 //
 // 1. Redistributions of source code must retain the above copyright notice, this
-//    list of conditions and the following disclaimer. 
+//    list of conditions and the following disclaimer.
 // 2. Redistributions in binary form must reproduce the above copyright notice,
 //    this list of conditions and the following disclaimer in the documentation
-//    and/or other materials provided with the distribution. 
+//    and/or other materials provided with the distribution.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 // ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -46,7 +46,7 @@ public:
 	// Temporary Remove()
 	class ScopedRemove {
 	public:
-		ScopedRemove(Hook *jmp) 
+		ScopedRemove(Hook *jmp)
 			: jmp_(jmp)
 			, removed_(jmp->Remove())
 		{
@@ -59,15 +59,19 @@ public:
 			}
 		}
 
-	private:		
+	private:
+		ScopedRemove(const ScopedRemove &);
+		void operator=(const ScopedRemove &);
+
+	private:
 		Hook *jmp_;
 		bool removed_;
 	};
 
-	// Temporary Install() 
+	// Temporary Install()
 	class ScopedInstall {
 	public:
-		ScopedInstall(Hook *jmp) 
+		ScopedInstall(Hook *jmp)
 			: jmp_(jmp)
 			, installed_(jmp->Install())
 		{
@@ -81,12 +85,20 @@ public:
 		}
 
 	private:
+		ScopedInstall(const ScopedInstall &);
+		void operator=(const ScopedInstall &);
+
+	private:
 		Hook *jmp_;
 		bool installed_;
 	};
 
 private:
 	static void Unprotect(void *address, int size);
+
+private:
+	Hook(const Hook &);
+	void operator=(const Hook &);
 
 private:
 	void *src_;
