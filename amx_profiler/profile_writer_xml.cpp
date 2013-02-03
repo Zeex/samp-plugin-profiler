@@ -40,7 +40,7 @@ ProfileWriterXml::ProfileWriterXml(std::ostream *stream, const std::string scrip
 {
 }
 
-void ProfileWriterXml::Write(const std::vector<FunctionStatistics*> profile)
+void ProfileWriterXml::Write(const std::vector<FunctionStatistics*> &profile)
 {
 	*stream_ << "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
 	         << "<profile script=\"" << script_name_ << "\"";

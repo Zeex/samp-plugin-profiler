@@ -53,7 +53,7 @@ ProfileWriterText::ProfileWriterText(std::ostream *stream, const std::string scr
 {
 }
 
-void ProfileWriterText::Write(const std::vector<FunctionStatistics*> profile)
+void ProfileWriterText::Write(const std::vector<FunctionStatistics*> &profile)
 {
 	*stream_ << "Profile of '" << script_name_ << "'";
 

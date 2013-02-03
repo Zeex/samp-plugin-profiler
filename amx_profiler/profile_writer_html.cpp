@@ -41,7 +41,7 @@ ProfileWriterHtml::ProfileWriterHtml(std::ostream *stream, const std::string scr
 {
 }
 
-void ProfileWriterHtml::Write(const std::vector<FunctionStatistics*> profile)
+void ProfileWriterHtml::Write(const std::vector<FunctionStatistics*> &profile)
 {
 	*stream_ <<
 	"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\n"
