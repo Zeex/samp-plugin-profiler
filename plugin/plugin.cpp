@@ -37,7 +37,7 @@
 #include <vector>
 #include <unordered_map>
 #ifdef _WIN32
-	#include <Windows.h>
+	#include <windows.h>
 #endif
 #include <amx/amx.h>
 #include <amx_profiler/call_graph_writer_gv.h>
@@ -52,8 +52,6 @@
 #include "plugin.h"
 #include "version.h"
 
-using namespace amx_profiler;
-
 typedef void (*logprintf_t)(const char *format, ...);
 
 extern void *pAMXFunctions;
@@ -61,7 +59,7 @@ extern void *pAMXFunctions;
 static logprintf_t logprintf;
 
 // Profiler instances.
-static std::unordered_map<AMX*, std::shared_ptr<Profiler>> profilers;
+static std::unordered_map<AMX*, std::shared_ptr<amx_profiler::Profiler>> profilers;
 
 // List of loaded scripts, need this to fix AmxUnload bug on Windows.
 static std::list<AMX*> loaded_scripts;
@@ -71,11 +69,11 @@ static std::unordered_map<AMX*, AMX_DEBUG> old_debug_hooks;
 
 // Plugin settings and their defauls.
 namespace cfg {
-	bool          profile_gamemode        = false;
-	std::string   profile_filterscripts   = "";
-	std::string   profile_format          = "html";
-	bool          call_graph              = false;
-	std::string   call_graph_format       = "gv";
+	bool          profile_gamemode      = false;
+	std::string   profile_filterscripts = "";
+	std::string   profile_format        = "html";
+	bool          call_graph            = false;
+	std::string   call_graph_format     = "gv";
 };
 
 namespace hooks {
@@ -215,11 +213,11 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
 
 	// Read plugin settings from server.cfg.
 	ConfigReader server_cfg("server.cfg");
-	cfg::profile_gamemode = server_cfg.GetOption("profile_gamemode", cfg::profile_gamemode);
+	cfg::profile_gamemode      = server_cfg.GetOption("profile_gamemode", cfg::profile_gamemode);
 	cfg::profile_filterscripts = server_cfg.GetOption("profile_filterscripts", cfg::profile_filterscripts);
-	cfg::profile_format = server_cfg.GetOption("profile_format", cfg::profile_format);
-	cfg::call_graph = server_cfg.GetOption("call_graph", cfg::call_graph);
-	cfg::call_graph_format = server_cfg.GetOption("call_graph_format", cfg::call_graph_format);
+	cfg::profile_format        = server_cfg.GetOption("profile_format", cfg::profile_format);
+	cfg::call_graph            = server_cfg.GetOption("call_graph", cfg::call_graph);
+	cfg::call_graph_format     = server_cfg.GetOption("call_graph_format", cfg::call_graph_format);
 
 	logprintf("  Profiler v" PLUGIN_VERSION_STRING " is OK.");
 
@@ -250,8 +248,8 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 		amx_SetDebugHook(amx, hooks::amx_Debug);
 
 		// Load debug stats if available
-		DebugInfo debug_info;
-		if (HasDebugInfo(amx)) {
+		amx_profiler::DebugInfo debug_info;
+		if (amx_profiler::HasDebugInfo(amx)) {
 			debug_info.Load(filename);
 			if (debug_info.IsLoaded()) {
 				logprintf("[profiler] Loaded debug stats from '%s'", filename.c_str());
@@ -260,7 +258,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 			}
 		}
 
-		::profilers[amx] = std::shared_ptr<Profiler>(new Profiler(amx, debug_info, cfg::call_graph));
+		::profilers[amx] = std::shared_ptr<amx_profiler::Profiler>(new amx_profiler::Profiler(amx, debug_info, cfg::call_graph));
 		if (debug_info.IsLoaded()) {
 			logprintf("[profiler] Attached profiler to '%s'", filename.c_str());
 		} else {
@@ -279,20 +277,24 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 		std::string amx_name = std::string(amx_path, 0, amx_path.find_last_of("."));
 
 		// Convert profile_format to lower case.
-		std::transform(cfg::profile_format.begin(), cfg::profile_format.end(),
-				cfg::profile_format.begin(), ::tolower);
+		std::transform(
+			cfg::profile_format.begin(),
+			cfg::profile_format.end(),
+			cfg::profile_format.begin(),
+			::tolower
+		);
 
 		auto profile_name = amx_name + "-profile." + cfg::profile_format;
 		std::ofstream profile_stream(profile_name.c_str());
 
 		if (profile_stream.is_open()) {
-			ProfileWriter *writer = 0;
+			amx_profiler::ProfileWriter *writer = 0;
 			if (cfg::profile_format == "html") {
-				writer = new ProfileWriterHtml(&profile_stream, amx_path);
+				writer = new amx_profiler::ProfileWriterHtml(&profile_stream, amx_path);
 			} else if (cfg::profile_format == "txt") {
-				writer = new ProfileWriterText(&profile_stream, amx_path);
+				writer = new amx_profiler::ProfileWriterText(&profile_stream, amx_path);
 			} else if (cfg::profile_format == "xml") {
-				writer = new ProfileWriterXml(&profile_stream, amx_path);
+				writer = new amx_profiler::ProfileWriterXml(&profile_stream, amx_path);
 			} else {
 				logprintf("[profiler] Unknown output format '%s'", cfg::profile_format.c_str());
 			}
@@ -310,9 +312,9 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 			std::ofstream call_graph_stream(call_graph_name.c_str());
 
 			if (call_graph_stream.is_open()) {
-				CallGraphWriterGV *call_graph_writer = 0;
+				amx_profiler::CallGraphWriterGV *call_graph_writer = 0;
 				if (cfg::call_graph_format == "gv") {
-					call_graph_writer = new CallGraphWriterGV(&call_graph_stream, amx_path, "SA-MP Server");
+					call_graph_writer = new amx_profiler::CallGraphWriterGV(&call_graph_stream, amx_path, "SA-MP Server");
 				} else {
 					logprintf("[profiler] Unknown call graph format '%s'", cfg::call_graph_format.c_str());
 				}
