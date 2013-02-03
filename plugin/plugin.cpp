@@ -46,8 +46,8 @@
 #include <amx_profiler/profile_writer_text.h>
 #include <amx_profiler/profile_writer_xml.h>
 #include <amx_profiler/profiler.h>
-#include "amx_path.h"
-#include "config_reader.h"
+#include "amxpath.h"
+#include "configreader.h"
 #include "hook.h"
 #include "plugin.h"
 #include "pluginversion.h"

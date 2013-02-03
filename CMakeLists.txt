@@ -67,11 +67,11 @@ set(SOURCES
 	amx_profiler/public_function.h
 	amx_profiler/statistics.cpp
 	amx_profiler/statistics.h
-	plugin/amx_path.cpp
-	plugin/amx_path.h
+	plugin/amxpath.cpp
+	plugin/amxpath.h
 	plugin/amxplugin.cpp
-	plugin/config_reader.cpp
-	plugin/config_reader.h
+	plugin/configreader.cpp
+	plugin/configreader.h
 	plugin/hook.cpp
 	plugin/hook.h
 	plugin/plugin.h
@@ -83,9 +83,9 @@ set(SOURCES
 )
 
 if(WIN32)
-	list(APPEND SOURCES plugin/hook_win32.cpp)
+	list(APPEND SOURCES plugin/hook-win32.cpp)
 elseif(UNIX)
-	list(APPEND SOURCES plugin/hook_unix.cpp)
+	list(APPEND SOURCES plugin/hook-unix.cpp)
 else()
 	message(FATAL_ERROR Unsupported operating system)
 endif()

@@ -22,79 +22,45 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <algorithm>
-#include <cctype>
-#include <cstdlib>
-#include <fstream>
-#include <iostream>
+#include <map>
 #include <sstream>
 #include <string>
 
-#include "config_reader.h"
+#ifndef CONFIGREADER_H
+#define CONFIGREADER_H
 
-ConfigReader::ConfigReader() 
-	: loaded_(false)
-{
-}
+class ConfigReader {
+public:
+	ConfigReader();
+	ConfigReader(const std::string &filename);
 
-ConfigReader::ConfigReader(const std::string &filename) 
-	: loaded_(false)
-{
-	LoadFile(filename);
-}
+	bool LoadFile(const std::string &filename);
 
-struct is_not_space {
-	bool operator()(char c) {
-		return !(c == ' ' || c == '\r' || c == '\n' || c == '\t');
-	}
+	template<typename T>
+	T GetOption(const std::string &name, const T &defaultValue) const;
+
+	bool IsLoaded() const { return loaded_; }
+
+private:
+	bool loaded_;
+	std::map<std::string, std::string> options_;
 };
 
-static inline std::string &ltrim(std::string &s) {
-        s.erase(s.begin(), std::find_if(s.begin(), s.end(), is_not_space()));
-        return s;
-}
-
-static inline std::string &rtrim(std::string &s) {
-        s.erase(std::find_if(s.rbegin(), s.rend(), is_not_space()).base(), s.end());
-        return s;
-}
-
-static inline std::string &trim(std::string &s) {
-        return ltrim(rtrim(s));
-}
-
-bool ConfigReader::LoadFile(const std::string &filename) {
-	std::ifstream cfg(filename.c_str());
-
-	if (cfg.is_open()) {
-		loaded_ = true;
-
-		std::string line;
-		while (std::getline(cfg, line, '\n')) {
-			std::stringstream linestream(line);
-
-			// Get first word in the line
-			std::string name;
-			std::getline(linestream, name, ' ');
-			trim(name);
-
-			// Get the rest
-			std::string value;
-			std::getline(linestream, value, '\n');
-			trim(value);
-
-			options_[name] = value;
-		}
-	}
-
-	return loaded_;
-}
-
-template<>
-std::string ConfigReader::GetOption<std::string>(const std::string &name, const std::string &defaultValue) const {
+template<typename T>
+T ConfigReader::GetOption(const std::string &name, const T &defaultValue) const {
 	auto iterator = options_.find(name);
 	if (iterator == options_.end()) {
 		return defaultValue;
 	}
-	return iterator->second;
+	std::stringstream sstream(iterator->second);
+	T value;
+	sstream >> value;
+	if (!sstream) {
+		return defaultValue;
+	}
+	return value;
 }
+
+template<> std::string ConfigReader::GetOption(const std::string &name, const std::string &value) const;
+
+#endif // !CONFIGREADER_H

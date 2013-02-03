@@ -22,45 +22,13 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <map>
-#include <sstream>
+#ifndef AMXPATH_H
+#define AMXPATH_H
+
 #include <string>
+#include <amx/amx.h>
 
-#ifndef CONFIG_READER_H
-#define CONFIG_READER_H
+std::string GetAmxPath(AMX_HEADER *amxhdr);
+std::string GetAmxPath(AMX *amx);
 
-class ConfigReader {
-public:
-	ConfigReader();
-	ConfigReader(const std::string &filename);
-
-	bool LoadFile(const std::string &filename);
-
-	template<typename T>
-	T GetOption(const std::string &name, const T &defaultValue) const;
-
-	bool IsLoaded() const { return loaded_; }
-
-private:
-	bool loaded_;
-	std::map<std::string, std::string> options_;
-};
-
-template<typename T>
-T ConfigReader::GetOption(const std::string &name, const T &defaultValue) const {
-	auto iterator = options_.find(name);
-	if (iterator == options_.end()) {
-		return defaultValue;
-	}
-	std::stringstream sstream(iterator->second);
-	T value;
-	sstream >> value;
-	if (!sstream) {
-		return defaultValue;
-	}
-	return value;
-}
-
-template<> std::string ConfigReader::GetOption(const std::string &name, const std::string &value) const;
-
-#endif // !CONFIG_READER_H
+#endif // !AMXPATH_H

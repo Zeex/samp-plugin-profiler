@@ -45,7 +45,7 @@
 	#include <fnmatch.h>
 	#include <sys/stat.h>
 #endif
-#include "amx_path.h"
+#include "amxpath.h"
 
 static time_t GetMtime(const std::string filename) {
 	struct stat attrib;
