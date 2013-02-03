@@ -38,4 +38,4 @@ typedef Nanoseconds Duration;
 
 } // namespace amx_profiler
 
-#endif // !AMX_PROFILER_TIME_INTERVAL_H
+#endif // !AMX_PROFILER_DURATION_H
