@@ -22,6 +22,9 @@ include(GetGitRevisionDescription)
 include_directories(.)
 include_directories(amx)
 
+# Don't bother putting this line in plugin/CMakeList.txt because it won't work...
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/plugin)
+ 
 set(SOURCES
 	amx/amx.h
 	amx/amxaux.c
@@ -144,14 +147,7 @@ string(REGEX REPLACE "^([0-9]+,[0-9]+,[0-9]+)$" "\\1,0" version_rc ${version_rc}
 set(PROJECT_VERSION    ${version})
 set(PROJECT_VERSION_RC ${version_rc})
 
-configure_file(
-	"${CMAKE_CURRENT_SOURCE_DIR}/plugin/plugin.rc.in"
-	"${CMAKE_CURRENT_SOURCE_DIR}/plugin/plugin.rc"
-	@ONLY)
-configure_file(
-	"${CMAKE_CURRENT_SOURCE_DIR}/plugin/pluginversion.h.in"
-	"${CMAKE_CURRENT_SOURCE_DIR}/plugin/pluginversion.h"
-	@ONLY)
+add_subdirectory(plugin)
 
 message(STATUS "You're going to build ${PROJECT_NAME} v${version}")
 
