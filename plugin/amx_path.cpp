@@ -84,16 +84,22 @@ private:
 AmxFile::AmxFile(const std::string &name)
 	: name_(name)
 	, last_write_(GetMtime(name))
-	, amxPtr_(new AMX, FreeAmx)
 {
-	if (aux_LoadProgram(amxPtr_.get(), const_cast<char*>(name.c_str()), 0) != AMX_ERR_NONE) {
-		amxPtr_.reset();
+	if (AMX *amx = new AMX) {
+		std::memset(amx, 0, sizeof(AMX));
+		if (aux_LoadProgram(amx, const_cast<char*>(name.c_str()), 0) == AMX_ERR_NONE) {
+			amxPtr_.reset(amx, FreeAmx);
+		} else {
+			delete amx;
+		}
 	}
 }
 
 void AmxFile::FreeAmx(AMX *amx) {
-	aux_FreeProgram(amx);
-	delete amx;
+	if (amx != 0) {
+		aux_FreeProgram(amx);
+		delete amx;
+	}
 }
 
 static std::unordered_map<std::string, AmxFile> scripts;
