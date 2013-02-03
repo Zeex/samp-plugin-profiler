@@ -25,6 +25,7 @@
 #ifndef AMX_PROFILER_CALL_GRAPH_H
 #define AMX_PROFILER_CALL_GRAPH_H
 
+#include <functional>
 #include <set>
 #include <vector>
 
@@ -54,9 +55,7 @@ public:
 	}
 
 	void Write(CallGraphWriter *writer) const;
-
-	template<typename F>
-	inline void Traverse(F f) const;
+	void Traverse(std::function<void(const CallGraphNode *)> callback) const;
 
 private:
 	void OwnNode(CallGraphNode *node);
@@ -99,8 +98,7 @@ public:
 	CallGraphNode *AddCallee(FunctionStatistics *stats);
 	CallGraphNode *AddCallee(CallGraphNode *node);
 
-	template<typename F>
-	inline void Traverse(F f) const;
+	void Traverse(std::function<void(const CallGraphNode *)> callback) const;
 
 private:
 	CallGraph *graph_;
@@ -108,19 +106,6 @@ private:
 	CallGraphNode *caller_;
 	std::set<CallGraphNode*, Compare> callees_;
 };
-
-template<typename F>
-inline void CallGraph::Traverse(F f) const {
-	sentinel_->Traverse(f);
-}
-
-template<typename F>
-inline void CallGraphNode::Traverse(F f) const {
-	f(this);
-	for (auto c : callees_) {
-		c->Traverse(f);
-	}
-}
 
 } // namespace amx_profiler
 

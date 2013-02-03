@@ -22,6 +22,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#include <functional>
 #include "call_graph.h"
 #include "call_graph_writer.h"
 #include "function.h"
@@ -49,6 +50,10 @@ void CallGraph::Write(CallGraphWriter *writer) const {
 	writer->Write(this);
 }
 
+void CallGraph::Traverse(std::function<void(const CallGraphNode *)> callback) const {
+	sentinel_->Traverse(callback);
+}
+
 void CallGraph::OwnNode(CallGraphNode *node) {
 	nodes_.insert(node);
 }
@@ -73,6 +78,13 @@ CallGraphNode *CallGraphNode::AddCallee(CallGraphNode *node) {
 	graph_->OwnNode(node);
 	callees_.insert(node);
 	return node;
+}
+
+void CallGraphNode::Traverse(std::function<void(const CallGraphNode *)> callback) const {
+	callback(this);
+	for (auto c : callees_) {
+		c->Traverse(callback);
+	}
 }
 
 } // namespace amx_profiler
