@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2012, Zeex
+// Copyright (c) 2013, Zeex
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -22,26 +22,33 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef AMX_PROFILER_PROFILE_WRITER_XML_H
-#define AMX_PROFILER_PROFILE_WRITER_XML_H
+#ifndef AMX_PROFILER_STATISTICS_H
+#define AMX_PROFILER_STATISTICS_H
 
-#include <iosfwd>
-#include <string>
-#include "profile_writer.h"
+#include <functional>
+#include <unordered_map>
+#include <amx/amx.h>
+#include "duration.h"
 
 namespace amx_profiler {
 
-class ProfileWriterXml : public ProfileWriter {
-public:
-	ProfileWriterXml(std::ostream *stream, const std::string script_name);
+class Function;
+class FunctionStatistics;
 
-	virtual void Write(const Statistics *profile) override;
+class Statistics {
+public:
+	~Statistics();
+
+	void AddFunction(Function *fn);
+	Function *GetFunction(ucell address);
+
+	FunctionStatistics *GetFunctionStatistis(ucell address);
+	void EnumerateFunctions(std::function<void(const FunctionStatistics *)> callback) const;
 
 private:
-	std::ostream *stream_;
-	std::string   script_name_;
+	std::unordered_map<ucell, FunctionStatistics*> address_to_fn_stats_;
 };
 
 } // namespace amx_profiler
 
-#endif // !AMX_PROFILER_PROFILE_WRITER_XML_H
+#endif // !AMX_PROFILER_STATISTICS_H

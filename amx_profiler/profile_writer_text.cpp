@@ -26,12 +26,12 @@
 #include <iomanip>
 #include <iostream>
 #include <string>
-#include <vector>
 #include "duration.h"
 #include "function.h"
 #include "function_statistics.h"
 #include "performance_counter.h"
 #include "profile_writer_text.h"
+#include "statistics.h"
 
 static const int kTypeWidth = 7;
 static const int kNameWidth = 32;
@@ -54,7 +54,7 @@ ProfileWriterText::ProfileWriterText(std::ostream *stream, const std::string scr
 {
 }
 
-void ProfileWriterText::Write(const std::vector<FunctionStatistics*> &profile)
+void ProfileWriterText::Write(const Statistics *profile)
 {
 	*stream_ << "Profile of '" << script_name_ << "'";
 
@@ -82,31 +82,31 @@ void ProfileWriterText::Write(const std::vector<FunctionStatistics*> &profile)
 	DoHLine();
 
 	Duration time_all;
-	for (auto stats : profile) {
-		time_all += stats->total_time() - stats->child_time(); 
-	}
+	profile->EnumerateFunctions([&](const FunctionStatistics *fn_stats) {
+		time_all += fn_stats->total_time() - fn_stats->child_time(); 
+	});
 
 	Duration total_time_all;
-	for (auto stats : profile) {
-		total_time_all += stats->total_time(); 
-	}
+	profile->EnumerateFunctions([&](const FunctionStatistics *fn_stats) {
+		total_time_all += fn_stats->total_time(); 
+	});
 
-	for (auto stats : profile) {
-		double self_time_sec = Seconds(stats->GetSelfTime()).count();
-		double self_time_percent = stats->GetSelfTime().count() * 100 / time_all.count();
-		double total_time_sec = Seconds(stats->total_time()).count();
-		double total_time_percent = stats->total_time().count() * 100 / total_time_all.count();
+	profile->EnumerateFunctions([&](const FunctionStatistics *fn_stats) {
+		double self_time_sec = Seconds(fn_stats->GetSelfTime()).count();
+		double self_time_percent = fn_stats->GetSelfTime().count() * 100 / time_all.count();
+		double total_time_sec = Seconds(fn_stats->total_time()).count();
+		double total_time_percent = fn_stats->total_time().count() * 100 / total_time_all.count();
 		*stream_
-			<< "| " << std::setw(kTypeWidth) << stats->function()->type()
-			<< "| " << std::setw(kNameWidth) << stats->function()->name()
-			<< "| " << std::setw(kCallsWidth) << stats->num_calls()
+			<< "| " << std::setw(kTypeWidth) << fn_stats->function()->type()
+			<< "| " << std::setw(kNameWidth) << fn_stats->function()->name()
+			<< "| " << std::setw(kCallsWidth) << fn_stats->num_calls()
 			<< "| " << std::setw(kSelfTimePercentWidth) << std::fixed << std::setprecision(2) << self_time_percent
 			<< "| " << std::setw(kSelfTimeSecWidth) << std::fixed << std::setprecision(3) << self_time_sec
 			<< "| " << std::setw(kTotalTimePercentWidth) << std::fixed << std::setprecision(2) << total_time_percent
 			<< "| " << std::setw(kTotalTimeSecWidth) << std::fixed << std::setprecision(3) << total_time_sec
 			<< "|\n";
 		DoHLine();
-	}
+	});
 }
 
 } // namespace amx_profiler

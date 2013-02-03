@@ -27,12 +27,12 @@
 #include <iomanip>
 #include <iostream>
 #include <string>
-#include <vector>
 #include "duration.h"
 #include "function.h"
 #include "function_statistics.h"
 #include "profile_writer_html.h"
 #include "performance_counter.h"
+#include "statistics.h"
 
 namespace amx_profiler {
 
@@ -42,7 +42,7 @@ ProfileWriterHtml::ProfileWriterHtml(std::ostream *stream, const std::string scr
 {
 }
 
-void ProfileWriterHtml::Write(const std::vector<FunctionStatistics*> &profile)
+void ProfileWriterHtml::Write(const Statistics *profile)
 {
 	*stream_ <<
 	"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\n"
@@ -69,7 +69,7 @@ void ProfileWriterHtml::Write(const std::vector<FunctionStatistics*> &profile)
 	"		background-color: #eeeeee;\n"
 	"	}\n"
 	"	</style>\n"
-	"	<table id=\"stats\" class=\"tablesorter\" border=\"1\" width=\"100%\">\n"
+	"	<table id=\"fn_stats\" class=\"tablesorter\" border=\"1\" width=\"100%\">\n"
 	"		<thead>\n"
 	"			<tr>\n"
 	"				<th>Type</th>\n"
@@ -83,32 +83,32 @@ void ProfileWriterHtml::Write(const std::vector<FunctionStatistics*> &profile)
 	;
 
 	Duration time_all;
-	for (auto stats : profile) {
-		time_all += stats->total_time() - stats->child_time(); 
-	}
+	profile->EnumerateFunctions([&](const FunctionStatistics *fn_stats) {
+		time_all += fn_stats->total_time() - fn_stats->child_time(); 
+	});
 
 	Duration total_time_all;
-	for (auto stats : profile) {
-		total_time_all += stats->total_time(); 
-	}
+	profile->EnumerateFunctions([&](const FunctionStatistics *fn_stats) {
+		total_time_all += fn_stats->total_time(); 
+	});
 
-	for (auto stats : profile) {
-		double self_time_sec = Seconds(stats->GetSelfTime()).count();
-		double self_time_percent = stats->GetSelfTime().count() * 100 / time_all.count();
-		double total_time_sec = Seconds(stats->total_time()).count();
-		double total_time_percent = stats->total_time().count() * 100 / total_time_all.count();
+	profile->EnumerateFunctions([&](const FunctionStatistics *fn_stats) {
+		double self_time_sec = Seconds(fn_stats->GetSelfTime()).count();
+		double self_time_percent = fn_stats->GetSelfTime().count() * 100 / time_all.count();
+		double total_time_sec = Seconds(fn_stats->total_time()).count();
+		double total_time_percent = fn_stats->total_time().count() * 100 / total_time_all.count();
 		*stream_
 		<< "		<tr>\n"
-		<< "			<td>" << stats->function()->type() << "</td>\n"
-		<< "			<td>" << stats->function()->name() << "</td>\n"
-		<< "			<td>" << stats->num_calls() << "</td>\n"
+		<< "			<td>" << fn_stats->function()->type() << "</td>\n"
+		<< "			<td>" << fn_stats->function()->name() << "</td>\n"
+		<< "			<td>" << fn_stats->num_calls() << "</td>\n"
 		<< "			<td>" << std::fixed << std::setprecision(2) << self_time_percent << "%</td>\n"
 		<< "			<td>" << std::fixed << std::setprecision(3) << self_time_sec << "s</td>\n"
 		<< "			<td>" << std::fixed << std::setprecision(2) << total_time_percent << "%</td>\n"
 		<< "			<td>" << std::fixed << std::setprecision(3) << total_time_sec << "s</td>\n"
 		<< "			</td>\n"
 		<< "		</tr>\n";
-	}
+	});
 
 	*stream_ <<
 	"		</tbody>\n"
@@ -122,7 +122,7 @@ void ProfileWriterHtml::Write(const std::vector<FunctionStatistics*> &profile)
 	"		src=\"http://tablesorter.com/__jquery.tablesorter.min.js\"></script>\n"
 	"	<script type=\"text/javascript\">\n"
 	"	$(document).ready(function() {\n"
-	"		$(\"#stats\").tablesorter();\n"
+	"		$(\"#fn_stats\").tablesorter();\n"
 	"	});\n"
 	"	</script>\n"
 	"	<br/>\n"

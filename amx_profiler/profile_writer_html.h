@@ -27,7 +27,6 @@
 
 #include <iosfwd>
 #include <string>
-#include <vector>
 #include "profile_writer.h"
 
 namespace amx_profiler {
@@ -36,7 +35,7 @@ class ProfileWriterHtml : public ProfileWriter {
 public:
 	ProfileWriterHtml(std::ostream *stream, const std::string script_name);
 
-	virtual void Write(const std::vector<FunctionStatistics*> &profile) override;
+	virtual void Write(const Statistics *profile) override;
 
 private:
 	std::ostream *stream_;

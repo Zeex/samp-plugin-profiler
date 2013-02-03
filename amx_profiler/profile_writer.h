@@ -25,17 +25,15 @@
 #ifndef AMX_PROFILER_PROFILE_WRITER_H
 #define AMX_PROFILER_PROFILE_WRITER_H
 
-#include <vector>
-
 namespace amx_profiler {
 
-class FunctionStatistics;
+class Statistics;
 
 class ProfileWriter {
 public:
 	ProfileWriter();
 
-	virtual void Write(const std::vector<FunctionStatistics*> &profile) = 0;
+	virtual void Write(const Statistics *profile) = 0;
 
 	bool print_date() const { return print_date_; }
 	void set_print_date(bool set) { print_date_ = set; }

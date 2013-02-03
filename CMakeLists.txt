@@ -67,6 +67,8 @@ set(SOURCES
 	amx_profiler/profiler.h
 	amx_profiler/public_function.cpp
 	amx_profiler/public_function.h
+	amx_profiler/statistics.cpp
+	amx_profiler/statistics.h
 	plugin/amx_path.cpp
 	plugin/amx_path.h
 	plugin/amxplugin.cpp
