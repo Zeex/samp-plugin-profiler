@@ -24,7 +24,6 @@
 
 #include "call_graph.h"
 #include "call_graph_writer.h"
-#include "chrono.h"
 #include "function.h"
 #include "function_statistics.h"
 

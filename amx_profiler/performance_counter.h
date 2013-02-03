@@ -25,7 +25,7 @@
 #ifndef AMX_PROFILER_PERFORMANCE_COUNTER_H
 #define AMX_PROFILER_PERFORMANCE_COUNTER_H
 
-#include "chrono.h"
+#include <chrono>
 
 namespace amx_profiler {
 
@@ -37,21 +37,21 @@ public:
 	void Start();
 	void Stop();
 
-	inline chrono::high_resolution_clock::duration child_time() const
+	inline std::chrono::high_resolution_clock::duration child_time() const
 		{ return child_time_; }
 
-	inline chrono::high_resolution_clock::duration total_time() const
+	inline std::chrono::high_resolution_clock::duration total_time() const
 		{ return total_time_; }
 
-	inline chrono::high_resolution_clock::duration self_time() const
+	inline std::chrono::high_resolution_clock::duration self_time() const
 		{ return total_time() - child_time(); }
 
 private:
 	bool started_;
 	PerformanceCounter *parent_;
-	chrono::high_resolution_clock::time_point start_point_;
-	chrono::high_resolution_clock::duration child_time_;
-	chrono::high_resolution_clock::duration total_time_;
+	std::chrono::high_resolution_clock::time_point start_point_;
+	std::chrono::high_resolution_clock::duration child_time_;
+	std::chrono::high_resolution_clock::duration total_time_;
 };
 
 } // namespace amx_profiler

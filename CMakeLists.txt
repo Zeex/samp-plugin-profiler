@@ -5,6 +5,19 @@ project(profiler)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} 
 	"${CMAKE_SOURCE_DIR}/cmake/Modules")
 
+# Make sure we have proper C++11 support.
+if(CMAKE_COMPILER_IS_GNUCXX)
+	execute_process(COMMAND ${CMAKE_CXX_COMPILER} -dumpversion OUTPUT_VARIABLE GCC_VERSION)
+	if(GCC_VERSION VERSION_LESS 4.6)
+		message(FATAL_ERROR "You need GCC 4.6 or later")
+	endif()
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+elseif(MSVC)
+	if (MSVC_VERSION LESS 1600) 
+		message(FATAL_ERROR "You need MSVC 10.0 or later")
+	endif()
+endif()
+	
 include(AmxConfig)
 include(GetGitRevisionDescription)
 
@@ -27,7 +40,6 @@ set(SOURCES
 	amx_profiler/call_graph_writer_gv.h
 	amx_profiler/call_stack.cpp
 	amx_profiler/call_stack.h
-	amx_profiler/chrono.h
 	amx_profiler/debug_info.cpp
 	amx_profiler/debug_info.h
 	amx_profiler/duration.h
@@ -76,45 +88,16 @@ else()
 	message(FATAL_ERROR Unsupported operating system)
 endif()
 
-add_library(profiler MODULE ${SOURCES})
-
 source_group(amx REGULAR_EXPRESSION ${CMAKE_CURRENT_SOURCE_DIR}/amx/[^/\\]+\\..*)
 source_group(amx_profiler REGULAR_EXPRESSION ${CMAKE_CURRENT_SOURCE_DIR}/amx_profiler/[^/\\]+\\..*)
 source_group(plugin REGULAR_EXPRESSION ${CMAKE_CURRENT_SOURCE_DIR}/plugin/[^/\\]+\\..*)
-
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-find_package(Boost 1.47 COMPONENTS chrono system)
-if(Boost_FOUND)
-	add_definitions(-DHAVE_BOOST=${Boost_VERSION})
-	# Disable Boost auto-link feature 
-	add_definitions(-DBOOST_ALL_NO_LIB)
-	# Work around swprintf() error related to lexical_cast<> on MinGW
-	add_definitions(-DBOOST_LCAST_NO_WCHAR_T)
-	if(Boost_CHRONO_FOUND)
-		add_definitions(-DHAVE_BOOST_CHRONO)
-	endif()
-	include_directories(${Boost_INCLUDE_DIRS})
-	if(UNIX AND CMAKE_COMPILER_IS_GNUCXX)
-		# Chrono needs -lrt for clock_gettime()
-		set(Boost_LIBRARIES ${Boost_LIBRARIES} -lrt)
-	endif()
-	target_link_libraries(profiler ${Boost_LIBRARIES})
-endif()
+add_library(profiler MODULE ${SOURCES})
 
-set_property(TARGET profiler PROPERTY PREFIX "")
-
-# Make sure we have proper C++11 support
-if(CMAKE_COMPILER_IS_GNUCXX)
-	execute_process(COMMAND ${CMAKE_CXX_COMPILER} -dumpversion OUTPUT_VARIABLE GCC_VERSION)
-	if(GCC_VERSION VERSION_LESS 4.6)
-		message(FATAL_ERROR "You need GCC 4.6 or later")
-	endif()
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-elseif(MSVC)
-	if (MSVC_VERSION LESS 1600) 
-		message(FATAL_ERROR "You need MSVC 10.0 or later")
-	endif()
+if(UNIX OR MINGW)
+	# Remove the "lib" prefix of the output filename added in GCC/MinGW builds.
+	set_target_properties(profiler PROPERTIES PREFIX "")
 endif()
 
 if(UNIX OR MINGW)

@@ -22,7 +22,6 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include "chrono.h"
 #include "performance_counter.h"
 
 namespace amx_profiler {
@@ -39,15 +38,15 @@ PerformanceCounter::~PerformanceCounter() {
 
 void PerformanceCounter::Start() {
 	if (!started_) {			
-		start_point_ = chrono::high_resolution_clock::now();
+		start_point_ = std::chrono::high_resolution_clock::now();
 		started_ = true;
 	}
 }
 
 void PerformanceCounter::Stop() {
 	if (started_) {
-		chrono::high_resolution_clock::time_point now = chrono::high_resolution_clock::now();
-		chrono::high_resolution_clock::duration interval = now - start_point_;
+		std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
+		std::chrono::high_resolution_clock::duration interval = now - start_point_;
 		total_time_+= interval;
 		if (parent_ != 0) {
 			parent_->child_time_ += interval;
