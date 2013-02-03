@@ -77,6 +77,7 @@ set(SOURCES
 	plugin/plugin.h
 	plugin/plugincommon.h
 	plugin/plugin.cpp
+	plugin/plugin.def
 	plugin/plugin.rc
 	plugin/pluginversion.h
 )
@@ -119,14 +120,8 @@ endif()
 
 if(WIN32)
 	add_definitions(-DWIN32 -D_WIN32)
-	set(def_file "${CMAKE_CURRENT_SOURCE_DIR}/plugin/plugin.def")
 	if(MSVC)
-		set_property(TARGET ${PROJECT_NAME} APPEND_STRING PROPERTY 
-			LINK_FLAGS " /DEF:${def_file}")
 		add_definitions(-D_CRT_SECURE_NO_WARNINGS)  
-	elseif(MINGW)
-		set_property(TARGET ${PROJECT_NAME} APPEND_STRING PROPERTY 
-			LINK_FLAGS " -Wl,--kill-at --def ${def_file}")
 	endif()
 endif()
 
