@@ -29,9 +29,9 @@
 #include <tuple>
 #include "call_graph.h"
 #include "call_graph_writer_gv.h"
+#include "duration.h"
 #include "function.h"
 #include "function_statistics.h"
-#include "time.h"
 
 namespace amx_profiler {
 
@@ -76,7 +76,7 @@ void CallGraphWriterGV::Write(const CallGraph *graph) {
 	});
 
 	// Get maximum execution time.
-	TimeInterval max_time = 0;
+	Duration max_time;
 	graph->Traverse([&max_time, &graph](const CallGraphNode *node) {
 		if (node != graph->sentinel()) {
 			auto time = node->stats()->GetSelfTime();
@@ -90,7 +90,7 @@ void CallGraphWriterGV::Write(const CallGraph *graph) {
 	graph->Traverse([&max_time, this, &graph](const CallGraphNode *node) {
 		if (node != graph->sentinel()) {
 			auto time = node->stats()->GetSelfTime();
-			auto ratio = static_cast<double>(time) / static_cast<double>(max_time);
+			auto ratio = static_cast<double>(time.count()) / static_cast<double>(max_time.count());
 			// We encode color in HSB.
 			auto hsb = std::make_tuple(
 				(1.0 - ratio) * 0.6, // hue

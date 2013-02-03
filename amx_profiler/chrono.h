@@ -27,10 +27,16 @@
 
 #ifdef HAVE_BOOST_CHRONO
 	#include <boost/chrono.hpp>
-	namespace amx_profiler { namespace chrono = boost::chrono; }
+	namespace amx_profiler {
+		namespace chrono = boost::chrono;
+		namespace ratio  = boost;
+	}
 #else
 	#include <chrono>
-	namespace amx_profiler { namespace chrono = std::chrono; }
+	namespace amx_profiler {
+		namespace chrono = std::chrono;
+		namespace ratio  = std;
+	}
 #endif
 
 #endif // !AMX_PROFILER_CHRONO_H

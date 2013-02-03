@@ -22,19 +22,19 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef AMX_PROFILER_TIME_H
-#define AMX_PROFILER_TIME_H
+#ifndef AMX_PROFILER_DURATION_H
+#define AMX_PROFILER_DURATION_H
 
-#include <cstdint>
-#include "chrono.h"
+#include <chrono>
 
 namespace amx_profiler {
 
-typedef std::int64_t TimeInterval;
+typedef std::chrono::duration<double, std::ratio<1, 1000000000>> Nanoseconds;
+typedef std::chrono::duration<double, std::ratio<1, 1000000>>    Microseconds;
+typedef std::chrono::duration<double, std::ratio<1, 1000>>       Milliseconds;
+typedef std::chrono::duration<double, std::ratio<1, 1>>          Seconds;
 
-typedef chrono::nanoseconds  Nanoseconds;
-typedef chrono::microseconds Microseconds;
-typedef chrono::milliseconds Milliseconds;
+typedef Nanoseconds Duration;
 
 } // namespace amx_profiler
 

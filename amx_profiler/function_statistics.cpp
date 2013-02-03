@@ -29,8 +29,6 @@ namespace amx_profiler {
 FunctionStatistics::FunctionStatistics(Function *fn)
 	: fn_(fn)
 	, num_calls_(0)
-	, total_time_(0)
-	, child_time_(0)
 {
 }
 

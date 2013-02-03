@@ -27,6 +27,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include "duration.h"
 #include "function.h"
 #include "function_statistics.h"
 #include "performance_counter.h"
@@ -51,29 +52,29 @@ void ProfileWriterXml::Write(const std::vector<FunctionStatistics*> &profile)
 
 	*stream_ << ">\n";
 
-	TimeInterval time_all = 0;
+	Duration time_all;
 	for (auto stats : profile) {
 		time_all += stats->total_time() - stats->child_time(); 
 	}
 
-	TimeInterval total_time_all = 0;
+	Duration total_time_all;
 	for (auto stats : profile) {
 		total_time_all += stats->total_time(); 
 	}
 
 	for (auto stats : profile) {
-		double self_time_sec = static_cast<double>(stats->GetSelfTime()) / 1E+9;
-		double self_time_percent = static_cast<double>(stats->GetSelfTime() * 100) / time_all;
-		double total_time_sec = static_cast<double>(stats->total_time()) / 1E+9;
-		double total_time_percent =  static_cast<double>(stats->total_time() * 100) / total_time_all;
+		double self_time_sec = Seconds(stats->GetSelfTime()).count();
+		double self_time_percent = stats->GetSelfTime().count() * 100 / time_all.count();
+		double total_time_sec = Seconds(stats->total_time()).count();
+		double total_time_percent = stats->total_time().count() * 100 / total_time_all.count();
 		*stream_ << "\t<function"
 			<< " type=\"" << stats->function()->type() << "\""
 			<< " name=\"" << stats->function()->name() << "\""
 			<< " calls=\"" << stats->num_calls() << "\""
-			<< " self_time=\"" << stats->GetSelfTime() << "\""
+			<< " self_time=\"" << stats->GetSelfTime().count() << "\""
 			<< " self_time_sec=\"" << self_time_sec << "\""
 			<< " self_time_percent=\"" <<  std::fixed << std::setprecision(2) << self_time_percent << "\""
-			<< " total_time=\"" << stats->total_time() << "\""
+			<< " total_time=\"" << stats->total_time().count() << "\""
 			<< " total_time_sec=\"" << total_time_sec << "\""
 			<< " total_time_percent=\"" <<  std::fixed << std::setprecision(2) << total_time_percent << "\""
 		<< "/>\n";

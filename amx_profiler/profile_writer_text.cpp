@@ -27,6 +27,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include "duration.h"
 #include "function.h"
 #include "function_statistics.h"
 #include "performance_counter.h"
@@ -80,21 +81,21 @@ void ProfileWriterText::Write(const std::vector<FunctionStatistics*> &profile)
 		<< "|\n";
 	DoHLine();
 
-	TimeInterval time_all = 0;
+	Duration time_all;
 	for (auto stats : profile) {
 		time_all += stats->total_time() - stats->child_time(); 
 	}
 
-	TimeInterval total_time_all = 0;
+	Duration total_time_all;
 	for (auto stats : profile) {
 		total_time_all += stats->total_time(); 
 	}
 
 	for (auto stats : profile) {
-		double self_time_sec = static_cast<double>(stats->GetSelfTime()) / 1E+9;
-		double self_time_percent = static_cast<double>(stats->GetSelfTime() * 100) / time_all;
-		double total_time_sec = static_cast<double>(stats->total_time()) / 1E+9;
-		double total_time_percent =  static_cast<double>(stats->total_time() * 100) / total_time_all;
+		double self_time_sec = Seconds(stats->GetSelfTime()).count();
+		double self_time_percent = stats->GetSelfTime().count() * 100 / time_all.count();
+		double total_time_sec = Seconds(stats->total_time()).count();
+		double total_time_percent = stats->total_time().count() * 100 / total_time_all.count();
 		*stream_
 			<< "| " << std::setw(kTypeWidth) << stats->function()->type()
 			<< "| " << std::setw(kNameWidth) << stats->function()->name()

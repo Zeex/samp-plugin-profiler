@@ -30,6 +30,7 @@ set(SOURCES
 	amx_profiler/chrono.h
 	amx_profiler/debug_info.cpp
 	amx_profiler/debug_info.h
+	amx_profiler/duration.h
 	amx_profiler/function.cpp
 	amx_profiler/function.h
 	amx_profiler/function_call.cpp
@@ -54,7 +55,6 @@ set(SOURCES
 	amx_profiler/profiler.h
 	amx_profiler/public_function.cpp
 	amx_profiler/public_function.h
-	amx_profiler/time.h
 	plugin/amx_path.cpp
 	plugin/amx_path.h
 	plugin/amxplugin.cpp

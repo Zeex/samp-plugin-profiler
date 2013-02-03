@@ -25,7 +25,7 @@
 #ifndef AMX_PROFILER_FUNCTION_INFO_H
 #define AMX_PROFILER_FUNCTION_INFO_H
 
-#include "time.h"
+#include "duration.h"
 
 namespace amx_profiler {
 
@@ -46,25 +46,25 @@ public:
 	void AdjustNumCalls(long delta)
 		{ num_calls_ += delta; }
 
-	const TimeInterval total_time() const
+	const Duration total_time() const
 		{ return total_time_; }
-	void AdjustTotalTime(TimeInterval delta)
+	void AdjustTotalTime(Duration delta)
 		{ total_time_ += delta; }
 
-	TimeInterval child_time() const
+	Duration child_time() const
 		{ return child_time_; }
-	void AdjustChildTime(TimeInterval delta)
+	void AdjustChildTime(Duration delta)
 		{ child_time_ += delta; }
 
-	TimeInterval GetSelfTime() const 
+	Duration GetSelfTime() const 
 		{ return total_time() - child_time(); }
 
 private:
 	Function *fn_;
 
 	long num_calls_;
-	TimeInterval total_time_;
-	TimeInterval child_time_;
+	Duration total_time_;
+	Duration child_time_;
 };
 
 } // namespace amx_profiler

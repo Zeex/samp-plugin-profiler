@@ -25,41 +25,33 @@
 #ifndef AMX_PROFILER_PERFORMANCE_COUNTER_H
 #define AMX_PROFILER_PERFORMANCE_COUNTER_H
 
-#include "time.h"
+#include "chrono.h"
 
 namespace amx_profiler {
 
 class PerformanceCounter {
 public:
-	typedef chrono::high_resolution_clock ClockType;
-
 	PerformanceCounter(PerformanceCounter *parent = 0);
 	~PerformanceCounter();
 
 	void Start();
 	void Stop();
 
-	template<typename Resolution>
-	inline TimeInterval child_time() const {
-		return chrono::duration_cast<Resolution>(child_time_).count();
-	}
+	inline chrono::high_resolution_clock::duration child_time() const
+		{ return child_time_; }
 
-	template<typename Resolution>
-	inline TimeInterval total_time() const {
-		return chrono::duration_cast<Resolution>(total_time_).count();
-	}
+	inline chrono::high_resolution_clock::duration total_time() const
+		{ return total_time_; }
 
-	template<typename Resolution>
-	inline TimeInterval self_time() const {
-		return total_time<Resolution>() - child_time<Resolution>();
-	}
+	inline chrono::high_resolution_clock::duration self_time() const
+		{ return total_time() - child_time(); }
 
 private:
 	bool started_;
 	PerformanceCounter *parent_;
-	ClockType::time_point start_point_;
-	ClockType::duration child_time_;
-	ClockType::duration total_time_;
+	chrono::high_resolution_clock::time_point start_point_;
+	chrono::high_resolution_clock::duration child_time_;
+	chrono::high_resolution_clock::duration total_time_;
 };
 
 } // namespace amx_profiler
