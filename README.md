@@ -1,15 +1,10 @@
-Profiler plugin for SA:MP server
-================================
-
-https://github.com/Zeex/samp-plugin-profiler
+[Profiler plugin][github]
+=========================
 
 Profiler provides detailed information about how long each function takes to execute and how many times
 it is called. This can be helpful in finding bottlenecks or "hot spots" in code for further optimization.
 
-Profiler Settings
------------------
-
-This plugin recognizes the following `server.cfg` options:
+This plugin can recognize the following `server.cfg` options:
 
 *	`profile_gamemode <0|1>`
 
@@ -33,3 +28,4 @@ This plugin recognizes the following `server.cfg` options:
 
 	Set call graph format. Currently only `gv` ([GraphViz](http://www.graphviz.org)) is supported.
 
+[github]: https://github.com/Zeex/samp-plugin-profiler
