@@ -42,9 +42,14 @@ ProfileWriterXml::ProfileWriterXml(std::ostream *stream, const std::string scrip
 
 void ProfileWriterXml::Write(const std::vector<FunctionStatistics*> profile)
 {
-	*stream_ <<
-	"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-	"<profile script=\"" << script_name_ << "\"" << " timestamp=\"" << std::time(0) << "\">";
+	*stream_ << "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+	         << "<profile script=\"" << script_name_ << "\"";
+	
+	if (print_date()) {
+		*stream_ << " timestamp=\"" << std::time(0) << "\"";
+	}
+
+	*stream_ << ">\n";
 
 	TimeInterval time_all = 0;
 	for (auto stats : profile) {

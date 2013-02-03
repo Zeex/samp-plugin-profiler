@@ -36,24 +36,25 @@ set(SOURCES
 	amx_profiler/function_call.h
 	amx_profiler/function_statistics.cpp
 	amx_profiler/function_statistics.h
-	amx_profiler/profile_writer_html.cpp
-	amx_profiler/profile_writer_html.h
 	amx_profiler/native_function.cpp
 	amx_profiler/native_function.h
 	amx_profiler/normal_function.cpp
 	amx_profiler/normal_function.h
+	amx_profiler/performance_counter.cpp
+	amx_profiler/performance_counter.h
+	amx_profiler/profile_writer.cpp
 	amx_profiler/profile_writer.h
+	amx_profiler/profile_writer_html.cpp
+	amx_profiler/profile_writer_html.h
+	amx_profiler/profile_writer_text.cpp
+	amx_profiler/profile_writer_text.h
+	amx_profiler/profile_writer_xml.cpp
+	amx_profiler/profile_writer_xml.h
 	amx_profiler/profiler.cpp
 	amx_profiler/profiler.h
 	amx_profiler/public_function.cpp
 	amx_profiler/public_function.h
-	amx_profiler/profile_writer_text.cpp
-	amx_profiler/profile_writer_text.h
-	amx_profiler/performance_counter.cpp
-	amx_profiler/performance_counter.h
 	amx_profiler/time.h
-	amx_profiler/profile_writer_xml.cpp
-	amx_profiler/profile_writer_xml.h
 	plugin/amx_path.cpp
 	plugin/amx_path.h
 	plugin/amxplugin.cpp
@@ -88,7 +89,7 @@ if(Boost_FOUND)
 	add_definitions(-DHAVE_BOOST=${Boost_VERSION})
 	# Disable Boost auto-link feature 
 	add_definitions(-DBOOST_ALL_NO_LIB)
-	# Workaround swprintf() error related to lexical_cast<> on MinGW
+	# Work around swprintf() error related to lexical_cast<> on MinGW
 	add_definitions(-DBOOST_LCAST_NO_WCHAR_T)
 	if(Boost_CHRONO_FOUND)
 		add_definitions(-DHAVE_BOOST_CHRONO)

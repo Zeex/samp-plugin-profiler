@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2012, Zeex
+// Copyright (c) 2013, Zeex
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -22,28 +22,16 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef AMX_PROFILER_PROFILE_WRITER_H
-#define AMX_PROFILER_PROFILE_WRITER_H
-
+#include <ctime>
+#include <iostream>
 #include <vector>
+#include "profile_writer.h"
 
 namespace amx_profiler {
 
-class FunctionStatistics;
-
-class ProfileWriter {
-public:
-	ProfileWriter();
-
-	virtual void Write(const std::vector<FunctionStatistics*> profile) = 0;
-
-	bool print_date() const { return print_date_; }
-	void set_print_date(bool set) { print_date_ = set; }
-
-private:
-	bool print_date_;
-};
+ProfileWriter::ProfileWriter()
+	: print_date_(false)
+{
+}
 
 } // namespace amx_profiler
-
-#endif // !AMX_PROFILER_PROFILE_WRITER_H

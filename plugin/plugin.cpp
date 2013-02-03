@@ -289,6 +289,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 
 		if (profile_stream.is_open()) {
 			amx_profiler::ProfileWriter *writer = 0;
+
 			if (cfg::profile_format == "html") {
 				writer = new amx_profiler::ProfileWriterHtml(&profile_stream, amx_path);
 			} else if (cfg::profile_format == "txt") {
@@ -298,31 +299,36 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 			} else {
 				logprintf("[profiler] Unknown output format '%s'", cfg::profile_format.c_str());
 			}
+
 			if (writer != 0) {
 				logprintf("[profiler] Writing '%s'", profile_name.c_str());
+				writer->set_print_date(true);
 				profiler->WriteProfile(writer);
 				delete writer;
 			}
+
 			profile_stream.close();
 		}
 
 		if (cfg::call_graph) {
-			// Save the call graph as a dot script.
 			auto call_graph_name = amx_name + "-calls.gv";
 			std::ofstream call_graph_stream(call_graph_name.c_str());
 
 			if (call_graph_stream.is_open()) {
 				amx_profiler::CallGraphWriterGV *call_graph_writer = 0;
+
 				if (cfg::call_graph_format == "gv") {
 					call_graph_writer = new amx_profiler::CallGraphWriterGV(&call_graph_stream, amx_path, "SA-MP Server");
 				} else {
 					logprintf("[profiler] Unknown call graph format '%s'", cfg::call_graph_format.c_str());
 				}
+
 				if (call_graph_writer != 0) {
 					logprintf("[profiler] Writing '%s'", call_graph_name.c_str());
 					profiler->call_graph()->Write(call_graph_writer);
 					delete call_graph_writer;
 				}
+
 				call_graph_stream.close();
 			}
 		}

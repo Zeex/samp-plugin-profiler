@@ -55,10 +55,12 @@ ProfileWriterText::ProfileWriterText(std::ostream *stream, const std::string scr
 
 void ProfileWriterText::Write(const std::vector<FunctionStatistics*> profile)
 {
-	std::time_t now = std::time(0);
+	*stream_ << "Profile of '" << script_name_ << "'";
 
-	*stream_ << "Profile of '" << script_name_ << "'" << 
-		" generated on " << ctime(&now) << std::endl;
+	if (print_date()) {
+		std::time_t now = std::time(0);
+		*stream_ << " generated on " << ctime(&now);
+	}
 
 	auto DoHLine = [&]() {
 		char fillch = stream_->fill();

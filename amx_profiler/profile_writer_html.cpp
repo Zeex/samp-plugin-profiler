@@ -22,8 +22,8 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <ctime>
 #include <cstdio>
+#include <ctime>
 #include <iomanip>
 #include <iostream>
 #include <string>
@@ -114,8 +114,6 @@ void ProfileWriterHtml::Write(const std::vector<FunctionStatistics*> profile)
 	"	</table>\n"
 	;
 
-	std::time_t now = std::time(0);
-
 	*stream_ <<
 	"	<script type=\"text/javascript\"\n"
 	"		src=\"http://code.jquery.com/jquery-latest.min.js\"></script>\n"
@@ -127,9 +125,16 @@ void ProfileWriterHtml::Write(const std::vector<FunctionStatistics*> profile)
 	"	});\n"
 	"	</script>\n"
 	"	<br/>\n"
-	"	<footer>\n"
-	"		Generated on " << ctime(&now) <<
-	"	</footer>\n"
+	"	<footer>\n";
+
+	if (print_date()) {
+		std::time_t now = std::time(0);
+		*stream_ <<
+		"		Generated on " << std::ctime(&now);
+	}
+
+	*stream_ <<
+	"	</footer>\n";
 	"</body>\n"
 	"</html>\n"
 	;
