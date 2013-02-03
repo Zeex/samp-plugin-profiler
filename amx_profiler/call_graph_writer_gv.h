@@ -38,7 +38,7 @@ public:
 	                 const std::string &name = std::string(), 
 	                 const std::string top_node_name = "<host>");
 
-	virtual void Write(const CallGraph *graph);
+	virtual void Write(const CallGraph *graph) override;
 
 private:
 	std::ostream *stream_;

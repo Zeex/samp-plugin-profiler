@@ -33,9 +33,9 @@ class PublicFunction : public Function {
 public:
 	PublicFunction(AMX *amx, cell index);
 
-	virtual std::string name() const;
-	virtual std::string type() const;	
-	virtual ucell address() const;
+	virtual std::string name() const override;
+	virtual std::string type() const override;
+	virtual ucell address() const override;
 
 	cell index() const { return index_; }
 

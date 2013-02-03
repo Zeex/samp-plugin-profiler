@@ -36,7 +36,7 @@ class ProfileWriterText : public ProfileWriter {
 public:
 	ProfileWriterText(std::ostream *stream, const std::string script_name);
 
-	virtual void Write(const std::vector<FunctionStatistics*> &profile);
+	virtual void Write(const std::vector<FunctionStatistics*> &profile) override;
 
 private:
 	std::ostream *stream_;

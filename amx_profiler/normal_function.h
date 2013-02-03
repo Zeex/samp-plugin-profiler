@@ -35,9 +35,9 @@ class NormalFunction : public Function {
 public:
 	NormalFunction(ucell address, const DebugInfo &debug_info);
 
-	virtual std::string name() const;
-	virtual std::string type() const;
-	virtual ucell address() const;
+	virtual std::string name() const override;
+	virtual std::string type() const override;
+	virtual ucell address() const override;
 
 private:
 	ucell address_;
