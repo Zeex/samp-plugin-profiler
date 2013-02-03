@@ -31,5 +31,5 @@ This plugin recognizes the following `server.cfg` options:
 
 *	`call_graph_format <format>`
 
-	Set call graph format. Currently only `gv` ([GraphViz](http://www.graphviz.org GraphViz)) is supported.
+	Set call graph format. Currently only `gv` ([GraphViz](http://www.graphviz.org)) is supported.
 
