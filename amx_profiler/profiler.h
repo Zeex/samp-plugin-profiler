@@ -57,7 +57,7 @@ public:
 	}
 
 	int amx_Debug(
-		int (AMXAPI *debug)(AMX *amx) = 0);
+		int (AMXAPI *debug)(AMX *amx) = nullptr);
 	int amx_Exec(cell *retval, int index,
 		int (AMXAPI *exec)(AMX *amx, cell *retval, int index) = ::amx_Exec);
 	int amx_Callback(cell index, cell *result, cell *params,

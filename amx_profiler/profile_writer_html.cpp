@@ -129,7 +129,7 @@ void ProfileWriterHtml::Write(const Statistics *profile)
 	"	<footer>\n";
 
 	if (print_date()) {
-		std::time_t now = std::time(0);
+		std::time_t now = std::time(nullptr);
 		*stream_ <<
 		"		Generated on " << std::ctime(&now);
 	}

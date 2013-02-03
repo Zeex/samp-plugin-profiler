@@ -31,7 +31,7 @@ namespace amx_profiler {
 
 CallGraph::CallGraph(CallGraphNode *root)
 	: root_(root)
-	, sentinel_(new CallGraphNode(this, 0))
+	, sentinel_(new CallGraphNode(this, nullptr))
 {
 	if (!root) {
 		root_ = sentinel_;

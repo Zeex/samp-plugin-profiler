@@ -60,7 +60,7 @@ public:
 	explicit AmxFile(const std::string &name);
 
 	bool IsLoaded() const {
-		return amxPtr_.get() != 0;
+		return amxPtr_.get() != nullptr;
 	}
 
 	const AMX *GetAmx() const {
@@ -87,7 +87,7 @@ AmxFile::AmxFile(const std::string &name)
 {
 	if (AMX *amx = new AMX) {
 		std::memset(amx, 0, sizeof(AMX));
-		if (aux_LoadProgram(amx, const_cast<char*>(name.c_str()), 0) == AMX_ERR_NONE) {
+		if (aux_LoadProgram(amx, const_cast<char*>(name.c_str()), nullptr) == AMX_ERR_NONE) {
 			amxPtr_.reset(amx, FreeAmx);
 		} else {
 			delete amx;
@@ -96,7 +96,7 @@ AmxFile::AmxFile(const std::string &name)
 }
 
 void AmxFile::FreeAmx(AMX *amx) {
-	if (amx != 0) {
+	if (amx != nullptr) {
 		aux_FreeProgram(amx);
 		delete amx;
 	}
@@ -122,9 +122,9 @@ static void GetFilesInDirectory(const std::string &dir,
 	}
 #else
 	DIR *dp;
-	if ((dp = opendir(dir.c_str())) != 0) {
+	if ((dp = opendir(dir.c_str())) != nullptr) {
 		struct dirent *dirp;
-		while ((dirp = readdir(dp)) != 0) {
+		while ((dirp = readdir(dp)) != nullptr) {
 			if (!fnmatch(pattern.c_str(), dirp->d_name,
 							FNM_CASEFOLD | FNM_NOESCAPE | FNM_PERIOD)) {
 				*result++ = dir + "/" + dirp->d_name;

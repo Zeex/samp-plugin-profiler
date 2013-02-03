@@ -33,7 +33,7 @@ namespace amx_profiler {
 
 class FunctionCall {
 public:
-	FunctionCall(Function *function, cell frame, FunctionCall *parent = 0);
+	FunctionCall(Function *function, cell frame, FunctionCall *parent = nullptr);
 
 	Function *function()
 		{ return fn_; }

@@ -59,7 +59,7 @@ void ProfileWriterText::Write(const Statistics *profile)
 	*stream_ << "Profile of '" << script_name_ << "'";
 
 	if (print_date()) {
-		std::time_t now = std::time(0);
+		std::time_t now = std::time(nullptr);
 		*stream_ << " generated on " << ctime(&now);
 	}
 

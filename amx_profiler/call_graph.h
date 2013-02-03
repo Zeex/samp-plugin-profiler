@@ -38,7 +38,7 @@ class CallGraph {
 	friend class CallGraphNode;
 
 public:
-	CallGraph(CallGraphNode *root = 0);
+	CallGraph(CallGraphNode *root = nullptr);
 	~CallGraph();
 
 	inline CallGraphNode *root() const {
@@ -74,7 +74,7 @@ public:
 		bool operator()(const CallGraphNode *n1, const CallGraphNode *n2) const;
 	};
 
-	CallGraphNode(CallGraph *graph, FunctionStatistics *stats, CallGraphNode *caller = 0);
+	CallGraphNode(CallGraph *graph, FunctionStatistics *stats, CallGraphNode *caller = nullptr);
 
 	void MakeRoot() {
 		graph_->set_root(this);

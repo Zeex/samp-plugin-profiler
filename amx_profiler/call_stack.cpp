@@ -29,7 +29,7 @@
 namespace amx_profiler {
 
 void CallStack::Push(Function *function, ucell frame) {
-	FunctionCall *parent = calls_.empty() ? 0 : &calls_.back();
+	FunctionCall *parent = calls_.empty() ? nullptr : &calls_.back();
 	Push(FunctionCall(function, frame, parent));
 }
 

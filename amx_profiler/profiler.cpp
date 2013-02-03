@@ -58,7 +58,7 @@ int Profiler::amx_Debug(int (AMXAPI *debug)(AMX *amx)) {
 		if (call_stack_.top()->frame() != amx_->frm) {
 			auto address = static_cast<ucell>(amx_->cip) - 2*sizeof(cell);
 			auto fn = stats_.GetFunction(address);
-			if (fn == 0) {
+			if (fn == nullptr) {
 				fn = new NormalFunction(address, debug_info_);
 				functions_.insert(fn);
 				stats_.AddFunction(fn);
@@ -71,7 +71,7 @@ int Profiler::amx_Debug(int (AMXAPI *debug)(AMX *amx)) {
 		}
 	}
 
-	if (debug != 0) {
+	if (debug != nullptr) {
 		return debug(amx_);
 	}
 
@@ -81,7 +81,7 @@ int Profiler::amx_Debug(int (AMXAPI *debug)(AMX *amx)) {
 int Profiler::amx_Callback(cell index, cell *result, cell *params,
 	int (AMXAPI *callback)(AMX *amx, cell index, cell *result, cell *params))
 {
-	if (callback == 0) {
+	if (callback == nullptr) {
 		callback = ::amx_Callback;
 	}
 
@@ -89,7 +89,7 @@ int Profiler::amx_Callback(cell index, cell *result, cell *params,
 		auto address = GetNativeAddress(index);
 		if (address != 0) {
 			auto fn = stats_.GetFunction(address);
-			if (fn == 0) {
+			if (fn == nullptr) {
 				fn = new NativeFunction(amx_, index);
 				functions_.insert(fn);
 				stats_.AddFunction(fn);
@@ -109,7 +109,7 @@ int Profiler::amx_Callback(cell index, cell *result, cell *params,
 int Profiler::amx_Exec(cell *retval, int index,
 	int (AMXAPI *exec)(AMX *amx, cell *retval, int index))
 {
-	if (exec == 0) {
+	if (exec == nullptr) {
 		exec = ::amx_Exec;
 	}
 
@@ -117,7 +117,7 @@ int Profiler::amx_Exec(cell *retval, int index,
 		auto address = GetPublicAddress(index);
 		if (address != 0) {
 			auto fn = stats_.GetFunction(address);
-			if (fn == 0) {
+			if (fn == nullptr) {
 				fn = new PublicFunction(amx_, index);
 				functions_.insert(fn);
 				stats_.AddFunction(fn);
@@ -158,7 +158,7 @@ void Profiler::BeginFunction(ucell address, ucell frm) {
 	assert(address != 0);
 	auto fn_stats = stats_.GetFunctionStatistis(address);
 
-	assert(fn_stats != 0);
+	assert(fn_stats != nullptr);
 	fn_stats->AdjustNumCalls(1);
 
 	call_stack_.Push(fn_stats->function(), frm);
@@ -169,13 +169,13 @@ void Profiler::BeginFunction(ucell address, ucell frm) {
 
 void Profiler::EndFunction(ucell address) {
 	assert(!call_stack_.IsEmpty());
-	assert(address == 0 || stats_.GetFunction(address) != 0);
+	assert(address == 0 || stats_.GetFunction(address) != nullptr);
 
 	while (true) {
 		auto old_top = call_stack_.Pop();
 
 		auto old_top_fn_stats = stats_.GetFunctionStatistis(old_top.function()->address());
-		assert(old_top_fn_stats != 0);
+		assert(old_top_fn_stats != nullptr);
 
 		if (old_top.IsRecursive()) {
 			old_top_fn_stats->AdjustChildTime(-old_top.timer()->child_time());
@@ -186,7 +186,7 @@ void Profiler::EndFunction(ucell address) {
 		if (!call_stack_.IsEmpty()) {
 			auto top = call_stack_.top();
 			auto top_fn_stats = stats_.GetFunctionStatistis(top->function()->address());
-			assert(top_fn_stats != 0);
+			assert(top_fn_stats != nullptr);
 			top_fn_stats->AdjustChildTime(old_top.timer()->total_time());
 		}
 
@@ -195,7 +195,7 @@ void Profiler::EndFunction(ucell address) {
 			call_graph_.set_root(call_graph_.root()->caller());
 		}
 
-		if (address == 0 || (old_top.function()->address() == address)) {
+		if (address == 0 || old_top.function()->address() == address) {
 			break;
 		}
 	}

@@ -88,7 +88,7 @@ static int AMXAPI amx_Debug(AMX *amx) {
 	}
 	auto iterator = old_debug_hooks.find(amx);
 	if (iterator != old_debug_hooks.end()) {
-		if (iterator->second != 0) {
+		if (iterator->second != nullptr) {
 			return (iterator->second)(amx);
 		}
 	}
@@ -288,7 +288,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 		std::ofstream profile_stream(profile_name.c_str());
 
 		if (profile_stream.is_open()) {
-			amx_profiler::ProfileWriter *writer = 0;
+			amx_profiler::ProfileWriter *writer = nullptr;
 
 			if (cfg::profile_format == "html") {
 				writer = new amx_profiler::ProfileWriterHtml(&profile_stream, amx_path);
@@ -300,7 +300,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 				logprintf("[profiler] Unknown output format '%s'", cfg::profile_format.c_str());
 			}
 
-			if (writer != 0) {
+			if (writer != nullptr) {
 				logprintf("[profiler] Writing '%s'", profile_name.c_str());
 				writer->set_print_date(true);
 				writer->Write(profiler->GetStatistics());
@@ -315,7 +315,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 			std::ofstream call_graph_stream(call_graph_name.c_str());
 
 			if (call_graph_stream.is_open()) {
-				amx_profiler::CallGraphWriterGV *call_graph_writer = 0;
+				amx_profiler::CallGraphWriterGV *call_graph_writer = nullptr;
 
 				if (cfg::call_graph_format == "gv") {
 					call_graph_writer = new amx_profiler::CallGraphWriterGV(&call_graph_stream, amx_path, "SA-MP Server");
@@ -323,7 +323,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 					logprintf("[profiler] Unknown call graph format '%s'", cfg::call_graph_format.c_str());
 				}
 
-				if (call_graph_writer != 0) {
+				if (call_graph_writer != nullptr) {
 					logprintf("[profiler] Writing '%s'", call_graph_name.c_str());
 					profiler->call_graph()->Write(call_graph_writer);
 					delete call_graph_writer;

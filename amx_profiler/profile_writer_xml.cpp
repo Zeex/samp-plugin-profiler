@@ -47,7 +47,7 @@ void ProfileWriterXml::Write(const Statistics *profile)
 	         << "<profile script=\"" << script_name_ << "\"";
 	
 	if (print_date()) {
-		*stream_ << " timestamp=\"" << std::time(0) << "\"";
+		*stream_ << " timestamp=\"" << std::time(nullptr) << "\"";
 	}
 
 	*stream_ << ">\n";

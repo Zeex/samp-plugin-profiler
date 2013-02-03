@@ -27,14 +27,14 @@
 #include "hook.h"
 
 Hook::Hook() 
-	: src_(0)
-	, dst_(0)
+	: src_(nullptr)
+	, dst_(nullptr)
 	, installed_(false)
 {}
 
 Hook::Hook(void *src, void *dst) 
-	: src_(0)
-	, dst_(0)
+	: src_(nullptr)
+	, dst_(nullptr)
 	, installed_(false)
 {
 	Install(src, dst);
@@ -99,5 +99,5 @@ void *Hook::GetTargetAddress(void *jmp) {
 		int abs_addr = rel_addr + next_instr;
 		return reinterpret_cast<void*>(abs_addr);
 	}
-	return 0;
+	return nullptr;
 }

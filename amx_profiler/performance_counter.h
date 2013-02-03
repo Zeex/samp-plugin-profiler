@@ -31,7 +31,7 @@ namespace amx_profiler {
 
 class PerformanceCounter {
 public:
-	PerformanceCounter(PerformanceCounter *parent = 0);
+	PerformanceCounter(PerformanceCounter *parent = nullptr);
 	~PerformanceCounter();
 
 	void Start();

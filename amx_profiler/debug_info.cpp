@@ -54,19 +54,19 @@ DebugInfo::DebugInfo(const std::string &filename) {
 }
 
 void DebugInfo::FreeAmxDbg(AMX_DBG *amxdbg) {
-	if (amxdbg != 0) {
+	if (amxdbg != nullptr) {
 		dbg_FreeInfo(amxdbg);
 		delete amxdbg;
 	}
 }
 
 bool DebugInfo::IsLoaded() const {
-	return (amxdbg_.get() != 0);
+	return (amxdbg_.get() != nullptr);
 }
 
 void DebugInfo::Load(const std::string &filename) {
 	std::FILE* fp = std::fopen(filename.c_str(), "rb");
-	if (fp != 0) {
+	if (fp != nullptr) {
 		amxdbg_.reset(new AMX_DBG, FreeAmxDbg);
 		if (dbg_LoadInfo(amxdbg_.get(), fp) != AMX_ERR_NONE) 
 			amxdbg_.reset();
