@@ -292,7 +292,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 
 			if (cfg::profile_format == "html") {
 				writer = new amx_profiler::ProfileWriterHtml(&profile_stream, amx_path);
-			} else if (cfg::profile_format == "txt") {
+			} else if (cfg::profile_format == "txt" || cfg::profile_format == "text") {
 				writer = new amx_profiler::ProfileWriterText(&profile_stream, amx_path);
 			} else if (cfg::profile_format == "xml") {
 				writer = new amx_profiler::ProfileWriterXml(&profile_stream, amx_path);
