@@ -50,7 +50,7 @@
 #include "config_reader.h"
 #include "hook.h"
 #include "plugin.h"
-#include "version.h"
+#include "pluginversion.h"
 
 typedef void (*logprintf_t)(const char *format, ...);
 
@@ -219,7 +219,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
 	cfg::call_graph            = server_cfg.GetOption("call_graph", cfg::call_graph);
 	cfg::call_graph_format     = server_cfg.GetOption("call_graph_format", cfg::call_graph_format);
 
-	logprintf("  Profiler v" PLUGIN_VERSION_STRING " is OK.");
+	logprintf("  Profiler v" PROJECT_VERSION_STRING " is OK.");
 
 	return true;
 }
