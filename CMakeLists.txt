@@ -1,9 +1,7 @@
-cmake_minimum_required(VERSION 2.8.6)
-
 project(profiler)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} 
-	"${CMAKE_SOURCE_DIR}/cmake/Modules")
+cmake_minimum_required(VERSION 2.8.6)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
 
 # Make sure we have proper C++11 support.
 if(CMAKE_COMPILER_IS_GNUCXX)
@@ -96,21 +94,21 @@ source_group(amx_profiler REGULAR_EXPRESSION ${CMAKE_CURRENT_SOURCE_DIR}/amx_pro
 source_group(plugin REGULAR_EXPRESSION ${CMAKE_CURRENT_SOURCE_DIR}/plugin/[^/\\]+\\..*)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-add_library(profiler MODULE ${SOURCES})
+add_library(${PROJECT_NAME} MODULE ${SOURCES})
 
 if(UNIX OR MINGW)
 	# Remove the "lib" prefix of the output filename added in GCC/MinGW builds.
-	set_target_properties(profiler PROPERTIES PREFIX "")
+	set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
 endif()
 
 if(UNIX OR MINGW)
-	set_property(TARGET profiler APPEND_STRING PROPERTY 
+	set_property(TARGET ${PROJECT_NAME} APPEND_STRING PROPERTY 
 		COMPILE_FLAGS " -m32 -Wno-attributes")
-	set_property(TARGET profiler APPEND_STRING PROPERTY 
+	set_property(TARGET ${PROJECT_NAME} APPEND_STRING PROPERTY 
 		LINK_FLAGS " -m32 -Wl,--no-undefined")
 	if(WIN32)
 		# Link with static runtime
-		set_property(TARGET profiler APPEND_STRING PROPERTY 
+		set_property(TARGET ${PROJECT_NAME} APPEND_STRING PROPERTY 
 			LINK_FLAGS " -static-libgcc -static-libstdc++")
 	endif()
 endif()
@@ -123,11 +121,11 @@ if(WIN32)
 	add_definitions(-DWIN32 -D_WIN32)
 	set(def_file "${CMAKE_CURRENT_SOURCE_DIR}/plugin/plugin.def")
 	if(MSVC)
-		set_property(TARGET profiler APPEND_STRING PROPERTY 
+		set_property(TARGET ${PROJECT_NAME} APPEND_STRING PROPERTY 
 			LINK_FLAGS " /DEF:${def_file}")
 		add_definitions(-D_CRT_SECURE_NO_WARNINGS)  
 	elseif(MINGW)
-		set_property(TARGET profiler APPEND_STRING PROPERTY 
+		set_property(TARGET ${PROJECT_NAME} APPEND_STRING PROPERTY 
 			LINK_FLAGS " -Wl,--kill-at --def ${def_file}")
 	endif()
 endif()
@@ -160,12 +158,12 @@ configure_file(
 	"${CMAKE_CURRENT_SOURCE_DIR}/plugin/pluginversion.h"
 	@ONLY)
 
-message(STATUS "You're going to build Profiler v${version}")
+message(STATUS "You're going to build ${PROJECT_NAME} v${version}")
 
-install(TARGETS profiler LIBRARY DESTINATION ".")
+install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION ".")
 install(FILES "README.md" DESTINATION ".")
 
-set(CPACK_PACKAGE_NAME ${CMAKE_PROJECT_NAME})
+set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
 if(WIN32)
 	set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${version}-win32")
 	set(CPACK_GENERATOR ZIP)
@@ -175,4 +173,3 @@ elseif(UNIX)
 endif()
 
 include(CPack)
-
