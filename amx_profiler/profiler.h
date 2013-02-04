@@ -37,7 +37,7 @@
 
 namespace amx_profiler {
 
-class ProfileWriter;
+class StatisticsWriter;
 
 class Profiler {
 public:

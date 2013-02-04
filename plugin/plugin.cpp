@@ -42,9 +42,9 @@
 #include <amx/amx.h>
 #include <amx_profiler/call_graph_writer_gv.h>
 #include <amx_profiler/debug_info.h>
-#include <amx_profiler/profile_writer_html.h>
-#include <amx_profiler/profile_writer_text.h>
-#include <amx_profiler/profile_writer_xml.h>
+#include <amx_profiler/statistics_writer_html.h>
+#include <amx_profiler/statistics_writer_text.h>
+#include <amx_profiler/statistics_writer_xml.h>
 #include <amx_profiler/profiler.h>
 #include "amxpath.h"
 #include "configreader.h"
@@ -288,14 +288,14 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 		std::ofstream profile_stream(profile_name.c_str());
 
 		if (profile_stream.is_open()) {
-			amx_profiler::ProfileWriter *writer = nullptr;
+			amx_profiler::StatisticsWriter *writer = nullptr;
 
 			if (cfg::profile_format == "html") {
-				writer = new amx_profiler::ProfileWriterHtml;
+				writer = new amx_profiler::StatisticsWriterHtml;
 			} else if (cfg::profile_format == "txt" || cfg::profile_format == "text") {
-				writer = new amx_profiler::ProfileWriterText;
+				writer = new amx_profiler::StatisticsWriterText;
 			} else if (cfg::profile_format == "xml") {
-				writer = new amx_profiler::ProfileWriterXml;
+				writer = new amx_profiler::StatisticsWriterXml;
 			} else {
 				logprintf("[profiler] Unknown output format '%s'", cfg::profile_format.c_str());
 			}

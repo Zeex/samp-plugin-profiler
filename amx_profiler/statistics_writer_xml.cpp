@@ -30,15 +30,15 @@
 #include "function.h"
 #include "function_statistics.h"
 #include "performance_counter.h"
-#include "profile_writer_xml.h"
+#include "statistics_writer_xml.h"
 #include "statistics.h"
 
 namespace amx_profiler {
 
-void ProfileWriterXml::Write(const Statistics *profile)
+void StatisticsWriterXml::Write(const Statistics *stats)
 {
 	*stream() << "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-	          << "<profile script=\"" << script_name() << "\"";
+	          << "<stats script=\"" << script_name() << "\"";
 	
 	if (print_date()) {
 		*stream() << " timestamp=\"" << std::time(nullptr) << "\"";
@@ -47,16 +47,16 @@ void ProfileWriterXml::Write(const Statistics *profile)
 	*stream() << ">\n";
 
 	Duration time_all;
-	profile->EnumerateFunctions([&](const FunctionStatistics *fn_stats) {
+	stats->EnumerateFunctions([&](const FunctionStatistics *fn_stats) {
 		time_all += fn_stats->total_time() - fn_stats->child_time(); 
 	});
 
 	Duration total_time_all;
-	profile->EnumerateFunctions([&](const FunctionStatistics *fn_stats) {
+	stats->EnumerateFunctions([&](const FunctionStatistics *fn_stats) {
 		total_time_all += fn_stats->total_time(); 
 	});
 
-	profile->EnumerateFunctions([&](const FunctionStatistics *fn_stats) {
+	stats->EnumerateFunctions([&](const FunctionStatistics *fn_stats) {
 		double self_time_sec = Seconds(fn_stats->GetSelfTime()).count();
 		double self_time_percent = fn_stats->GetSelfTime().count() * 100 / time_all.count();
 		double total_time_sec = Seconds(fn_stats->total_time()).count();
@@ -74,7 +74,7 @@ void ProfileWriterXml::Write(const Statistics *profile)
 		<< "/>\n";
 	});
 
-	*stream() << "</profile>";
+	*stream() << "</stats>";
 }
 
 } // namespace amx_profiler

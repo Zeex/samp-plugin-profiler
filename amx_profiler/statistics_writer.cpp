@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2013, Zeex
+// Copyright (c) 2013, Zeex
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -22,18 +22,16 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef AMX_PROFILER_PROFILE_WRITER_XML_H
-#define AMX_PROFILER_PROFILE_WRITER_XML_H
-
-#include "profile_writer.h"
+#include <ctime>
+#include <iostream>
+#include <vector>
+#include "statistics_writer.h"
 
 namespace amx_profiler {
 
-class ProfileWriterXml : public ProfileWriter {
-public:
-	virtual void Write(const Statistics *profile) override;
-};
+StatisticsWriter::StatisticsWriter()
+	: print_date_(false)
+{
+}
 
 } // namespace amx_profiler
-
-#endif // !AMX_PROFILER_PROFILE_WRITER_XML_H

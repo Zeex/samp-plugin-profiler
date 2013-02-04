@@ -27,20 +27,20 @@ add_library(amx_profiler STATIC
 	normal_function.h
 	performance_counter.cpp
 	performance_counter.h
-	profile_writer.cpp
-	profile_writer.h
-	profile_writer_html.cpp
-	profile_writer_html.h
-	profile_writer_text.cpp
-	profile_writer_text.h
-	profile_writer_xml.cpp
-	profile_writer_xml.h
 	profiler.cpp
 	profiler.h
 	public_function.cpp
 	public_function.h
 	statistics.cpp
 	statistics.h
+	statistics_writer.cpp
+	statistics_writer.h
+	statistics_writer_html.cpp
+	statistics_writer_html.h
+	statistics_writer_text.cpp
+	statistics_writer_text.h
+	statistics_writer_xml.cpp
+	statistics_writer_xml.h
 )
 
 target_link_libraries(amx_profiler amx)

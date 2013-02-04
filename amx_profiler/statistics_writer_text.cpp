@@ -30,7 +30,7 @@
 #include "function.h"
 #include "function_statistics.h"
 #include "performance_counter.h"
-#include "profile_writer_text.h"
+#include "statistics_writer_text.h"
 #include "statistics.h"
 
 static const int kTypeWidth = 7;
@@ -48,7 +48,7 @@ static const int kNumColumns = 7;
 
 namespace amx_profiler {
 
-void ProfileWriterText::Write(const Statistics *profile)
+void StatisticsWriterText::Write(const Statistics *stats)
 {
 	*stream() << "Profile of '" << script_name() << "'";
 
@@ -76,16 +76,16 @@ void ProfileWriterText::Write(const Statistics *profile)
 	DoHLine();
 
 	Duration time_all;
-	profile->EnumerateFunctions([&](const FunctionStatistics *fn_stats) {
+	stats->EnumerateFunctions([&](const FunctionStatistics *fn_stats) {
 		time_all += fn_stats->total_time() - fn_stats->child_time(); 
 	});
 
 	Duration total_time_all;
-	profile->EnumerateFunctions([&](const FunctionStatistics *fn_stats) {
+	stats->EnumerateFunctions([&](const FunctionStatistics *fn_stats) {
 		total_time_all += fn_stats->total_time(); 
 	});
 
-	profile->EnumerateFunctions([&](const FunctionStatistics *fn_stats) {
+	stats->EnumerateFunctions([&](const FunctionStatistics *fn_stats) {
 		double self_time_sec = Seconds(fn_stats->GetSelfTime()).count();
 		double self_time_percent = fn_stats->GetSelfTime().count() * 100 / time_all.count();
 		double total_time_sec = Seconds(fn_stats->total_time()).count();

@@ -22,18 +22,34 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef AMX_PROFILER_PROFILE_WRITER_TEXT_H
-#define AMX_PROFILER_PROFILE_WRITER_TEXT_H
-
-#include "profile_writer.h"
+#ifndef AMX_PROFILER_STATISTICS_WRITER_H
+#define AMX_PROFILER_STATISTICS_WRITER_H
 
 namespace amx_profiler {
 
-class ProfileWriterText : public ProfileWriter {
+class Statistics;
+
+class StatisticsWriter {
 public:
-	virtual void Write(const Statistics *profile) override;
+	StatisticsWriter();
+
+	virtual void Write(const Statistics *stats) = 0;
+
+	std::ostream *stream() const { return stream_; }
+	void set_stream(std::ostream *stream) { stream_ = stream; }
+	
+	std::string script_name() const { return script_name_; }
+	void set_script_name(std::string script_name) { script_name_ = script_name; }
+	
+	bool print_date() const { return print_date_; }
+	void set_print_date(bool print_date) { print_date_ = print_date; }
+
+private:
+	std::ostream *stream_;
+	std::string script_name_;
+	bool print_date_;
 };
 
 } // namespace amx_profiler
 
-#endif // !AMX_PROFILER_PROFILE_WRITER_TEXT_H
+#endif // !AMX_PROFILER_PROFILE_WRITER_H

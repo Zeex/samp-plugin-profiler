@@ -30,13 +30,13 @@
 #include "duration.h"
 #include "function.h"
 #include "function_statistics.h"
-#include "profile_writer_html.h"
+#include "statistics_writer_html.h"
 #include "performance_counter.h"
 #include "statistics.h"
 
 namespace amx_profiler {
 
-void ProfileWriterHtml::Write(const Statistics *profile)
+void StatisticsWriterHtml::Write(const Statistics *stats)
 {
 	*stream() <<
 	"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\n"
@@ -77,16 +77,16 @@ void ProfileWriterHtml::Write(const Statistics *profile)
 	;
 
 	Duration time_all;
-	profile->EnumerateFunctions([&](const FunctionStatistics *fn_stats) {
+	stats->EnumerateFunctions([&](const FunctionStatistics *fn_stats) {
 		time_all += fn_stats->total_time() - fn_stats->child_time(); 
 	});
 
 	Duration total_time_all;
-	profile->EnumerateFunctions([&](const FunctionStatistics *fn_stats) {
+	stats->EnumerateFunctions([&](const FunctionStatistics *fn_stats) {
 		total_time_all += fn_stats->total_time(); 
 	});
 
-	profile->EnumerateFunctions([&](const FunctionStatistics *fn_stats) {
+	stats->EnumerateFunctions([&](const FunctionStatistics *fn_stats) {
 		double self_time_sec = Seconds(fn_stats->GetSelfTime()).count();
 		double self_time_percent = fn_stats->GetSelfTime().count() * 100 / time_all.count();
 		double total_time_sec = Seconds(fn_stats->total_time()).count();

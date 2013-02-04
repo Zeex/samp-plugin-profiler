@@ -22,16 +22,16 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef AMX_PROFILER_PROFILE_WRITER_HTML_H
-#define AMX_PROFILER_PROFILE_WRITER_HTML_H
+#ifndef AMX_PROFILER_STATISTICS_WRITER_HTML_H
+#define AMX_PROFILER_STATISTICS_WRITER_HTML_H
 
-#include "profile_writer.h"
+#include "statistics_writer.h"
 
 namespace amx_profiler {
 
-class ProfileWriterHtml : public ProfileWriter {
+class StatisticsWriterHtml : public StatisticsWriter {
 public:
-	virtual void Write(const Statistics *profile) override;
+	virtual void Write(const Statistics *stats) override;
 };
 
 } // namespace amx_profiler
