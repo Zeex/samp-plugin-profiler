@@ -43,7 +43,7 @@ public:
 	inline std::chrono::high_resolution_clock::duration total_time() const
 		{ return total_time_; }
 
-	inline std::chrono::high_resolution_clock::duration self_time() const
+	inline std::chrono::high_resolution_clock::duration GetSelfTime() const
 		{ return total_time() - child_time(); }
 
 private:

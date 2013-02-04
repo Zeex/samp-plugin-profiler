@@ -47,7 +47,7 @@ void PerformanceCounter::Stop() {
 	if (started_) {
 		std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
 		std::chrono::high_resolution_clock::duration interval = now - start_point_;
-		total_time_+= interval;
+		total_time_ += interval;
 		if (parent_ != nullptr) {
 			parent_->child_time_ += interval;
 		}
