@@ -1,22 +1,14 @@
 project(profiler)
 
-cmake_minimum_required(VERSION 2.8.6)
+cmake_minimum_required(VERSION 2.8.8)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
 
 include(AmxConfig)
 include(GetGitRevisionDescription)
 
-# Get version numbers of gcc and g++ respectively.
-if(CMAKE_COMPILER_IS_GNUCC)
-	execute_process(COMMAND ${CMAKE_C_COMPILER} -dumpversion OUTPUT_VARIABLE GCC_VERSION)
-endif()
-if(CMAKE_COMPILER_IS_GNUCXX)
-	execute_process(COMMAND ${CMAKE_CXX_COMPILER} -dumpversion OUTPUT_VARIABLE GXX_VERSION)
-endif()
-
 # Make sure we have proper C++11 support.
 if(CMAKE_COMPILER_IS_GNUCXX)
-	if(GCC_VERSION VERSION_LESS 4.6)
+	if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.6)
 		message(FATAL_ERROR "You need g++ 4.6 or later")
 	endif()
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
@@ -28,12 +20,12 @@ endif()
 
 # Suppress annoying GCC warning about 'packed' attribute being ignored.
 if(CMAKE_COMPILER_IS_GNUCC)
-	if(NOT GCC_VERSION VERSION_LESS 4.0)
+	if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 4.0)
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-attributes")
 	endif()
 endif()
 if(CMAKE_COMPILER_IS_GNUCXX)
-	if(NOT GXX_VERSION VERSION_LESS 4.0)
+	if(NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.0)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-attributes")
 	endif()
 endif()
