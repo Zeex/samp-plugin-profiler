@@ -22,51 +22,48 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include "function.h"
-#include "function_statistics.h"
-#include "statistics.h"
+#include <ctime>
+#include <iomanip>
+#include <iostream>
+#include "duration.h"
+#include "time_utils.h"
 
 namespace amx_profiler {
 
-Statistics::Statistics() {
-	run_time_counter_.Start();
+std::time_t TimeNow() {
+	return std::time(nullptr);
 }
 
-Statistics::~Statistics() {
-	for (auto iterator = address_to_fn_stats_.begin();
-	     iterator != address_to_fn_stats_.end(); ++iterator)
-	{
-		delete iterator->second;
-	}
+const char *CTimeNow() {
+	std::time_t now = TimeNow();
+
+	char *string = const_cast<char*>(std::ctime(&now));
+	string[kCTimeResultLength] = '\0';
+
+	return string;
 }
 
-Function *Statistics::GetFunction(ucell address) {
-	auto iterator = address_to_fn_stats_.find(address);
-	if (iterator != address_to_fn_stats_.end()) {
-		return iterator->second->function();
-	}
-	return nullptr;
+Time::Time(Duration d)
+	: h_(d)
+	, m_(d)
+	, s_(d)
+{
 }
 
-void Statistics::AddFunction(Function *fn) {
-	auto fn_stats = new FunctionStatistics(fn);
-	address_to_fn_stats_.insert(std::make_pair(fn->address(), fn_stats));
+Time::Time(Hours h, Minutes m, Seconds s)
+	: h_(h)
+	, m_(m)
+	, s_(s)
+{
 }
 
-FunctionStatistics *Statistics::GetFunctionStatistis(ucell address) {
-	auto iterator = address_to_fn_stats_.find(address);
-	if (iterator != address_to_fn_stats_.end()) {
-		return iterator->second;
-	}
-	return nullptr;
-}
-
-void Statistics::EnumerateFunctions(std::function<void(const FunctionStatistics *)> callback) const {
-	for (auto iterator = address_to_fn_stats_.begin();
-	     iterator != address_to_fn_stats_.end(); ++iterator)
-	{
-		callback(iterator->second);
-	}
+std::ostream &operator<<(std::ostream &os, const Time &time) {
+	char old_fill = os.fill('0');
+	os <<  std::setw(2) << static_cast<int>(time.hours().count()) << ":" <<
+	       std::setw(2) << static_cast<int>(time.minutes().count()) << ":" <<
+	       std::setw(2) << static_cast<int>(time.seconds().count());
+	os.fill(old_fill);
+	return os;
 }
 
 } // namespace amx_profiler

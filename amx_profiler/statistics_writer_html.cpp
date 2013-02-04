@@ -23,7 +23,6 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include <cstdio>
-#include <ctime>
 #include <iomanip>
 #include <iostream>
 #include <string>
@@ -33,6 +32,7 @@
 #include "statistics_writer_html.h"
 #include "performance_counter.h"
 #include "statistics.h"
+#include "time_utils.h"
 
 namespace amx_profiler {
 
@@ -45,9 +45,15 @@ void StatisticsWriterHtml::Write(const Statistics *stats)
 	"<head>\n"
 	"	<title>" << "Profile of '" << script_name() << "'</title>\n"
 	"</head>\n"
-	"<body>\n"
+	"<body>\n";
+
+	*stream() <<
 	"	<style type=\"text/css\">\n"
+	"	table.meta {\n"
+	"		width: auto;\n"
+	"	}\n"
 	"	table {\n"
+	"		border-spacing:0;\n"
 	"		border-collapse: collapse;\n"
 	"	}\n"
 	"	table, th, td {\n"
@@ -55,15 +61,47 @@ void StatisticsWriterHtml::Write(const Statistics *stats)
 	"	}\n"
 	"	td {\n"
 	"		font-family: Consolas, \"Courier New\", \"Monospace\";\n"
+	"		border: solid 5x transparent;\n"
 	"	}\n"
 	"	th {\n"
 	"		background-color: #cccccc;\n"
 	"	}\n"
+	"	</style>\n"
+	"	<table class=\"meta\" border=\"1\">\n"
+	"		<thead>\n"
+	"			<tr>\n"
+	"				<th>Name</th>\n"
+	"				<th>Value</th>\n"
+	"			</tr>\n"
+	"		</thead>\n"
+	"		<tbody>\n";
+
+	if (print_date()) {
+		*stream() <<
+		"			<tr>\n"
+		"				<td>Date</td>\n"
+		"				<td>" << CTimeNow() << "</td>\n"
+		"			</tr>\n";
+	}
+
+	if (print_run_time()) {
+		*stream() <<
+		"			<tr>\n"
+		"				<td>Duration</td>\n"
+		"				<td>" << Time(stats->GetTotalRunTime()) << "</td>\n"
+		"			</tr>\n";
+	}
+
+	*stream() <<
+	"		</tbody>\n"
+	"	</table>\n"
+	"	<br/>"
+	"	<style type=\"text/css\">\n"
 	"	tr:nth-child(odd) {\n"
 	"		background-color: #eeeeee;\n"
 	"	}\n"
 	"	</style>\n"
-	"	<table id=\"fn_stats\" class=\"tablesorter\" border=\"1\" width=\"100%\">\n"
+	"	<table id=\"func-stats\" class=\"tablesorter\" border=\"1\" width=\"100%\">\n"
 	"		<thead>\n"
 	"			<tr>\n"
 	"				<th>Type</th>\n"
@@ -116,17 +154,11 @@ void StatisticsWriterHtml::Write(const Statistics *stats)
 	"		src=\"http://tablesorter.com/__jquery.tablesorter.min.js\"></script>\n"
 	"	<script type=\"text/javascript\">\n"
 	"	$(document).ready(function() {\n"
-	"		$(\"#fn_stats\").tablesorter();\n"
+	"		$(\"#func-stats\").tablesorter();\n"
 	"	});\n"
 	"	</script>\n"
 	"	<br/>\n"
 	"	<footer>\n";
-
-	if (print_date()) {
-		std::time_t now = std::time(nullptr);
-		*stream() <<
-		"		Generated on " << std::ctime(&now);
-	}
 
 	*stream() <<
 	"	</footer>\n";

@@ -22,51 +22,37 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include "function.h"
-#include "function_statistics.h"
-#include "statistics.h"
+#ifndef AMX_PROFILER_TIME_UTILS_H
+#define AMX_PROFILER_TIME_UTILS_H
+
+#include <ctime>
+#include <iosfwd>
+#include "duration.h"
 
 namespace amx_profiler {
 
-Statistics::Statistics() {
-	run_time_counter_.Start();
-}
+const int kCTimeResultLength = 24;
 
-Statistics::~Statistics() {
-	for (auto iterator = address_to_fn_stats_.begin();
-	     iterator != address_to_fn_stats_.end(); ++iterator)
-	{
-		delete iterator->second;
-	}
-}
+std::time_t TimeNow();
+const char *CTimeNow();
 
-Function *Statistics::GetFunction(ucell address) {
-	auto iterator = address_to_fn_stats_.find(address);
-	if (iterator != address_to_fn_stats_.end()) {
-		return iterator->second->function();
-	}
-	return nullptr;
-}
+class Time {
+public:
+	Time(Duration d);
+	Time(Hours h, Minutes m, Seconds s);
 
-void Statistics::AddFunction(Function *fn) {
-	auto fn_stats = new FunctionStatistics(fn);
-	address_to_fn_stats_.insert(std::make_pair(fn->address(), fn_stats));
-}
+	Hours   hours()   const { return h_; }
+	Minutes minutes() const { return m_; }
+	Seconds seconds() const { return s_; }
 
-FunctionStatistics *Statistics::GetFunctionStatistis(ucell address) {
-	auto iterator = address_to_fn_stats_.find(address);
-	if (iterator != address_to_fn_stats_.end()) {
-		return iterator->second;
-	}
-	return nullptr;
-}
+private:
+	Hours   h_;
+	Minutes m_;
+	Seconds s_;
+};
 
-void Statistics::EnumerateFunctions(std::function<void(const FunctionStatistics *)> callback) const {
-	for (auto iterator = address_to_fn_stats_.begin();
-	     iterator != address_to_fn_stats_.end(); ++iterator)
-	{
-		callback(iterator->second);
-	}
-}
+std::ostream &operator<<(std::ostream &os, const Time &time);
 
 } // namespace amx_profiler
+
+#endif // !AMX_PROFILER_TIME_UTILS_H

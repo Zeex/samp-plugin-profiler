@@ -29,6 +29,7 @@
 #include <unordered_map>
 #include <amx/amx.h>
 #include "duration.h"
+#include "performance_counter.h"
 
 namespace amx_profiler {
 
@@ -37,6 +38,7 @@ class FunctionStatistics;
 
 class Statistics {
 public:
+	Statistics();
 	~Statistics();
 
 	void AddFunction(Function *fn);
@@ -45,7 +47,12 @@ public:
 	FunctionStatistics *GetFunctionStatistis(ucell address);
 	void EnumerateFunctions(std::function<void(const FunctionStatistics *)> callback) const;
 
+	inline Duration GetTotalRunTime() const {
+		return run_time_counter_.QueryTotalTime();
+	}
+
 private:
+	PerformanceCounter run_time_counter_;
 	std::unordered_map<ucell, FunctionStatistics*> address_to_fn_stats_;
 };
 

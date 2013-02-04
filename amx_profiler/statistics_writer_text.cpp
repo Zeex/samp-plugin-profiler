@@ -22,7 +22,6 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <ctime>
 #include <iomanip>
 #include <iostream>
 #include <string>
@@ -32,6 +31,7 @@
 #include "performance_counter.h"
 #include "statistics_writer_text.h"
 #include "statistics.h"
+#include "time_utils.h"
 
 static const int kTypeWidth = 7;
 static const int kNameWidth = 32;
@@ -53,8 +53,11 @@ void StatisticsWriterText::Write(const Statistics *stats)
 	*stream() << "Profile of '" << script_name() << "'";
 
 	if (print_date()) {
-		std::time_t now = std::time(nullptr);
-		*stream() << " generated on " << ctime(&now);
+		*stream() << " generated on " << CTimeNow();
+	}
+
+	if (print_run_time()) {
+		*stream() << " (duration: " << Time(stats->GetTotalRunTime()) << ")\n";
 	}
 
 	auto DoHLine = [&]() {

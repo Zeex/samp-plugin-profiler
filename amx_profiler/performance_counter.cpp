@@ -45,14 +45,18 @@ void PerformanceCounter::Start() {
 
 void PerformanceCounter::Stop() {
 	if (started_) {
-		std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
-		std::chrono::high_resolution_clock::duration interval = now - start_point_;
+		std::chrono::high_resolution_clock::duration interval = QueryTotalTime();
 		total_time_ += interval;
 		if (parent_ != nullptr) {
 			parent_->child_time_ += interval;
 		}
 		started_ = false;
 	} 
+}
+
+std::chrono::high_resolution_clock::duration PerformanceCounter::QueryTotalTime() const {
+	std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
+	return now - start_point_;
 }
 
 } // namespace amx_profiler

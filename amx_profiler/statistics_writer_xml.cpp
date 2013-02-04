@@ -22,7 +22,6 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <ctime>
 #include <iomanip>
 #include <iostream>
 #include <string>
@@ -32,6 +31,7 @@
 #include "performance_counter.h"
 #include "statistics_writer_xml.h"
 #include "statistics.h"
+#include "time_utils.h"
 
 namespace amx_profiler {
 
@@ -41,7 +41,11 @@ void StatisticsWriterXml::Write(const Statistics *stats)
 	          << "<stats script=\"" << script_name() << "\"";
 	
 	if (print_date()) {
-		*stream() << " timestamp=\"" << std::time(nullptr) << "\"";
+		*stream() << " timestamp=\"" << TimeNow() << "\"";
+	}
+
+	if (print_run_time()) {
+		*stream() << " run_time=\"" << Seconds(stats->GetTotalRunTime()).count() << "\'";
 	}
 
 	*stream() << ">\n";

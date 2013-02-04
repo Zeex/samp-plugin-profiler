@@ -41,6 +41,8 @@ add_library(amx_profiler STATIC
 	statistics_writer_text.h
 	statistics_writer_xml.cpp
 	statistics_writer_xml.h
+	time_utils.cpp
+	time_utils.h
 )
 
 target_link_libraries(amx_profiler amx)

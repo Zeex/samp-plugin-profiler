@@ -46,6 +46,8 @@ public:
 	inline std::chrono::high_resolution_clock::duration GetSelfTime() const
 		{ return total_time() - child_time(); }
 
+	std::chrono::high_resolution_clock::duration QueryTotalTime() const;
+
 private:
 	bool started_;
 	PerformanceCounter *parent_;

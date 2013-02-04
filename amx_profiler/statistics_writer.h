@@ -44,10 +44,14 @@ public:
 	bool print_date() const { return print_date_; }
 	void set_print_date(bool print_date) { print_date_ = print_date; }
 
+	bool print_run_time() const { return print_run_time_; }
+	void set_print_run_time(bool print_run_time) { print_run_time_ = print_run_time; }
+
 private:
 	std::ostream *stream_;
 	std::string script_name_;
 	bool print_date_;
+	bool print_run_time_;
 };
 
 } // namespace amx_profiler
