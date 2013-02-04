@@ -67,6 +67,8 @@ public:
 
 private:
 	Profiler();
+	Profiler(const Profiler &);
+	void operator=(const Profiler &);
 
 	ucell GetNativeAddress(cell index);
 	ucell GetPublicAddress(cell index);
