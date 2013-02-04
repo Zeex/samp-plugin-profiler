@@ -49,7 +49,7 @@ public:
 	Profiler(AMX *amx, DebugInfo debug_info = DebugInfo(), bool enable_call_graph = true);
 	~Profiler();
 
-	inline const Statistics *GetStatistics() const {
+	inline const Statistics *stats() const {
 		return &stats_;
 	}
 

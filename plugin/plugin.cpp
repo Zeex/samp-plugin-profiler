@@ -303,7 +303,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 			if (writer != nullptr) {
 				logprintf("[profiler] Writing '%s'", profile_name.c_str());
 				writer->set_print_date(true);
-				writer->Write(profiler->GetStatistics());
+				writer->Write(profiler->stats());
 				delete writer;
 			}
 
