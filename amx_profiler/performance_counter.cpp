@@ -26,6 +26,11 @@
 
 namespace amx_profiler {
 
+// static
+PerformanceCounter::TimePoint PerformanceCounter::Now() {
+	return Clock::now();
+}
+
 PerformanceCounter::PerformanceCounter(PerformanceCounter *parent) 
 	: started_(false)
 	, parent_(parent)
@@ -38,14 +43,14 @@ PerformanceCounter::~PerformanceCounter() {
 
 void PerformanceCounter::Start() {
 	if (!started_) {			
-		start_point_ = std::chrono::high_resolution_clock::now();
+		start_point_ = Now();
 		started_ = true;
 	}
 }
 
 void PerformanceCounter::Stop() {
 	if (started_) {
-		std::chrono::high_resolution_clock::duration interval = QueryTotalTime();
+		Duration interval = QueryTotalTime();
 		total_time_ += interval;
 		if (parent_ != nullptr) {
 			parent_->child_time_ += interval;
@@ -54,9 +59,12 @@ void PerformanceCounter::Stop() {
 	} 
 }
 
+PerformanceCounter::Duration PerformanceCounter::GetSelfTime() const {
+	return total_time() - child_time();
+}
+
 std::chrono::high_resolution_clock::duration PerformanceCounter::QueryTotalTime() const {
-	std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
-	return now - start_point_;
+	return Now() - start_point_;
 }
 
 } // namespace amx_profiler

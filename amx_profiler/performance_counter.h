@@ -31,29 +31,30 @@ namespace amx_profiler {
 
 class PerformanceCounter {
 public:
+	typedef std::chrono::high_resolution_clock Clock;
+	typedef std::chrono::high_resolution_clock::duration Duration;
+	typedef std::chrono::high_resolution_clock::time_point TimePoint;
+
+	static TimePoint Now();
+
 	PerformanceCounter(PerformanceCounter *parent = nullptr);
 	~PerformanceCounter();
 
 	void Start();
 	void Stop();
 
-	inline std::chrono::high_resolution_clock::duration child_time() const
-		{ return child_time_; }
+	Duration QueryTotalTime() const;
 
-	inline std::chrono::high_resolution_clock::duration total_time() const
-		{ return total_time_; }
-
-	inline std::chrono::high_resolution_clock::duration GetSelfTime() const
-		{ return total_time() - child_time(); }
-
-	std::chrono::high_resolution_clock::duration QueryTotalTime() const;
+	Duration child_time() const { return child_time_; }
+	Duration total_time() const { return total_time_; }
+	Duration GetSelfTime() const;
 
 private:
 	bool started_;
 	PerformanceCounter *parent_;
-	std::chrono::high_resolution_clock::time_point start_point_;
-	std::chrono::high_resolution_clock::duration child_time_;
-	std::chrono::high_resolution_clock::duration total_time_;
+	TimePoint start_point_;
+	Duration child_time_;
+	Duration total_time_;
 };
 
 } // namespace amx_profiler
