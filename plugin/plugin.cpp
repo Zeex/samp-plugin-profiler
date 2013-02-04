@@ -291,17 +291,19 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 			amx_profiler::ProfileWriter *writer = nullptr;
 
 			if (cfg::profile_format == "html") {
-				writer = new amx_profiler::ProfileWriterHtml(&profile_stream, amx_path);
+				writer = new amx_profiler::ProfileWriterHtml;
 			} else if (cfg::profile_format == "txt" || cfg::profile_format == "text") {
-				writer = new amx_profiler::ProfileWriterText(&profile_stream, amx_path);
+				writer = new amx_profiler::ProfileWriterText;
 			} else if (cfg::profile_format == "xml") {
-				writer = new amx_profiler::ProfileWriterXml(&profile_stream, amx_path);
+				writer = new amx_profiler::ProfileWriterXml;
 			} else {
 				logprintf("[profiler] Unknown output format '%s'", cfg::profile_format.c_str());
 			}
 
 			if (writer != nullptr) {
 				logprintf("[profiler] Writing '%s'", profile_name.c_str());
+				writer->set_stream(&profile_stream);
+				writer->set_script_name(amx_path);
 				writer->set_print_date(true);
 				writer->Write(profiler->stats());
 				delete writer;

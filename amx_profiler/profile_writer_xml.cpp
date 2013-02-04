@@ -35,22 +35,16 @@
 
 namespace amx_profiler {
 
-ProfileWriterXml::ProfileWriterXml(std::ostream *stream, const std::string script_name)
-	: stream_(stream)
-	, script_name_(script_name)
-{
-}
-
 void ProfileWriterXml::Write(const Statistics *profile)
 {
-	*stream_ << "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-	         << "<profile script=\"" << script_name_ << "\"";
+	*stream() << "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+	          << "<profile script=\"" << script_name() << "\"";
 	
 	if (print_date()) {
-		*stream_ << " timestamp=\"" << std::time(nullptr) << "\"";
+		*stream() << " timestamp=\"" << std::time(nullptr) << "\"";
 	}
 
-	*stream_ << ">\n";
+	*stream() << ">\n";
 
 	Duration time_all;
 	profile->EnumerateFunctions([&](const FunctionStatistics *fn_stats) {
@@ -67,7 +61,7 @@ void ProfileWriterXml::Write(const Statistics *profile)
 		double self_time_percent = fn_stats->GetSelfTime().count() * 100 / time_all.count();
 		double total_time_sec = Seconds(fn_stats->total_time()).count();
 		double total_time_percent = fn_stats->total_time().count() * 100 / total_time_all.count();
-		*stream_ << "\t<function"
+		*stream() << "\t<function"
 			<< " type=\"" << fn_stats->function()->type() << "\""
 			<< " name=\"" << fn_stats->function()->name() << "\""
 			<< " calls=\"" << fn_stats->num_calls() << "\""
@@ -80,7 +74,7 @@ void ProfileWriterXml::Write(const Statistics *profile)
 		<< "/>\n";
 	});
 
-	*stream_ << "</profile>";
+	*stream() << "</profile>";
 }
 
 } // namespace amx_profiler

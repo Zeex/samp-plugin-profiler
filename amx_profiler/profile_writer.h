@@ -35,10 +35,18 @@ public:
 
 	virtual void Write(const Statistics *profile) = 0;
 
+	std::ostream *stream() const { return stream_; }
+	void set_stream(std::ostream *stream) { stream_ = stream; }
+	
+	std::string script_name() const { return script_name_; }
+	void set_script_name(std::string script_name) { script_name_ = script_name; }
+	
 	bool print_date() const { return print_date_; }
-	void set_print_date(bool set) { print_date_ = set; }
+	void set_print_date(bool print_date) { print_date_ = print_date; }
 
 private:
+	std::ostream *stream_;
+	std::string script_name_;
 	bool print_date_;
 };
 

@@ -25,21 +25,13 @@
 #ifndef AMX_PROFILER_PROFILE_WRITER_HTML_H
 #define AMX_PROFILER_PROFILE_WRITER_HTML_H
 
-#include <iosfwd>
-#include <string>
 #include "profile_writer.h"
 
 namespace amx_profiler {
 
 class ProfileWriterHtml : public ProfileWriter {
 public:
-	ProfileWriterHtml(std::ostream *stream, const std::string script_name);
-
 	virtual void Write(const Statistics *profile) override;
-
-private:
-	std::ostream *stream_;
-	std::string   script_name_;
 };
 
 } // namespace amx_profiler

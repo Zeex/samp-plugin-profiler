@@ -36,20 +36,14 @@
 
 namespace amx_profiler {
 
-ProfileWriterHtml::ProfileWriterHtml(std::ostream *stream, const std::string script_name)
-	: stream_(stream)
-	, script_name_(script_name)
-{
-}
-
 void ProfileWriterHtml::Write(const Statistics *profile)
 {
-	*stream_ <<
+	*stream() <<
 	"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\n"
 	"\"http://www.w3.org/TR/html4/loose.dtd\">\n"
 	"<html>\n"
 	"<head>\n"
-	"	<title>" << "Profile of '" << script_name_ << "'</title>\n"
+	"	<title>" << "Profile of '" << script_name() << "'</title>\n"
 	"</head>\n"
 	"<body>\n"
 	"	<style type=\"text/css\">\n"
@@ -97,7 +91,7 @@ void ProfileWriterHtml::Write(const Statistics *profile)
 		double self_time_percent = fn_stats->GetSelfTime().count() * 100 / time_all.count();
 		double total_time_sec = Seconds(fn_stats->total_time()).count();
 		double total_time_percent = fn_stats->total_time().count() * 100 / total_time_all.count();
-		*stream_
+		*stream()
 		<< "		<tr>\n"
 		<< "			<td>" << fn_stats->function()->type() << "</td>\n"
 		<< "			<td>" << fn_stats->function()->name() << "</td>\n"
@@ -110,12 +104,12 @@ void ProfileWriterHtml::Write(const Statistics *profile)
 		<< "		</tr>\n";
 	});
 
-	*stream_ <<
+	*stream() <<
 	"		</tbody>\n"
 	"	</table>\n"
 	;
 
-	*stream_ <<
+	*stream() <<
 	"	<script type=\"text/javascript\"\n"
 	"		src=\"http://code.jquery.com/jquery-latest.min.js\"></script>\n"
 	"	<script type=\"text/javascript\"\n"
@@ -130,11 +124,11 @@ void ProfileWriterHtml::Write(const Statistics *profile)
 
 	if (print_date()) {
 		std::time_t now = std::time(nullptr);
-		*stream_ <<
+		*stream() <<
 		"		Generated on " << std::ctime(&now);
 	}
 
-	*stream_ <<
+	*stream() <<
 	"	</footer>\n";
 	"</body>\n"
 	"</html>\n"

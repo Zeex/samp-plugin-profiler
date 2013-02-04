@@ -48,29 +48,23 @@ static const int kNumColumns = 7;
 
 namespace amx_profiler {
 
-ProfileWriterText::ProfileWriterText(std::ostream *stream, const std::string script_name)
-	: stream_(stream)
-	, script_name_(script_name)
-{
-}
-
 void ProfileWriterText::Write(const Statistics *profile)
 {
-	*stream_ << "Profile of '" << script_name_ << "'";
+	*stream() << "Profile of '" << script_name() << "'";
 
 	if (print_date()) {
 		std::time_t now = std::time(nullptr);
-		*stream_ << " generated on " << ctime(&now);
+		*stream() << " generated on " << ctime(&now);
 	}
 
 	auto DoHLine = [&]() {
-		char fillch = stream_->fill();
-		*stream_ << std::setw(kWidthAll + kNumColumns * 2 + 1) 
-			<< std::setfill('-') << "" << std::setfill(fillch) << '\n';
+		char fillch = stream()->fill();
+		*stream() << std::setw(kWidthAll + kNumColumns * 2 + 1) 
+		          << std::setfill('-') << "" << std::setfill(fillch) << '\n';
 	};
 
 	DoHLine();
-	*stream_ << std::left
+	*stream() << std::left
 		<< "| " << std::setw(kTypeWidth) << "Type"
 		<< "| " << std::setw(kNameWidth) << "Name"
 		<< "| " << std::setw(kCallsWidth) << "Calls"
@@ -96,7 +90,7 @@ void ProfileWriterText::Write(const Statistics *profile)
 		double self_time_percent = fn_stats->GetSelfTime().count() * 100 / time_all.count();
 		double total_time_sec = Seconds(fn_stats->total_time()).count();
 		double total_time_percent = fn_stats->total_time().count() * 100 / total_time_all.count();
-		*stream_
+		*stream()
 			<< "| " << std::setw(kTypeWidth) << fn_stats->function()->type()
 			<< "| " << std::setw(kNameWidth) << fn_stats->function()->name()
 			<< "| " << std::setw(kCallsWidth) << fn_stats->num_calls()
