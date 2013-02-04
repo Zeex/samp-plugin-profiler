@@ -47,7 +47,7 @@ Profiler::~Profiler() {
 	}
 }
 
-int Profiler::amx_Debug(int (AMXAPI *debug)(AMX *amx)) {
+int Profiler::DebugHook(DebugHookFunc debug) {
 	cell prev_frame = amx_->stp;
 
 	if (!call_stack_.IsEmpty()) {
@@ -78,9 +78,7 @@ int Profiler::amx_Debug(int (AMXAPI *debug)(AMX *amx)) {
 	return AMX_ERR_NONE;
 }
 
-int Profiler::amx_Callback(cell index, cell *result, cell *params,
-	int (AMXAPI *callback)(AMX *amx, cell index, cell *result, cell *params))
-{
+int Profiler::CallbackHook(cell index, cell *result, cell *params, CallbackHookFunc callback) {
 	if (callback == nullptr) {
 		callback = ::amx_Callback;
 	}
@@ -106,9 +104,7 @@ int Profiler::amx_Callback(cell index, cell *result, cell *params,
 	return callback(amx_, index, result, params);
 }
 
-int Profiler::amx_Exec(cell *retval, int index,
-	int (AMXAPI *exec)(AMX *amx, cell *retval, int index))
-{
+int Profiler::ExecHook(cell *retval, int index, ExecHookFunc exec) {
 	if (exec == nullptr) {
 		exec = ::amx_Exec;
 	}

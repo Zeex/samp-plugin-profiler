@@ -41,6 +41,11 @@ class ProfileWriter;
 
 class Profiler {
 public:
+	typedef int (AMXAPI *DebugHookFunc)(AMX *amx);
+	typedef int (AMXAPI *ExecHookFunc)(AMX *amx, cell *retval, int index);
+	typedef int (AMXAPI *CallbackHookFunc)(AMX *amx, cell index, cell *result, cell *params);
+
+public:
 	Profiler(AMX *amx, DebugInfo debug_info = DebugInfo(), bool enable_call_graph = true);
 	~Profiler();
 
@@ -56,12 +61,9 @@ public:
 		return &call_graph_;
 	}
 
-	int amx_Debug(
-		int (AMXAPI *debug)(AMX *amx) = nullptr);
-	int amx_Exec(cell *retval, int index,
-		int (AMXAPI *exec)(AMX *amx, cell *retval, int index) = ::amx_Exec);
-	int amx_Callback(cell index, cell *result, cell *params,
-		int (AMXAPI *callback)(AMX *amx, cell index, cell *result, cell *params) = ::amx_Callback);
+	int DebugHook(DebugHookFunc debug = nullptr);
+	int ExecHook(cell *retval, int index, ExecHookFunc exec = nullptr);
+	int CallbackHook(cell index, cell  *result, cell *params, CallbackHookFunc callback = nullptr);
 
 private:
 	Profiler();

@@ -84,7 +84,7 @@ Hook amx_Callback_hook;
 static int AMXAPI amx_Debug(AMX *amx) {
 	auto profiler = ::profilers[amx];
 	if (profiler) {
-		profiler->amx_Debug();
+		profiler->DebugHook();
 	}
 	auto iterator = old_debug_hooks.find(amx);
 	if (iterator != old_debug_hooks.end()) {
@@ -101,7 +101,7 @@ static int AMXAPI amx_Callback(AMX *amx, cell index, cell *result, cell *params)
 
 	auto profiler = ::profilers[amx];
 	if (profiler) {
-		return profiler->amx_Callback(index, result, params);
+		return profiler->CallbackHook(index, result, params);
 	} else {
 		return ::amx_Callback(amx, index, result, params);
 	}
@@ -113,7 +113,7 @@ static int AMXAPI amx_Exec(AMX *amx, cell *retval, int index) {
 
 	auto profiler = ::profilers[amx];
 	if (profiler) {
-		return profiler->amx_Exec(retval, index);
+		return profiler->ExecHook(retval, index);
 	} else {
 		return ::amx_Exec(amx, retval, index);
 	}
