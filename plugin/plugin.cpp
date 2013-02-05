@@ -23,18 +23,14 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include <algorithm>
-#include <cassert>
-#include <cerrno>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
-#include <iterator>
 #include <list>
 #include <memory>
 #include <sstream>
 #include <string>
-#include <vector>
 #include <unordered_map>
 #ifdef _WIN32
 	#include <windows.h>
