@@ -44,48 +44,45 @@ const char *CTimeNow() {
 }
 
 TimeSpan::TimeSpan(Duration d)
-	: w_(d)
-	, d_(d)
-	, h_(d)
-	, m_(d)
-	, s_(d)
+	: duration_(d)
 {
+	weeks_ = static_cast<int>(Weeks(d).count());
+	d -= Weeks(weeks_);
+
+	days_ = static_cast<int>(Days(d).count());
+	d -= Days(days_);
+
+	hours_ = static_cast<int>(Hours(d).count());
+	d -= Hours(hours_);
+
+	minutes_ = static_cast<int>(Minutes(d).count());
+	d -= Minutes(minutes_);
+
+	seconds_ = static_cast<int>(Seconds(d).count());
+	d -= Seconds(seconds_);
 }
 
-static const char *Choose(double n, const char *singular, const char *plural) {
-	return (n >= 2.0 || n < 1.0) ? plural : singular;
+static const char *Choose(int n, const char *singular, const char *plural) {
+	return (n > 1 || n == 0) ? plural : singular;
 }
 
 std::ostream &operator<<(std::ostream &os, const TimeSpan &time) {
-	bool first = true;
+	Duration duration = time.duration();
 
-	if (time.weeks().count() >= 1.0) {
-		os << static_cast<int>(time.weeks().count())
-		   << Choose(time.weeks().count(), " week ", " weeks ");
-		first = false;
+	if (time.weeks() > 0) {
+		os << time.weeks() << Choose(time.weeks(), " week ", " weeks ");
 	}
-
-	if (!first || time.days().count() >= 1.0) {
-		os << static_cast<int>(time.days().count())
-		   << Choose(time.days().count(), " day ", " days ");
-		first = false;
+	if (time.days() > 0) {
+		os << time.days() << Choose(time.days(), " day ", " days ");
 	}
-
-	if (!first || time.hours().count() >= 1.0) {
-		os << static_cast<int>(time.hours().count())
-		   << Choose(time.hours().count(), " hour ", " hours ");
-		first = false;
+	if (time.hours() > 0) {
+		os << time.hours() << Choose(time.hours(), " hour ", " hours ");
 	}
-
-	if (!first || time.minutes().count() >= 1.0) {
-		os << static_cast<int>(time.minutes().count())
-		   << Choose(time.minutes().count(), " minute ", " minutes ");
-		first = false;
+	if (time.minutes() > 0) {
+		os << time.minutes() << Choose(time.minutes(), " minute ", " minutes ");
 	}
-
-	if (!first || time.seconds().count() >= 1.0) {
-		os << static_cast<int>(time.seconds().count())
-		   << Choose(time.seconds().count(), " second", " seconds");
+	if (time.seconds() > 0) {
+		os << time.seconds() << Choose(time.seconds(), " second ", " seconds ");
 	}
 
 	return os;

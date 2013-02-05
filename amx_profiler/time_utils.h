@@ -40,18 +40,21 @@ class TimeSpan {
 public:
 	TimeSpan(Duration d);
 
-	Weeks   weeks()   const { return w_; }
-	Days    days()    const { return d_; }
-	Hours   hours()   const { return h_; }
-	Minutes minutes() const { return m_; }
-	Seconds seconds() const { return s_; }
+	Duration duration() const { return duration_; }
+
+	int weeks()   const { return weeks_; }
+	int days()    const { return days_; }
+	int hours()   const { return hours_; }
+	int minutes() const { return minutes_; }
+	int seconds() const { return seconds_; }
 
 private:
-	Weeks   w_;
-	Days    d_;
-	Hours   h_;
-	Minutes m_;
-	Seconds s_;
+	Duration duration_;
+	int weeks_;
+	int days_;
+	int hours_;
+	int minutes_;
+	int seconds_;
 };
 
 std::ostream &operator<<(std::ostream &os, const TimeSpan &time);
