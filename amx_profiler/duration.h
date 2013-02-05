@@ -35,6 +35,8 @@ typedef std::chrono::duration<double, std::ratio<1, 1000>>       Milliseconds;
 typedef std::chrono::duration<double, std::ratio<1, 1>>          Seconds;
 typedef std::chrono::duration<double, std::ratio<60, 1>>         Minutes;
 typedef std::chrono::duration<double, std::ratio<3600, 1>>       Hours;
+typedef std::chrono::duration<double, std::ratio<86400, 1>>      Days;
+typedef std::chrono::duration<double, std::ratio<604800, 1>>     Weeks;
 
 typedef Nanoseconds Duration;
 

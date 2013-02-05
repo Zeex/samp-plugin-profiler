@@ -57,7 +57,7 @@ void StatisticsWriterText::Write(const Statistics *stats)
 	}
 
 	if (print_run_time()) {
-		*stream() << " (duration: " << Time(stats->GetTotalRunTime()) << ")\n";
+		*stream() << " (duration: " << TimeSpan(stats->GetTotalRunTime()) << ")\n";
 	}
 
 	auto DoHLine = [&]() {

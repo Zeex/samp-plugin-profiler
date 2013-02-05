@@ -36,22 +36,25 @@ const int kCTimeResultLength = 24;
 std::time_t TimeNow();
 const char *CTimeNow();
 
-class Time {
+class TimeSpan {
 public:
-	Time(Duration d);
-	Time(Hours h, Minutes m, Seconds s);
+	TimeSpan(Duration d);
 
+	Weeks   weeks()   const { return w_; }
+	Days    days()    const { return d_; }
 	Hours   hours()   const { return h_; }
 	Minutes minutes() const { return m_; }
 	Seconds seconds() const { return s_; }
 
 private:
+	Weeks   w_;
+	Days    d_;
 	Hours   h_;
 	Minutes m_;
 	Seconds s_;
 };
 
-std::ostream &operator<<(std::ostream &os, const Time &time);
+std::ostream &operator<<(std::ostream &os, const TimeSpan &time);
 
 } // namespace amx_profiler
 

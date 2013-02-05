@@ -43,26 +43,51 @@ const char *CTimeNow() {
 	return string;
 }
 
-Time::Time(Duration d)
-	: h_(d)
+TimeSpan::TimeSpan(Duration d)
+	: w_(d)
+	, d_(d)
+	, h_(d)
 	, m_(d)
 	, s_(d)
 {
 }
 
-Time::Time(Hours h, Minutes m, Seconds s)
-	: h_(h)
-	, m_(m)
-	, s_(s)
-{
+static const char *Choose(double n, const char *singular, const char *plural) {
+	return (n >= 2.0 || n < 1.0) ? plural : singular;
 }
 
-std::ostream &operator<<(std::ostream &os, const Time &time) {
-	char old_fill = os.fill('0');
-	os <<  std::setw(2) << static_cast<int>(time.hours().count()) << ":" <<
-	       std::setw(2) << static_cast<int>(time.minutes().count()) << ":" <<
-	       std::setw(2) << static_cast<int>(time.seconds().count());
-	os.fill(old_fill);
+std::ostream &operator<<(std::ostream &os, const TimeSpan &time) {
+	bool first = true;
+
+	if (time.weeks().count() >= 1.0) {
+		os << static_cast<int>(time.weeks().count())
+		   << Choose(time.weeks().count(), " week ", " weeks ");
+		first = false;
+	}
+
+	if (!first || time.days().count() >= 1.0) {
+		os << static_cast<int>(time.days().count())
+		   << Choose(time.days().count(), " day ", " days ");
+		first = false;
+	}
+
+	if (!first || time.hours().count() >= 1.0) {
+		os << static_cast<int>(time.hours().count())
+		   << Choose(time.hours().count(), " hour ", " hours ");
+		first = false;
+	}
+
+	if (!first || time.minutes().count() >= 1.0) {
+		os << static_cast<int>(time.minutes().count())
+		   << Choose(time.minutes().count(), " minute ", " minutes ");
+		first = false;
+	}
+
+	if (!first || time.seconds().count() >= 1.0) {
+		os << static_cast<int>(time.seconds().count())
+		   << Choose(time.seconds().count(), " second", " seconds");
+	}
+
 	return os;
 }
 

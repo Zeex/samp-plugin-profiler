@@ -88,7 +88,7 @@ void StatisticsWriterHtml::Write(const Statistics *stats)
 		*stream() <<
 		"			<tr>\n"
 		"				<td>Duration</td>\n"
-		"				<td>" << Time(stats->GetTotalRunTime()) << "</td>\n"
+		"				<td>" << TimeSpan(stats->GetTotalRunTime()) << "</td>\n"
 		"			</tr>\n";
 	}
 
