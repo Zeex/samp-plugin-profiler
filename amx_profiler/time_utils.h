@@ -33,8 +33,22 @@ namespace amx_profiler {
 
 const int kCTimeResultLength = 24;
 
-std::time_t TimeNow();
-const char *CTimeNow();
+class TimeStamp {
+public:
+	typedef std::time_t ValueType;
+
+	static ValueType Now();
+
+	TimeStamp();
+	TimeStamp(ValueType value);
+
+	ValueType value() const { return value_; }
+
+private:
+	ValueType value_;
+};
+
+const char *CTime(TimeStamp ts = TimeStamp());
 
 class TimeSpan {
 public:

@@ -53,7 +53,7 @@ void StatisticsWriterText::Write(const Statistics *stats)
 	*stream() << "Profile of '" << script_name() << "'";
 
 	if (print_date()) {
-		*stream() << " generated on " << CTimeNow();
+		*stream() << " generated on " << CTime();
 	}
 
 	if (print_run_time()) {

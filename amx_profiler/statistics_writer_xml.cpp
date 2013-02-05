@@ -41,7 +41,7 @@ void StatisticsWriterXml::Write(const Statistics *stats)
 	          << "<stats script=\"" << script_name() << "\"";
 	
 	if (print_date()) {
-		*stream() << " timestamp=\"" << TimeNow() << "\"";
+		*stream() << " timestamp=\"" << TimeStamp::Now() << "\"";
 	}
 
 	if (print_run_time()) {

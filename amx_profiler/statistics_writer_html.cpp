@@ -80,7 +80,7 @@ void StatisticsWriterHtml::Write(const Statistics *stats)
 		*stream() <<
 		"			<tr>\n"
 		"				<td>Date</td>\n"
-		"				<td>" << CTimeNow() << "</td>\n"
+		"				<td>" << CTime() << "</td>\n"
 		"			</tr>\n";
 	}
 

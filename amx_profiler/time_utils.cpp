@@ -30,12 +30,22 @@
 
 namespace amx_profiler {
 
-std::time_t TimeNow() {
+std::time_t TimeStamp::Now() {
 	return std::time(nullptr);
 }
 
-const char *CTimeNow() {
-	std::time_t now = TimeNow();
+TimeStamp::TimeStamp()
+	: value_(Now())
+{
+}
+
+TimeStamp::TimeStamp(std::time_t value)
+	: value_(value)
+{
+}
+
+const char *CTime(TimeStamp ts) {
+	std::time_t now = TimeStamp::Now();
 
 	char *string = const_cast<char*>(std::ctime(&now));
 	string[kCTimeResultLength] = '\0';
