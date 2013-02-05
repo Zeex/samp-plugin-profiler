@@ -284,8 +284,8 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 			::tolower
 		);
 
-		auto profile_name = amx_name + "-profile." + cfg::profile_format;
-		std::ofstream profile_stream(profile_name.c_str());
+		auto profile_filename = amx_name + "-profile." + cfg::profile_format;
+		std::ofstream profile_stream(profile_filename);
 
 		if (profile_stream.is_open()) {
 			amx_profiler::StatisticsWriter *writer = nullptr;
@@ -301,7 +301,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 			}
 
 			if (writer != nullptr) {
-				logprintf("[profiler] Writing '%s'", profile_name.c_str());
+				logprintf("[profiler] Writing '%s'", profile_filename.c_str());
 				writer->set_stream(&profile_stream);
 				writer->set_script_name(amx_path);
 				writer->set_print_date(true);
@@ -313,8 +313,8 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 		}
 
 		if (cfg::call_graph) {
-			auto call_graph_name = amx_name + "-calls.gv";
-			std::ofstream call_graph_stream(call_graph_name.c_str());
+			auto call_graph_filename = amx_name + "-calls.gv";
+			std::ofstream call_graph_stream(call_graph_filename);
 
 			if (call_graph_stream.is_open()) {
 				amx_profiler::CallGraphWriterGV *call_graph_writer = nullptr;
@@ -326,7 +326,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 				}
 
 				if (call_graph_writer != nullptr) {
-					logprintf("[profiler] Writing '%s'", call_graph_name.c_str());
+					logprintf("[profiler] Writing '%s'", call_graph_filename.c_str());
 					profiler->call_graph()->Write(call_graph_writer);
 					delete call_graph_writer;
 				}
