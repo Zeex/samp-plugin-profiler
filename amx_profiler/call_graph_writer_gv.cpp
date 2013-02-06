@@ -38,7 +38,7 @@ namespace amx_profiler {
 
 void CallGraphWriterGV::Write(const CallGraph *graph) {
 	*stream() << 
-	"digraph \"Call graph of " << script_name() << "\" {\n"
+	"digraph \"Call graph of '" << script_name() << "'\" {\n"
 	"	size=\"10,8\"; ratio=fill; rankdir=LR\n"
 	"	node [style=filled];\n"
 	;
