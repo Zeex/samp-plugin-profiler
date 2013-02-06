@@ -27,6 +27,7 @@
 
 #include <iostream>
 #include <tuple>
+#include <string>
 #include "call_graph.h"
 #include "call_graph_writer_gv.h"
 #include "duration.h"
@@ -35,16 +36,9 @@
 
 namespace amx_profiler {
 
-CallGraphWriterGV::CallGraphWriterGV(std::ostream *stream, const std::string &name, const std::string top_node_name) 
-	: stream_(stream)
-	, name_(name)
-	, top_name_(top_node_name)
-{
-}
-
 void CallGraphWriterGV::Write(const CallGraph *graph) {
-	*stream_ << 
-	"digraph \"Call graph of " << name_ << "\" {\n"
+	*stream() << 
+	"digraph \"Call graph of " << script_name() << "\" {\n"
 	"	size=\"10,8\"; ratio=fill; rankdir=LR\n"
 	"	node [style=filled];\n"
 	;
@@ -56,21 +50,21 @@ void CallGraphWriterGV::Write(const CallGraph *graph) {
 			if (node->stats()) {
 				caller_name = node->stats()->function()->name();
 			} else {
-				caller_name = top_name_;
+				caller_name = root_node_name();
 			}
 			for (auto c : node->callees()) {
-				*stream_ << "\t\"" << caller_name << "\" -> \"" << c->stats()->function()->name() 
+				*stream() << "\t\"" << caller_name << "\" -> \"" << c->stats()->function()->name() 
 					<< "\" [color=\"";
 				// Arrow color is associated with callee type.
 				std::string fn_type = c->stats()->function()->type();
 				if (fn_type == "public") {
-					*stream_ << "#4B4E99";
+					*stream() << "#4B4E99";
 				} else if (fn_type == "native") {
-					*stream_ << "#7C4B99";
+					*stream() << "#7C4B99";
 				} else {
-					*stream_ << "#777777";
+					*stream() << "#777777";
 				}
-				*stream_ << "\"];\n";
+				*stream() << "\"];\n";
 			}
 		}	
 	});
@@ -97,7 +91,7 @@ void CallGraphWriterGV::Write(const CallGraph *graph) {
 				(ratio * 0.9) + 0.1, // saturation
 				1.0                  // brightness
 			);
-			*stream_ << "\t\"" << node->stats()->function()->name() << "\" [color=\""
+			*stream() << "\t\"" << node->stats()->function()->name() << "\" [color=\""
 				<< std::get<0>(hsb) << ", "
 				<< std::get<1>(hsb) << ", "
 				<< std::get<2>(hsb) << "\""
@@ -105,19 +99,19 @@ void CallGraphWriterGV::Write(const CallGraph *graph) {
 			<< ", shape=";
 			std::string fn_type = node->stats()->function()->type();
 			if (fn_type == "public") {
-				*stream_ << "octagon";
+				*stream() << "octagon";
 			} else if (fn_type == "native") {
-				*stream_ << "box";
+				*stream() << "box";
 			} else {
-				*stream_ << "oval";
+				*stream() << "oval";
 			}
-			*stream_ << "];\n";
+			*stream() << "];\n";
 		} else {
-			*stream_ << "\t\"" << top_name_ << "\" [shape=diamond];\n";
+			*stream() << "\t\"" << root_node_name() << "\" [shape=diamond];\n";
 		}
 	});
 
-	*stream_ <<
+	*stream() <<
 	"}\n";
 }
 

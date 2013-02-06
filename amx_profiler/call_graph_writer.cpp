@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2013, Zeex
+// Copyright (c) 2013, Zeex
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -22,37 +22,14 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef AMX_PROFILER_CALL_GRAPH_WIRTER_H
-#define AMX_PROFILER_CALL_GRAPH_WIRTER_H
-
-#include <iosfwd>
-#include <string>
+#include "call_graph_writer.h"
 
 namespace amx_profiler {
 
-class CallGraph;
-
-class CallGraphWriter {
-public:
-	CallGraphWriter();
-
-	virtual void Write(const CallGraph *graph) = 0;
-
-	std::ostream *stream() const { return stream_; }
-	void set_stream(std::ostream *stream) { stream_ = stream; }
-	
-	std::string script_name() const { return script_name_; }
-	void set_script_name(std::string script_name) { script_name_ = script_name; }
-
-	std::string root_node_name() const { return root_node_name_; }
-	void set_root_node_name(std::string root_node_name) { root_node_name_ = root_node_name; }
-
-private:
-	std::ostream *stream_;
-	std::string script_name_;
-	std::string root_node_name_;
-};
+CallGraphWriter::CallGraphWriter()
+	: stream_(0)
+	, root_node_name_("<host>")
+{
+}
 
 } // namespace amx_profiler
-
-#endif // !AMX_PROFILER_CALL_GRAPH_WIRTER_H

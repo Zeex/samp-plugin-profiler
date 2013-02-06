@@ -313,18 +313,21 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 			std::ofstream call_graph_stream(call_graph_filename);
 
 			if (call_graph_stream.is_open()) {
-				amx_profiler::CallGraphWriterGV *call_graph_writer = nullptr;
+				amx_profiler::CallGraphWriterGV *writer = nullptr;
 
 				if (cfg::call_graph_format == "dot") {
-					call_graph_writer = new amx_profiler::CallGraphWriterGV(&call_graph_stream, amx_path, "SA-MP Server");
+					writer = new amx_profiler::CallGraphWriterGV;
 				} else {
 					logprintf("[profiler] Unknown call graph format '%s'", cfg::call_graph_format.c_str());
 				}
 
-				if (call_graph_writer != nullptr) {
+				if (writer != nullptr) {
 					logprintf("[profiler] Writing '%s'", call_graph_filename.c_str());
-					profiler->call_graph()->Write(call_graph_writer);
-					delete call_graph_writer;
+					writer->set_stream(&call_graph_stream);
+					writer->set_script_name(amx_path);
+					writer->set_root_node_name("SA-MP Server");
+					profiler->call_graph()->Write(writer);
+					delete writer;
 				}
 
 				call_graph_stream.close();

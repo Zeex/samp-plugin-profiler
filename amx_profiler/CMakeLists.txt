@@ -7,6 +7,7 @@ endif()
 add_library(amx_profiler STATIC
 	call_graph.cpp
 	call_graph.h
+	call_graph_writer.cpp
 	call_graph_writer.h
 	call_graph_writer_gv.cpp
 	call_graph_writer_gv.h
