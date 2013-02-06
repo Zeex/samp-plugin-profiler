@@ -326,7 +326,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 					writer->set_stream(&call_graph_stream);
 					writer->set_script_name(amx_path);
 					writer->set_root_node_name("SA-MP Server");
-					profiler->call_graph()->Write(writer);
+					writer->Write(profiler->call_graph());
 					delete writer;
 				}
 

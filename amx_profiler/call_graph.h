@@ -32,7 +32,6 @@
 namespace amx_profiler {
 
 class CallGraphNode;
-class CallGraphWriter;
 class FunctionStatistics;
 
 class CallGraph {
@@ -54,7 +53,6 @@ public:
 		return sentinel_;
 	}
 
-	void Write(CallGraphWriter *writer) const;
 	void Traverse(std::function<void(const CallGraphNode *)> callback) const;
 
 private:

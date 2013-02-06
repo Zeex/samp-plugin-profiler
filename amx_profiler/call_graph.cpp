@@ -24,7 +24,6 @@
 
 #include <functional>
 #include "call_graph.h"
-#include "call_graph_writer.h"
 #include "function.h"
 #include "function_statistics.h"
 
@@ -44,10 +43,6 @@ CallGraph::~CallGraph() {
 	for (auto node : nodes_) {
 		delete node;
 	}
-}
-
-void CallGraph::Write(CallGraphWriter *writer) const {
-	writer->Write(this);
 }
 
 void CallGraph::Traverse(std::function<void(const CallGraphNode *)> callback) const {
