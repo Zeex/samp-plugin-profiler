@@ -26,6 +26,7 @@ This plugin can recognize the following `server.cfg` options:
 
 *	`call_graph_format <format>`
 
-	Set call graph format. Currently only `gv` ([GraphViz](http://www.graphviz.org)) is supported.
+	Set call graph format. Currently only `dot` is supported (can be viewed in [GraphViz][graphviz]).
 
 [github]: https://github.com/Zeex/samp-plugin-profiler
+[graphviz]: http://www.graphviz.org

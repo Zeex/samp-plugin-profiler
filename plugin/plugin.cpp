@@ -69,7 +69,7 @@ namespace cfg {
 	std::string   profile_filterscripts = "";
 	std::string   profile_format        = "html";
 	bool          call_graph            = false;
-	std::string   call_graph_format     = "gv";
+	std::string   call_graph_format     = "dot";
 };
 
 namespace hooks {
@@ -309,13 +309,13 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 		}
 
 		if (cfg::call_graph) {
-			auto call_graph_filename = amx_name + "-calls.gv";
+			auto call_graph_filename = amx_name + "-calls." + cfg::call_graph_format;
 			std::ofstream call_graph_stream(call_graph_filename);
 
 			if (call_graph_stream.is_open()) {
 				amx_profiler::CallGraphWriterGV *call_graph_writer = nullptr;
 
-				if (cfg::call_graph_format == "gv") {
+				if (cfg::call_graph_format == "dot") {
 					call_graph_writer = new amx_profiler::CallGraphWriterGV(&call_graph_stream, amx_path, "SA-MP Server");
 				} else {
 					logprintf("[profiler] Unknown call graph format '%s'", cfg::call_graph_format.c_str());
