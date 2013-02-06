@@ -301,6 +301,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 				writer->set_stream(&profile_stream);
 				writer->set_script_name(amx_path);
 				writer->set_print_date(true);
+				writer->set_print_run_time(true);
 				writer->Write(profiler->stats());
 				delete writer;
 			}
