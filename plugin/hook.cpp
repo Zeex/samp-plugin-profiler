@@ -22,6 +22,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#include <cstdint>
 #include <cstring>
 #ifdef _WIN32
 	#include <windows.h>
@@ -62,12 +63,12 @@ bool Hook::Install() {
 	memcpy(code_, src_, kJmpInstrSize);
 
 	// E9 - jump near, relative
-	unsigned char JMP = 0xE9;
+	std::uint8_t JMP = 0xE9;
 	memcpy(src_, &JMP, 1);
 
 	// Jump address is relative to the next instruction's address
-	size_t offset = (int)dst_ - ((int)src_ + kJmpInstrSize);
-	memcpy((void*)((int)src_ + 1), &offset, kJmpInstrSize - 1);
+	std::intptr_t offset = (std::intptr_t)dst_ - ((std::intptr_t)src_ + kJmpInstrSize);
+	memcpy((void*)((std::intptr_t)src_ + 1), &offset, kJmpInstrSize - 1);
 
 	installed_ = true;
 	return true;
@@ -100,9 +101,9 @@ bool Hook::IsInstalled() const {
 // static 
 void *Hook::GetTargetAddress(void *jmp) {
 	if (*reinterpret_cast<unsigned char*>(jmp) == 0xE9) {
-		int next_instr = reinterpret_cast<int>(reinterpret_cast<char*>(jmp) + kJmpInstrSize);
-		int rel_addr = *reinterpret_cast<int*>(reinterpret_cast<char*>(jmp) + 1);
-		int abs_addr = rel_addr + next_instr;
+		std::intptr_t next_instr = reinterpret_cast<std::intptr_t>(reinterpret_cast<char*>(jmp) + kJmpInstrSize);
+		std::intptr_t rel_addr = *reinterpret_cast<std::intptr_t*>(reinterpret_cast<char*>(jmp) + 1);
+		std::intptr_t abs_addr = rel_addr + next_instr;
 		return reinterpret_cast<void*>(abs_addr);
 	}
 	return nullptr;
@@ -114,9 +115,9 @@ void Hook::Unprotect(void *address, int size) {
 		DWORD oldProtect;
 		VirtualProtect(address, size, PAGE_EXECUTE_READWRITE, &oldProtect);
 	#else
-		size_t pagesize = getpagesize();
-		size_t where = ((reinterpret_cast<uint32_t>(address) / pagesize) * pagesize);
-		size_t count = (size / pagesize) * pagesize + pagesize * 2;
+		int pagesize = getpagesize();
+		std::intptr_t where = ((reinterpret_cast<std::intptr_t>(address) / pagesize) * pagesize);
+		std::intptr_t count = (size / pagesize) * pagesize + pagesize * 2;
 		mprotect(reinterpret_cast<void*>(where), count, PROT_READ | PROT_WRITE | PROT_EXEC);
 	#endif
 }
