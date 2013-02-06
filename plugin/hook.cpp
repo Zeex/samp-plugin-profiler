@@ -115,9 +115,8 @@ void Hook::Unprotect(void *address, int size) {
 		DWORD oldProtect;
 		VirtualProtect(address, size, PAGE_EXECUTE_READWRITE, &oldProtect);
 	#else
-		int pagesize = getpagesize();
-		std::intptr_t where = ((reinterpret_cast<std::intptr_t>(address) / pagesize) * pagesize);
-		std::intptr_t count = (size / pagesize) * pagesize + pagesize * 2;
-		mprotect(reinterpret_cast<void*>(where), count, PROT_READ | PROT_WRITE | PROT_EXEC);
+		std::intptr_t aligned_address = reinterpret_cast<intptr_t>(address);
+		aligned_address &= ~(getpagesize() - 1);
+		mprotect(reinterpret_cast<void*>(aligned_address), size, PROT_READ | PROT_WRITE | PROT_EXEC);
 	#endif
 }
