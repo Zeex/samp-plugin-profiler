@@ -23,7 +23,13 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include <cstring>
-
+#ifdef _WIN32
+	#include <windows.h>
+#else
+	#include <stdint.h>
+	#include <unistd.h>
+	#include <sys/mman.h>
+#endif
 #include "hook.h"
 
 Hook::Hook() 
@@ -100,4 +106,17 @@ void *Hook::GetTargetAddress(void *jmp) {
 		return reinterpret_cast<void*>(abs_addr);
 	}
 	return nullptr;
+}
+
+// static
+void Hook::Unprotect(void *address, int size) {
+	#ifdef _WIN32
+		DWORD oldProtect;
+		VirtualProtect(address, size, PAGE_EXECUTE_READWRITE, &oldProtect);
+	#else
+		size_t pagesize = getpagesize();
+		size_t where = ((reinterpret_cast<uint32_t>(address) / pagesize) * pagesize);
+		size_t count = (size / pagesize) * pagesize + pagesize * 2;
+		mprotect(reinterpret_cast<void*>(where), count, PROT_READ | PROT_WRITE | PROT_EXEC);
+	#endif
 }

@@ -20,14 +20,6 @@ set(SOURCES
 	pluginversion.h
 )
 
-if(WIN32)
-	list(APPEND SOURCES hook-win32.cpp)
-elseif(UNIX)
-	list(APPEND SOURCES hook-unix.cpp)
-else()
-	message(FATAL_ERROR Unsupported operating system)
-endif()
-
 if(UNIX AND NOT WIN32)
 	add_definitions(-DLINUX)
 endif()
