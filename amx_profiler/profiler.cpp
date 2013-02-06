@@ -28,7 +28,6 @@
 #include "function_statistics.h"
 #include "native_function.h"
 #include "normal_function.h"
-#include "statistics_writer.h"
 #include "profiler.h"
 #include "public_function.h"
 

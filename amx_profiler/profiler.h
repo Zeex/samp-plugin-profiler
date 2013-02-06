@@ -37,8 +37,6 @@
 
 namespace amx_profiler {
 
-class StatisticsWriter;
-
 class Profiler {
 public:
 	typedef int (AMXAPI *DebugHookFunc)(AMX *amx);
