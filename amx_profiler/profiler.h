@@ -33,6 +33,7 @@
 #include "call_stack.h"
 #include "debug_info.h"
 #include "function_statistics.h"
+#include "macros.h"
 #include "statistics.h"
 
 namespace amx_profiler {
@@ -65,8 +66,6 @@ public:
 
 private:
 	Profiler();
-	Profiler(const Profiler &);
-	void operator=(const Profiler &);
 
 	ucell GetNativeAddress(cell index);
 	ucell GetPublicAddress(cell index);
@@ -84,6 +83,9 @@ private:
 
 	Statistics stats_;
 	std::set<Function*> functions_;
+
+private:
+	DISALLOW_COPY_AND_ASSIGN(Profiler);
 };
 
 inline bool IsAmxProfilable(AMX *amx) {

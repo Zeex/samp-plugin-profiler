@@ -22,6 +22,7 @@ add_library(amx_profiler STATIC
 	function_call.h
 	function_statistics.cpp
 	function_statistics.h
+	macros.h
 	native_function.cpp
 	native_function.h
 	normal_function.cpp

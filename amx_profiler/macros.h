@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2013, Zeex
+// Copyright (c) 2013, Zeex
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -22,45 +22,14 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef AMX_PROFILER_DEBUG_INFO_H
-#define AMX_PROFILER_DEBUG_INFO_H
+#ifndef AMX_PROFILER_MACROS_H
+#define AMX_PROFILER_MACROS_H
 
-#include <string>
-#include <amx/amx.h>
-#include <amx/amxdbg.h>
-#include "macros.h"
+// A macro to disallow the copy constructor and operator= functions
+// This should be used in the private: declarations for a class
+// http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml?showone=Copy_Constructors#Copy_Constructors
+#define DISALLOW_COPY_AND_ASSIGN(TypeName) \
+	TypeName(const TypeName&); \
+	void operator=(const TypeName&)
 
-namespace amx_profiler {
-
-class DebugInfo {
-public:
-	DebugInfo();
-	explicit DebugInfo(const AMX_DBG *amxdbg);
-	explicit DebugInfo(const std::string &filename);
-
-	void Load(const std::string &filename);
-	void Unload();
-
-	bool is_loaded() const { return amxdbg_ != nullptr; }
-
-	long GetLine(cell address) const;
-	std::string GetFile(cell address) const;
-	std::string GetFunction(cell address) const;
-
-private:
-	AMX_DBG *amxdbg_;
-
-private:
-	DISALLOW_COPY_AND_ASSIGN(DebugInfo);
-};
-
-inline bool HaveDebugInfo(AMX *amx) {
-	uint16_t flags;
-	amx_Flags(amx, &flags);
-	return ((flags & AMX_FLAG_DEBUG) != 0);
-}	
-
-} // namespace amx_profiler
-
-#endif // !AMX_PROFILER_DEBUGINFO_H
-
+#endif // !AMX_PROFILER_MACROS_H
