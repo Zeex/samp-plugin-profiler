@@ -54,14 +54,10 @@ extern void *pAMXFunctions;
 
 static logprintf_t logprintf;
 
-// Profiler instances.
 static std::unordered_map<AMX*, std::shared_ptr<amx_profiler::Profiler>> profilers;
-
-// List of loaded scripts, need this to fix AmxUnload bug on Windows.
 static std::list<AMX*> loaded_scripts;
-
-// Stores previously set debug hooks (if any).
 static std::unordered_map<AMX*, AMX_DEBUG> old_debug_hooks;
+static std::unordered_map<AMX*, std::shared_ptr<amx_profiler::DebugInfo>> debug_infos;
 
 // Plugin settings and their defauls.
 namespace cfg {
@@ -239,23 +235,25 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 		// Disable SYSREQ.D
 		amx->sysreq_d = 0;
 
-		// Store previous debug hook somewhere before setting a new one
+		// Store previous debug hook somewhere before overwriting it.
 		::old_debug_hooks[amx] = amx->debug;
 		amx_SetDebugHook(amx, hooks::amx_Debug);
 
-		// Load debug stats if available
-		amx_profiler::DebugInfo debug_info;
-		if (amx_profiler::HasDebugInfo(amx)) {
-			debug_info.Load(filename);
-			if (debug_info.IsLoaded()) {
+		// Load debug info if available.
+		amx_profiler::DebugInfo *debug_info = nullptr;
+		if (amx_profiler::HaveDebugInfo(amx)) {
+			debug_info = new amx_profiler::DebugInfo(filename);
+			if (debug_info->is_loaded()) {
 				logprintf("[profiler] Loaded debug stats from '%s'", filename.c_str());
+				::debug_infos[amx].reset(debug_info);
 			} else {
 				logprintf("[profiler] Error loading debug stats from '%s'", filename.c_str());
+				delete debug_info;
 			}
 		}
 
 		::profilers[amx] = std::shared_ptr<amx_profiler::Profiler>(new amx_profiler::Profiler(amx, debug_info, cfg::call_graph));
-		if (debug_info.IsLoaded()) {
+		if (debug_info != nullptr) {
 			logprintf("[profiler] Attached profiler to '%s'", filename.c_str());
 		} else {
 			logprintf("[profiler] Attached profiler to '%s' (no debug symbols)", filename.c_str());
@@ -335,8 +333,10 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 			}
 		}
 
-		profilers.erase(amx);
+		::profilers.erase(amx);
 	}
+
+	::debug_infos.erase(amx);
 
 	return AMX_ERR_NONE;
 }

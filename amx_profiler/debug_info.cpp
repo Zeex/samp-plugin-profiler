@@ -22,72 +22,56 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <cassert>
 #include <cstdio>
 #include <cstring>
+#include <string>
 #include "debug_info.h"
 
 namespace amx_profiler {
 
 DebugInfo::DebugInfo()
-{
-}
-
-DebugInfo::DebugInfo(std::shared_ptr<AMX_DBG> amxdbg)
-	: amxdbg_(amxdbg)
+	: amxdbg_(nullptr)
 {
 }
 
 DebugInfo::DebugInfo(const AMX_DBG *amxdbg) 
 	: amxdbg_(new AMX_DBG)
 {
-	std::memcpy(amxdbg_.get(), amxdbg, sizeof(AMX_DBG));
+	std::memcpy(amxdbg_, amxdbg, sizeof(AMX_DBG));
 }
 
-DebugInfo::DebugInfo(const AMX_DBG &amxdbg)
-	: amxdbg_(new AMX_DBG(amxdbg))
+DebugInfo::DebugInfo(const std::string &filename)
+	: amxdbg_(nullptr)
 {
-}
-
-DebugInfo::DebugInfo(const std::string &filename) {
 	Load(filename);
-}
-
-void DebugInfo::FreeAmxDbg(AMX_DBG *amxdbg) {
-	if (amxdbg != nullptr) {
-		dbg_FreeInfo(amxdbg);
-		delete amxdbg;
-	}
-}
-
-bool DebugInfo::IsLoaded() const {
-	return (amxdbg_.get() != nullptr);
 }
 
 void DebugInfo::Load(const std::string &filename) {
 	std::FILE* fp = std::fopen(filename.c_str(), "rb");
 	if (fp != nullptr) {
-		amxdbg_.reset(new AMX_DBG, FreeAmxDbg);
-		if (dbg_LoadInfo(amxdbg_.get(), fp) != AMX_ERR_NONE) 
-			amxdbg_.reset();
+		amxdbg_ = new AMX_DBG;
+		if (dbg_LoadInfo(amxdbg_, fp) != AMX_ERR_NONE) 
+			delete amxdbg_;
 		fclose(fp);
 	}
 }
 
-void DebugInfo::Free() {
-	amxdbg_.reset();
+void DebugInfo::Unload() {
+	if (amxdbg_ != nullptr) {
+		dbg_FreeInfo(amxdbg_);
+		delete amxdbg_;
+	}
 }
-
 long DebugInfo::GetLine(cell address) const {
 	long line = 0;
-	dbg_LookupLine(amxdbg_.get(), address, &line);
+	dbg_LookupLine(amxdbg_, address, &line);
 	return line;
 }
 
 std::string DebugInfo::GetFile(cell address) const {
 	std::string result;
 	const char *file;
-	if (dbg_LookupFile(amxdbg_.get(), address, &file) == AMX_ERR_NONE)
+	if (dbg_LookupFile(amxdbg_, address, &file) == AMX_ERR_NONE)
 		result.assign(file);
 	return result;
 }
@@ -95,7 +79,7 @@ std::string DebugInfo::GetFile(cell address) const {
 std::string DebugInfo::GetFunction(cell address) const {
 	std::string result;
 	const char *function;
-	if (dbg_LookupFunction(amxdbg_.get(), address, &function) == AMX_ERR_NONE)
+	if (dbg_LookupFunction(amxdbg_, address, &function) == AMX_ERR_NONE)
 		result.assign(function);
 	return result;
 }

@@ -29,11 +29,11 @@
 
 namespace amx_profiler {
 
-NormalFunction::NormalFunction(ucell address, const DebugInfo &debug_info)
+NormalFunction::NormalFunction(ucell address, DebugInfo *debug_info)
 	: address_(address), name_()
 {
-	if (debug_info.IsLoaded()) {
-		name_ = debug_info.GetFunction(address);
+	if (debug_info != nullptr && debug_info->is_loaded()) {
+		name_ = debug_info->GetFunction(address);
 	}
 	if (name_.empty()) {
 		std::stringstream ss;

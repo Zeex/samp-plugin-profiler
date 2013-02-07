@@ -25,7 +25,6 @@
 #ifndef AMX_PROFILER_DEBUG_INFO_H
 #define AMX_PROFILER_DEBUG_INFO_H
 
-#include <memory>
 #include <string>
 #include <amx/amx.h>
 #include <amx/amxdbg.h>
@@ -36,25 +35,26 @@ class DebugInfo {
 public:
 	DebugInfo();
 	explicit DebugInfo(const AMX_DBG *amxdbg);
-	explicit DebugInfo(const AMX_DBG &amxdbg);
-	explicit DebugInfo(std::shared_ptr<AMX_DBG> amxdbg);
 	explicit DebugInfo(const std::string &filename);
 
-	static void FreeAmxDbg(AMX_DBG *amxdbg);
-
 	void Load(const std::string &filename);
-	bool IsLoaded() const;
-	void Free();
+	void Unload();
+
+	bool is_loaded() const { return amxdbg_ != nullptr; }
 
 	long GetLine(cell address) const;
 	std::string GetFile(cell address) const;
 	std::string GetFunction(cell address) const;
 
 private:
-	std::shared_ptr<AMX_DBG> amxdbg_;
+	DebugInfo(const DebugInfo &);
+	void operator=(const DebugInfo &);
+
+private:
+	AMX_DBG *amxdbg_;
 };
 
-inline bool HasDebugInfo(AMX *amx) {
+inline bool HaveDebugInfo(AMX *amx) {
 	uint16_t flags;
 	amx_Flags(amx, &flags);
 	return ((flags & AMX_FLAG_DEBUG) != 0);

@@ -44,7 +44,7 @@ public:
 	typedef int (AMXAPI *CallbackHookFunc)(AMX *amx, cell index, cell *result, cell *params);
 
 public:
-	Profiler(AMX *amx, DebugInfo debug_info = DebugInfo(), bool enable_call_graph = true);
+	Profiler(AMX *amx, DebugInfo *debug_info = nullptr, bool enable_call_graph = true);
 	~Profiler();
 
 	inline const Statistics *stats() const {
@@ -76,7 +76,7 @@ private:
 
 private:
 	AMX *amx_;
-	DebugInfo debug_info_;
+	DebugInfo *debug_info_;
 	bool call_graph_enabled_;
 
 	CallStack call_stack_;
