@@ -1,5 +1,7 @@
 project(profiler)
 
+option(PROFILER_USE_STATIC_RUNTIME "Use static C++ runtime" OFF)
+
 cmake_minimum_required(VERSION 2.8.8)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
 
@@ -27,6 +29,13 @@ endif()
 if(CMAKE_COMPILER_IS_GNUCXX)
 	if(NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.0)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-attributes")
+	endif()
+endif()
+
+# Link against the static version of libstdc++.
+if(PROFILER_USE_STATIC_RUNTIME)
+	if(CMAKE_COMPILER_IS_GNUCXX)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libstdc++")
 	endif()
 endif()
 
