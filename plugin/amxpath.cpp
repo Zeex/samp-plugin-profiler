@@ -26,8 +26,8 @@
 #include <ctime>
 #include <exception>
 #include <iterator>
-#include <list>
 #include <memory>
+#include <list>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -56,21 +56,23 @@ static inline std::time_t GetFileModificationTime(const std::string filename) {
 class AmxFile {
 public:
 	explicit AmxFile(std::string name);
+	~AmxFile();
 
 	AMX *amx() {
 		return const_cast<AMX*>(const_cast<const AmxFile*>(this)->amx());
 	}
-	const AMX *amx() const { return amx_ptr_.get(); }
+	const AMX *amx() const { return amx_; }
 
-	bool is_loaded() const { return amx_ptr_.get() != nullptr; }
+	bool is_loaded() const { return amx_ != nullptr; }
 	std::string name() const { return name_; }
 	std::time_t modification_time() const { return modification_time_; }
 
 private:
-	static void FreeAmx(AMX *amx);
+	AmxFile(const AmxFile &);
+	void operator=(const AmxFile &);
 
 private:
-	std::shared_ptr<AMX> amx_ptr_;
+	AMX *amx_;
 	std::string name_;
 	std::time_t modification_time_;
 };
@@ -82,21 +84,21 @@ AmxFile::AmxFile(std::string name)
 	if (AMX *amx = new AMX) {
 		std::memset(amx, 0, sizeof(AMX));
 		if (aux_LoadProgram(amx, const_cast<char*>(name.c_str()), nullptr) == AMX_ERR_NONE) {
-			amx_ptr_.reset(amx, FreeAmx);
+			amx_ = amx;
 		} else {
 			delete amx;
 		}
 	}
 }
 
-void AmxFile::FreeAmx(AMX *amx) {
-	if (amx != nullptr) {
-		aux_FreeProgram(amx);
-		delete amx;
+AmxFile::~AmxFile() {
+	if (amx_ != nullptr) {
+		aux_FreeProgram(amx_);
+		delete amx_;
 	}
 }
 
-static std::unordered_map<std::string, AmxFile> string_to_amx_file;
+static std::unordered_map<std::string, std::shared_ptr<AmxFile>> string_to_amx_file;
 static std::unordered_map<AMX*, std::string> amx_to_string;
 
 template<typename OutputIterator>
@@ -137,20 +139,20 @@ std::string GetAmxPath(AMX_HEADER *amxhdr) {
 	for (auto &filename : files) {
 		auto it = ::string_to_amx_file.find(filename);
 		if (it == ::string_to_amx_file.end()
-			|| it->second.modification_time() < GetFileModificationTime(filename))
+			|| it->second->modification_time() < GetFileModificationTime(filename))
 		{
 			if (it != ::string_to_amx_file.end()) {
 				::string_to_amx_file.erase(it);
 			}
-			AmxFile amx_file(filename);
-			if (amx_file.is_loaded()) {
+			auto amx_file = std::shared_ptr<AmxFile>(new AmxFile(filename));
+			if (amx_file && amx_file->is_loaded()) {
 				::string_to_amx_file.insert(std::make_pair(filename, amx_file));
 			}
 		}
 	}
 
 	for (auto &string_script : ::string_to_amx_file) {
-		auto amxhdr2 = string_script.second.amx()->base;
+		auto amxhdr2 = string_script.second->amx()->base;
 		if (std::memcmp(amxhdr, amxhdr2, sizeof(AMX_HEADER)) == 0) {
 			result = string_script.first;
 			break;
