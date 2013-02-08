@@ -43,7 +43,6 @@ void CallGraphWriterGV::Write(const CallGraph *graph) {
 	"	node [style=filled];\n"
 	;
 
-	// Write basic graph (nodes + arrows).
 	graph->Traverse([this](const CallGraphNode *node) {
 		if (!node->callees().empty()) {
 			std::string caller_name;
@@ -69,7 +68,6 @@ void CallGraphWriterGV::Write(const CallGraph *graph) {
 		}	
 	});
 
-	// Get maximum execution time.
 	Duration max_time;
 	graph->Traverse([&max_time, &graph](const CallGraphNode *node) {
 		if (node != graph->sentinel()) {
@@ -80,7 +78,6 @@ void CallGraphWriterGV::Write(const CallGraph *graph) {
 		}
 	});
 
-	// Color nodes depending to draw attention to hot spots.
 	graph->Traverse([&max_time, this, &graph](const CallGraphNode *node) {
 		if (node != graph->sentinel()) {
 			auto time = node->stats()->GetSelfTime();
@@ -95,7 +92,6 @@ void CallGraphWriterGV::Write(const CallGraph *graph) {
 				<< std::get<0>(hsb) << ", "
 				<< std::get<1>(hsb) << ", "
 				<< std::get<2>(hsb) << "\""
-			// Choose different shape depending on funciton type.
 			<< ", shape=";
 			std::string fn_type = node->stats()->function()->type();
 			if (fn_type == "public") {
