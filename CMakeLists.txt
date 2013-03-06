@@ -10,10 +10,10 @@ include(GetGitRevisionDescription)
 
 # Make sure we have proper C++11 support.
 if(CMAKE_COMPILER_IS_GNUCXX)
-	if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.6)
-		message(FATAL_ERROR "You need g++ 4.6 or later")
+	if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.7)
+		message(FATAL_ERROR "You need g++ 4.7 or later")
 	endif()
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 elseif(MSVC)
 	if (MSVC_VERSION LESS 1600) 
 		message(FATAL_ERROR "You need MSVC 10.0 or later")
