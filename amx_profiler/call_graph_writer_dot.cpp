@@ -29,14 +29,14 @@
 #include <tuple>
 #include <string>
 #include "call_graph.h"
-#include "call_graph_writer_gv.h"
+#include "call_graph_writer_dot.h"
 #include "duration.h"
 #include "function.h"
 #include "function_statistics.h"
 
 namespace amx_profiler {
 
-void CallGraphWriterGV::Write(const CallGraph *graph) {
+void CallGraphWriterDot::Write(const CallGraph *graph) {
 	*stream() << 
 	"digraph \"Call graph of '" << script_name() << "'\" {\n"
 	"	size=\"10,8\"; ratio=fill; rankdir=LR\n"

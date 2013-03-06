@@ -9,8 +9,8 @@ add_library(amx_profiler STATIC
 	call_graph.h
 	call_graph_writer.cpp
 	call_graph_writer.h
-	call_graph_writer_gv.cpp
-	call_graph_writer_gv.h
+	call_graph_writer_dot.cpp
+	call_graph_writer_dot.h
 	call_stack.cpp
 	call_stack.h
 	debug_info.cpp

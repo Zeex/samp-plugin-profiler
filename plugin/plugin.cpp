@@ -36,7 +36,7 @@
 	#include <windows.h>
 #endif
 #include <amx/amx.h>
-#include <amx_profiler/call_graph_writer_gv.h>
+#include <amx_profiler/call_graph_writer_dot.h>
 #include <amx_profiler/debug_info.h>
 #include <amx_profiler/statistics_writer_html.h>
 #include <amx_profiler/statistics_writer_text.h>
@@ -312,10 +312,10 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 			std::ofstream call_graph_stream(call_graph_filename);
 
 			if (call_graph_stream.is_open()) {
-				amx_profiler::CallGraphWriterGV *writer = nullptr;
+				amx_profiler::CallGraphWriterDot *writer = nullptr;
 
 				if (cfg::call_graph_format == "dot") {
-					writer = new amx_profiler::CallGraphWriterGV;
+					writer = new amx_profiler::CallGraphWriterDot;
 				} else {
 					logprintf("[profiler] Unknown call graph format '%s'", cfg::call_graph_format.c_str());
 				}

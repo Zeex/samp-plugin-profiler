@@ -22,8 +22,8 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef AMX_PROFILER_CALL_GRAPH_WRITER_GV_H
-#define AMX_PROFILER_CALL_GRAPH_WRITER_GV_H
+#ifndef AMX_PROFILER_CALL_GRAPH_WRITER_DOT_H
+#define AMX_PROFILER_CALL_GRAPH_WRITER_DOT_H
 
 #include <iosfwd>
 #include <string>
@@ -31,14 +31,14 @@
 
 namespace amx_profiler {
 
-// GraphViz writer
-class CallGraphWriterGV : public CallGraphWriter {
+// GraphViz .dot writer
+class CallGraphWriterDot : public CallGraphWriter {
 public:
 	virtual void Write(const CallGraph *graph) override;
 };
 
 } // namespace amx_profiler
 
-#endif // !AMX_PROFILER_CALL_GRAPH_WRITER_GV_H
+#endif // !AMX_PROFILER_CALL_GRAPH_WRITER_DOT_H
 
 
