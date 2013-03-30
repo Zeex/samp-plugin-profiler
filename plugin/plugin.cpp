@@ -244,10 +244,10 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 		if (amx_profiler::HaveDebugInfo(amx)) {
 			debug_info = new amx_profiler::DebugInfo(filename);
 			if (debug_info->is_loaded()) {
-				logprintf("[profiler] Loaded debug stats from '%s'", filename.c_str());
+				logprintf("[profiler] Loaded debug info from '%s'", filename.c_str());
 				::debug_infos[amx].reset(debug_info);
 			} else {
-				logprintf("[profiler] Error loading debug stats from '%s'", filename.c_str());
+				logprintf("[profiler] Error loading debug info from '%s'", filename.c_str());
 				delete debug_info;
 			}
 		}
