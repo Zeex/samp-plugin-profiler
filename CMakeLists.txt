@@ -8,6 +8,9 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
 include(AmxConfig)
 include(GetGitRevisionDescription)
 
+# Enable project folders in Visual Studio (and possibly other IDEs).
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 # Make sure we have proper C++11 support.
 if(CMAKE_COMPILER_IS_GNUCXX)
 	if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.7)
