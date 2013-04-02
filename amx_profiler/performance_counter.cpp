@@ -63,7 +63,7 @@ PerformanceCounter::Duration PerformanceCounter::GetSelfTime() const {
 	return total_time() - child_time();
 }
 
-boost::chrono::high_resolution_clock::duration PerformanceCounter::QueryTotalTime() const {
+PerformanceCounter::Duration PerformanceCounter::QueryTotalTime() const {
 	return Now() - start_point_;
 }
 
