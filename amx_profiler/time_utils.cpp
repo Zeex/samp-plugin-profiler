@@ -25,6 +25,7 @@
 #include <ctime>
 #include <iomanip>
 #include <iostream>
+#include <boost/format.hpp>
 #include "duration.h"
 #include "time_utils.h"
 
@@ -56,12 +57,6 @@ const char *CTime(TimeStamp ts) {
 TimeSpan::TimeSpan(Duration d)
 	: duration_(d)
 {
-	weeks_ = static_cast<int>(Weeks(d).count());
-	d -= Weeks(weeks_);
-
-	days_ = static_cast<int>(Days(d).count());
-	d -= Days(days_);
-
 	hours_ = static_cast<int>(Hours(d).count());
 	d -= Hours(hours_);
 
@@ -72,29 +67,9 @@ TimeSpan::TimeSpan(Duration d)
 	d -= Seconds(seconds_);
 }
 
-static const char *Choose(int n, const char *singular, const char *plural) {
-	return (n > 1 || n == 0) ? plural : singular;
-}
-
 std::ostream &operator<<(std::ostream &os, const TimeSpan &time) {
 	Duration duration = time.duration();
-
-	if (time.weeks() > 0) {
-		os << time.weeks() << Choose(time.weeks(), " week ", " weeks ");
-	}
-	if (time.days() > 0) {
-		os << time.days() << Choose(time.days(), " day ", " days ");
-	}
-	if (time.hours() > 0) {
-		os << time.hours() << Choose(time.hours(), " hour ", " hours ");
-	}
-	if (time.minutes() > 0) {
-		os << time.minutes() << Choose(time.minutes(), " minute ", " minutes ");
-	}
-	if (time.seconds() > 0) {
-		os << time.seconds() << Choose(time.seconds(), " second ", " seconds ");
-	}
-
+	os << boost::format("%02d:%02d:%02d") % time.hours() % time.minutes() % time.seconds();
 	return os;
 }
 
