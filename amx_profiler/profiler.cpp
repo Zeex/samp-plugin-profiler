@@ -23,6 +23,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include <cassert>
+#include <typeinfo>
 #include "function.h"
 #include "function_call.h"
 #include "function_statistics.h"

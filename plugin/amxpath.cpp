@@ -81,7 +81,7 @@ std::string AmxPathFinder::FindAmxPath(AMX_HEADER *amxhdr) const {
 				continue;
 			}
 
-			FileCache::const_iterator cache_iterator = file_cache_.find(filename);
+			FileCache::iterator cache_iterator = file_cache_.find(filename);
 			if (cache_iterator == file_cache_.end() ||
 			    cache_iterator->second.mtime() < boost::filesystem::last_write_time(filename))
 			{
