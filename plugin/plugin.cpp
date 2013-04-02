@@ -123,18 +123,25 @@ static int AMXAPI amx_Exec(AMX *amx, cell *retval, int index) {
 
 } // namespace hooks
 
+static std::string GetAmxPath(AMX *amx) {
+	AmxPathFinder finder;
+	finder.AddSearchDirectory("gamemodes");
+	finder.AddSearchDirectory("filterscripts");
+	return finder.FindAmxPath(amx);
+}
+
 static std::string ToUnixPath(const std::string &path) {
 	std::string fsPath = path;
 	std::replace(fsPath.begin(), fsPath.end(), '\\', '/');
 	return fsPath;
 }
 
-static bool IsGameMode(const std::string &amxName) {
-	return ToUnixPath(amxName).find("gamemodes/") != std::string::npos;
+static bool IsGameMode(const std::string &amx_name) {
+	return ToUnixPath(amx_name).find("gamemodes/") != std::string::npos;
 }
 
-static bool IsFilterScript(const std::string &amxName) {
-	return ToUnixPath(amxName).find("filterscripts/") != std::string::npos;
+static bool IsFilterScript(const std::string &amx_name) {
+	return ToUnixPath(amx_name).find("filterscripts/") != std::string::npos;
 }
 
 static bool GetPublicVariable(AMX *amx, const char *name, cell &value) {
@@ -148,24 +155,24 @@ static bool GetPublicVariable(AMX *amx, const char *name, cell &value) {
 	return false;
 }
 
-static bool WantsProfiler(const std::string &amxName) {
-	std::string goodAmxName = ToUnixPath(amxName);
+static bool WantsProfiler(const std::string &amx_name) {
+	std::string good_amx_name = ToUnixPath(amx_name);
 
-	if (IsGameMode(amxName)) {
+	if (IsGameMode(good_amx_name)) {
 		if (cfg::profile_gamemode) {
 			return true;
 		}
-	} else if (IsFilterScript(amxName)) {
-		std::string fsList = cfg::profile_filterscripts;
-		std::stringstream fsStream(fsList);
+	} else if (IsFilterScript(good_amx_name)) {
+		std::string fs_list = cfg::profile_filterscripts;
+		std::stringstream fs_stream(fs_list);
 		do {
-			std::string fsName;
-			fsStream >> fsName;
-			if (goodAmxName == "filterscripts/" + fsName + ".amx"
-					|| goodAmxName == "filterscripts/" + fsName) {
+			std::string fs_name;
+			fs_stream >> fs_name;
+			if (good_amx_name == "filterscripts/" + fs_name + ".amx"
+					|| good_amx_name == "filterscripts/" + fs_name) {
 				return true;
 			}
-		} while (!fsStream.eof());
+		} while (!fs_stream.eof());
 	}
 
 	return false;

@@ -23,167 +23,87 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include <cstring>
-#include <ctime>
-#include <iterator>
-#include <list>
-#include <map>
-#include <string>
-#include <boost/shared_ptr.hpp>
-#include <amx/amx.h>
-#include <amx/amxaux.h>
-#ifdef _WIN32
-	#include <windows.h>
-	#include <sys/types.h>
-	#include <sys/stat.h>
-	#if !defined stat
-		#define stat _stat
-	#endif
-#else
-	#include <dirent.h>
-	#include <fnmatch.h>
-	#include <sys/stat.h>
-#endif
+#include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
+#include "amxpath.h"
 
-static std::time_t GetFileModificationTime(const std::string filename) {
-	struct stat attrib;
-	stat(filename.c_str(), &attrib);
-	return attrib.st_mtime;
-}
-
-class AmxFile {
-public:
-	explicit AmxFile(std::string name);
-	~AmxFile();
-
-	AMX *amx() {
-		return const_cast<AMX*>(const_cast<const AmxFile*>(this)->amx());
+static void FreeAmx(AMX *amx) {
+	if (amx != 0) {
+		aux_FreeProgram(amx);
 	}
-	const AMX *amx() const { return amx_; }
-
-	bool is_loaded() const { return amx_ != 0; }
-	std::string name() const { return name_; }
-	std::time_t modification_time() const { return modification_time_; }
-
-private:
-	AmxFile(const AmxFile &);
-	void operator=(const AmxFile &);
-
-private:
-	AMX *amx_;
-	std::string name_;
-	std::time_t modification_time_;
-};
+}
 
 AmxFile::AmxFile(std::string name)
-	: name_(name)
-	, modification_time_(GetFileModificationTime(name))
+	: amx_ptr_(new AMX, FreeAmx)
+	, name_(name)
+	, mtime_(boost::filesystem::last_write_time(name))
 {
-	if (AMX *amx = new AMX) {
-		std::memset(amx, 0, sizeof(AMX));
-		if (aux_LoadProgram(amx, const_cast<char*>(name.c_str()), 0) == AMX_ERR_NONE) {
-			amx_ = amx;
-		} else {
-			delete amx;
-		}
+	if (aux_LoadProgram(amx_ptr_.get(), const_cast<char*>(name.c_str()), 0)
+			!= AMX_ERR_NONE) {
+		amx_ptr_.reset();
 	}
 }
 
-AmxFile::~AmxFile() {
-	if (amx_ != 0) {
-		aux_FreeProgram(amx_);
-		delete amx_;
-	}
-}
-
-typedef std::map<std::string, boost::shared_ptr<AmxFile> > StringToAmxFileMap;
-static StringToAmxFileMap string_to_amx_file;
-
-typedef std::map<AMX*, std::string> AmxToStringMap;
-static AmxToStringMap amx_to_string;
-
-#ifdef _WIN32
-
-template<typename OutputIterator>
-static void GetFilesInDirectory(const std::string &path, const std::string &pattern, OutputIterator result) {
-	WIN32_FIND_DATA FindFileData;
-	HANDLE hFindFile = FindFirstFile((path + "\\" + pattern).c_str(), &FindFileData);
-	if (hFindFile != INVALID_HANDLE_VALUE) {
-		do {
-			if (!(FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
-				*result++ = path + "\\" + FindFileData.cFileName;
-			}
-		} while (FindNextFile(hFindFile, &FindFileData) != 0);
-		FindClose(hFindFile);
-	}
-}
-
-#else
-
-template<typename OutputIterator>
-static void GetFilesInDirectory(const std::string &path, const std::string &pattern, OutputIterator result) {
-	DIR *dp;
-	if ((dp = opendir(path.c_str())) != 0) {
-		struct dirent *dirp;
-		while ((dirp = readdir(dp)) != 0) {
-			if (!fnmatch(pattern.c_str(), dirp->d_name,
-							FNM_CASEFOLD | FNM_NOESCAPE | FNM_PERIOD)) {
-				*result++ = path + "/" + dirp->d_name;
-			}
-		}
-		closedir(dp);
-	}
-}
-
-#endif
-
-std::string GetAmxPath(AMX_HEADER *amxhdr) {
+std::string AmxPathFinder::FindAmxPath(AMX *amx) const {
 	std::string result;
 
-	std::list<std::string> files;
-	GetFilesInDirectory("gamemodes", "*.amx", std::back_inserter(files));
-	GetFilesInDirectory("filterscripts", "*.amx", std::back_inserter(files));
-
-	for (std::list<std::string>::const_iterator it = files.begin(); it != files.end(); ++it) {
-		const std::string &filename = *it;
-
-		StringToAmxFileMap::const_iterator map_it = ::string_to_amx_file.find(filename);
-		if (map_it == ::string_to_amx_file.end()
-			|| map_it->second->modification_time() < GetFileModificationTime(filename))
-		{
-			if (map_it != ::string_to_amx_file.end()) {
-				::string_to_amx_file.erase(map_it);
-			}
-
-			boost::shared_ptr<AmxFile> amx_file(new AmxFile(filename));
-			if (amx_file && amx_file->is_loaded()) {
-				::string_to_amx_file.insert(std::make_pair(filename, amx_file));
-			}
-		}
-	}
-
-	for (StringToAmxFileMap::const_iterator it = ::string_to_amx_file.begin();
-			it != ::string_to_amx_file.end(); ++it) 
-	{
-		void *amxhdr2 = it->second->amx()->base;
-		if (std::memcmp(amxhdr, amxhdr2, sizeof(AMX_HEADER)) == 0) {
-			result = it->first;
-			break;
+	PathCache::const_iterator iterator = path_cache_.find(amx);
+	if (iterator != path_cache_.end()) {
+		result = iterator->second;
+	} else {
+		result = FindAmxPath(reinterpret_cast<AMX_HEADER*>(amx->base));
+		if (!result.empty()) {
+			path_cache_.insert(std::make_pair(amx, result));
 		}
 	}
 
 	return result;
 }
 
-std::string GetAmxPath(AMX *amx) {
+std::string AmxPathFinder::FindAmxPath(AMX_HEADER *amxhdr) const {
 	std::string result;
 
-	AmxToStringMap::const_iterator it = ::amx_to_string.find(amx);
-	if (it != ::amx_to_string.end()) {
-		result = it->second;
-	} else {
-		result = GetAmxPath(reinterpret_cast<AMX_HEADER*>(amx->base));
-		if (!result.empty()) {
-			::amx_to_string.insert(std::make_pair(amx, result));
+	for (DirSet::const_iterator iterator = search_dirs_.begin();
+			iterator != search_dirs_.end(); ++iterator)
+	{
+		const std::string &dir = *iterator;
+
+		boost::filesystem::directory_iterator dir_end;
+		for (boost::filesystem::directory_iterator dir_iterator(dir);
+				dir_iterator != dir_end; ++dir_iterator)
+		{
+			if (!boost::filesystem::is_regular_file(dir_iterator->status())) {
+				continue;
+			}
+
+			const std::string filename = dir_iterator->path().string();
+			if (!boost::algorithm::ends_with(filename, ".amx")) {
+				continue;
+			}
+
+			FileCache::const_iterator cache_iterator = file_cache_.find(filename);
+			if (cache_iterator == file_cache_.end() ||
+			    cache_iterator->second.mtime() < boost::filesystem::last_write_time(filename))
+			{
+				if (cache_iterator != file_cache_.end()) {
+					file_cache_.erase(cache_iterator);
+				}
+
+				AmxFile amx_file(filename);
+				if (amx_file.is_loaded()) {
+					file_cache_.insert(std::make_pair(filename, amx_file));
+				}
+			}
+		}
+	}
+
+	for (FileCache::const_iterator iterator = file_cache_.begin();
+			iterator != file_cache_.end(); ++iterator) 
+	{
+		void *amxhdr2 = iterator->second.amx()->base;
+		if (std::memcmp(amxhdr, amxhdr2, sizeof(AMX_HEADER)) == 0) {
+			result = iterator->first;
+			break;
 		}
 	}
 

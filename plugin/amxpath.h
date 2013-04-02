@@ -25,10 +25,50 @@
 #ifndef AMXPATH_H
 #define AMXPATH_H
 
+#include <map>
+#include <set>
 #include <string>
+#include <boost/filesystem.hpp>
+#include <boost/shared_ptr.hpp>
 #include <amx/amx.h>
+#include <amx/amxaux.h>
 
-std::string GetAmxPath(AMX_HEADER *amxhdr);
-std::string GetAmxPath(AMX *amx);
+class AmxFile {
+public:
+	explicit AmxFile(std::string name);
+
+	AMX *amx() { return amx_ptr_.get(); }
+	const AMX *amx() const { return amx_ptr_.get(); }
+
+	bool is_loaded() const { return amx_ptr_; }
+
+	std::string name() const { return name_; }
+	std::time_t mtime() const { return mtime_; }
+
+private:
+	boost::shared_ptr<AMX> amx_ptr_;
+	std::string name_;
+	std::time_t mtime_;
+};
+
+class AmxPathFinder {
+public:
+	void AddSearchDirectory(const std::string &path) {
+		search_dirs_.insert(path);
+	}
+
+	std::string FindAmxPath(AMX *amx) const;
+	std::string FindAmxPath(AMX_HEADER *amxhdr) const;
+
+private:
+	typedef std::set<std::string> DirSet;
+	DirSet search_dirs_;
+
+	typedef std::map<std::string, AmxFile> FileCache;
+	mutable FileCache file_cache_;
+
+	typedef std::map<AMX*, std::string> PathCache;
+	mutable PathCache path_cache_;
+};
 
 #endif // !AMXPATH_H
