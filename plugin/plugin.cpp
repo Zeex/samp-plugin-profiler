@@ -124,7 +124,8 @@ static int AMXAPI amx_Exec(AMX *amx, cell *retval, int index) {
 } // namespace hooks
 
 static std::string GetAmxPath(AMX *amx) {
-	AmxPathFinder finder;
+	// Has to be static to make caching work in AmxUnload().
+	static AmxPathFinder finder;
 	finder.AddSearchDirectory("gamemodes");
 	finder.AddSearchDirectory("filterscripts");
 	return finder.FindAmxPath(amx);
