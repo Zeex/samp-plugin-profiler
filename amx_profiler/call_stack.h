@@ -47,24 +47,6 @@ public:
 
 	FunctionCall *bottom() { return &calls_.front(); }
 	const FunctionCall *bottom() const { return &calls_.front(); }
-
-	// Iterator support
-	typedef std::list<FunctionCall>::iterator iterator;
-	typedef std::list<FunctionCall>::const_iterator const_iterator;
-	typedef std::list<FunctionCall>::reverse_iterator reverse_iterator;
-	typedef std::list<FunctionCall>::const_reverse_iterator const_reverse_iterator;
-
-	iterator begin() { return calls_.begin(); }
-	const_iterator begin() const { return calls_.begin(); }
-
-	iterator end() { return calls_.end(); }
-	const_iterator end() const { return calls_.end(); }
-
-	reverse_iterator rbegin() { return calls_.rbegin(); }
-	const_reverse_iterator rbegin() const { return calls_.rbegin(); }
-
-	reverse_iterator rend() { return calls_.rend(); }
-	const_reverse_iterator rend() const { return calls_.rend(); }
 	
 private:
 	std::list<FunctionCall> calls_;
