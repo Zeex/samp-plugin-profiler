@@ -9,6 +9,8 @@ if(MSVC)
 endif()
 
 add_library(amx_profiler STATIC
+	amx_utils.cpp
+	amx_utils.h
 	call_graph.cpp
 	call_graph.h
 	call_graph_writer.cpp

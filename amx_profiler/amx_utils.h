@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2013, Zeex
+// Copyright (c) 2013, Zeex
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -22,29 +22,19 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <cassert>
-#include "amx_utils.h"
-#include "native_function.h"
+#ifndef AMX_PROFILER_AMX_UTILS_H
+#define AMX_PROFILER_AMX_UTILS_H
+
+#include <amx/amx.h>
 
 namespace amx_profiler {
 
-NativeFunction::NativeFunction(AMX *amx, cell index)
-	: index_(index), address_(0), name_()
-{
-	name_.assign(GetNativeName(amx, index));
-	address_ = GetNativeAddress(amx, index);
-}
+ucell GetNativeAddress(AMX *amx, cell index);
+ucell GetPublicAddress(AMX *amx, cell index);
 
-std::string NativeFunction::type() const {
-	return std::string("native");
-}
+const char *GetNativeName(AMX *amx, cell index);
+const char *GetPublicName(AMX *amx, cell index);
 
-std::string NativeFunction::name() const {
-	return name_;
-}
+} // naemspace amx_profiler
 
-ucell NativeFunction::address() const {
-	return address_;
-}
-
-} // namespace amx_profiler
+#endif // !AMX_PROFILER_AMX_UTILS_H

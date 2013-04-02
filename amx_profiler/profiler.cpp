@@ -24,6 +24,7 @@
 
 #include <cassert>
 #include <typeinfo>
+#include "amx_utils.h"
 #include "function.h"
 #include "function_call.h"
 #include "function_statistics.h"
@@ -85,7 +86,7 @@ int Profiler::CallbackHook(cell index, cell *result, cell *params, CallbackHookF
 	}
 
 	if (index >= 0) {
-		ucell address = GetNativeAddress(index);
+		ucell address = GetNativeAddress(amx_, index);
 		if (address != 0) {
 			Function *fn = stats_.GetFunction(address);
 			if (fn == 0) {
@@ -111,7 +112,7 @@ int Profiler::ExecHook(cell *retval, int index, ExecHookFunc exec) {
 	}
 
 	if (index >= 0 || index == AMX_EXEC_MAIN) {
-		ucell address = GetPublicAddress(index);
+		ucell address = GetPublicAddress(amx_, index);
 		if (address != 0) {
 			Function *fn = stats_.GetFunction(address);
 			if (fn == 0) {
@@ -129,26 +130,6 @@ int Profiler::ExecHook(cell *retval, int index, ExecHookFunc exec) {
 	}
 
 	return exec(amx_, retval, index);
-}
-
-ucell Profiler::GetNativeAddress(cell index) {
-	if (index >= 0) {
-		AMX_HEADER *hdr = reinterpret_cast<AMX_HEADER*>(amx_->base);
-		AMX_FUNCSTUBNT *natives = reinterpret_cast<AMX_FUNCSTUBNT*>(amx_->base + hdr->natives);
-		return natives[index].address;
-	}
-	return 0;
-}
-
-ucell Profiler::GetPublicAddress(cell index) {
-	AMX_HEADER *hdr = reinterpret_cast<AMX_HEADER*>(amx_->base);
-	if (index >= 0) {
-		AMX_FUNCSTUBNT *publics = reinterpret_cast<AMX_FUNCSTUBNT*>(amx_->base + hdr->publics);
-		return publics[index].address;
-	} else if (index == AMX_EXEC_MAIN) {
-		return hdr->cip;
-	}
-	return 0;
 }
 
 void Profiler::BeginFunction(ucell address, ucell frm) {

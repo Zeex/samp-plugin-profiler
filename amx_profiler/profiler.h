@@ -59,9 +59,6 @@ public:
 private:
 	Profiler();
 
-	ucell GetNativeAddress(cell index);
-	ucell GetPublicAddress(cell index);
-
 	void BeginFunction(ucell address, ucell frm);
 	void EndFunction(ucell address = 0);
 

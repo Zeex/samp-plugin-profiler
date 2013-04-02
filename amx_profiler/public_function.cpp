@@ -23,6 +23,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include <cassert>
+#include "amx_utils.h"
 #include "public_function.h"
 
 namespace amx_profiler {
@@ -30,18 +31,8 @@ namespace amx_profiler {
 PublicFunction::PublicFunction(AMX *amx, cell index)
 	: index_(index), address_(0), name_()
 {
-	AMX_HEADER *amxhdr = reinterpret_cast<AMX_HEADER*>(amx->base);
-	int num_publics = (amxhdr->natives - amxhdr->publics) / amxhdr->defsize;
-	if (index_ >= 0 && index_ < num_publics) {
-		AMX_FUNCSTUBNT *publics = reinterpret_cast<AMX_FUNCSTUBNT*>(amxhdr->publics + amx->base);
-		address_ = publics[index].address;
-		name_.assign(reinterpret_cast<char*>(publics[index_].nameofs + amx->base));
-	} else if (index_ == AMX_EXEC_MAIN) {
-		name_.assign("main");
-		address_ = amxhdr->cip;
-	} else {
-		assert(0 && "Invalid public index");
-	}
+	name_.assign(GetPublicName(amx, index));
+	address_ = GetPublicAddress(amx, index);
 }
 
 std::string PublicFunction::type() const {
