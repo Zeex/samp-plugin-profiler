@@ -8,7 +8,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
 include(AmxConfig)
 include(GetGitRevisionDescription)
 
-find_package(Boost REQUIRED COMPONENTS chrono filesystem system)
+find_package(Boost 1.49 REQUIRED COMPONENTS chrono filesystem system)
 
 # Enable project folders in Visual Studio (and possibly other IDEs).
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
