@@ -31,7 +31,7 @@
 namespace amx_profiler {
 
 std::time_t TimeStamp::Now() {
-	return std::time(nullptr);
+	return std::time(0);
 }
 
 TimeStamp::TimeStamp()

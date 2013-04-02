@@ -31,7 +31,7 @@ namespace amx_profiler {
 
 class StatisticsWriterHtml : public StatisticsWriter {
 public:
-	virtual void Write(const Statistics *stats) override;
+	virtual void Write(const Statistics *stats);
 };
 
 } // namespace amx_profiler

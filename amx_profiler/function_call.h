@@ -26,35 +26,28 @@
 #define AMX_PROFILER_FUNCTION_CALL_H
 
 #include <amx/amx.h>
-#include "function.h"
 #include "performance_counter.h"
 
 namespace amx_profiler {
 
+class Function;
+
 class FunctionCall {
 public:
-	FunctionCall(Function *function, cell frame, FunctionCall *parent = nullptr);
+	FunctionCall(Function *function, cell frame, FunctionCall *parent = 0);
 
-	Function *function()
-		{ return fn_; }
-	const Function *function() const
-		{ return fn_; }
+	Function *function() { return fn_; }
+	const Function *function() const { return fn_; }
 
-	FunctionCall *parent()
-		{ return parent_; }
-	const FunctionCall *parent() const
-		{ return parent_; }
+	FunctionCall *parent() { return parent_; }
+	const FunctionCall *parent() const { return parent_; }
 
-	cell frame() const
-		{ return frame_; }
+	cell frame() const { return frame_; }
 
-	PerformanceCounter *timer()
-		{ return &timer_; }
-	const PerformanceCounter *timer() const
-		{ return &timer_; }
+	PerformanceCounter *timer() { return &timer_; }
+	const PerformanceCounter *timer() const { return &timer_; }
 
-	bool IsRecursive() const
-		{ return recursive_; }
+	bool IsRecursive() const { return recursive_; }
 
 private:
 	Function *fn_;

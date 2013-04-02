@@ -25,18 +25,18 @@
 #ifndef AMX_PROFILER_DURATION_H
 #define AMX_PROFILER_DURATION_H
 
-#include <chrono>
+#include <boost/chrono.hpp>
 
 namespace amx_profiler {
 
-typedef std::chrono::duration<double, std::ratio<1, 1000000000>> Nanoseconds;
-typedef std::chrono::duration<double, std::ratio<1, 1000000>>    Microseconds;
-typedef std::chrono::duration<double, std::ratio<1, 1000>>       Milliseconds;
-typedef std::chrono::duration<double, std::ratio<1, 1>>          Seconds;
-typedef std::chrono::duration<double, std::ratio<60, 1>>         Minutes;
-typedef std::chrono::duration<double, std::ratio<3600, 1>>       Hours;
-typedef std::chrono::duration<double, std::ratio<86400, 1>>      Days;
-typedef std::chrono::duration<double, std::ratio<604800, 1>>     Weeks;
+typedef boost::chrono::duration<double, boost::ratio<1, 1000000000>> Nanoseconds;
+typedef boost::chrono::duration<double, boost::ratio<1, 1000000>>    Microseconds;
+typedef boost::chrono::duration<double, boost::ratio<1, 1000>>       Milliseconds;
+typedef boost::chrono::duration<double, boost::ratio<1, 1>>          Seconds;
+typedef boost::chrono::duration<double, boost::ratio<60, 1>>         Minutes;
+typedef boost::chrono::duration<double, boost::ratio<3600, 1>>       Hours;
+typedef boost::chrono::duration<double, boost::ratio<86400, 1>>      Days;
+typedef boost::chrono::duration<double, boost::ratio<604800, 1>>     Weeks;
 
 typedef Nanoseconds Duration;
 

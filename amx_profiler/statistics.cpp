@@ -33,7 +33,7 @@ Statistics::Statistics() {
 }
 
 Statistics::~Statistics() {
-	for (auto iterator = address_to_fn_stats_.begin();
+	for (AddressToFuncStatsMap::const_iterator iterator = address_to_fn_stats_.begin();
 	     iterator != address_to_fn_stats_.end(); ++iterator)
 	{
 		delete iterator->second;
@@ -41,31 +41,30 @@ Statistics::~Statistics() {
 }
 
 Function *Statistics::GetFunction(ucell address) {
-	auto iterator = address_to_fn_stats_.find(address);
+	AddressToFuncStatsMap::const_iterator iterator = address_to_fn_stats_.find(address);
 	if (iterator != address_to_fn_stats_.end()) {
 		return iterator->second->function();
 	}
-	return nullptr;
+	return 0;
 }
 
 void Statistics::AddFunction(Function *fn) {
-	auto fn_stats = new FunctionStatistics(fn);
+	FunctionStatistics *fn_stats = new FunctionStatistics(fn);
 	address_to_fn_stats_.insert(std::make_pair(fn->address(), fn_stats));
 }
 
-FunctionStatistics *Statistics::GetFunctionStatistis(ucell address) {
-	auto iterator = address_to_fn_stats_.find(address);
+FunctionStatistics *Statistics::GetFunctionStatistis(ucell address) const {
+	AddressToFuncStatsMap::const_iterator iterator = address_to_fn_stats_.find(address);
 	if (iterator != address_to_fn_stats_.end()) {
 		return iterator->second;
 	}
-	return nullptr;
+	return 0;
 }
 
-void Statistics::EnumerateFunctions(std::function<void(const FunctionStatistics *)> callback) const {
-	for (auto iterator = address_to_fn_stats_.begin();
-	     iterator != address_to_fn_stats_.end(); ++iterator)
-	{
-		callback(iterator->second);
+void Statistics::GetStatistics(std::vector<FunctionStatistics*> &stats) const {
+	for (AddressToFuncStatsMap::const_iterator iterator = address_to_fn_stats_.begin();
+			 iterator != address_to_fn_stats_.end(); ++iterator) {
+		stats.push_back(iterator->second);
 	}
 }
 

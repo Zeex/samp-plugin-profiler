@@ -25,19 +25,19 @@
 #ifndef AMX_PROFILER_PERFORMANCE_COUNTER_H
 #define AMX_PROFILER_PERFORMANCE_COUNTER_H
 
-#include <chrono>
+#include <boost/chrono.hpp>
 
 namespace amx_profiler {
 
 class PerformanceCounter {
 public:
-	typedef std::chrono::high_resolution_clock Clock;
-	typedef std::chrono::high_resolution_clock::duration Duration;
-	typedef std::chrono::high_resolution_clock::time_point TimePoint;
+	typedef boost::chrono::high_resolution_clock Clock;
+	typedef boost::chrono::high_resolution_clock::duration Duration;
+	typedef boost::chrono::high_resolution_clock::time_point TimePoint;
 
 	static TimePoint Now();
 
-	PerformanceCounter(PerformanceCounter *parent = nullptr);
+	PerformanceCounter(PerformanceCounter *parent = 0);
 	~PerformanceCounter();
 
 	void Start();

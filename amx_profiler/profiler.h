@@ -26,9 +26,6 @@
 #define AMX_PROFILER_PROFILER_H
 
 #include <set>
-#include <vector>
-#include <unordered_map>
-#include <amx/amx.h>
 #include "call_graph.h"
 #include "call_stack.h"
 #include "debug_info.h"
@@ -44,25 +41,20 @@ public:
 	typedef int (AMXAPI *ExecHookFunc)(AMX *amx, cell *retval, int index);
 	typedef int (AMXAPI *CallbackHookFunc)(AMX *amx, cell index, cell *result, cell *params);
 
+	typedef std::set<Function*> FunctionSet;
+
 public:
-	Profiler(AMX *amx, DebugInfo *debug_info = nullptr, bool enable_call_graph = true);
+	Profiler(AMX *amx, DebugInfo *debug_info = 0, bool enable_call_graph = true);
 	~Profiler();
 
-	inline const Statistics *stats() const {
-		return &stats_;
-	}
+	const Statistics *stats() const { return &stats_; }
 
-	inline const CallStack *call_stack() const {
-		return &call_stack_;
-	}
+	const CallStack *call_stack() const { return &call_stack_; }
+	const CallGraph *call_graph() const { return &call_graph_; }
 
-	inline const CallGraph *call_graph() const {
-		return &call_graph_;
-	}
-
-	int DebugHook(DebugHookFunc debug = nullptr);
-	int ExecHook(cell *retval, int index, ExecHookFunc exec = nullptr);
-	int CallbackHook(cell index, cell  *result, cell *params, CallbackHookFunc callback = nullptr);
+	int DebugHook(DebugHookFunc debug = 0);
+	int ExecHook(cell *retval, int index, ExecHookFunc exec = 0);
+	int CallbackHook(cell index, cell  *result, cell *params, CallbackHookFunc callback = 0);
 
 private:
 	Profiler();
@@ -82,7 +74,7 @@ private:
 	CallGraph call_graph_;
 
 	Statistics stats_;
-	std::set<Function*> functions_;
+	FunctionSet functions_;
 
 private:
 	DISALLOW_COPY_AND_ASSIGN(Profiler);

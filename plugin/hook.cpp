@@ -22,9 +22,10 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <cstdint>
 #include <cstring>
 #ifdef _WIN32
+	typedef signed __int32 intptr_t;
+	typedef unsigned __int8 uint8_t;
 	#include <windows.h>
 #else
 	#include <stdint.h>
@@ -34,14 +35,14 @@
 #include "hook.h"
 
 Hook::Hook() 
-	: src_(nullptr)
-	, dst_(nullptr)
+	: src_(0)
+	, dst_(0)
 	, installed_(false)
 {}
 
 Hook::Hook(void *src, void *dst) 
-	: src_(nullptr)
-	, dst_(nullptr)
+	: src_(0)
+	, dst_(0)
 	, installed_(false)
 {
 	Install(src, dst);
@@ -63,12 +64,12 @@ bool Hook::Install() {
 	memcpy(code_, src_, kJmpInstrSize);
 
 	// E9 - jump near, relative
-	std::uint8_t JMP = 0xE9;
+	uint8_t JMP = 0xE9;
 	memcpy(src_, &JMP, 1);
 
 	// Jump address is relative to the next instruction's address
-	std::intptr_t offset = (std::intptr_t)dst_ - ((std::intptr_t)src_ + kJmpInstrSize);
-	memcpy((void*)((std::intptr_t)src_ + 1), &offset, kJmpInstrSize - 1);
+	intptr_t offset = (intptr_t)dst_ - ((intptr_t)src_ + kJmpInstrSize);
+	memcpy((void*)((intptr_t)src_ + 1), &offset, kJmpInstrSize - 1);
 
 	installed_ = true;
 	return true;
@@ -101,12 +102,12 @@ bool Hook::IsInstalled() const {
 // static 
 void *Hook::GetTargetAddress(void *jmp) {
 	if (*reinterpret_cast<unsigned char*>(jmp) == 0xE9) {
-		std::intptr_t next_instr = reinterpret_cast<std::intptr_t>(reinterpret_cast<char*>(jmp) + kJmpInstrSize);
-		std::intptr_t rel_addr = *reinterpret_cast<std::intptr_t*>(reinterpret_cast<char*>(jmp) + 1);
-		std::intptr_t abs_addr = rel_addr + next_instr;
+		intptr_t next_instr = reinterpret_cast<intptr_t>(reinterpret_cast<char*>(jmp) + kJmpInstrSize);
+		intptr_t rel_addr = *reinterpret_cast<intptr_t*>(reinterpret_cast<char*>(jmp) + 1);
+		intptr_t abs_addr = rel_addr + next_instr;
 		return reinterpret_cast<void*>(abs_addr);
 	}
-	return nullptr;
+	return 0;
 }
 
 // static
@@ -115,7 +116,7 @@ void Hook::Unprotect(void *address, int size) {
 		DWORD oldProtect;
 		VirtualProtect(address, size, PAGE_EXECUTE_READWRITE, &oldProtect);
 	#else
-		std::intptr_t aligned_address = reinterpret_cast<intptr_t>(address);
+		intptr_t aligned_address = reinterpret_cast<intptr_t>(address);
 		aligned_address &= ~(getpagesize() - 1);
 		mprotect(reinterpret_cast<void*>(aligned_address), size, PROT_READ | PROT_WRITE | PROT_EXEC);
 	#endif

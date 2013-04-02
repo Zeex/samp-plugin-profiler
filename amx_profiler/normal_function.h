@@ -33,11 +33,11 @@ class DebugInfo;
 
 class NormalFunction : public Function {
 public:
-	NormalFunction(ucell address, DebugInfo *debug_info = nullptr);
+	NormalFunction(ucell address, DebugInfo *debug_info = 0);
 
-	virtual std::string name() const override;
-	virtual std::string type() const override;
-	virtual ucell address() const override;
+	virtual std::string name() const;
+	virtual std::string type() const;
+	virtual ucell address() const;
 
 private:
 	ucell address_;

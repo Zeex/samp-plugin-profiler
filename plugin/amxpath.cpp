@@ -24,13 +24,11 @@
 
 #include <cstring>
 #include <ctime>
-#include <exception>
 #include <iterator>
-#include <memory>
 #include <list>
+#include <map>
 #include <string>
-#include <unordered_map>
-#include <vector>
+#include <boost/shared_ptr.hpp>
 #include <amx/amx.h>
 #include <amx/amxaux.h>
 #ifdef _WIN32
@@ -45,9 +43,8 @@
 	#include <fnmatch.h>
 	#include <sys/stat.h>
 #endif
-#include "amxpath.h"
 
-static inline std::time_t GetFileModificationTime(const std::string filename) {
+static std::time_t GetFileModificationTime(const std::string filename) {
 	struct stat attrib;
 	stat(filename.c_str(), &attrib);
 	return attrib.st_mtime;
@@ -63,7 +60,7 @@ public:
 	}
 	const AMX *amx() const { return amx_; }
 
-	bool is_loaded() const { return amx_ != nullptr; }
+	bool is_loaded() const { return amx_ != 0; }
 	std::string name() const { return name_; }
 	std::time_t modification_time() const { return modification_time_; }
 
@@ -83,7 +80,7 @@ AmxFile::AmxFile(std::string name)
 {
 	if (AMX *amx = new AMX) {
 		std::memset(amx, 0, sizeof(AMX));
-		if (aux_LoadProgram(amx, const_cast<char*>(name.c_str()), nullptr) == AMX_ERR_NONE) {
+		if (aux_LoadProgram(amx, const_cast<char*>(name.c_str()), 0) == AMX_ERR_NONE) {
 			amx_ = amx;
 		} else {
 			delete amx;
@@ -92,42 +89,52 @@ AmxFile::AmxFile(std::string name)
 }
 
 AmxFile::~AmxFile() {
-	if (amx_ != nullptr) {
+	if (amx_ != 0) {
 		aux_FreeProgram(amx_);
 		delete amx_;
 	}
 }
 
-static std::unordered_map<std::string, std::shared_ptr<AmxFile>> string_to_amx_file;
-static std::unordered_map<AMX*, std::string> amx_to_string;
+typedef std::map<std::string, boost::shared_ptr<AmxFile> > StringToAmxFileMap;
+static StringToAmxFileMap string_to_amx_file;
+
+typedef std::map<AMX*, std::string> AmxToStringMap;
+static AmxToStringMap amx_to_string;
+
+#ifdef _WIN32
 
 template<typename OutputIterator>
 static void GetFilesInDirectory(const std::string &path, const std::string &pattern, OutputIterator result) {
-	#if defined _WIN32
-		WIN32_FIND_DATA FindFileData;
-		HANDLE hFindFile = FindFirstFile((path + "\\" + pattern).c_str(), &FindFileData);
-		if (hFindFile != INVALID_HANDLE_VALUE) {
-			do {
-				if (!(FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
-					*result++ = path + "\\" + FindFileData.cFileName;
-				}
-			} while (FindNextFile(hFindFile, &FindFileData) != 0);
-			FindClose(hFindFile);
-		}
-	#else
-		DIR *dp;
-		if ((dp = opendir(path.c_str())) != nullptr) {
-			struct dirent *dirp;
-			while ((dirp = readdir(dp)) != nullptr) {
-				if (!fnmatch(pattern.c_str(), dirp->d_name,
-								FNM_CASEFOLD | FNM_NOESCAPE | FNM_PERIOD)) {
-					*result++ = path + "/" + dirp->d_name;
-				}
+	WIN32_FIND_DATA FindFileData;
+	HANDLE hFindFile = FindFirstFile((path + "\\" + pattern).c_str(), &FindFileData);
+	if (hFindFile != INVALID_HANDLE_VALUE) {
+		do {
+			if (!(FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+				*result++ = path + "\\" + FindFileData.cFileName;
 			}
-			closedir(dp);
-		}
-	#endif
+		} while (FindNextFile(hFindFile, &FindFileData) != 0);
+		FindClose(hFindFile);
+	}
 }
+
+#else
+
+template<typename OutputIterator>
+static void GetFilesInDirectory(const std::string &path, const std::string &pattern, OutputIterator result) {
+	DIR *dp;
+	if ((dp = opendir(path.c_str())) != 0) {
+		struct dirent *dirp;
+		while ((dirp = readdir(dp)) != 0) {
+			if (!fnmatch(pattern.c_str(), dirp->d_name,
+							FNM_CASEFOLD | FNM_NOESCAPE | FNM_PERIOD)) {
+				*result++ = path + "/" + dirp->d_name;
+			}
+		}
+		closedir(dp);
+	}
+}
+
+#endif
 
 std::string GetAmxPath(AMX_HEADER *amxhdr) {
 	std::string result;
@@ -136,25 +143,30 @@ std::string GetAmxPath(AMX_HEADER *amxhdr) {
 	GetFilesInDirectory("gamemodes", "*.amx", std::back_inserter(files));
 	GetFilesInDirectory("filterscripts", "*.amx", std::back_inserter(files));
 
-	for (auto &filename : files) {
-		auto it = ::string_to_amx_file.find(filename);
-		if (it == ::string_to_amx_file.end()
-			|| it->second->modification_time() < GetFileModificationTime(filename))
+	for (std::list<std::string>::const_iterator it = files.begin(); it != files.end(); ++it) {
+		const std::string &filename = *it;
+
+		StringToAmxFileMap::const_iterator map_it = ::string_to_amx_file.find(filename);
+		if (map_it == ::string_to_amx_file.end()
+			|| map_it->second->modification_time() < GetFileModificationTime(filename))
 		{
-			if (it != ::string_to_amx_file.end()) {
-				::string_to_amx_file.erase(it);
+			if (map_it != ::string_to_amx_file.end()) {
+				::string_to_amx_file.erase(map_it);
 			}
-			auto amx_file = std::shared_ptr<AmxFile>(new AmxFile(filename));
+
+			boost::shared_ptr<AmxFile> amx_file(new AmxFile(filename));
 			if (amx_file && amx_file->is_loaded()) {
 				::string_to_amx_file.insert(std::make_pair(filename, amx_file));
 			}
 		}
 	}
 
-	for (auto &string_script : ::string_to_amx_file) {
-		auto amxhdr2 = string_script.second->amx()->base;
+	for (StringToAmxFileMap::const_iterator it = ::string_to_amx_file.begin();
+			it != ::string_to_amx_file.end(); ++it) 
+	{
+		void *amxhdr2 = it->second->amx()->base;
 		if (std::memcmp(amxhdr, amxhdr2, sizeof(AMX_HEADER)) == 0) {
-			result = string_script.first;
+			result = it->first;
 			break;
 		}
 	}
@@ -165,7 +177,7 @@ std::string GetAmxPath(AMX_HEADER *amxhdr) {
 std::string GetAmxPath(AMX *amx) {
 	std::string result;
 
-	auto it = ::amx_to_string.find(amx);
+	AmxToStringMap::const_iterator it = ::amx_to_string.find(amx);
 	if (it != ::amx_to_string.end()) {
 		result = it->second;
 	} else {

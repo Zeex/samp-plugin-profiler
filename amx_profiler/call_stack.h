@@ -40,18 +40,13 @@ public:
 
 	FunctionCall Pop();
 
-	bool IsEmpty() const
-		{ return calls_.empty(); }
+	bool IsEmpty() const { return calls_.empty(); }
 
-	FunctionCall *top()
-		{ return &calls_.back(); }
-	const FunctionCall *top() const
-		{ return &calls_.back(); }
+	FunctionCall *top() { return &calls_.back(); }
+	const FunctionCall *top() const { return &calls_.back(); }
 
-	FunctionCall *bottom()
-		{ return &calls_.front(); }
-	const FunctionCall *bottom() const
-		{ return &calls_.front(); }
+	FunctionCall *bottom() { return &calls_.front(); }
+	const FunctionCall *bottom() const { return &calls_.front(); }
 
 	// Iterator support
 	typedef std::list<FunctionCall>::iterator iterator;
@@ -59,22 +54,17 @@ public:
 	typedef std::list<FunctionCall>::reverse_iterator reverse_iterator;
 	typedef std::list<FunctionCall>::const_reverse_iterator const_reverse_iterator;
 
-	iterator begin()
-		{ return calls_.begin(); }
-	const_iterator begin() const
-		{ return calls_.begin(); }
-	iterator end()
-		{ return calls_.end(); }
-	const_iterator end() const
-		{ return calls_.end(); }
-	reverse_iterator rbegin()
-		{ return calls_.rbegin(); }
-	const_reverse_iterator rbegin() const 
-		{ return calls_.rbegin(); }
-	reverse_iterator rend()
-		{ return calls_.rend(); }
-	const_reverse_iterator rend() const
-		{ return calls_.rend(); }
+	iterator begin() { return calls_.begin(); }
+	const_iterator begin() const { return calls_.begin(); }
+
+	iterator end() { return calls_.end(); }
+	const_iterator end() const { return calls_.end(); }
+
+	reverse_iterator rbegin() { return calls_.rbegin(); }
+	const_reverse_iterator rbegin() const { return calls_.rbegin(); }
+
+	reverse_iterator rend() { return calls_.rend(); }
+	const_reverse_iterator rend() const { return calls_.rend(); }
 	
 private:
 	std::list<FunctionCall> calls_;
