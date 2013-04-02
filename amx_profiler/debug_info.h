@@ -41,7 +41,7 @@ public:
 	void Load(const std::string &filename);
 	void Unload();
 
-	bool is_loaded() const { return amxdbg_ != nullptr; }
+	bool is_loaded() const { return amxdbg_ != 0; }
 
 	long GetLine(cell address) const;
 	std::string GetFile(cell address) const;

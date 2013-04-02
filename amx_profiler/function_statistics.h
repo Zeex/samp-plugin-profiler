@@ -36,28 +36,19 @@ class FunctionStatistics {
 public:
 	explicit FunctionStatistics(Function *fn);
 
-	Function *function()
-		{ return fn_; }
-	const Function *function() const
-		{ return fn_; }
+	Function *function() { return fn_; }
+	const Function *function() const { return fn_; }
 
-	long num_calls() const
-		{ return num_calls_; }
-	void AdjustNumCalls(long delta)
-		{ num_calls_ += delta; }
+	long num_calls() const { return num_calls_; }
+	void AdjustNumCalls(long delta) { num_calls_ += delta; }
 
-	const Duration total_time() const
-		{ return total_time_; }
-	void AdjustTotalTime(Duration delta)
-		{ total_time_ += delta; }
+	const Duration total_time() const { return total_time_; }
+	void AdjustTotalTime(Duration delta) { total_time_ += delta; }
 
-	Duration child_time() const
-		{ return child_time_; }
-	void AdjustChildTime(Duration delta)
-		{ child_time_ += delta; }
+	Duration child_time() const { return child_time_; }
+	void AdjustChildTime(Duration delta) { child_time_ += delta; }
 
-	Duration GetSelfTime() const 
-		{ return total_time() - child_time(); }
+	Duration GetSelfTime() const { return total_time() - child_time(); }
 
 private:
 	Function *fn_;

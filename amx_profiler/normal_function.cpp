@@ -32,9 +32,10 @@ namespace amx_profiler {
 NormalFunction::NormalFunction(ucell address, DebugInfo *debug_info)
 	: address_(address), name_()
 {
-	if (debug_info != nullptr && debug_info->is_loaded()) {
+	if (debug_info != 0 && debug_info->is_loaded()) {
 		name_ = debug_info->GetFunction(address);
 	}
+
 	if (name_.empty()) {
 		std::stringstream ss;
 		ss << std::setw(8) << std::setfill('0') << std::hex << address_;

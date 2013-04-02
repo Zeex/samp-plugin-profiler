@@ -1,5 +1,8 @@
 include_directories(${CMAKE_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
+include_directories(${Boost_INCLUDE_DIRS})
+
+add_definitions(-DBOOST_ALL_NO_LIB)
 
 configure_file(plugin.rc.in plugin.rc @ONLY)
 configure_file(pluginversion.h.in pluginversion.h @ONLY)
@@ -25,7 +28,6 @@ if(UNIX AND NOT WIN32)
 endif()
 
 add_library(plugin MODULE ${SOURCES})
-target_link_libraries(plugin amx_profiler)
 
 if(UNIX OR MINGW)
 	# Remove the "lib" prefix of the output filename added in GCC/MinGW builds.
@@ -43,5 +45,7 @@ if(UNIX OR MINGW)
 			LINK_FLAGS " -static-libgcc -static-libstdc++")
 	endif()
 endif()
+
+target_link_libraries(plugin amx_profiler ${Boost_LIBRARIES})
 
 install(TARGETS plugin LIBRARY DESTINATION ".")

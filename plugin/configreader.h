@@ -31,6 +31,8 @@
 
 class ConfigReader {
 public:
+	typedef std::map<std::string, std::string> OptionMap;
+
 	ConfigReader();
 	ConfigReader(const std::string &filename);
 
@@ -42,13 +44,13 @@ public:
 	bool IsLoaded() const { return loaded_; }
 
 private:
-	bool loaded_;
-	std::map<std::string, std::string> options_;
+	bool loaded_;	
+	OptionMap options_;
 };
 
 template<typename T>
 T ConfigReader::GetOption(const std::string &name, const T &defaultValue) const {
-	auto iterator = options_.find(name);
+	OptionMap::const_iterator iterator = options_.find(name);
 	if (iterator == options_.end()) {
 		return defaultValue;
 	}

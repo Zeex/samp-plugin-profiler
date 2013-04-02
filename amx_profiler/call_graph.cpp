@@ -22,7 +22,6 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <functional>
 #include "call_graph.h"
 #include "function.h"
 #include "function_statistics.h"
@@ -31,7 +30,7 @@ namespace amx_profiler {
 
 CallGraph::CallGraph(CallGraphNode *root)
 	: root_(root)
-	, sentinel_(new CallGraphNode(this, nullptr))
+	, sentinel_(new CallGraphNode(this, 0))
 {
 	if (!root) {
 		root_ = sentinel_;
@@ -40,13 +39,10 @@ CallGraph::CallGraph(CallGraphNode *root)
 
 CallGraph::~CallGraph() {
 	delete sentinel_;
-	for (auto node : nodes_) {
-		delete node;
+	for (NodeSet::const_iterator iterator = nodes_.begin();
+			iterator != nodes_.end(); ++iterator) {
+		delete *iterator;
 	}
-}
-
-void CallGraph::Traverse(std::function<void(const CallGraphNode *)> callback) const {
-	sentinel_->Traverse(callback);
 }
 
 void CallGraph::OwnNode(CallGraphNode *node) {
@@ -65,7 +61,7 @@ CallGraphNode::CallGraphNode(CallGraph *graph, FunctionStatistics *stats, CallGr
 }
 
 CallGraphNode *CallGraphNode::AddCallee(FunctionStatistics *stats) {
-	auto node = new CallGraphNode(graph_, stats, this);
+	CallGraphNode *node = new CallGraphNode(graph_, stats, this);
 	return AddCallee(node);
 }
 
@@ -73,13 +69,6 @@ CallGraphNode *CallGraphNode::AddCallee(CallGraphNode *node) {
 	graph_->OwnNode(node);
 	callees_.insert(node);
 	return node;
-}
-
-void CallGraphNode::Traverse(std::function<void(const CallGraphNode *)> callback) const {
-	callback(this);
-	for (auto c : callees_) {
-		c->Traverse(callback);
-	}
 }
 
 } // namespace amx_profiler

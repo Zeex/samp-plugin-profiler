@@ -26,11 +26,10 @@
 #define AMX_PROFILER_CALL_GRAPH_WRITER_H
 
 #include <iostream>
-#include <tuple>
 #include <string>
+#include <boost/bind.hpp>
 #include "call_graph.h"
 #include "call_graph_writer_dot.h"
-#include "duration.h"
 #include "function.h"
 #include "function_statistics.h"
 
@@ -38,77 +37,96 @@ namespace amx_profiler {
 
 void CallGraphWriterDot::Write(const CallGraph *graph) {
 	*stream() << 
-	"digraph \"Call graph of '" << script_name() << "'\" {\n"
-	"	size=\"10,8\"; ratio=fill; rankdir=LR\n"
-	"	node [style=filled];\n"
-	;
+		"digraph \"Call graph of '" << script_name() << "'\" {\n"
+		"	size=\"10,8\"; ratio=fill; rankdir=LR\n"
+		"	node [style=filled];\n"
+		;
 
-	graph->Traverse([this](const CallGraphNode *node) {
-		if (!node->callees().empty()) {
-			std::string caller_name;
-			if (node->stats()) {
-				caller_name = node->stats()->function()->name();
-			} else {
-				caller_name = root_node_name();
-			}
-			for (auto c : node->callees()) {
-				*stream() << "\t\"" << caller_name << "\" -> \"" << c->stats()->function()->name() 
-					<< "\" [color=\"";
-				// Arrow color is associated with callee type.
-				std::string fn_type = c->stats()->function()->type();
-				if (fn_type == "public") {
-					*stream() << "#4B4E99";
-				} else if (fn_type == "native") {
-					*stream() << "#7C4B99";
-				} else {
-					*stream() << "#777777";
-				}
-				*stream() << "\"];\n";
-			}
-		}	
-	});
+	graph_ = graph;
 
-	Duration max_time;
-	graph->Traverse([&max_time, &graph](const CallGraphNode *node) {
-		if (node != graph->sentinel()) {
-			auto time = node->stats()->GetSelfTime();
-			if (time > max_time) {
-				max_time = time;
-			}
-		}
-	});
+	graph->Traverse(boost::bind(&CallGraphWriterDot::WriteNode, this, _1));
+	graph->Traverse(boost::bind(&CallGraphWriterDot::AccumulateTime, this, _1));
+	graph->Traverse(boost::bind(&CallGraphWriterDot::WriteNodeColor, this, _1));
 
-	graph->Traverse([&max_time, this, &graph](const CallGraphNode *node) {
-		if (node != graph->sentinel()) {
-			auto time = node->stats()->GetSelfTime();
-			auto ratio = static_cast<double>(time.count()) / static_cast<double>(max_time.count());
-			// We encode color in HSB.
-			auto hsb = std::make_tuple(
-				(1.0 - ratio) * 0.6, // hue
-				(ratio * 0.9) + 0.1, // saturation
-				1.0                  // brightness
-			);
-			*stream() << "\t\"" << node->stats()->function()->name() << "\" [color=\""
-				<< std::get<0>(hsb) << ", "
-				<< std::get<1>(hsb) << ", "
-				<< std::get<2>(hsb) << "\""
-			<< ", shape=";
-			std::string fn_type = node->stats()->function()->type();
-			if (fn_type == "public") {
-				*stream() << "octagon";
-			} else if (fn_type == "native") {
-				*stream() << "box";
-			} else {
-				*stream() << "oval";
-			}
-			*stream() << "];\n";
+	*stream() << "}\n";
+}
+
+void CallGraphWriterDot::WriteNode(const CallGraphNode *node) {
+	if (!node->callees().empty()) {
+		std::string caller_name;
+		if (node->stats()) {
+			caller_name = node->stats()->function()->name();
 		} else {
-			*stream() << "\t\"" << root_node_name() << "\" [shape=diamond];\n";
+			caller_name = root_node_name();
 		}
-	});
 
-	*stream() <<
-	"}\n";
+		for (CallGraphNode::CalleeSet::const_iterator iterator = node->callees().begin();
+				iterator != node->callees().end(); ++iterator)
+		{
+			const CallGraphNode *callee = *iterator;
+
+			*stream() << "\t\"" << caller_name << "\" -> \""
+				<< callee->stats()->function()->name() << "\" [color=\"";
+
+			// Arrow color is associated with callee type.
+			std::string fn_type = callee->stats()->function()->type();
+			if (fn_type == "public") {
+				*stream() << "#4B4E99";
+			} else if (fn_type == "native") {
+				*stream() << "#7C4B99";
+			} else {
+				*stream() << "#777777";
+			}
+
+			*stream() << "\"];\n";
+		}
+	}
+}
+
+void CallGraphWriterDot::WriteNodeColor(const CallGraphNode *node) {
+	if (node != graph_->sentinel()) {
+		Duration time = node->stats()->GetSelfTime();
+		double ratio = static_cast<double>(time.count()) / static_cast<double>(max_time_.count());
+
+		// We encode color in HSB.
+		struct {
+			double h; // hue
+			double s; // saturation
+			double b; // brightness
+		} hsb = {
+			(1.0 - ratio) * 0.6,
+			(ratio * 0.9) + 0.1,
+			1.0
+		};
+
+		*stream() << "\t\"" << node->stats()->function()->name() << "\" [color=\""
+			<< hsb.h << ", "
+			<< hsb.s << ", "
+			<< hsb.b << "\""
+		<< ", shape=";
+
+		std::string fn_type = node->stats()->function()->type();
+		if (fn_type == "public") {
+			*stream() << "octagon";
+		} else if (fn_type == "native") {
+			*stream() << "box";
+		} else {
+			*stream() << "oval";
+		}
+
+		*stream() << "];\n";
+	} else {
+		*stream() << "\t\"" << root_node_name() << "\" [shape=diamond];\n";
+	}
+}
+
+void CallGraphWriterDot::AccumulateTime(const CallGraphNode *node) {
+	if (node != graph_->sentinel()) {
+		Duration time = node->stats()->GetSelfTime();
+		if (time > max_time_) {
+			max_time_ = time;
+		}
+	}
 }
 
 } // namespace amx_profiler

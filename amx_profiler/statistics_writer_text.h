@@ -31,7 +31,10 @@ namespace amx_profiler {
 
 class StatisticsWriterText : public StatisticsWriter {
 public:
-	virtual void Write(const Statistics *stats) override;
+	virtual void Write(const Statistics *stats);
+
+private:
+	void DoHLine();
 };
 
 } // namespace amx_profiler

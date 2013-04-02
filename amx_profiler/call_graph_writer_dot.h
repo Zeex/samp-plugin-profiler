@@ -25,16 +25,28 @@
 #ifndef AMX_PROFILER_CALL_GRAPH_WRITER_DOT_H
 #define AMX_PROFILER_CALL_GRAPH_WRITER_DOT_H
 
-#include <iosfwd>
-#include <string>
 #include "call_graph_writer.h"
+#include "duration.h"
 
 namespace amx_profiler {
 
-// GraphViz .dot writer
+class CallGraphNode;
+
 class CallGraphWriterDot : public CallGraphWriter {
 public:
-	virtual void Write(const CallGraph *graph) override;
+	CallGraphWriterDot() : graph_(0) {}
+
+	virtual void Write(const CallGraph *graph);
+
+private:
+	void WriteNode(const CallGraphNode *node);
+	void WriteNodeColor(const CallGraphNode *node);
+
+	void AccumulateTime(const CallGraphNode *node);
+
+private:
+	const CallGraph *graph_;
+	Duration max_time_;
 };
 
 } // namespace amx_profiler

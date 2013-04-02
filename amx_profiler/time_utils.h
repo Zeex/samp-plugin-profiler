@@ -56,16 +56,12 @@ public:
 
 	Duration duration() const { return duration_; }
 
-	int weeks()   const { return weeks_; }
-	int days()    const { return days_; }
 	int hours()   const { return hours_; }
 	int minutes() const { return minutes_; }
 	int seconds() const { return seconds_; }
 
 private:
 	Duration duration_;
-	int weeks_;
-	int days_;
 	int hours_;
 	int minutes_;
 	int seconds_;

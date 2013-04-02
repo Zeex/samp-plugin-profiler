@@ -1,5 +1,9 @@
 include(AmxConfig)
 
+include_directories(${Boost_INCLUDE_DIRS})
+
+add_definitions(-DBOOST_ALL_NO_LIB)
+
 if(MSVC)
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)  
 endif()
@@ -47,4 +51,4 @@ add_library(amx_profiler STATIC
 	time_utils.h
 )
 
-target_link_libraries(amx_profiler amx)
+target_link_libraries(amx_profiler amx ${Boost_LIBRARIES})

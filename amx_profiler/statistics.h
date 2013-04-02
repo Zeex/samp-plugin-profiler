@@ -25,8 +25,8 @@
 #ifndef AMX_PROFILER_STATISTICS_H
 #define AMX_PROFILER_STATISTICS_H
 
-#include <functional>
-#include <unordered_map>
+#include <map>
+#include <vector>
 #include <amx/amx.h>
 #include "duration.h"
 #include "performance_counter.h"
@@ -38,22 +38,24 @@ class FunctionStatistics;
 
 class Statistics {
 public:
+	typedef std::map<ucell, FunctionStatistics*> AddressToFuncStatsMap;
+
 	Statistics();
 	~Statistics();
 
 	void AddFunction(Function *fn);
 	Function *GetFunction(ucell address);
 
-	FunctionStatistics *GetFunctionStatistis(ucell address);
-	void EnumerateFunctions(std::function<void(const FunctionStatistics *)> callback) const;
+	FunctionStatistics *GetFunctionStatistis(ucell address) const;
+	void GetStatistics(std::vector<FunctionStatistics*> &stats) const;
 
-	inline Duration GetTotalRunTime() const {
+	Duration GetTotalRunTime() const {
 		return run_time_counter_.QueryTotalTime();
 	}
 
 private:
 	PerformanceCounter run_time_counter_;
-	std::unordered_map<ucell, FunctionStatistics*> address_to_fn_stats_;
+	AddressToFuncStatsMap address_to_fn_stats_;
 };
 
 } // namespace amx_profiler

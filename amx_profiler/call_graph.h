@@ -25,9 +25,7 @@
 #ifndef AMX_PROFILER_CALL_GRAPH_H
 #define AMX_PROFILER_CALL_GRAPH_H
 
-#include <functional>
 #include <set>
-#include <vector>
 
 namespace amx_profiler {
 
@@ -38,22 +36,18 @@ class CallGraph {
 	friend class CallGraphNode;
 
 public:
-	CallGraph(CallGraphNode *root = nullptr);
+	typedef std::set<CallGraphNode*> NodeSet;
+
+	CallGraph(CallGraphNode *root = 0);
 	~CallGraph();
 
-	inline CallGraphNode *root() const {
-		return root_;
-	}
+	CallGraphNode *root() const { return root_; }
+	void set_root(CallGraphNode *root) { root_ = root;}
 
-	inline void set_root(CallGraphNode *root) {
-		root_ = root;
-	}
+	CallGraphNode *sentinel() const { return sentinel_; }
 
-	inline CallGraphNode *sentinel() const {
-		return sentinel_;
-	}
-
-	void Traverse(std::function<void(const CallGraphNode *)> callback) const;
+	template<typename F>
+	inline void Traverse(F func) const;
 
 private:
 	void OwnNode(CallGraphNode *node);
@@ -61,7 +55,7 @@ private:
 private:
 	CallGraphNode *root_;
 	CallGraphNode *sentinel_;
-	std::set<CallGraphNode*> nodes_;
+	NodeSet nodes_;
 };
 
 class CallGraphNode {
@@ -71,39 +65,41 @@ public:
 		bool operator()(const CallGraphNode *n1, const CallGraphNode *n2) const;
 	};
 
-	CallGraphNode(CallGraph *graph, FunctionStatistics *stats, CallGraphNode *caller = nullptr);
+	typedef std::set<CallGraphNode*, Compare> CalleeSet;
 
-	void MakeRoot() {
-		graph_->set_root(this);
-	}
+	CallGraphNode(CallGraph *graph, FunctionStatistics *stats, CallGraphNode *caller = 0);
 
-	inline CallGraph *graph() const {
-		return graph_;
-	}
+	void MakeRoot() { graph_->set_root(this); }
 
-	inline FunctionStatistics *stats() const {
-		return stats_;
-	}
+	CallGraph *graph() const { return graph_; }
+	FunctionStatistics *stats() const { return stats_; }
 
-	inline CallGraphNode *caller() const {
-		return caller_;
-	}
-
-	inline const std::set<CallGraphNode*, Compare> &callees() const {
-		return callees_;
-	}
+	CallGraphNode *caller() const { return caller_; }
+	const CalleeSet &callees() const { return callees_; }
 
 	CallGraphNode *AddCallee(FunctionStatistics *stats);
 	CallGraphNode *AddCallee(CallGraphNode *node);
 
-	void Traverse(std::function<void(const CallGraphNode *)> callback) const;
+	template<typename F>
+	void Traverse(F func) const {
+		func(this);
+		for (CalleeSet::const_iterator iterator = callees_.begin();
+				iterator != callees_.end(); ++iterator) {
+			(*iterator)->Traverse(func);
+		}
+	}
 
 private:
 	CallGraph *graph_;
 	FunctionStatistics *stats_;
 	CallGraphNode *caller_;
-	std::set<CallGraphNode*, Compare> callees_;
+	CalleeSet callees_;
 };
+
+template<typename F>
+void CallGraph::Traverse(F func) const {
+	sentinel_->Traverse(func);
+}
 
 } // namespace amx_profiler
 

@@ -52,7 +52,7 @@ void PerformanceCounter::Stop() {
 	if (started_) {
 		Duration interval = QueryTotalTime();
 		total_time_ += interval;
-		if (parent_ != nullptr) {
+		if (parent_ != 0) {
 			parent_->child_time_ += interval;
 		}
 		started_ = false;
@@ -63,7 +63,7 @@ PerformanceCounter::Duration PerformanceCounter::GetSelfTime() const {
 	return total_time() - child_time();
 }
 
-std::chrono::high_resolution_clock::duration PerformanceCounter::QueryTotalTime() const {
+boost::chrono::high_resolution_clock::duration PerformanceCounter::QueryTotalTime() const {
 	return Now() - start_point_;
 }
 

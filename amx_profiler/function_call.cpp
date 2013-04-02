@@ -30,11 +30,11 @@ FunctionCall::FunctionCall(Function *function, cell frame, FunctionCall *parent)
 		: fn_(function)
 		, parent_(parent)
 		, frame_(frame)
-		, timer_(parent != nullptr ? &parent->timer_ : nullptr)
+		, timer_(parent != 0 ? &parent->timer_ : 0)
 		, recursive_(false)
 {
 	FunctionCall *current = parent;
-	while (current != nullptr) {
+	while (current != 0) {
 		if (current->fn_ == this->fn_) {
 			recursive_ = true;
 			break;

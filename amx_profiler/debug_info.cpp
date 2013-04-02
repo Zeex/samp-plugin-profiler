@@ -30,7 +30,7 @@
 namespace amx_profiler {
 
 DebugInfo::DebugInfo()
-	: amxdbg_(nullptr)
+	: amxdbg_(0)
 {
 }
 
@@ -41,14 +41,14 @@ DebugInfo::DebugInfo(const AMX_DBG *amxdbg)
 }
 
 DebugInfo::DebugInfo(const std::string &filename)
-	: amxdbg_(nullptr)
+	: amxdbg_(0)
 {
 	Load(filename);
 }
 
 void DebugInfo::Load(const std::string &filename) {
 	std::FILE* fp = std::fopen(filename.c_str(), "rb");
-	if (fp != nullptr) {
+	if (fp != 0) {
 		amxdbg_ = new AMX_DBG;
 		if (dbg_LoadInfo(amxdbg_, fp) != AMX_ERR_NONE) 
 			delete amxdbg_;
@@ -57,7 +57,7 @@ void DebugInfo::Load(const std::string &filename) {
 }
 
 void DebugInfo::Unload() {
-	if (amxdbg_ != nullptr) {
+	if (amxdbg_ != 0) {
 		dbg_FreeInfo(amxdbg_);
 		delete amxdbg_;
 	}

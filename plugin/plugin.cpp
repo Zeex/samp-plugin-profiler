@@ -28,10 +28,10 @@
 #include <cstring>
 #include <fstream>
 #include <list>
-#include <memory>
+#include <map>
 #include <sstream>
 #include <string>
-#include <unordered_map>
+#include <boost/shared_ptr.hpp>
 #ifdef _WIN32
 	#include <windows.h>
 #endif
@@ -54,10 +54,20 @@ extern void *pAMXFunctions;
 
 static logprintf_t logprintf;
 
-static std::unordered_map<AMX*, std::shared_ptr<amx_profiler::Profiler>> profilers;
-static std::list<AMX*> loaded_scripts;
-static std::unordered_map<AMX*, AMX_DEBUG> old_debug_hooks;
-static std::unordered_map<AMX*, std::shared_ptr<amx_profiler::DebugInfo>> debug_infos;
+typedef boost::shared_ptr<amx_profiler::Profiler> ProfilerPtr;
+typedef boost::shared_ptr<amx_profiler::DebugInfo> DebugInfoPtr;
+
+typedef std::map<AMX*, ProfilerPtr> AmxToProfilerMap;
+static AmxToProfilerMap profilers;
+
+typedef std::list<AMX*> AmxList;
+static AmxList loaded_scripts;
+
+typedef std::map<AMX*, AMX_DEBUG> AmxToAmxDebugMap;
+static AmxToAmxDebugMap old_debug_hooks;
+
+typedef std::map<AMX*, DebugInfoPtr> AmxToDebugInfoMap; 
+static AmxToDebugInfoMap debug_infos;
 
 // Plugin settings and their defauls.
 namespace cfg {
@@ -74,13 +84,13 @@ Hook amx_Exec_hook;
 Hook amx_Callback_hook;
 
 static int AMXAPI amx_Debug(AMX *amx) {
-	auto profiler = ::profilers[amx];
+	ProfilerPtr profiler = ::profilers[amx];
 	if (profiler) {
 		profiler->DebugHook();
 	}
-	auto iterator = old_debug_hooks.find(amx);
+	AmxToAmxDebugMap::const_iterator iterator = old_debug_hooks.find(amx);
 	if (iterator != old_debug_hooks.end()) {
-		if (iterator->second != nullptr) {
+		if (iterator->second != 0) {
 			return (iterator->second)(amx);
 		}
 	}
@@ -91,7 +101,7 @@ static int AMXAPI amx_Callback(AMX *amx, cell index, cell *result, cell *params)
 	Hook::ScopedRemove r(&amx_Callback_hook);
 	Hook::ScopedInstall i(&amx_Exec_hook);
 
-	auto profiler = ::profilers[amx];
+	ProfilerPtr profiler = ::profilers[amx];
 	if (profiler) {
 		return profiler->CallbackHook(index, result, params);
 	} else {
@@ -103,7 +113,7 @@ static int AMXAPI amx_Exec(AMX *amx, cell *retval, int index) {
 	Hook::ScopedRemove r(&amx_Exec_hook);
 	Hook::ScopedInstall i(&amx_Callback_hook);
 
-	auto profiler = ::profilers[amx];
+	ProfilerPtr profiler = ::profilers[amx];
 	if (profiler) {
 		return profiler->ExecHook(retval, index);
 	} else {
@@ -113,18 +123,26 @@ static int AMXAPI amx_Exec(AMX *amx, cell *retval, int index) {
 
 } // namespace hooks
 
+static std::string GetAmxPath(AMX *amx) {
+	// Has to be static to make caching work in AmxUnload().
+	static AmxPathFinder finder;
+	finder.AddSearchDirectory("gamemodes");
+	finder.AddSearchDirectory("filterscripts");
+	return finder.FindAmxPath(amx);
+}
+
 static std::string ToUnixPath(const std::string &path) {
 	std::string fsPath = path;
 	std::replace(fsPath.begin(), fsPath.end(), '\\', '/');
 	return fsPath;
 }
 
-static bool IsGameMode(const std::string &amxName) {
-	return ToUnixPath(amxName).find("gamemodes/") != std::string::npos;
+static bool IsGameMode(const std::string &amx_name) {
+	return ToUnixPath(amx_name).find("gamemodes/") != std::string::npos;
 }
 
-static bool IsFilterScript(const std::string &amxName) {
-	return ToUnixPath(amxName).find("filterscripts/") != std::string::npos;
+static bool IsFilterScript(const std::string &amx_name) {
+	return ToUnixPath(amx_name).find("filterscripts/") != std::string::npos;
 }
 
 static bool GetPublicVariable(AMX *amx, const char *name, cell &value) {
@@ -138,24 +156,24 @@ static bool GetPublicVariable(AMX *amx, const char *name, cell &value) {
 	return false;
 }
 
-static bool WantsProfiler(const std::string &amxName) {
-	std::string goodAmxName = ToUnixPath(amxName);
+static bool WantsProfiler(const std::string &amx_name) {
+	std::string good_amx_name = ToUnixPath(amx_name);
 
-	if (IsGameMode(amxName)) {
+	if (IsGameMode(good_amx_name)) {
 		if (cfg::profile_gamemode) {
 			return true;
 		}
-	} else if (IsFilterScript(amxName)) {
-		std::string fsList = cfg::profile_filterscripts;
-		std::stringstream fsStream(fsList);
+	} else if (IsFilterScript(good_amx_name)) {
+		std::string fs_list = cfg::profile_filterscripts;
+		std::stringstream fs_stream(fs_list);
 		do {
-			std::string fsName;
-			fsStream >> fsName;
-			if (goodAmxName == "filterscripts/" + fsName + ".amx"
-					|| goodAmxName == "filterscripts/" + fsName) {
+			std::string fs_name;
+			fs_stream >> fs_name;
+			if (good_amx_name == "filterscripts/" + fs_name + ".amx"
+					|| good_amx_name == "filterscripts/" + fs_name) {
 				return true;
 			}
-		} while (!fsStream.eof());
+		} while (!fs_stream.eof());
 	}
 
 	return false;
@@ -169,8 +187,9 @@ static BOOL WINAPI ConsoleCtrlHandler(DWORD dwCtrlType) {
 	switch (dwCtrlType) {
 	case CTRL_CLOSE_EVENT:
 	case CTRL_BREAK_EVENT:
-		for (auto amx : loaded_scripts) {
-			AmxUnload(amx);
+		for (AmxList::const_iterator iterator = ::loaded_scripts.begin();
+				iterator != ::loaded_scripts.end(); ++iterator) {
+			AmxUnload(*iterator);
 		}
 	}
 	return FALSE;
@@ -240,7 +259,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 		amx_SetDebugHook(amx, hooks::amx_Debug);
 
 		// Load debug info if available.
-		amx_profiler::DebugInfo *debug_info = nullptr;
+		amx_profiler::DebugInfo *debug_info = 0;
 		if (amx_profiler::HaveDebugInfo(amx)) {
 			debug_info = new amx_profiler::DebugInfo(filename);
 			if (debug_info->is_loaded()) {
@@ -252,8 +271,8 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 			}
 		}
 
-		::profilers[amx] = std::shared_ptr<amx_profiler::Profiler>(new amx_profiler::Profiler(amx, debug_info, cfg::call_graph));
-		if (debug_info != nullptr) {
+		::profilers[amx] = ProfilerPtr(new amx_profiler::Profiler(amx, debug_info, cfg::call_graph));
+		if (debug_info != 0) {
 			logprintf("[profiler] Attached profiler to '%s'", filename.c_str());
 		} else {
 			logprintf("[profiler] Attached profiler to '%s' (no debug symbols)", filename.c_str());
@@ -264,7 +283,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 }
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
-	auto profiler = ::profilers[amx];
+	ProfilerPtr profiler = ::profilers[amx];
 
 	if (profiler) {
 		std::string amx_path = GetAmxPath(amx);
@@ -278,11 +297,11 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 			::tolower
 		);
 
-		auto profile_filename = amx_name + "-profile." + cfg::profile_format;
-		std::ofstream profile_stream(profile_filename);
+		std::string profile_filename = amx_name + "-profile." + cfg::profile_format;
+		std::ofstream profile_stream(profile_filename.c_str());
 
 		if (profile_stream.is_open()) {
-			amx_profiler::StatisticsWriter *writer = nullptr;
+			amx_profiler::StatisticsWriter *writer = 0;
 
 			if (cfg::profile_format == "html") {
 				writer = new amx_profiler::StatisticsWriterHtml;
@@ -294,7 +313,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 				logprintf("[profiler] Unknown output format '%s'", cfg::profile_format.c_str());
 			}
 
-			if (writer != nullptr) {
+			if (writer != 0) {
 				logprintf("[profiler] Writing '%s'", profile_filename.c_str());
 				writer->set_stream(&profile_stream);
 				writer->set_script_name(amx_path);
@@ -308,11 +327,11 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 		}
 
 		if (cfg::call_graph) {
-			auto call_graph_filename = amx_name + "-calls." + cfg::call_graph_format;
-			std::ofstream call_graph_stream(call_graph_filename);
+			std::string call_graph_filename = amx_name + "-calls." + cfg::call_graph_format;
+			std::ofstream call_graph_stream(call_graph_filename.c_str());
 
 			if (call_graph_stream.is_open()) {
-				amx_profiler::CallGraphWriterDot *writer = nullptr;
+				amx_profiler::CallGraphWriterDot *writer = 0;
 
 				if (cfg::call_graph_format == "dot") {
 					writer = new amx_profiler::CallGraphWriterDot;
@@ -320,7 +339,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 					logprintf("[profiler] Unknown call graph format '%s'", cfg::call_graph_format.c_str());
 				}
 
-				if (writer != nullptr) {
+				if (writer != 0) {
 					logprintf("[profiler] Writing '%s'", call_graph_filename.c_str());
 					writer->set_stream(&call_graph_stream);
 					writer->set_script_name(amx_path);
