@@ -29,14 +29,14 @@
 
 namespace amx_profiler {
 
-typedef boost::chrono::duration<double, boost::ratio<1, 1000000000>> Nanoseconds;
-typedef boost::chrono::duration<double, boost::ratio<1, 1000000>>    Microseconds;
-typedef boost::chrono::duration<double, boost::ratio<1, 1000>>       Milliseconds;
-typedef boost::chrono::duration<double, boost::ratio<1, 1>>          Seconds;
-typedef boost::chrono::duration<double, boost::ratio<60, 1>>         Minutes;
-typedef boost::chrono::duration<double, boost::ratio<3600, 1>>       Hours;
-typedef boost::chrono::duration<double, boost::ratio<86400, 1>>      Days;
-typedef boost::chrono::duration<double, boost::ratio<604800, 1>>     Weeks;
+typedef boost::chrono::duration<double, boost::ratio<1, 1000000000> > Nanoseconds;
+typedef boost::chrono::duration<double, boost::ratio<1, 1000000> >    Microseconds;
+typedef boost::chrono::duration<double, boost::ratio<1, 1000> >       Milliseconds;
+typedef boost::chrono::duration<double, boost::ratio<1, 1> >          Seconds;
+typedef boost::chrono::duration<double, boost::ratio<60, 1> >         Minutes;
+typedef boost::chrono::duration<double, boost::ratio<3600, 1> >       Hours;
+typedef boost::chrono::duration<double, boost::ratio<86400, 1> >      Days;
+typedef boost::chrono::duration<double, boost::ratio<604800, 1> >     Weeks;
 
 typedef Nanoseconds Duration;
 
