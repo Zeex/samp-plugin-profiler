@@ -31,7 +31,6 @@
 #include <map>
 #include <sstream>
 #include <string>
-#include <boost/shared_ptr.hpp>
 #ifdef _WIN32
 	#include <windows.h>
 #endif
@@ -54,10 +53,7 @@ extern void *pAMXFunctions;
 
 static logprintf_t logprintf;
 
-typedef boost::shared_ptr<amx_profiler::Profiler> ProfilerPtr;
-typedef boost::shared_ptr<amx_profiler::DebugInfo> DebugInfoPtr;
-
-typedef std::map<AMX*, ProfilerPtr> AmxToProfilerMap;
+typedef std::map<AMX*, amx_profiler::Profiler*> AmxToProfilerMap;
 static AmxToProfilerMap profilers;
 
 typedef std::list<AMX*> AmxList;
@@ -66,7 +62,7 @@ static AmxList loaded_scripts;
 typedef std::map<AMX*, AMX_DEBUG> AmxToAmxDebugMap;
 static AmxToAmxDebugMap old_debug_hooks;
 
-typedef std::map<AMX*, DebugInfoPtr> AmxToDebugInfoMap; 
+typedef std::map<AMX*, amx_profiler::DebugInfo*> AmxToDebugInfoMap; 
 static AmxToDebugInfoMap debug_infos;
 
 // Plugin settings and their defauls.
@@ -84,7 +80,7 @@ Hook amx_Exec_hook;
 Hook amx_Callback_hook;
 
 static int AMXAPI amx_Debug(AMX *amx) {
-	ProfilerPtr profiler = ::profilers[amx];
+	amx_profiler::Profiler *profiler = ::profilers[amx];
 	if (profiler) {
 		profiler->DebugHook();
 	}
@@ -101,7 +97,7 @@ static int AMXAPI amx_Callback(AMX *amx, cell index, cell *result, cell *params)
 	Hook::ScopedRemove r(&amx_Callback_hook);
 	Hook::ScopedInstall i(&amx_Exec_hook);
 
-	ProfilerPtr profiler = ::profilers[amx];
+	amx_profiler::Profiler *profiler = ::profilers[amx];
 	if (profiler) {
 		return profiler->CallbackHook(index, result, params);
 	} else {
@@ -113,7 +109,7 @@ static int AMXAPI amx_Exec(AMX *amx, cell *retval, int index) {
 	Hook::ScopedRemove r(&amx_Exec_hook);
 	Hook::ScopedInstall i(&amx_Callback_hook);
 
-	ProfilerPtr profiler = ::profilers[amx];
+	amx_profiler::Profiler *profiler = ::profilers[amx];
 	if (profiler) {
 		return profiler->ExecHook(retval, index);
 	} else {
@@ -264,14 +260,14 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 			debug_info = new amx_profiler::DebugInfo(filename);
 			if (debug_info->is_loaded()) {
 				logprintf("[profiler] Loaded debug info from '%s'", filename.c_str());
-				::debug_infos[amx].reset(debug_info);
+				::debug_infos[amx] = debug_info;
 			} else {
 				logprintf("[profiler] Error loading debug info from '%s'", filename.c_str());
 				delete debug_info;
 			}
 		}
 
-		::profilers[amx] = ProfilerPtr(new amx_profiler::Profiler(amx, debug_info, cfg::call_graph));
+		::profilers[amx] = new amx_profiler::Profiler(amx, debug_info, cfg::call_graph);
 		if (debug_info != 0) {
 			logprintf("[profiler] Attached profiler to '%s'", filename.c_str());
 		} else {
@@ -283,7 +279,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 }
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
-	ProfilerPtr profiler = ::profilers[amx];
+	amx_profiler::Profiler *profiler = ::profilers[amx];
 
 	if (profiler) {
 		std::string amx_path = GetAmxPath(amx);
@@ -352,10 +348,18 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 			}
 		}
 
-		::profilers.erase(amx);
+		AmxToProfilerMap::iterator iterator = ::profilers.find(amx);
+		if (iterator != ::profilers.end()) {
+			delete iterator->second;
+			::profilers.erase(iterator);
+		}
 	}
 
-	::debug_infos.erase(amx);
+	AmxToDebugInfoMap::iterator iterator = ::debug_infos.find(amx);
+	if (iterator != ::debug_infos.end()) {
+		delete iterator->second;
+		::debug_infos.erase(iterator);
+	}
 
 	return AMX_ERR_NONE;
 }
