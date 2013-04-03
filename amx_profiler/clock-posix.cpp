@@ -35,7 +35,8 @@ TimePoint Clock::Now() {
 		return Nanoseconds(0);
 	}
 
-	return Nanoseconds(ts.tv_sec * 1000000000L + ts.tv_nsec);
+	int64_t ns = static_cast<int64_t>(ts.tv_sec) * 1000000000L + ts.tv_nsec;
+	return Nanoseconds(ns);
 }
 
 } // namespace amx_profiler
