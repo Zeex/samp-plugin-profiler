@@ -8,8 +8,10 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
 include(AmxConfig)
 include(GetGitRevisionDescription)
 
-# Enable project folders in Visual Studio (and possibly other IDEs).
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+# Enable project folders in Visual Studio 2010+ (and possibly other IDEs).
+if(NOT (MSVC_IDE AND MSVC_VERSION LESS 1600))
+	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+endif()
 
 # Suppress annoying GCC warning about 'packed' attribute being ignored.
 if(CMAKE_COMPILER_IS_GNUCC)
