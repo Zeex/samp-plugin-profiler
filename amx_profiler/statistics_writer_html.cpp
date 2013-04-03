@@ -171,10 +171,11 @@ void StatisticsWriterHtml::Write(const Statistics *stats)
 	"	});\n"
 	"	</script>\n"
 	"	<br/>\n"
-	"	<footer>\n";
+	"	<footer>\n"
+	;
 
 	*stream() <<
-	"	</footer>\n";
+	"	</footer>\n"
 	"</body>\n"
 	"</html>\n"
 	;
