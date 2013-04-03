@@ -1,9 +1,8 @@
 include_directories(${CMAKE_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-include_directories(${Boost_INCLUDE_DIRS})
+include_directories(subhook)
 
-add_definitions(-DBOOST_ALL_NO_LIB)
-
+add_definitions(-DSUBHOOK_STATIC)
 if(UNIX AND NOT WIN32)
 	add_definitions(-DLINUX)
 endif()
@@ -19,8 +18,6 @@ set(PLUGIN_SOURCES
 	configreader.h
 	fileutils.cpp
 	fileutils.h
-	hook.cpp
-	hook.h
 	plugin.h
 	plugincommon.h
 	plugin.cpp
@@ -54,6 +51,9 @@ if(UNIX OR MINGW)
 	endif()
 endif()
 
-target_link_libraries(plugin amx_profiler ${Boost_LIBRARIES})
+set(SUBHOOK_STATIC TRUE)
+add_subdirectory(subhook)
+
+target_link_libraries(plugin amx_profiler subhook)
 
 install(TARGETS plugin LIBRARY DESTINATION ".")

@@ -31,6 +31,7 @@
 #include <map>
 #include <sstream>
 #include <string>
+#include <subhook.h>
 #ifdef _WIN32
 	#include <windows.h>
 #endif
@@ -43,7 +44,6 @@
 #include <amx_profiler/profiler.h>
 #include "amxpath.h"
 #include "configreader.h"
-#include "hook.h"
 #include "plugin.h"
 #include "pluginversion.h"
 
@@ -76,8 +76,8 @@ namespace cfg {
 
 namespace hooks {
 
-Hook amx_Exec_hook;
-Hook amx_Callback_hook;
+SubHook amx_Exec_hook;
+SubHook amx_Callback_hook;
 
 static int AMXAPI amx_Debug(AMX *amx) {
 	amx_profiler::Profiler *profiler = ::profilers[amx];
@@ -94,8 +94,8 @@ static int AMXAPI amx_Debug(AMX *amx) {
 }
 
 static int AMXAPI amx_Callback(AMX *amx, cell index, cell *result, cell *params) {
-	Hook::ScopedRemove r(&amx_Callback_hook);
-	Hook::ScopedInstall i(&amx_Exec_hook);
+	SubHook::ScopedRemove r(&amx_Callback_hook);
+	SubHook::ScopedInstall i(&amx_Exec_hook);
 
 	amx_profiler::Profiler *profiler = ::profilers[amx];
 	if (profiler) {
@@ -106,8 +106,8 @@ static int AMXAPI amx_Callback(AMX *amx, cell index, cell *result, cell *params)
 }
 
 static int AMXAPI amx_Exec(AMX *amx, cell *retval, int index) {
-	Hook::ScopedRemove r(&amx_Exec_hook);
-	Hook::ScopedInstall i(&amx_Callback_hook);
+	SubHook::ScopedRemove r(&amx_Exec_hook);
+	SubHook::ScopedInstall i(&amx_Callback_hook);
 
 	amx_profiler::Profiler *profiler = ::profilers[amx];
 	if (profiler) {
