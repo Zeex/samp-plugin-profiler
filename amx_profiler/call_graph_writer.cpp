@@ -32,4 +32,7 @@ CallGraphWriter::CallGraphWriter()
 {
 }
 
+CallGraphWriter::~CallGraphWriter() {
+}
+
 } // namespace amx_profiler

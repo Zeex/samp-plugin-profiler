@@ -36,4 +36,7 @@ StatisticsWriter::StatisticsWriter()
 {
 }
 
+StatisticsWriter::~StatisticsWriter() {
+}
+
 } // namespace amx_profiler

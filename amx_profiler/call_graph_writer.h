@@ -35,6 +35,7 @@ class CallGraph;
 class CallGraphWriter {
 public:
 	CallGraphWriter();
+	virtual ~CallGraphWriter();
 
 	virtual void Write(const CallGraph *graph) = 0;
 
