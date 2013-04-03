@@ -27,7 +27,6 @@
 
 #include <iostream>
 #include <string>
-#include <boost/bind.hpp>
 #include "call_graph.h"
 #include "call_graph_writer_dot.h"
 #include "function.h"
@@ -42,90 +41,119 @@ void CallGraphWriterDot::Write(const CallGraph *graph) {
 		"	node [style=filled];\n"
 		;
 
-	graph_ = graph;
+	WriteNode write_node(this);
+	graph->Traverse(&write_node);
+	
+	ComputeMaxTime compute_max_time(this);
+	graph->Traverse(&compute_max_time);
 
-	graph->Traverse(boost::bind(&CallGraphWriterDot::WriteNode, this, _1));
-	graph->Traverse(boost::bind(&CallGraphWriterDot::AccumulateTime, this, _1));
-	graph->Traverse(boost::bind(&CallGraphWriterDot::WriteNodeColor, this, _1));
+	WriteNodeColor write_node_color(this, compute_max_time.max_time());
+	graph->Traverse(&write_node_color);
 
 	*stream() << "}\n";
 }
 
-void CallGraphWriterDot::WriteNode(const CallGraphNode *node) {
-	if (!node->callees().empty()) {
-		std::string caller_name;
-		if (node->stats()) {
-			caller_name = node->stats()->function()->name();
-		} else {
-			caller_name = root_node_name();
-		}
+class WriteNode : public CallGraph::Visitor {
+public:
+	virtual void Visit(const CallGraphNode *node);
+};
 
-		for (CallGraphNode::CalleeSet::const_iterator iterator = node->callees().begin();
-				iterator != node->callees().end(); ++iterator)
-		{
-			const CallGraphNode *callee = *iterator;
+class WriteNodeColor : public CallGraph::Visitor {
+public:
+	virtual void Visit(const CallGraphNode *node);
+};
 
-			*stream() << "\t\"" << caller_name << "\" -> \""
-				<< callee->stats()->function()->name() << "\" [color=\"";
+class ComputeMaxTime : public CallGraph::Visitor {
+public:
+	virtual void Visit(const CallGraphNode *node);
+private:
+	Nanoseconds max_time_;
+};
 
-			// Arrow color is associated with callee type.
-			std::string fn_type = callee->stats()->function()->type();
-			if (fn_type == "public") {
-				*stream() << "#4B4E99";
-			} else if (fn_type == "native") {
-				*stream() << "#7C4B99";
-			} else {
-				*stream() << "#777777";
-			}
-
-			*stream() << "\"];\n";
-		}
+void CallGraphWriterDot::WriteNode::Visit(const CallGraphNode *node) {
+	if (node->callees().empty()) {
+		return;
 	}
-}
 
-void CallGraphWriterDot::WriteNodeColor(const CallGraphNode *node) {
-	if (node != graph_->sentinel()) {
-		Nanoseconds time = node->stats()->GetSelfTime();
-		double ratio = static_cast<double>(time.count()) / static_cast<double>(max_time_.count());
-
-		// We encode color in HSB.
-		struct {
-			double h; // hue
-			double s; // saturation
-			double b; // brightness
-		} hsb = {
-			(1.0 - ratio) * 0.6,
-			(ratio * 0.9) + 0.1,
-			1.0
-		};
-
-		*stream() << "\t\"" << node->stats()->function()->name() << "\" [color=\""
-			<< hsb.h << ", "
-			<< hsb.s << ", "
-			<< hsb.b << "\""
-		<< ", shape=";
-
-		std::string fn_type = node->stats()->function()->type();
-		if (fn_type == "public") {
-			*stream() << "octagon";
-		} else if (fn_type == "native") {
-			*stream() << "box";
-		} else {
-			*stream() << "oval";
-		}
-
-		*stream() << "];\n";
+	std::string caller_name;
+	if (node->stats()) {
+		caller_name = node->stats()->function()->name();
 	} else {
-		*stream() << "\t\"" << root_node_name() << "\" [shape=diamond];\n";
+		caller_name = writer_->root_node_name();
+	}
+
+	std::ostream *stream = writer_->stream();
+
+	for (CallGraphNode::CalleeSet::const_iterator iterator = node->callees().begin();
+			iterator != node->callees().end(); ++iterator)
+	{
+		const CallGraphNode *callee = *iterator;
+
+		*stream << "\t\"" << caller_name << "\" -> \""
+			<< callee->stats()->function()->name() << "\" [color=\"";
+
+		// Arrow color is associated with callee type.
+		std::string fn_type = callee->stats()->function()->type();
+		if (fn_type == "public") {
+			*stream << "#4B4E99";
+		} else if (fn_type == "native") {
+			*stream << "#7C4B99";
+		} else {
+			*stream << "#777777";
+		}
+
+		*stream << "\"];\n";
 	}
 }
 
-void CallGraphWriterDot::AccumulateTime(const CallGraphNode *node) {
-	if (node != graph_->sentinel()) {
-		Nanoseconds time = node->stats()->GetSelfTime();
-		if (time > max_time_) {
-			max_time_ = time;
-		}
+void CallGraphWriterDot::WriteNodeColor::Visit(const CallGraphNode *node) {
+	std::ostream *stream = writer_->stream();
+
+	if (node == node->graph()->sentinel()) {
+		*stream << "\t\"" << writer_->root_node_name() << "\" [shape=diamond];\n";
+		return;
+	}
+
+	Nanoseconds time = node->stats()->GetSelfTime();
+	double ratio = static_cast<double>(time.count()) / static_cast<double>(max_time_.count());
+
+	// We encode color in HSB.
+	struct {
+		double h; // hue
+		double s; // saturation
+		double b; // brightness
+	} hsb = {
+		(1.0 - ratio) * 0.6,
+		(ratio * 0.9) + 0.1,
+		1.0
+	};
+
+	*stream << "\t\"" << node->stats()->function()->name() << "\" [color=\""
+		<< hsb.h << ", "
+		<< hsb.s << ", "
+		<< hsb.b << "\""
+	<< ", shape=";
+
+	std::string fn_type = node->stats()->function()->type();
+	if (fn_type == "public") {
+		*stream << "octagon";
+	} else if (fn_type == "native") {
+		*stream << "box";
+	} else {
+		*stream << "oval";
+	}
+
+	*stream << "];\n";
+}
+
+void CallGraphWriterDot::ComputeMaxTime::Visit(const CallGraphNode *node) {
+	if (node == node->graph()->sentinel()) {
+		return;
+	}
+
+	Nanoseconds time = node->stats()->GetSelfTime();
+	if (time > max_time_) {
+		max_time_ = time;
 	}
 }
 

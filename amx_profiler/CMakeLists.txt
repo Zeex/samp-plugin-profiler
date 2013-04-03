@@ -1,9 +1,5 @@
 include(AmxConfig)
 
-include_directories(${Boost_INCLUDE_DIRS})
-
-add_definitions(-DBOOST_ALL_NO_LIB)
-
 if(MSVC)
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)  
 endif()
@@ -63,7 +59,7 @@ endif()
 
 add_library(amx_profiler STATIC ${AMX_PROFILER_SOURCES})
 
-target_link_libraries(amx_profiler amx ${Boost_LIBRARIES})
+target_link_libraries(amx_profiler amx)
 if(UNIX)
 	target_link_libraries(amx_profiler rt)
 endif()

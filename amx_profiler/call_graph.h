@@ -36,6 +36,11 @@ class CallGraph {
 	friend class CallGraphNode;
 
 public:
+	class Visitor {
+	public:
+		virtual void Visit(const CallGraphNode *node) = 0;
+	};
+
 	typedef std::set<CallGraphNode*> NodeSet;
 
 	CallGraph(CallGraphNode *root = 0);
@@ -46,8 +51,7 @@ public:
 
 	CallGraphNode *sentinel() const { return sentinel_; }
 
-	template<typename F>
-	inline void Traverse(F func) const;
+	void Traverse(Visitor *visitor) const;
 
 private:
 	void OwnNode(CallGraphNode *node);
@@ -80,14 +84,7 @@ public:
 	CallGraphNode *AddCallee(FunctionStatistics *stats);
 	CallGraphNode *AddCallee(CallGraphNode *node);
 
-	template<typename F>
-	void Traverse(F func) const {
-		func(this);
-		for (CalleeSet::const_iterator iterator = callees_.begin();
-				iterator != callees_.end(); ++iterator) {
-			(*iterator)->Traverse(func);
-		}
-	}
+	void Traverse(CallGraph::Visitor *visitor) const;
 
 private:
 	CallGraph *graph_;
@@ -95,11 +92,6 @@ private:
 	CallGraphNode *caller_;
 	CalleeSet callees_;
 };
-
-template<typename F>
-void CallGraph::Traverse(F func) const {
-	sentinel_->Traverse(func);
-}
 
 } // namespace amx_profiler
 

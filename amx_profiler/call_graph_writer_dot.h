@@ -34,19 +34,47 @@ class CallGraphNode;
 
 class CallGraphWriterDot : public CallGraphWriter {
 public:
-	CallGraphWriterDot() : graph_(0) {}
-
 	virtual void Write(const CallGraph *graph);
 
 private:
-	void WriteNode(const CallGraphNode *node);
-	void WriteNodeColor(const CallGraphNode *node);
+	class WriteNode : public CallGraphWriter::Visitor {
+	public:
+		WriteNode(CallGraphWriter *writer)
+			: CallGraphWriter::Visitor(writer)
+		{
+		}
 
-	void AccumulateTime(const CallGraphNode *node);
+		virtual void Visit(const CallGraphNode *node);
+	};
 
-private:
-	const CallGraph *graph_;
-	Nanoseconds max_time_;
+	class WriteNodeColor : public CallGraphWriter::Visitor {
+	public:
+		WriteNodeColor(CallGraphWriter *writer, Nanoseconds max_time)
+			: CallGraphWriter::Visitor(writer)
+			, max_time_(max_time)
+		{
+		}
+
+		virtual void Visit(const CallGraphNode *node);
+
+	private:
+		Nanoseconds max_time_;
+	};
+
+	class ComputeMaxTime : public CallGraphWriter::Visitor {
+	public:
+		ComputeMaxTime(CallGraphWriter *writer)
+			: CallGraphWriter::Visitor(writer)
+		{
+		}
+
+		virtual void Visit(const CallGraphNode *node);
+
+		Nanoseconds max_time() const { return max_time_; }
+
+	private:
+		Nanoseconds max_time_;
+	};
 };
 
 } // namespace amx_profiler

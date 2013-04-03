@@ -49,6 +49,10 @@ void CallGraph::OwnNode(CallGraphNode *node) {
 	nodes_.insert(node);
 }
 
+void CallGraph::Traverse(Visitor *visitor) const {
+	sentinel_->Traverse(visitor);
+}
+
 bool CallGraphNode::Compare::operator()(const CallGraphNode *n1, const CallGraphNode *n2) const {
 	return n1->stats()->function()->address() < n2->stats()->function()->address();
 }
@@ -69,6 +73,14 @@ CallGraphNode *CallGraphNode::AddCallee(CallGraphNode *node) {
 	graph_->OwnNode(node);
 	callees_.insert(node);
 	return node;
+}
+
+void CallGraphNode::Traverse(CallGraph::Visitor *visitor) const {
+	visitor->Visit(this);
+	for (CalleeSet::const_iterator iterator = callees_.begin();
+			iterator != callees_.end(); ++iterator) {
+		(*iterator)->Traverse(visitor);
+	}
 }
 
 } // namespace amx_profiler
