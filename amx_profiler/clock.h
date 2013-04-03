@@ -22,21 +22,36 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#ifndef AMX_PROFILER_CLOCK_H
+#define AMX_PROFILER_CLOCK_H
+
 #include <ctime>
-#include <iostream>
-#include <vector>
-#include "statistics_writer.h"
+#include "duration.h"
 
 namespace amx_profiler {
 
-StatisticsWriter::StatisticsWriter()
-	: stream_(0)
-	, print_date_(false)
-	, print_run_time_(false)
-{
-}
+class TimePoint {
+public:
+	TimePoint() : time_(0) {}
+	TimePoint(Nanoseconds time) : time_(time) {}
 
-StatisticsWriter::~StatisticsWriter() {
-}
+	Nanoseconds operator+(const TimePoint &other) const {
+		return Nanoseconds(time_ + other.time_);
+	}
+
+	Nanoseconds operator-(const TimePoint &other) const {
+		return Nanoseconds(time_ - other.time_);
+	}
+
+private:
+	Nanoseconds time_;
+};
+
+class Clock {
+public:
+	static TimePoint Now();
+};
 
 } // namespace amx_profiler
+
+#endif // !AMX_PROFILER_CLOCK_H

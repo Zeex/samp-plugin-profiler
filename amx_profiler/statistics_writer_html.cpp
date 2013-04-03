@@ -115,7 +115,7 @@ void StatisticsWriterHtml::Write(const Statistics *stats)
 	std::vector<FunctionStatistics*> all_fn_stats;
 	stats->GetStatistics(all_fn_stats);
 
-	Duration time_all;
+	Nanoseconds time_all;
 	for (std::vector<FunctionStatistics*>::const_iterator iterator = all_fn_stats.begin();
 			iterator != all_fn_stats.end(); ++iterator)
 	{
@@ -123,7 +123,7 @@ void StatisticsWriterHtml::Write(const Statistics *stats)
 		time_all += fn_stats->total_time() - fn_stats->child_time(); 
 	};
 
-	Duration total_time_all;
+	Nanoseconds total_time_all;
 	for (std::vector<FunctionStatistics*>::const_iterator iterator = all_fn_stats.begin();
 			iterator != all_fn_stats.end(); ++iterator)
 	{
@@ -171,10 +171,11 @@ void StatisticsWriterHtml::Write(const Statistics *stats)
 	"	});\n"
 	"	</script>\n"
 	"	<br/>\n"
-	"	<footer>\n";
+	"	<footer>\n"
+	;
 
 	*stream() <<
-	"	</footer>\n";
+	"	</footer>\n"
 	"</body>\n"
 	"</html>\n"
 	;

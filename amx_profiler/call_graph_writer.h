@@ -27,14 +27,22 @@
 
 #include <iosfwd>
 #include <string>
+#include "call_graph.h"
 
 namespace amx_profiler {
 
-class CallGraph;
-
 class CallGraphWriter {
 public:
+	class Visitor : public CallGraph::Visitor {
+	public:
+		Visitor(CallGraphWriter *writer) : writer_(writer) {}
+		virtual void Visit(const CallGraphNode *node) = 0;
+	protected:
+		CallGraphWriter *writer_;
+	};
+
 	CallGraphWriter();
+	virtual ~CallGraphWriter();
 
 	virtual void Write(const CallGraph *graph) = 0;
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2013, Zeex
+// Copyright (c) 2011-2013 Zeex
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -22,21 +22,43 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <ctime>
-#include <iostream>
+#include <string>
 #include <vector>
-#include "statistics_writer.h"
 
-namespace amx_profiler {
+#include <Windows.h>
 
-StatisticsWriter::StatisticsWriter()
-	: stream_(0)
-	, print_date_(false)
-	, print_run_time_(false)
+#include "fileutils.h"
+
+namespace fileutils {
+
+const char kNativePathSepChar = '\\';
+const char *kNativePathSepString = "\\";
+
+const char kNativePathListSepChar = ';';
+const char *kNativePathListSepString = ";";
+
+void GetDirectoryFiles(const std::string &directory, const std::string &pattern, 
+                       std::vector<std::string> &files) 
 {
+	std::string fileName;
+	fileName.append(directory);
+	fileName.append(kNativePathSepString);
+	fileName.append(pattern);
+
+	WIN32_FIND_DATA findFileData;
+
+	HANDLE hFindFile = FindFirstFile(fileName.c_str(), &findFileData);
+	if (hFindFile == INVALID_HANDLE_VALUE) {
+		return;
+	}
+
+	do {
+		if (!(findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+				files.push_back(findFileData.cFileName);
+		}
+	} while (FindNextFile(hFindFile, &findFileData) != 0);
+
+	FindClose(hFindFile);
 }
 
-StatisticsWriter::~StatisticsWriter() {
-}
-
-} // namespace amx_profiler
+} // namespace fileutils

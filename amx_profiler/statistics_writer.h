@@ -32,6 +32,7 @@ class Statistics;
 class StatisticsWriter {
 public:
 	StatisticsWriter();
+	virtual ~StatisticsWriter();
 
 	virtual void Write(const Statistics *stats) = 0;
 

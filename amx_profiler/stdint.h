@@ -22,21 +22,22 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <ctime>
-#include <iostream>
-#include <vector>
-#include "statistics_writer.h"
+#ifndef AMX_PROFILER_STDINT_H
+#define AMX_PROFILER_STDINT_H
 
-namespace amx_profiler {
+#if defined __GNUC__ || (defined _MSC_VER && _MSC_VER >= 1600)
+	#include <stdint.h>
+	namespace amx_profiler {
+		using ::int64_t;
+		using ::uint64_t;
+	}
+#else
+	namespace amx_profiler {
+		#if defined _WIN32
+			typedef signed __int64 int64_t;
+			typedef unsigned __int64 uint64_t;
+		#endif
+	}	
+#endif
 
-StatisticsWriter::StatisticsWriter()
-	: stream_(0)
-	, print_date_(false)
-	, print_run_time_(false)
-{
-}
-
-StatisticsWriter::~StatisticsWriter() {
-}
-
-} // namespace amx_profiler
+#endif // !AMX_PROFILER_STDINT_H

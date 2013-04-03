@@ -25,8 +25,6 @@
 #include <ctime>
 #include <iomanip>
 #include <iostream>
-#include <boost/format.hpp>
-#include "duration.h"
 #include "time_utils.h"
 
 namespace amx_profiler {
@@ -54,9 +52,7 @@ const char *CTime(TimeStamp ts) {
 	return string;
 }
 
-TimeSpan::TimeSpan(Duration d)
-	: duration_(d)
-{
+TimeSpan::TimeSpan(Seconds d) {
 	hours_ = static_cast<int>(Hours(d).count());
 	d -= Hours(hours_);
 
@@ -68,8 +64,9 @@ TimeSpan::TimeSpan(Duration d)
 }
 
 std::ostream &operator<<(std::ostream &os, const TimeSpan &time) {
-	Duration duration = time.duration();
-	os << boost::format("%02d:%02d:%02d") % time.hours() % time.minutes() % time.seconds();
+	os << std::setw(2) << std::setfill('0') << time.hours()   << ':'
+	   << std::setw(2) << std::setfill('0') << time.minutes() << ':'
+	   << std::setw(2) << std::setfill('0') << time.seconds();
 	return os;
 }
 

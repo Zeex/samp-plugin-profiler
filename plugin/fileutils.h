@@ -1,4 +1,4 @@
-// Copyright (c) 2013, Zeex
+// Copyright (c) 2011-2013 Zeex
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -22,21 +22,31 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#ifndef FILEUTILS_H
+#define FILEUTILS_H
+
 #include <ctime>
-#include <iostream>
+#include <string>
 #include <vector>
-#include "statistics_writer.h"
 
-namespace amx_profiler {
+namespace fileutils {
 
-StatisticsWriter::StatisticsWriter()
-	: stream_(0)
-	, print_date_(false)
-	, print_run_time_(false)
-{
-}
+extern const char kNativePathSepChar;
+extern const char *kNativePathSepString;
 
-StatisticsWriter::~StatisticsWriter() {
-}
+extern const char kNativePathListSepChar;
+extern const char *kNativePathListSepString;
 
-} // namespace amx_profiler
+std::string GetFileName(const std::string &path);
+std::string GetBaseName(const std::string &path);
+std::string GetExtenstion(const std::string &path);
+
+std::time_t GetModificationTime(const std::string &path);
+
+void GetDirectoryFiles(const std::string &directory,
+                       const std::string &pattern,
+                       std::vector<std::string> &files);
+
+} // namespace fileutils
+
+#endif // !FILEUTILS_H

@@ -1,4 +1,4 @@
-// Copyright (c) 2013, Zeex
+// Copyright (c) 2011-2013 Zeex
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -22,21 +22,36 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <ctime>
-#include <iostream>
+#include <string>
 #include <vector>
-#include "statistics_writer.h"
 
-namespace amx_profiler {
+#include <dirent.h>
+#include <fnmatch.h>
 
-StatisticsWriter::StatisticsWriter()
-	: stream_(0)
-	, print_date_(false)
-	, print_run_time_(false)
+#include "fileutils.h"
+
+namespace fileutils {
+
+const char kNativePathSepChar = '/';
+const char *kNativePathSepString = "/";
+
+const char kNativePathListSepChar = ':';
+const char *kNativePathListSepString = ":";
+
+void GetDirectoryFiles(const std::string &directory, const std::string &pattern, 
+                       std::vector<std::string> &files) 
 {
+	DIR *dp;
+	if ((dp = opendir(directory.c_str())) != 0) {
+		struct dirent *dirp;
+		while ((dirp = readdir(dp)) != 0) {
+			if (!fnmatch(pattern.c_str(), dirp->d_name, FNM_CASEFOLD | FNM_NOESCAPE | FNM_PERIOD)) {
+				files.push_back(dirp->d_name);
+			}
+		}
+		closedir(dp);
+	}
 }
 
-StatisticsWriter::~StatisticsWriter() {
-}
+} // namespace fileutils
 
-} // namespace amx_profiler

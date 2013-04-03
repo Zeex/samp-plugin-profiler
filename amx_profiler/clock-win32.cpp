@@ -22,21 +22,27 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <ctime>
-#include <iostream>
-#include <vector>
-#include "statistics_writer.h"
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include "clock.h"
 
 namespace amx_profiler {
 
-StatisticsWriter::StatisticsWriter()
-	: stream_(0)
-	, print_date_(false)
-	, print_run_time_(false)
-{
-}
+// static
+TimePoint Clock::Now() {
+	LARGE_INTEGER freq;
+	if (QueryPerformanceFrequency(&freq) == 0) {
+		return 0;
+	}
 
-StatisticsWriter::~StatisticsWriter() {
+	double ns_per_tick = 1E+9 / freq.QuadPart;
+
+	LARGE_INTEGER count;
+	if (QueryPerformanceCounter(&count) == 0) {
+		return 0;
+	}
+
+	return Nanoseconds(ns_per_tick * count.QuadPart);
 }
 
 } // namespace amx_profiler

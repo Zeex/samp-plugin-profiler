@@ -1,4 +1,4 @@
-// Copyright (c) 2013, Zeex
+// Copyright (c) 2011-2013 Zeex
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -23,20 +23,45 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include <ctime>
-#include <iostream>
+#include <string>
 #include <vector>
-#include "statistics_writer.h"
 
-namespace amx_profiler {
+#include <sys/stat.h>
 
-StatisticsWriter::StatisticsWriter()
-	: stream_(0)
-	, print_date_(false)
-	, print_run_time_(false)
-{
+namespace fileutils {
+
+std::string GetFileName(const std::string &path) {
+	std::string::size_type lastSep = path.find_last_of("/\\");
+	if (lastSep != std::string::npos) {
+		return path.substr(lastSep + 1);
+	}
+	return path;
 }
 
-StatisticsWriter::~StatisticsWriter() {
+std::string GetBaseName(const std::string &path) {
+	std::string base = GetFileName(path);
+	std::string::size_type period = base.rfind('.');
+	if (period != std::string::npos) {
+		base.erase(period);
+	} 
+	return base;
 }
 
-} // namespace amx_profiler
+std::string GetExtenstion(const std::string &path) {
+	std::string ext;
+	std::string::size_type period = path.rfind('.');
+	if (period != std::string::npos) {
+		ext = path.substr(period + 1);
+	} 
+	return ext;
+}
+
+std::time_t GetModificationTime(const std::string &path) {
+	struct stat attrib;
+	if (stat(path.c_str(), &attrib) == 0) {
+		return attrib.st_mtime;
+	}
+	return 0;
+}
+
+} // namespace fileutils

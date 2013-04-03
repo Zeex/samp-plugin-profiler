@@ -4,15 +4,21 @@ include_directories(${Boost_INCLUDE_DIRS})
 
 add_definitions(-DBOOST_ALL_NO_LIB)
 
+if(UNIX AND NOT WIN32)
+	add_definitions(-DLINUX)
+endif()
+
 configure_file(plugin.rc.in plugin.rc @ONLY)
 configure_file(pluginversion.h.in pluginversion.h @ONLY)
 
-set(SOURCES
+set(PLUGIN_SOURCES
 	amxpath.cpp
 	amxpath.h
 	amxplugin.cpp
 	configreader.cpp
 	configreader.h
+	fileutils.cpp
+	fileutils.h
 	hook.cpp
 	hook.h
 	plugin.h
@@ -23,11 +29,13 @@ set(SOURCES
 	pluginversion.h
 )
 
-if(UNIX AND NOT WIN32)
-	add_definitions(-DLINUX)
+if(WIN32)
+	list(APPEND PLUGIN_SOURCES fileutils-win32.cpp)
+else()
+	list(APPEND PLUGIN_SOURCES fileutils-posix.cpp)
 endif()
 
-add_library(plugin MODULE ${SOURCES})
+add_library(plugin MODULE ${PLUGIN_SOURCES})
 
 if(UNIX OR MINGW)
 	# Remove the "lib" prefix of the output filename added in GCC/MinGW builds.

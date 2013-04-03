@@ -22,21 +22,21 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <ctime>
-#include <iostream>
-#include <vector>
-#include "statistics_writer.h"
+#include <time.h>
+#include "clock.h"
 
 namespace amx_profiler {
 
-StatisticsWriter::StatisticsWriter()
-	: stream_(0)
-	, print_date_(false)
-	, print_run_time_(false)
-{
-}
+// static
+TimePoint Clock::Now() {
+	struct timespec ts;
 
-StatisticsWriter::~StatisticsWriter() {
+	if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0) {
+		return Nanoseconds(0);
+	}
+
+	int64_t ns = static_cast<int64_t>(ts.tv_sec) * 1000000000L + ts.tv_nsec;
+	return Nanoseconds(ns);
 }
 
 } // namespace amx_profiler
