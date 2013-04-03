@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2013, Zeex
+// Copyright (c) 2011-2013 Zeex
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -22,59 +22,31 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef AMXPATH_H
-#define AMXPATH_H
+#ifndef FILEUTILS_H
+#define FILEUTILS_H
 
 #include <ctime>
-#include <map>
-#include <set>
 #include <string>
-#include <amx/amx.h>
-#include <amx/amxaux.h>
+#include <vector>
 
-class AmxFile {
-public:
-	explicit AmxFile(std::string name);
-	~AmxFile();
+namespace fileutils {
 
-	AMX *amx() { return amx_; }
-	const AMX *amx() const { return amx_; }
+extern const char kNativePathSepChar;
+extern const char *kNativePathSepString;
 
-	bool is_loaded() const { return amx_ != 0; }
+extern const char kNativePathListSepChar;
+extern const char *kNativePathListSepString;
 
-	std::string name() const { return name_; }
-	std::time_t mtime() const { return mtime_; }
+std::string GetFileName(const std::string &path);
+std::string GetBaseName(const std::string &path);
+std::string GetExtenstion(const std::string &path);
 
-private:
-	AmxFile(const AmxFile &);
-	void operator=(const AmxFile &);
+std::time_t GetModificationTime(const std::string &path);
 
-private:
-	AMX *amx_;
-	std::string name_;
-	std::time_t mtime_;
-};
+void GetDirectoryFiles(const std::string &directory,
+                       const std::string &pattern,
+                       std::vector<std::string> &files);
 
-class AmxPathFinder {
-public:
-	~AmxPathFinder();
+} // namespace fileutils
 
-	void AddSearchDirectory(const std::string &path) {
-		search_dirs_.insert(path);
-	}
-
-	std::string FindAmxPath(AMX *amx) const;
-	std::string FindAmxPath(AMX_HEADER *amxhdr) const;
-
-private:
-	typedef std::set<std::string> DirSet;
-	DirSet search_dirs_;
-
-	typedef std::map<std::string, AmxFile*> FileCache;
-	mutable FileCache file_cache_;
-
-	typedef std::map<AMX*, std::string> PathCache;
-	mutable PathCache path_cache_;
-};
-
-#endif // !AMXPATH_H
+#endif // !FILEUTILS_H

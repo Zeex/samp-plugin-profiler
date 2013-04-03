@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2013, Zeex
+// Copyright (c) 2011-2013 Zeex
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -22,59 +22,46 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef AMXPATH_H
-#define AMXPATH_H
-
 #include <ctime>
-#include <map>
-#include <set>
 #include <string>
-#include <amx/amx.h>
-#include <amx/amxaux.h>
+#include <vector>
 
-class AmxFile {
-public:
-	explicit AmxFile(std::string name);
-	~AmxFile();
+#include <sys/stat.h>
 
-	AMX *amx() { return amx_; }
-	const AMX *amx() const { return amx_; }
+namespace fileutils {
 
-	bool is_loaded() const { return amx_ != 0; }
-
-	std::string name() const { return name_; }
-	std::time_t mtime() const { return mtime_; }
-
-private:
-	AmxFile(const AmxFile &);
-	void operator=(const AmxFile &);
-
-private:
-	AMX *amx_;
-	std::string name_;
-	std::time_t mtime_;
-};
-
-class AmxPathFinder {
-public:
-	~AmxPathFinder();
-
-	void AddSearchDirectory(const std::string &path) {
-		search_dirs_.insert(path);
+std::string GetFileName(const std::string &path) {
+	std::string::size_type lastSep = path.find_last_of("/\\");
+	if (lastSep != std::string::npos) {
+		return path.substr(lastSep + 1);
 	}
+	return path;
+}
 
-	std::string FindAmxPath(AMX *amx) const;
-	std::string FindAmxPath(AMX_HEADER *amxhdr) const;
+std::string GetBaseName(const std::string &path) {
+	std::string base = GetFileName(path);
+	std::string::size_type period = base.rfind('.');
+	if (period != std::string::npos) {
+		base.erase(period);
+	} 
+	return base;
+}
 
-private:
-	typedef std::set<std::string> DirSet;
-	DirSet search_dirs_;
+std::string GetExtenstion(const std::string &path) {
+	std::string ext;
+	std::string::size_type period = path.rfind('.');
+	if (period != std::string::npos) {
+		ext = path.substr(period + 1);
+	} 
+	return ext;
+}
 
-	typedef std::map<std::string, AmxFile*> FileCache;
-	mutable FileCache file_cache_;
+std::time_t GetModificationTime(const std::string &path) {
+	struct stat attrib;
+	if (stat(path.c_str(), &attrib) == 0) {
+		return attrib.st_mtime;
+	}
+	return 0;
+}
 
-	typedef std::map<AMX*, std::string> PathCache;
-	mutable PathCache path_cache_;
-};
-
-#endif // !AMXPATH_H
+} // namespace fileutils

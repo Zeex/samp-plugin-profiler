@@ -23,24 +23,32 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include <cstring>
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string.hpp>
 #include "amxpath.h"
+#include "fileutils.h"
 
-static void FreeAmx(AMX *amx) {
-	if (amx != 0) {
-		aux_FreeProgram(amx);
+AmxFile::AmxFile(std::string name)
+	: amx_(new AMX)
+	, name_(name)
+	, mtime_(fileutils::GetModificationTime(name))
+{
+	if (aux_LoadProgram(amx_, const_cast<char*>(name.c_str()), 0)
+			!= AMX_ERR_NONE) {
+		delete amx_;
+		amx_ = 0;
 	}
 }
 
-AmxFile::AmxFile(std::string name)
-	: amx_ptr_(new AMX, FreeAmx)
-	, name_(name)
-	, mtime_(boost::filesystem::last_write_time(name))
-{
-	if (aux_LoadProgram(amx_ptr_.get(), const_cast<char*>(name.c_str()), 0)
-			!= AMX_ERR_NONE) {
-		amx_ptr_.reset();
+AmxFile::~AmxFile() {
+	if (amx_ != 0) {
+		aux_FreeProgram(amx_);
+	}
+}
+
+AmxPathFinder::~AmxPathFinder() {
+	for (FileCache::iterator iterator = file_cache_.begin();
+			iterator != file_cache_.end(); ++iterator)
+	{
+		delete iterator->second;
 	}
 }
 
@@ -68,29 +76,27 @@ std::string AmxPathFinder::FindAmxPath(AMX_HEADER *amxhdr) const {
 	{
 		const std::string &dir = *iterator;
 
-		boost::filesystem::directory_iterator dir_end;
-		for (boost::filesystem::directory_iterator dir_iterator(dir);
-				dir_iterator != dir_end; ++dir_iterator)
-		{
-			if (!boost::filesystem::is_regular_file(dir_iterator->status())) {
-				continue;
-			}
+		std::vector<std::string> files;
+		fileutils::GetDirectoryFiles(dir, "*.amx", files);
 
-			const std::string filename = dir_iterator->path().string();
-			if (!boost::algorithm::ends_with(filename, ".amx")) {
-				continue;
-			}
+		for (std::vector<std::string>::const_iterator dir_iterator = files.begin();
+				dir_iterator != files.end(); ++dir_iterator)
+		{
+			std::string filename;
+			filename.append(dir);
+			filename.append(fileutils::kNativePathSepString);
+			filename.append(*dir_iterator);
 
 			FileCache::iterator cache_iterator = file_cache_.find(filename);
 			if (cache_iterator == file_cache_.end() ||
-			    cache_iterator->second.mtime() < boost::filesystem::last_write_time(filename))
+				cache_iterator->second->mtime() < fileutils::GetModificationTime(filename))
 			{
 				if (cache_iterator != file_cache_.end()) {
 					file_cache_.erase(cache_iterator);
 				}
 
-				AmxFile amx_file(filename);
-				if (amx_file.is_loaded()) {
+				AmxFile *amx_file = new AmxFile(filename);
+				if (amx_file->is_loaded()) {
 					file_cache_.insert(std::make_pair(filename, amx_file));
 				}
 			}
@@ -100,7 +106,7 @@ std::string AmxPathFinder::FindAmxPath(AMX_HEADER *amxhdr) const {
 	for (FileCache::const_iterator iterator = file_cache_.begin();
 			iterator != file_cache_.end(); ++iterator) 
 	{
-		void *amxhdr2 = iterator->second.amx()->base;
+		void *amxhdr2 = iterator->second->amx()->base;
 		if (std::memcmp(amxhdr, amxhdr2, sizeof(AMX_HEADER)) == 0) {
 			result = iterator->first;
 			break;
