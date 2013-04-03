@@ -22,50 +22,36 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#ifndef AMX_PROFILER_CLOCK_H
+#define AMX_PROFILER_CLOCK_H
+
 #include <ctime>
-#include <iostream>
-#include <boost/format.hpp>
-#include "time_utils.h"
+#include "duration.h"
 
 namespace amx_profiler {
 
-std::time_t TimeStamp::Now() {
-	return std::time(0);
-}
+class TimePoint {
+public:
+	TimePoint() : time_(0) {}
+	TimePoint(Nanoseconds time) : time_(time) {}
 
-TimeStamp::TimeStamp()
-	: value_(Now())
-{
-}
+	Nanoseconds operator+(const TimePoint &other) const {
+		return Nanoseconds(time_ + other.time_);
+	}
 
-TimeStamp::TimeStamp(std::time_t value)
-	: value_(value)
-{
-}
+	Nanoseconds operator-(const TimePoint &other) const {
+		return Nanoseconds(time_ - other.time_);
+	}
 
-const char *CTime(TimeStamp ts) {
-	std::time_t now = TimeStamp::Now();
+private:
+	Nanoseconds time_;
+};
 
-	char *string = const_cast<char*>(std::ctime(&now));
-	string[kCTimeResultLength] = '\0';
-
-	return string;
-}
-
-TimeSpan::TimeSpan(Seconds d) {
-	hours_ = static_cast<int>(Hours(d).count());
-	d -= Hours(hours_);
-
-	minutes_ = static_cast<int>(Minutes(d).count());
-	d -= Minutes(minutes_);
-
-	seconds_ = static_cast<int>(Seconds(d).count());
-	d -= Seconds(seconds_);
-}
-
-std::ostream &operator<<(std::ostream &os, const TimeSpan &time) {
-	os << boost::format("%02d:%02d:%02d") % time.hours() % time.minutes() % time.seconds();
-	return os;
-}
+class Clock {
+public:
+	static TimePoint Now();
+};
 
 } // namespace amx_profiler
+
+#endif // !AMX_PROFILER_CLOCK_H

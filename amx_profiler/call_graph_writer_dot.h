@@ -46,7 +46,7 @@ private:
 
 private:
 	const CallGraph *graph_;
-	Duration max_time_;
+	Nanoseconds max_time_;
 };
 
 } // namespace amx_profiler

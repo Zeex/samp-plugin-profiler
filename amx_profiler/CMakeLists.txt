@@ -8,7 +8,7 @@ if(MSVC)
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)  
 endif()
 
-add_library(amx_profiler STATIC
+set(AMX_PROFILER_SOURCES
 	amx_utils.cpp
 	amx_utils.h
 	call_graph.cpp
@@ -19,6 +19,7 @@ add_library(amx_profiler STATIC
 	call_graph_writer_dot.h
 	call_stack.cpp
 	call_stack.h
+	clock.h
 	debug_info.cpp
 	debug_info.h
 	duration.h
@@ -49,8 +50,20 @@ add_library(amx_profiler STATIC
 	statistics_writer_text.h
 	statistics_writer_xml.cpp
 	statistics_writer_xml.h
+	stdint.h
 	time_utils.cpp
 	time_utils.h
 )
 
+if(WIN32)
+	list(APPEND AMX_PROFILER_SOURCES clock-win32.cpp)
+else()
+	list(APPEND AMX_PROFILER_SOURCES clock-posix.cpp)
+endif()
+
+add_library(amx_profiler STATIC ${AMX_PROFILER_SOURCES})
+
 target_link_libraries(amx_profiler amx ${Boost_LIBRARIES})
+if(UNIX)
+	target_link_libraries(amx_profiler rt)
+endif()

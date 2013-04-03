@@ -26,11 +26,6 @@
 
 namespace amx_profiler {
 
-// static
-PerformanceCounter::TimePoint PerformanceCounter::Now() {
-	return Clock::now();
-}
-
 PerformanceCounter::PerformanceCounter(PerformanceCounter *parent) 
 	: started_(false)
 	, parent_(parent)
@@ -42,15 +37,15 @@ PerformanceCounter::~PerformanceCounter() {
 }
 
 void PerformanceCounter::Start() {
-	if (!started_) {			
-		start_point_ = Now();
+	if (!started_) {
+		start_point_ = Clock::Now();
 		started_ = true;
 	}
 }
 
 void PerformanceCounter::Stop() {
 	if (started_) {
-		Duration interval = QueryTotalTime();
+		Nanoseconds interval = QueryTotalTime();
 		total_time_ += interval;
 		if (parent_ != 0) {
 			parent_->child_time_ += interval;
@@ -59,12 +54,12 @@ void PerformanceCounter::Stop() {
 	} 
 }
 
-PerformanceCounter::Duration PerformanceCounter::GetSelfTime() const {
+Nanoseconds PerformanceCounter::GetSelfTime() const {
 	return total_time() - child_time();
 }
 
-PerformanceCounter::Duration PerformanceCounter::QueryTotalTime() const {
-	return Now() - start_point_;
+Nanoseconds PerformanceCounter::QueryTotalTime() const {
+	return Clock::Now() - start_point_;
 }
 
 } // namespace amx_profiler

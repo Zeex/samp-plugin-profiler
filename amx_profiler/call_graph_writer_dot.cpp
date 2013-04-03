@@ -85,7 +85,7 @@ void CallGraphWriterDot::WriteNode(const CallGraphNode *node) {
 
 void CallGraphWriterDot::WriteNodeColor(const CallGraphNode *node) {
 	if (node != graph_->sentinel()) {
-		Duration time = node->stats()->GetSelfTime();
+		Nanoseconds time = node->stats()->GetSelfTime();
 		double ratio = static_cast<double>(time.count()) / static_cast<double>(max_time_.count());
 
 		// We encode color in HSB.
@@ -122,7 +122,7 @@ void CallGraphWriterDot::WriteNodeColor(const CallGraphNode *node) {
 
 void CallGraphWriterDot::AccumulateTime(const CallGraphNode *node) {
 	if (node != graph_->sentinel()) {
-		Duration time = node->stats()->GetSelfTime();
+		Nanoseconds time = node->stats()->GetSelfTime();
 		if (time > max_time_) {
 			max_time_ = time;
 		}

@@ -22,50 +22,20 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <ctime>
-#include <iostream>
-#include <boost/format.hpp>
-#include "time_utils.h"
+#include <time.h>
+#include "clock.h"
 
 namespace amx_profiler {
 
-std::time_t TimeStamp::Now() {
-	return std::time(0);
-}
+// static
+TimePoint Clock::Now() {
+	struct timespec ts;
 
-TimeStamp::TimeStamp()
-	: value_(Now())
-{
-}
+	if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0) {
+		return Nanoseconds(0);
+	}
 
-TimeStamp::TimeStamp(std::time_t value)
-	: value_(value)
-{
-}
-
-const char *CTime(TimeStamp ts) {
-	std::time_t now = TimeStamp::Now();
-
-	char *string = const_cast<char*>(std::ctime(&now));
-	string[kCTimeResultLength] = '\0';
-
-	return string;
-}
-
-TimeSpan::TimeSpan(Seconds d) {
-	hours_ = static_cast<int>(Hours(d).count());
-	d -= Hours(hours_);
-
-	minutes_ = static_cast<int>(Minutes(d).count());
-	d -= Minutes(minutes_);
-
-	seconds_ = static_cast<int>(Seconds(d).count());
-	d -= Seconds(seconds_);
-}
-
-std::ostream &operator<<(std::ostream &os, const TimeSpan &time) {
-	os << boost::format("%02d:%02d:%02d") % time.hours() % time.minutes() % time.seconds();
-	return os;
+	return Nanoseconds(ts.tv_sec * 1000000000L + ts.tv_nsec);
 }
 
 } // namespace amx_profiler

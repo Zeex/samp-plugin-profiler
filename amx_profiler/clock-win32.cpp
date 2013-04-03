@@ -22,50 +22,27 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <ctime>
-#include <iostream>
-#include <boost/format.hpp>
-#include "time_utils.h"
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include "clock.h"
 
 namespace amx_profiler {
 
-std::time_t TimeStamp::Now() {
-	return std::time(0);
-}
+// static
+TimePoint Clock::Now() {
+	LARGE_INTEGER freq;
+	if (QueryPerformanceFrequency(&freq) == 0) {
+		return 0;
+	}
 
-TimeStamp::TimeStamp()
-	: value_(Now())
-{
-}
+	double ns_per_tick = 1E+9 / freq.QuadPart;
 
-TimeStamp::TimeStamp(std::time_t value)
-	: value_(value)
-{
-}
+	LARGE_INTEGER count;
+	if (QueryPerformanceCounter(&count) == 0) {
+		return 0;
+	}
 
-const char *CTime(TimeStamp ts) {
-	std::time_t now = TimeStamp::Now();
-
-	char *string = const_cast<char*>(std::ctime(&now));
-	string[kCTimeResultLength] = '\0';
-
-	return string;
-}
-
-TimeSpan::TimeSpan(Seconds d) {
-	hours_ = static_cast<int>(Hours(d).count());
-	d -= Hours(hours_);
-
-	minutes_ = static_cast<int>(Minutes(d).count());
-	d -= Minutes(minutes_);
-
-	seconds_ = static_cast<int>(Seconds(d).count());
-	d -= Seconds(seconds_);
-}
-
-std::ostream &operator<<(std::ostream &os, const TimeSpan &time) {
-	os << boost::format("%02d:%02d:%02d") % time.hours() % time.minutes() % time.seconds();
-	return os;
+	return Nanoseconds(ns_per_tick * count.QuadPart);
 }
 
 } // namespace amx_profiler

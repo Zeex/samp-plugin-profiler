@@ -49,7 +49,7 @@ public:
 	FunctionStatistics *GetFunctionStatistis(ucell address) const;
 	void GetStatistics(std::vector<FunctionStatistics*> &stats) const;
 
-	Duration GetTotalRunTime() const {
+	Nanoseconds GetTotalRunTime() const {
 		return run_time_counter_.QueryTotalTime();
 	}
 
