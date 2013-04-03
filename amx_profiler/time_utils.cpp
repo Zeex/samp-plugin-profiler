@@ -23,8 +23,8 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include <ctime>
+#include <iomanip>
 #include <iostream>
-#include <boost/format.hpp>
 #include "time_utils.h"
 
 namespace amx_profiler {
@@ -64,7 +64,9 @@ TimeSpan::TimeSpan(Seconds d) {
 }
 
 std::ostream &operator<<(std::ostream &os, const TimeSpan &time) {
-	os << boost::format("%02d:%02d:%02d") % time.hours() % time.minutes() % time.seconds();
+	os << std::setw(2) << std::setfill('0') << time.hours()   << ':'
+	   << std::setw(2) << std::setfill('0') << time.minutes() << ':'
+	   << std::setw(2) << std::setfill('0') << time.seconds();
 	return os;
 }
 
