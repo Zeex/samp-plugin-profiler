@@ -3,8 +3,9 @@
 
 [![Donate][donate_button]][donate]
 
-Profiler provides detailed information about how long each function takes to execute and how many times
-it is called. This can be helpful in finding bottlenecks or "hot spots" in code for further optimization.
+Profiler provides detailed information about how long each function takes to
+execute and how many times it is called. Additionally it can build a call
+graph based on the collected information.
 
 This plugin can recognize the following `server.cfg` options:
 
