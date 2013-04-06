@@ -1,6 +1,8 @@
 [Profiler plugin][github]
 =========================
 
+[![Donate][donate_button]][donate]
+
 Profiler provides detailed information about how long each function takes to execute and how many times
 it is called. This can be helpful in finding bottlenecks or "hot spots" in code for further optimization.
 
@@ -28,5 +30,7 @@ This plugin can recognize the following `server.cfg` options:
 
 	Set call graph format. Currently only `dot` is supported (can be viewed in [GraphViz][graphviz]).
 
+[donate]: http://pledgie.com/campaigns/19751
+[donate_button]: http://www.pledgie.com/campaigns/19751.png
 [github]: https://github.com/Zeex/samp-plugin-profiler
 [graphviz]: http://www.graphviz.org
