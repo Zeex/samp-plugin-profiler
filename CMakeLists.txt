@@ -57,8 +57,6 @@ add_subdirectory(plugin)
 
 set_target_properties(plugin PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
 
-install(FILES "README.md" DESTINATION ".")
-
 set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
 if(WIN32)
 	set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${PROJECT_VERSION}-win32")
