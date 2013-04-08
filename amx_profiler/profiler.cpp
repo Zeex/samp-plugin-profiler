@@ -23,15 +23,11 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include <cassert>
-#include <typeinfo>
 #include "amx_utils.h"
 #include "function.h"
 #include "function_call.h"
 #include "function_statistics.h"
-#include "native_function.h"
-#include "normal_function.h"
 #include "profiler.h"
-#include "public_function.h"
 
 namespace amx_profiler {
 
@@ -61,14 +57,14 @@ int Profiler::DebugHook(DebugHookFunc debug) {
 			ucell address = static_cast<ucell>(amx_->cip) - 2*sizeof(cell);
 			Function *fn = stats_.GetFunction(address);
 			if (fn == 0) {
-				fn = new NormalFunction(address, debug_info_);
+				fn = Function::Normal(address, debug_info_);
 				functions_.insert(fn);
 				stats_.AddFunction(fn);
 			}
 			BeginFunction(address, amx_->frm);
 		}
 	} else if (amx_->frm > prev_frame) {
-		if (typeid(*call_stack_.top()->function()) == typeid(NormalFunction)) {
+		if (call_stack_.top()->function()->type() == Function::NORMAL) {
 			EndFunction();
 		}
 	}
@@ -90,7 +86,7 @@ int Profiler::CallbackHook(cell index, cell *result, cell *params, CallbackHookF
 		if (address != 0) {
 			Function *fn = stats_.GetFunction(address);
 			if (fn == 0) {
-				fn = new NativeFunction(amx_, index);
+				fn = Function::Native(amx_, index);
 				functions_.insert(fn);
 				stats_.AddFunction(fn);
 			}
@@ -116,7 +112,7 @@ int Profiler::ExecHook(cell *retval, int index, ExecHookFunc exec) {
 		if (address != 0) {
 			Function *fn = stats_.GetFunction(address);
 			if (fn == 0) {
-				fn = new PublicFunction(amx_, index);
+				fn = Function::Public(amx_, index);
 				functions_.insert(fn);
 				stats_.AddFunction(fn);
 			}

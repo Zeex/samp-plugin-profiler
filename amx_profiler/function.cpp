@@ -22,11 +22,59 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#include <cassert>
+#include <iomanip>
+#include <sstream>
+#include <string>
+#include "amx_utils.h"
+#include "debug_info.h"
 #include "function.h"
 
 namespace amx_profiler {
 
-Function::~Function() {
+Function::Function(Type type, ucell address, std::string name)
+	: type_(type), address_(address), name_(name)
+{
+}
+
+// static
+Function *Function::Normal(ucell address, DebugInfo *debug_info) {
+	std::string name;
+
+	if (debug_info != 0 && debug_info->is_loaded()) {
+		name = debug_info->GetFunction(address);
+	}
+
+	if (name.empty()) {
+		std::stringstream ss;
+		ss << std::setw(8) << std::setfill('0') << std::hex << address;
+		name.append("unknown@").append(ss.str());
+	}
+
+	return new Function(NORMAL, address, name);
+}
+
+// static
+Function *Function::Public(AMX *amx, cell index) {
+	return new Function(PUBLIC, GetPublicAddress(amx, index), GetPublicName(amx, index));
+}
+
+// static
+Function *Function::Native(AMX *amx, cell index) {
+	return new Function(NATIVE, GetNativeAddress(amx, index), GetNativeName(amx, index));
+}
+
+const char *Function::GetTypeString() const {
+	switch (type_) {
+		case NORMAL:
+			return "normal";
+		case PUBLIC:
+			return "public";
+		case NATIVE:
+			return "native";
+		default:
+			return "unknown";
+	}
 }
 
 } // namespace amx_profiler

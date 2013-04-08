@@ -108,7 +108,7 @@ void StatisticsWriterText::Write(const Statistics *stats)
 		double total_time_percent = fn_stats->total_time().count() * 100 / total_time_all.count();
 
 		*stream()
-			<< "| " << std::setw(kTypeWidth) << fn_stats->function()->type()
+			<< "| " << std::setw(kTypeWidth) << fn_stats->function()->GetTypeString()
 			<< "| " << std::setw(kNameWidth) << fn_stats->function()->name()
 			<< "| " << std::setw(kCallsWidth) << fn_stats->num_calls()
 			<< "| " << std::setw(kSelfTimePercentWidth) << std::fixed << std::setprecision(2) << self_time_percent

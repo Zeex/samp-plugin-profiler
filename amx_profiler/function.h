@@ -30,21 +30,64 @@
 
 namespace amx_profiler {
 
+class DebugInfo;
+
 class Function {
 public:
-	virtual ~Function();
+	enum Type {
+		NORMAL, // non-public functions
+		PUBLIC, // public functions
+		NATIVE  // native functions
+	};
 
-	virtual std::string name() const = 0;
-	virtual std::string type() const = 0;
-	virtual ucell address() const = 0;
+	// Caller is reponsible for deleting returned Function objects.
+	static Function *Normal(ucell address, DebugInfo *debug_info = 0);
+	static Function *Public(AMX *amx, cell index);
+	static Function *Native(AMX *amx, cell index);
 
+	// Returns the type of the function.
+	Type type() const {
+		return type_;
+	}
+
+	// Returns type() as a string.
+	const char *GetTypeString() const;
+
+	// Returns address of the function. Addresses are unique among
+	// all types of functions, i.e. there can't exist a public and
+	// a native with the same address.
+	ucell address() const {
+		return address_;
+	}
+
+	// Returns the name of the function. Public and native functions
+	// always have a name. Ordinary functions' names are extract from
+	// debugging symbols provided at construction time; if there was
+	// no debug info provided or the function was not found among it
+	// the name is built from the string "unknown@" followed by the
+	// function address in hex.
+	std::string name() const {
+		return name_;
+	}
+
+	// Comparison operators.
 	bool operator==(const Function &other) const {
-		return this->address() == other.address();
+		return address_ == other.address_;
+	}
+	bool operator!=(const Function &other) const {
+		return !operator==(other);
+	}
+	bool operator<(const Function &other) const {
+		return address_ < other.address_;
 	}
 
-	bool operator<(const Function &other) const {
-		return this->address() < other.address();
-	}
+private:
+	Function(Type type, ucell address, std::string name);
+
+private:
+	Type type_;
+	ucell address_;
+	std::string name_;
 };
 
 } // namespace amx_profiler

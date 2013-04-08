@@ -26,16 +26,10 @@ set(AMX_PROFILER_SOURCES
 	function_statistics.cpp
 	function_statistics.h
 	macros.h
-	native_function.cpp
-	native_function.h
-	normal_function.cpp
-	normal_function.h
 	performance_counter.cpp
 	performance_counter.h
 	profiler.cpp
 	profiler.h
-	public_function.cpp
-	public_function.h
 	statistics.cpp
 	statistics.h
 	statistics_writer.cpp

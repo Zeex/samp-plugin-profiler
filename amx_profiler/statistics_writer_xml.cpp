@@ -80,7 +80,7 @@ void StatisticsWriterXml::Write(const Statistics *stats)
 		double total_time_percent = fn_stats->total_time().count() * 100 / total_time_all.count();
 
 		*stream() << "\t<function"
-			<< " type=\"" << fn_stats->function()->type() << "\""
+			<< " type=\"" << fn_stats->function()->GetTypeString() << "\""
 			<< " name=\"" << fn_stats->function()->name() << "\""
 			<< " calls=\"" << fn_stats->num_calls() << "\""
 			<< " self_time=\"" << fn_stats->GetSelfTime().count() << "\""

@@ -92,14 +92,17 @@ void CallGraphWriterDot::WriteNode::Visit(const CallGraphNode *node) {
 		*stream << "\t\"" << caller_name << "\" -> \""
 			<< callee->stats()->function()->name() << "\" [color=\"";
 
-		// Arrow color is associated with callee type.
-		std::string fn_type = callee->stats()->function()->type();
-		if (fn_type == "public") {
-			*stream << "#4B4E99";
-		} else if (fn_type == "native") {
-			*stream << "#7C4B99";
-		} else {
-			*stream << "#777777";
+		Function::Type fn_type = callee->stats()->function()->type();
+		switch (fn_type) {
+			case Function::NORMAL:
+				*stream << "#777777";
+				break;
+			case Function::PUBLIC:
+				*stream << "#4B4E99";
+				break;
+			case Function::NATIVE:
+				*stream << "#7C4B99";
+				break;
 		}
 
 		*stream << "\"];\n";
@@ -134,13 +137,17 @@ void CallGraphWriterDot::WriteNodeColor::Visit(const CallGraphNode *node) {
 		<< hsb.b << "\""
 	<< ", shape=";
 
-	std::string fn_type = node->stats()->function()->type();
-	if (fn_type == "public") {
-		*stream << "octagon";
-	} else if (fn_type == "native") {
-		*stream << "box";
-	} else {
-		*stream << "oval";
+	Function::Type fn_type = node->stats()->function()->type();
+	switch (fn_type) {
+		case Function::PUBLIC:
+			*stream << "octagon";
+			break;
+		case Function::NATIVE:
+			*stream << "box";
+			break;
+		case Function::NORMAL:
+			*stream << "oval";
+			break;
 	}
 
 	*stream << "];\n";

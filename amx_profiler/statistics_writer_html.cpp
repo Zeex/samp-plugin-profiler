@@ -144,7 +144,7 @@ void StatisticsWriterHtml::Write(const Statistics *stats)
 
 		*stream()
 		<< "		<tr>\n"
-		<< "			<td>" << fn_stats->function()->type() << "</td>\n"
+		<< "			<td>" << fn_stats->function()->GetTypeString() << "</td>\n"
 		<< "			<td>" << fn_stats->function()->name() << "</td>\n"
 		<< "			<td>" << fn_stats->num_calls() << "</td>\n"
 		<< "			<td>" << std::fixed << std::setprecision(2) << self_time_percent << "%</td>\n"
