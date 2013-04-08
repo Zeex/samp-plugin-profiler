@@ -35,17 +35,15 @@ const int kCTimeResultLength = 24;
 
 class TimeStamp {
 public:
-	typedef std::time_t ValueType;
-
-	static ValueType Now();
+	static std::time_t Now();
 
 	TimeStamp();
-	TimeStamp(ValueType value);
+	TimeStamp(std::time_t value);
 
-	ValueType value() const { return value_; }
+	std::time_t value() const { return value_; }
 
 private:
-	ValueType value_;
+	std::time_t value_;
 };
 
 const char *CTime(TimeStamp ts = TimeStamp());
