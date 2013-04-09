@@ -37,7 +37,7 @@ public:
 	void Start();
 	void Stop();
 
-	Nanoseconds QueryTime() const {
+	Nanoseconds QueryTotalTime() const {
 		return Clock::Now() - start_point_;
 	}
 

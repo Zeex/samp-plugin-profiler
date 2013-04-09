@@ -43,7 +43,7 @@ void PerformanceCounter::Start() {
 
 void PerformanceCounter::Stop() {
 	if (started_) {
-		Nanoseconds time = QueryTime();
+		Nanoseconds time = QueryTotalTime();
 
 		total_time_ += time;
 		if (parent_ != 0) {

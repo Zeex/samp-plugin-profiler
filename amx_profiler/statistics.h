@@ -50,7 +50,7 @@ public:
 	void GetStatistics(std::vector<FunctionStatistics*> &stats) const;
 
 	Nanoseconds GetTotalRunTime() const {
-		return run_time_counter_.QueryTime();
+		return run_time_counter_.QueryTotalTime();
 	}
 
 private:
