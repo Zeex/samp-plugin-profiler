@@ -52,12 +52,12 @@ void StatisticsWriterXml::Write(const Statistics *stats)
 	std::vector<FunctionStatistics*> all_fn_stats;
 	stats->GetStatistics(all_fn_stats);
 
-	Nanoseconds time_all;
+	Nanoseconds self_time_all;
 	for (std::vector<FunctionStatistics*>::const_iterator iterator = all_fn_stats.begin();
 			iterator != all_fn_stats.end(); ++iterator)
 	{
 		const FunctionStatistics *fn_stats = *iterator;
-		time_all += fn_stats->total_time() - fn_stats->child_time(); 
+		self_time_all += fn_stats->self_time();
 	}
 
 	Nanoseconds total_time_all;
@@ -73,14 +73,14 @@ void StatisticsWriterXml::Write(const Statistics *stats)
 	{
 		const FunctionStatistics *fn_stats = *iterator;
 
-		double self_time_percent = fn_stats->GetSelfTime().count() * 100 / time_all.count();
+		double self_time_percent = fn_stats->self_time().count() * 100 / self_time_all.count();
 		double total_time_percent = fn_stats->total_time().count() * 100 / total_time_all.count();
 
 		*stream() << "\t<function"
 			<< " type=\"" << fn_stats->function()->GetTypeString() << "\""
 			<< " name=\"" << fn_stats->function()->name() << "\""
 			<< " calls=\"" << fn_stats->num_calls() << "\""
-			<< " self_time=\"" << std::fixed << fn_stats->GetSelfTime().count() << "\""
+			<< " self_time=\"" << std::fixed << fn_stats->self_time().count() << "\""
 			<< " self_time_percent=\"" <<  std::fixed << std::setprecision(2) << self_time_percent << "\""
 			<< " total_time=\"" << fn_stats->total_time().count() << "\""
 			<< " total_time_percent=\"" <<  std::fixed << std::setprecision(2) << total_time_percent << "\""

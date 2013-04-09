@@ -37,11 +37,16 @@ public:
 	void Start();
 	void Stop();
 
-	Nanoseconds QueryTotalTime() const;
+	Nanoseconds QueryTotalTime() const {
+		return Clock::Now() - start_point_;
+	}
 
 	Nanoseconds child_time() const { return child_time_; }
 	Nanoseconds total_time() const { return total_time_; }
-	Nanoseconds GetSelfTime() const;
+
+	Nanoseconds self_time() const {
+		return total_time_ - child_time_;
+	}
 
 private:
 	bool started_;

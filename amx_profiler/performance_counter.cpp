@@ -54,12 +54,4 @@ void PerformanceCounter::Stop() {
 	} 
 }
 
-Nanoseconds PerformanceCounter::GetSelfTime() const {
-	return total_time() - child_time();
-}
-
-Nanoseconds PerformanceCounter::QueryTotalTime() const {
-	return Clock::Now() - start_point_;
-}
-
 } // namespace amx_profiler

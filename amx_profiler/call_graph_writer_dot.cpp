@@ -117,7 +117,7 @@ void CallGraphWriterDot::WriteNodeColor::Visit(const CallGraphNode *node) {
 		return;
 	}
 
-	Nanoseconds time = node->stats()->GetSelfTime();
+	Nanoseconds time = node->stats()->self_time();
 	double ratio = static_cast<double>(time.count()) / static_cast<double>(max_time_.count());
 
 	// We encode color in HSB.
@@ -158,7 +158,7 @@ void CallGraphWriterDot::ComputeMaxTime::Visit(const CallGraphNode *node) {
 		return;
 	}
 
-	Nanoseconds time = node->stats()->GetSelfTime();
+	Nanoseconds time = node->stats()->self_time();
 	if (time > max_time_) {
 		max_time_ = time;
 	}

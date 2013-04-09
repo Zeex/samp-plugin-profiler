@@ -27,11 +27,11 @@
 namespace amx_profiler {
 
 FunctionCall::FunctionCall(Function *function, cell frame, FunctionCall *parent)
-		: fn_(function)
-		, parent_(parent)
-		, frame_(frame)
-		, timer_(parent != 0 ? &parent->timer_ : 0)
-		, recursive_(false)
+	: fn_(function)
+	, parent_(parent)
+	, frame_(frame)
+	, timer_(parent != 0 ? &parent->timer_ : 0)
+	, recursive_(false)
 {
 	FunctionCall *current = parent;
 	while (current != 0) {

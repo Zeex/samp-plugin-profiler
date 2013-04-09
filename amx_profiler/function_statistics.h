@@ -42,20 +42,17 @@ public:
 	long num_calls() const { return num_calls_; }
 	void AdjustNumCalls(long delta) { num_calls_ += delta; }
 
-	const Nanoseconds total_time() const { return total_time_; }
-	void AdjustTotalTime(Nanoseconds delta) { total_time_ += delta; }
+	Nanoseconds self_time() const { return self_time_; }
+	Nanoseconds total_time() const { return total_time_; }
 
-	Nanoseconds child_time() const { return child_time_; }
-	void AdjustChildTime(Nanoseconds delta) { child_time_ += delta; }
-
-	Nanoseconds GetSelfTime() const { return total_time() - child_time(); }
+	void AdjustSelfTime(Nanoseconds delta);
+	void AdjustTotalTime(Nanoseconds delta);
 
 private:
 	Function *fn_;
-
 	long num_calls_;
+	Nanoseconds self_time_;
 	Nanoseconds total_time_;
-	Nanoseconds child_time_;
 };
 
 } // namespace amx_profiler
