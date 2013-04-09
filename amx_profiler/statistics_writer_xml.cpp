@@ -44,7 +44,7 @@ void StatisticsWriterXml::Write(const Statistics *stats)
 	}
 
 	if (print_run_time()) {
-		*stream() << " run_time=\"" << Seconds(stats->GetTotalRunTime()).count() << "\'";
+		*stream() << " run_time=\"" << Seconds(stats->GetTotalRunTime()).count() << "\"";
 	}
 
 	*stream() << ">\n";
