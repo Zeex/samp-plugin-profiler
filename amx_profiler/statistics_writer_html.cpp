@@ -58,7 +58,7 @@ void StatisticsWriterHtml::Write(const Statistics *stats)
 	"		border: 1px solid #cccccc;\n"
 	"	}\n"
 	"	td {\n"
-	"		font-family: Consolas, \"Courier New\", Monospace;\n"
+	"		font-family: Consolas, \"DejaVu Sans Mono\", \"Courier New\", Monospace;\n"
 	"		border: solid 5x transparent;\n"
 	"	}\n"
 	"	th {\n"
