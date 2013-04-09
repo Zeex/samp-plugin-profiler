@@ -32,18 +32,23 @@
 #include "statistics.h"
 #include "time_utils.h"
 
+static const char kTypeCol[] = "Type";
+
 static const int kTypeWidth = 7;
 static const int kNameWidth = 32;
 static const int kCallsWidth = 10;
-static const int kSelfTimeSecWidth = 16;
-static const int kSelfTimePercentWidth = 13;
-static const int kTotalTimeSecWidth = 17;
-static const int kTotalTimePercentWidth = 14;
+static const int kSelfTimePercentWidth = 15;
+static const int kSelfTimeWidth = 15;
+static const int kAvgSelfTimeWidth = 15;
+static const int kTotalTimePercentWidth = 15;
+static const int kTotalTimeWidth = 15;
+static const int kAvgTotalTimeWidth = 15;
 
-static const int kWidthAll = kTypeWidth + kNameWidth + kCallsWidth 
-	+ kSelfTimeSecWidth + kSelfTimePercentWidth + kTotalTimeSecWidth + kTotalTimePercentWidth;
+static const int kWidthAll = kTypeWidth + kNameWidth + kCallsWidth
+	+ kSelfTimePercentWidth + kSelfTimeWidth + kAvgSelfTimeWidth
+	+ kTotalTimePercentWidth + kTotalTimeWidth + kAvgTotalTimeWidth;
 
-static const int kNumColumns = 7;
+static const int kNumColumns = 9;
 
 namespace amx_profiler {
 
@@ -71,9 +76,11 @@ void StatisticsWriterText::Write(const Statistics *stats)
 		<< "| " << std::setw(kNameWidth) << "Name"
 		<< "| " << std::setw(kCallsWidth) << "Calls"
 		<< "| " << std::setw(kSelfTimePercentWidth) << "Self Time (%)"
-		<< "| " << std::setw(kSelfTimeSecWidth) << "Self Time (sec.)"
+		<< "| " << std::setw(kSelfTimeWidth) << "Self Time (s)"
+		<< "| " << std::setw(kAvgSelfTimeWidth) << "Avg. ST (ms)"
 		<< "| " << std::setw(kTotalTimePercentWidth) << "Total Time (%)"
-		<< "| " << std::setw(kTotalTimeSecWidth) << "Total Time (sec.)"
+		<< "| " << std::setw(kTotalTimeWidth) << "Total Time (s)"
+		<< "| " << std::setw(kAvgTotalTimeWidth) << "Avg. TT (ms)"
 		<< "|\n";
 	DoHLine();
 
@@ -101,20 +108,24 @@ void StatisticsWriterText::Write(const Statistics *stats)
 	{
 		const FunctionStatistics *fn_stats = *iterator;
 
-		double self_time_sec = Seconds(fn_stats->GetSelfTime()).count();
 		double self_time_percent = fn_stats->GetSelfTime().count() * 100 / time_all.count();
+		double self_time = Seconds(fn_stats->GetSelfTime()).count();
+		double avg_self_time = Milliseconds(fn_stats->GetSelfTime()).count() / fn_stats->num_calls();
 
-		double total_time_sec = Seconds(fn_stats->total_time()).count();
 		double total_time_percent = fn_stats->total_time().count() * 100 / total_time_all.count();
+		double total_time = Seconds(fn_stats->total_time()).count();
+		double avg_total_time = Milliseconds(fn_stats->total_time()).count() / fn_stats->num_calls();
 
 		*stream()
 			<< "| " << std::setw(kTypeWidth) << fn_stats->function()->GetTypeString()
 			<< "| " << std::setw(kNameWidth) << fn_stats->function()->name()
 			<< "| " << std::setw(kCallsWidth) << fn_stats->num_calls()
 			<< "| " << std::setw(kSelfTimePercentWidth) << std::fixed << std::setprecision(2) << self_time_percent
-			<< "| " << std::setw(kSelfTimeSecWidth) << std::fixed << std::setprecision(3) << self_time_sec
+			<< "| " << std::setw(kSelfTimeWidth) << std::fixed << std::setprecision(1) << self_time
+			<< "| " << std::setw(kAvgSelfTimeWidth) << std::fixed << std::setprecision(1) << avg_self_time
 			<< "| " << std::setw(kTotalTimePercentWidth) << std::fixed << std::setprecision(2) << total_time_percent
-			<< "| " << std::setw(kTotalTimeSecWidth) << std::fixed << std::setprecision(3) << total_time_sec
+			<< "| " << std::setw(kTotalTimeWidth) << std::fixed << std::setprecision(1) << total_time
+			<< "| " << std::setw(kAvgTotalTimeWidth) << std::fixed << std::setprecision(1) << avg_total_time
 			<< "|\n";
 		DoHLine();
 	}

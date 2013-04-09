@@ -58,7 +58,7 @@ void StatisticsWriterHtml::Write(const Statistics *stats)
 	"		border: 1px solid #cccccc;\n"
 	"	}\n"
 	"	td {\n"
-	"		font-family: Consolas, \"Courier New\", \"Monospace\";\n"
+	"		font-family: Consolas, \"Courier New\", Monospace;\n"
 	"		border: solid 5x transparent;\n"
 	"	}\n"
 	"	th {\n"
@@ -102,11 +102,19 @@ void StatisticsWriterHtml::Write(const Statistics *stats)
 	"	<table id=\"func-stats\" class=\"tablesorter\" border=\"1\" width=\"100%\">\n"
 	"		<thead>\n"
 	"			<tr>\n"
-	"				<th>Type</th>\n"
-	"				<th>Name</th>\n"
-	"				<th>Calls</th>\n"
-	"				<th colspan=\"2\">Self Time</th>\n"
-	"				<th colspan=\"2\">Total Time</th>\n"
+	"				<th rowspan=\"2\">Type</th>\n"
+	"				<th rowspan=\"2\">Name</th>\n"
+	"				<th rowspan=\"2\">Calls</th>\n"
+	"				<th colspan=\"3\">Self Time</th>\n"
+	"				<th colspan=\"3\">Total Time</th>\n"
+	"			</tr>\n"
+	"			<tr>\n"
+	"				<th align=\"left\">%</th>\n"
+	"				<th align=\"left\">whole</th>\n"
+	"				<th align=\"left\">average</th>\n"
+	"				<th align=\"left\">%</th>\n"
+	"				<th align=\"left\">whole</th>\n"
+	"				<th align=\"left\">average</th>\n"
 	"			</tr>\n"
 	"		</thead>\n"
 	"		<tbody>\n"
@@ -136,11 +144,13 @@ void StatisticsWriterHtml::Write(const Statistics *stats)
 	{
 		const FunctionStatistics *fn_stats = *iterator;
 
-		double self_time_sec = Seconds(fn_stats->GetSelfTime()).count();
 		double self_time_percent = fn_stats->GetSelfTime().count() * 100 / time_all.count();
+		double self_time = Seconds(fn_stats->GetSelfTime()).count();
+		double avg_self_time = Milliseconds(fn_stats->GetSelfTime()).count() / fn_stats->num_calls();
 
-		double total_time_sec = Seconds(fn_stats->total_time()).count();
 		double total_time_percent = fn_stats->total_time().count() * 100 / total_time_all.count();
+		double total_time = Seconds(fn_stats->total_time()).count();
+		double avg_total_time = Milliseconds(fn_stats->total_time()).count() / fn_stats->num_calls();
 
 		*stream()
 		<< "		<tr>\n"
@@ -148,11 +158,14 @@ void StatisticsWriterHtml::Write(const Statistics *stats)
 		<< "			<td>" << fn_stats->function()->name() << "</td>\n"
 		<< "			<td>" << fn_stats->num_calls() << "</td>\n"
 		<< "			<td>" << std::fixed << std::setprecision(2) << self_time_percent << "%</td>\n"
-		<< "			<td>" << std::fixed << std::setprecision(3) << self_time_sec << "s</td>\n"
+		<< "			<td>" << std::fixed << std::setprecision(1) << self_time << "</td>\n"
+		<< "			<td>" << std::fixed << std::setprecision(1) << avg_self_time << "</td>\n"
 		<< "			<td>" << std::fixed << std::setprecision(2) << total_time_percent << "%</td>\n"
-		<< "			<td>" << std::fixed << std::setprecision(3) << total_time_sec << "s</td>\n"
+		<< "			<td>" << std::fixed << std::setprecision(1) << total_time << "</td>\n"
+		<< "			<td>" << std::fixed << std::setprecision(1) << avg_total_time << "</td>\n"
 		<< "			</td>\n"
 		<< "		</tr>\n";
+
 	};
 
 	*stream() <<
