@@ -80,7 +80,7 @@ void StatisticsWriterXml::Write(const Statistics *stats)
 			<< " type=\"" << fn_stats->function()->GetTypeString() << "\""
 			<< " name=\"" << fn_stats->function()->name() << "\""
 			<< " calls=\"" << fn_stats->num_calls() << "\""
-			<< " self_time=\"" << fn_stats->GetSelfTime().count() << "\""
+			<< " self_time=\"" << std::fixed << fn_stats->GetSelfTime().count() << "\""
 			<< " self_time_percent=\"" <<  std::fixed << std::setprecision(2) << self_time_percent << "\""
 			<< " total_time=\"" << fn_stats->total_time().count() << "\""
 			<< " total_time_percent=\"" <<  std::fixed << std::setprecision(2) << total_time_percent << "\""
