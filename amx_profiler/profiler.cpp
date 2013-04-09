@@ -151,26 +151,8 @@ void Profiler::EndFunction(ucell address) {
 		FunctionStatistics *old_top_fn_stats = stats_.GetFunctionStatistis(old_top.function()->address());
 		assert(old_top_fn_stats != 0);
 
-		if (old_top.IsRecursive()) {
-			// Don't count total time twice if the function calls itself directly
-			// or indirectly. Because PerformanceCounter isn't aware of recursion
-			// and includes both times we have to subtract the total time of the
-			// callee manually.
-			old_top_fn_stats->AdjustTotalTime(-old_top.timer()->total_time());
-		} else {
-			old_top_fn_stats->AdjustTotalTime(old_top.timer()->total_time());
-		}
-
-		// Unlike total time, self time includes both parent and child calls
-		// because it's actually not counted twice.
-		old_top_fn_stats->AdjustSelfTime(old_top.timer()->total_time());
-
-		if (!call_stack_.IsEmpty()) {
-			FunctionCall *top = call_stack_.top();
-			FunctionStatistics *top_fn_stats = stats_.GetFunctionStatistis(top->function()->address());
-			assert(top_fn_stats != 0);
-			top_fn_stats->AdjustSelfTime(-old_top.timer()->total_time());
-		}
+		old_top_fn_stats->AdjustSelfTime(old_top.timer()->self_time());
+		old_top_fn_stats->AdjustTotalTime(old_top.timer()->total_time());
 
 		if (call_graph_enabled_) {
 			assert(call_graph_.root() != call_graph_.sentinel());

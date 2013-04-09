@@ -47,14 +47,11 @@ public:
 	PerformanceCounter *timer() { return &timer_; }
 	const PerformanceCounter *timer() const { return &timer_; }
 
-	bool IsRecursive() const { return recursive_; }
-
 private:
 	Function *fn_;
 	FunctionCall *parent_;
-	cell frame_; // frame address on AMX stack
+	cell frame_;
 	PerformanceCounter timer_;
-	bool recursive_; // whether it's a recursive call
 };
 
 } // namespace amx_profiler

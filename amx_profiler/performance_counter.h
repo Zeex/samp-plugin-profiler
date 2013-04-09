@@ -31,7 +31,8 @@ namespace amx_profiler {
 
 class PerformanceCounter {
 public:
-	PerformanceCounter(PerformanceCounter *parent = 0);
+	PerformanceCounter(PerformanceCounter *parent = 0,
+	                   PerformanceCounter *shadow = 0);
 
 	void Start();
 	void Stop();
@@ -39,6 +40,9 @@ public:
 	Nanoseconds QueryTime() const {
 		return Clock::Now() - start_point_;
 	}
+
+	void set_parent(PerformanceCounter *parent) { parent_ = parent; }
+	void set_shadow(PerformanceCounter *shadow) { shadow_ = shadow; }
 
 	Nanoseconds child_time() const { return child_time_; }
 	Nanoseconds total_time() const { return total_time_; }
@@ -50,6 +54,7 @@ public:
 private:
 	bool started_;
 	PerformanceCounter *parent_;
+	PerformanceCounter *shadow_;
 	TimePoint start_point_;
 	Nanoseconds child_time_;
 	Nanoseconds total_time_;

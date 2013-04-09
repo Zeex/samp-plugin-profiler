@@ -26,9 +26,11 @@
 
 namespace amx_profiler {
 
-PerformanceCounter::PerformanceCounter(PerformanceCounter *parent) 
+PerformanceCounter::PerformanceCounter(PerformanceCounter *parent,
+                                       PerformanceCounter *shadow) 
 	: started_(false)
 	, parent_(parent)
+	, shadow_(shadow)
 {
 }
 
@@ -41,11 +43,18 @@ void PerformanceCounter::Start() {
 
 void PerformanceCounter::Stop() {
 	if (started_) {
-		Nanoseconds interval = QueryTime();
-		total_time_ += interval;
+		Nanoseconds time = QueryTime();
+
+		total_time_ += time;
 		if (parent_ != 0) {
-			parent_->child_time_ += interval;
+			parent_->child_time_ += time;
 		}
+
+		if (shadow_ != 0) {
+			shadow_->total_time_ -= total_time_;
+			shadow_->child_time_ -= self_time();
+		}
+
 		started_ = false;
 	} 
 }
