@@ -43,10 +43,11 @@ static const int kAvgSelfTimeWidth = 15;
 static const int kTotalTimePercentWidth = 15;
 static const int kTotalTimeWidth = 15;
 static const int kAvgTotalTimeWidth = 15;
+static const int kWorstTotalTimeWidth = 15;
 
 static const int kWidthAll = kTypeWidth + kNameWidth + kCallsWidth
 	+ kSelfTimePercentWidth + kSelfTimeWidth + kAvgSelfTimeWidth
-	+ kTotalTimePercentWidth + kTotalTimeWidth + kAvgTotalTimeWidth;
+	+ kTotalTimePercentWidth + kTotalTimeWidth + kAvgTotalTimeWidth + kWorstTotalTimeWidth;
 
 static const int kNumColumns = 9;
 
@@ -81,6 +82,7 @@ void StatisticsWriterText::Write(const Statistics *stats)
 		<< "| " << std::setw(kTotalTimePercentWidth) << "Total Time (%)"
 		<< "| " << std::setw(kTotalTimeWidth) << "Total Time (s)"
 		<< "| " << std::setw(kAvgTotalTimeWidth) << "Avg. TT (ms)"
+		<< "| " << std::setw(kAvgTotalTimeWidth) << "Worst TT (ms)"
 		<< "|\n";
 	DoHLine();
 
@@ -115,6 +117,7 @@ void StatisticsWriterText::Write(const Statistics *stats)
 		double total_time_percent = fn_stats->total_time().count() * 100 / total_time_all.count();
 		double total_time = Seconds(fn_stats->total_time()).count();
 		double avg_total_time = Milliseconds(fn_stats->total_time()).count() / fn_stats->num_calls();
+		double worst_total_time = Milliseconds(fn_stats->worst_total_time()).count();
 
 		*stream()
 			<< "| " << std::setw(kTypeWidth) << fn_stats->function()->GetTypeString()
@@ -126,6 +129,7 @@ void StatisticsWriterText::Write(const Statistics *stats)
 			<< "| " << std::setw(kTotalTimePercentWidth) << std::fixed << std::setprecision(2) << total_time_percent
 			<< "| " << std::setw(kTotalTimeWidth) << std::fixed << std::setprecision(1) << total_time
 			<< "| " << std::setw(kAvgTotalTimeWidth) << std::fixed << std::setprecision(1) << avg_total_time
+			<< "| " << std::setw(kAvgTotalTimeWidth) << std::fixed << std::setprecision(1) << worst_total_time
 			<< "|\n";
 		DoHLine();
 	}

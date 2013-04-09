@@ -84,6 +84,7 @@ void StatisticsWriterXml::Write(const Statistics *stats)
 			<< " self_time_percent=\"" <<  std::fixed << std::setprecision(2) << self_time_percent << "\""
 			<< " total_time=\"" << fn_stats->total_time().count() << "\""
 			<< " total_time_percent=\"" <<  std::fixed << std::setprecision(2) << total_time_percent << "\""
+			<< " worst_total_time=\"" << fn_stats->worst_total_time().count() << "\""
 		<< "/>\n";
 	}
 

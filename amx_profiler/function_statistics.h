@@ -45,6 +45,12 @@ public:
 	Nanoseconds self_time() const { return self_time_; }
 	Nanoseconds total_time() const { return total_time_; }
 
+	Nanoseconds worst_total_time() const { return worst_total_time_; }
+
+	void set_worst_total_time(Nanoseconds worst_total_time) {
+		worst_total_time_ = worst_total_time;
+	}
+
 	void AdjustSelfTime(Nanoseconds delta);
 	void AdjustTotalTime(Nanoseconds delta);
 
@@ -53,6 +59,7 @@ private:
 	long num_calls_;
 	Nanoseconds self_time_;
 	Nanoseconds total_time_;
+	Nanoseconds worst_total_time_;
 };
 
 } // namespace amx_profiler

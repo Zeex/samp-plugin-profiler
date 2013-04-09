@@ -45,6 +45,12 @@ void PerformanceCounter::Stop() {
 	if (started_) {
 		Nanoseconds time = QueryTotalTime();
 
+		if (shadow_ != 0) {
+			time_ = 0;
+		} else {
+			time_ = time;
+		}
+
 		total_time_ += time;
 		if (parent_ != 0) {
 			parent_->child_time_ += time;

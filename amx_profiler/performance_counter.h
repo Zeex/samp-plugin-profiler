@@ -44,6 +44,7 @@ public:
 	void set_parent(PerformanceCounter *parent) { parent_ = parent; }
 	void set_shadow(PerformanceCounter *shadow) { shadow_ = shadow; }
 
+	Nanoseconds time() const { return time_; }
 	Nanoseconds child_time() const { return child_time_; }
 	Nanoseconds total_time() const { return total_time_; }
 
@@ -56,6 +57,7 @@ private:
 	PerformanceCounter *parent_;
 	PerformanceCounter *shadow_;
 	TimePoint start_point_;
+	Nanoseconds time_;
 	Nanoseconds child_time_;
 	Nanoseconds total_time_;
 };

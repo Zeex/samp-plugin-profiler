@@ -106,7 +106,7 @@ void StatisticsWriterHtml::Write(const Statistics *stats)
 	"				<th rowspan=\"2\">Name</th>\n"
 	"				<th rowspan=\"2\">Calls</th>\n"
 	"				<th colspan=\"3\">Self Time</th>\n"
-	"				<th colspan=\"3\">Total Time</th>\n"
+	"				<th colspan=\"4\">Total Time</th>\n"
 	"			</tr>\n"
 	"			<tr>\n"
 	"				<th align=\"left\">%</th>\n"
@@ -115,6 +115,7 @@ void StatisticsWriterHtml::Write(const Statistics *stats)
 	"				<th align=\"left\">%</th>\n"
 	"				<th align=\"left\">whole</th>\n"
 	"				<th align=\"left\">average</th>\n"
+	"				<th align=\"left\">worst</th>\n"
 	"			</tr>\n"
 	"		</thead>\n"
 	"		<tbody>\n"
@@ -151,6 +152,7 @@ void StatisticsWriterHtml::Write(const Statistics *stats)
 		double total_time_percent = fn_stats->total_time().count() * 100 / total_time_all.count();
 		double total_time = Seconds(fn_stats->total_time()).count();
 		double avg_total_time = Milliseconds(fn_stats->total_time()).count() / fn_stats->num_calls();
+		double worst_total_time = Milliseconds(fn_stats->worst_total_time()).count();
 
 		*stream()
 		<< "		<tr>\n"
@@ -163,6 +165,7 @@ void StatisticsWriterHtml::Write(const Statistics *stats)
 		<< "			<td>" << std::fixed << std::setprecision(2) << total_time_percent << "%</td>\n"
 		<< "			<td>" << std::fixed << std::setprecision(1) << total_time << "</td>\n"
 		<< "			<td>" << std::fixed << std::setprecision(1) << avg_total_time << "</td>\n"
+		<< "			<td>" << std::fixed << std::setprecision(1) << worst_total_time << "</td>\n"
 		<< "			</td>\n"
 		<< "		</tr>\n";
 
