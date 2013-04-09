@@ -32,10 +32,6 @@ PerformanceCounter::PerformanceCounter(PerformanceCounter *parent)
 {
 }
 
-PerformanceCounter::~PerformanceCounter() {
-	Stop();
-}
-
 void PerformanceCounter::Start() {
 	if (!started_) {
 		start_point_ = Clock::Now();
