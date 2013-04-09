@@ -73,10 +73,7 @@ void StatisticsWriterXml::Write(const Statistics *stats)
 	{
 		const FunctionStatistics *fn_stats = *iterator;
 
-		double self_time_sec = Seconds(fn_stats->GetSelfTime()).count();
 		double self_time_percent = fn_stats->GetSelfTime().count() * 100 / time_all.count();
-
-		double total_time_sec = Seconds(fn_stats->total_time()).count();
 		double total_time_percent = fn_stats->total_time().count() * 100 / total_time_all.count();
 
 		*stream() << "\t<function"
@@ -84,10 +81,8 @@ void StatisticsWriterXml::Write(const Statistics *stats)
 			<< " name=\"" << fn_stats->function()->name() << "\""
 			<< " calls=\"" << fn_stats->num_calls() << "\""
 			<< " self_time=\"" << fn_stats->GetSelfTime().count() << "\""
-			<< " self_time_sec=\"" << self_time_sec << "\""
 			<< " self_time_percent=\"" <<  std::fixed << std::setprecision(2) << self_time_percent << "\""
 			<< " total_time=\"" << fn_stats->total_time().count() << "\""
-			<< " total_time_sec=\"" << total_time_sec << "\""
 			<< " total_time_percent=\"" <<  std::fixed << std::setprecision(2) << total_time_percent << "\""
 		<< "/>\n";
 	}
