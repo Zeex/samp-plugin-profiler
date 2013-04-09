@@ -45,7 +45,7 @@ void PerformanceCounter::Start() {
 
 void PerformanceCounter::Stop() {
 	if (started_) {
-		Nanoseconds interval = QueryTotalTime();
+		Nanoseconds interval = QueryTime();
 		total_time_ += interval;
 		if (parent_ != 0) {
 			parent_->child_time_ += interval;
