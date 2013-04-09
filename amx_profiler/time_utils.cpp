@@ -64,9 +64,13 @@ TimeSpan::TimeSpan(Seconds d) {
 }
 
 std::ostream &operator<<(std::ostream &os, const TimeSpan &time) {
-	os << std::setw(2) << std::setfill('0') << time.hours()   << ':'
-	   << std::setw(2) << std::setfill('0') << time.minutes() << ':'
-	   << std::setw(2) << std::setfill('0') << time.seconds();
+	char fill = os.fill('0');
+
+	os << std::setw(2) << time.hours()   << ':'
+	   << std::setw(2) << time.minutes() << ':'
+	   << std::setw(2) << time.seconds();
+
+	os.fill(fill);
 	return os;
 }
 
