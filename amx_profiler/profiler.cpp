@@ -146,22 +146,22 @@ void Profiler::EndFunction(ucell address) {
 	assert(address == 0 || stats_.GetFunction(address) != 0);
 
 	while (true) {
-		FunctionCall old_top = call_stack_.Pop();
+		FunctionCall fn_call = call_stack_.Pop();
 
-		FunctionStatistics *old_top_fn_stats = stats_.GetFunctionStatistis(old_top.function()->address());
-		assert(old_top_fn_stats != 0);
+		FunctionStatistics *fn_stats = stats_.GetFunctionStatistis(fn_call.function()->address());
+		assert(fn_stats != 0);
 
-		old_top_fn_stats->AdjustSelfTime(old_top.timer()->self_time());
-		old_top_fn_stats->AdjustTotalTime(old_top.timer()->total_time());
+		fn_stats->AdjustSelfTime(fn_call.timer()->self_time());
+		fn_stats->AdjustTotalTime(fn_call.timer()->total_time());
 
-		Nanoseconds total_time = old_top.timer()->latest_total_time();
-		if (total_time > old_top_fn_stats->worst_total_time()) {
-			old_top_fn_stats->set_worst_total_time(total_time);
+		Nanoseconds total_time = fn_call.timer()->latest_total_time();
+		if (total_time > fn_stats->worst_total_time()) {
+			fn_stats->set_worst_total_time(total_time);
 		}
 
-		Nanoseconds self_time = old_top.timer()->latest_self_time();
-		if (self_time > old_top_fn_stats->worst_self_time()) {
-			old_top_fn_stats->set_worst_self_time(self_time);
+		Nanoseconds self_time = fn_call.timer()->latest_self_time();
+		if (self_time > fn_stats->worst_self_time()) {
+			fn_stats->set_worst_self_time(self_time);
 		}
 
 		if (call_graph_enabled_) {
@@ -169,7 +169,7 @@ void Profiler::EndFunction(ucell address) {
 			call_graph_.set_root(call_graph_.root()->caller());
 		}
 
-		if (address == 0 || old_top.function()->address() == address) {
+		if (address == 0 || fn_call.function()->address() == address) {
 			break;
 		}
 	}
