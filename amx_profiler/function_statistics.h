@@ -45,7 +45,12 @@ public:
 	Nanoseconds self_time() const { return self_time_; }
 	Nanoseconds total_time() const { return total_time_; }
 
+	Nanoseconds worst_self_time() const { return worst_self_time_; }
 	Nanoseconds worst_total_time() const { return worst_total_time_; }
+
+	void set_worst_self_time(Nanoseconds worst_self_time) {
+		worst_self_time_ = worst_self_time;
+	}
 
 	void set_worst_total_time(Nanoseconds worst_total_time) {
 		worst_total_time_ = worst_total_time;
@@ -59,6 +64,7 @@ private:
 	long num_calls_;
 	Nanoseconds self_time_;
 	Nanoseconds total_time_;
+	Nanoseconds worst_self_time_;
 	Nanoseconds worst_total_time_;
 };
 

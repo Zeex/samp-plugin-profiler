@@ -82,6 +82,7 @@ void StatisticsWriterXml::Write(const Statistics *stats)
 			<< " calls=\"" << fn_stats->num_calls() << "\""
 			<< " self_time=\"" << std::fixed << fn_stats->self_time().count() << "\""
 			<< " self_time_percent=\"" <<  std::fixed << std::setprecision(2) << self_time_percent << "\""
+			<< " worst_self_time=\"" << fn_stats->worst_self_time().count() << "\""
 			<< " total_time=\"" << fn_stats->total_time().count() << "\""
 			<< " total_time_percent=\"" <<  std::fixed << std::setprecision(2) << total_time_percent << "\""
 			<< " worst_total_time=\"" << fn_stats->worst_total_time().count() << "\""

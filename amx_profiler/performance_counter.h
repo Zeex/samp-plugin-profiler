@@ -37,6 +37,8 @@ public:
 	void Start();
 	void Stop();
 
+	void ResetTimes();
+
 	Nanoseconds QueryTotalTime() const {
 		return Clock::Now() - start_point_;
 	}
@@ -44,7 +46,13 @@ public:
 	void set_parent(PerformanceCounter *parent) { parent_ = parent; }
 	void set_shadow(PerformanceCounter *shadow) { shadow_ = shadow; }
 
-	Nanoseconds time() const { return time_; }
+	Nanoseconds latest_total_time() const { return latest_total_time_; }
+	Nanoseconds latest_child_time() const { return latest_child_time_; }
+
+	Nanoseconds latest_self_time() const {
+		return latest_total_time_ - latest_child_time_;
+	}
+
 	Nanoseconds child_time() const { return child_time_; }
 	Nanoseconds total_time() const { return total_time_; }
 
@@ -54,10 +62,14 @@ public:
 
 private:
 	bool started_;
+
 	PerformanceCounter *parent_;
 	PerformanceCounter *shadow_;
+
 	TimePoint start_point_;
-	Nanoseconds time_;
+
+	Nanoseconds latest_total_time_;
+	Nanoseconds latest_child_time_;
 	Nanoseconds child_time_;
 	Nanoseconds total_time_;
 };

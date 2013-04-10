@@ -40,13 +40,14 @@ static const int kCallsWidth = 10;
 static const int kSelfTimePercentWidth = 15;
 static const int kSelfTimeWidth = 15;
 static const int kAvgSelfTimeWidth = 15;
+static const int kWorstSelfTimeWidth = 15;
 static const int kTotalTimePercentWidth = 15;
 static const int kTotalTimeWidth = 15;
 static const int kAvgTotalTimeWidth = 15;
 static const int kWorstTotalTimeWidth = 15;
 
 static const int kWidthAll = kTypeWidth + kNameWidth + kCallsWidth
-	+ kSelfTimePercentWidth + kSelfTimeWidth + kAvgSelfTimeWidth
+	+ kSelfTimePercentWidth + kSelfTimeWidth + kAvgSelfTimeWidth + kWorstSelfTimeWidth
 	+ kTotalTimePercentWidth + kTotalTimeWidth + kAvgTotalTimeWidth + kWorstTotalTimeWidth;
 
 static const int kNumColumns = 9;
@@ -79,10 +80,11 @@ void StatisticsWriterText::Write(const Statistics *stats)
 		<< "| " << std::setw(kSelfTimePercentWidth) << "Self Time (%)"
 		<< "| " << std::setw(kSelfTimeWidth) << "Self Time (s)"
 		<< "| " << std::setw(kAvgSelfTimeWidth) << "Avg. ST (ms)"
+		<< "| " << std::setw(kWorstSelfTimeWidth) << "Worst ST (ms)"
 		<< "| " << std::setw(kTotalTimePercentWidth) << "Total Time (%)"
 		<< "| " << std::setw(kTotalTimeWidth) << "Total Time (s)"
 		<< "| " << std::setw(kAvgTotalTimeWidth) << "Avg. TT (ms)"
-		<< "| " << std::setw(kAvgTotalTimeWidth) << "Worst TT (ms)"
+		<< "| " << std::setw(kWorstTotalTimeWidth) << "Worst TT (ms)"
 		<< "|\n";
 	DoHLine();
 
@@ -113,6 +115,7 @@ void StatisticsWriterText::Write(const Statistics *stats)
 		double self_time_percent = fn_stats->self_time().count() * 100 / self_time_all.count();
 		double self_time = Seconds(fn_stats->self_time()).count();
 		double avg_self_time = Milliseconds(fn_stats->self_time()).count() / fn_stats->num_calls();
+		double worst_self_time = Milliseconds(fn_stats->worst_self_time()).count();
 
 		double total_time_percent = fn_stats->total_time().count() * 100 / total_time_all.count();
 		double total_time = Seconds(fn_stats->total_time()).count();
@@ -126,10 +129,11 @@ void StatisticsWriterText::Write(const Statistics *stats)
 			<< "| " << std::setw(kSelfTimePercentWidth) << std::fixed << std::setprecision(2) << self_time_percent
 			<< "| " << std::setw(kSelfTimeWidth) << std::fixed << std::setprecision(1) << self_time
 			<< "| " << std::setw(kAvgSelfTimeWidth) << std::fixed << std::setprecision(1) << avg_self_time
+			<< "| " << std::setw(kWorstSelfTimeWidth) << std::fixed << std::setprecision(1) << worst_self_time
 			<< "| " << std::setw(kTotalTimePercentWidth) << std::fixed << std::setprecision(2) << total_time_percent
 			<< "| " << std::setw(kTotalTimeWidth) << std::fixed << std::setprecision(1) << total_time
 			<< "| " << std::setw(kAvgTotalTimeWidth) << std::fixed << std::setprecision(1) << avg_total_time
-			<< "| " << std::setw(kAvgTotalTimeWidth) << std::fixed << std::setprecision(1) << worst_total_time
+			<< "| " << std::setw(kWorstTotalTimeWidth) << std::fixed << std::setprecision(1) << worst_total_time
 			<< "|\n";
 		DoHLine();
 	}

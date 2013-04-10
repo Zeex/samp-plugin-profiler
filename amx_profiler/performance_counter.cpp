@@ -37,6 +37,7 @@ PerformanceCounter::PerformanceCounter(PerformanceCounter *parent,
 void PerformanceCounter::Start() {
 	if (!started_) {
 		start_point_ = Clock::Now();
+		ResetTimes();
 		started_ = true;
 	}
 }
@@ -46,12 +47,14 @@ void PerformanceCounter::Stop() {
 		Nanoseconds time = QueryTotalTime();
 
 		if (shadow_ != 0) {
-			time_ = 0;
+			latest_total_time_ = 0;
+			latest_child_time_ = child_time_;
 		} else {
-			time_ = time;
+			latest_total_time_ = time;
+			latest_child_time_ = child_time_;
 		}
 
-		total_time_ += time;
+		total_time_ = time;
 		if (parent_ != 0) {
 			parent_->child_time_ += time;
 		}
@@ -63,6 +66,13 @@ void PerformanceCounter::Stop() {
 
 		started_ = false;
 	} 
+}
+
+void PerformanceCounter::ResetTimes() {
+	latest_total_time_ = 0;
+	latest_child_time_ = 0;
+	total_time_ = 0;
+	child_time_ = 0;
 }
 
 } // namespace amx_profiler

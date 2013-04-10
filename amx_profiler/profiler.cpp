@@ -154,9 +154,14 @@ void Profiler::EndFunction(ucell address) {
 		old_top_fn_stats->AdjustSelfTime(old_top.timer()->self_time());
 		old_top_fn_stats->AdjustTotalTime(old_top.timer()->total_time());
 
-		Nanoseconds time = old_top.timer()->time();
-		if (time > old_top_fn_stats->worst_total_time()) {
-			old_top_fn_stats->set_worst_total_time(time);
+		Nanoseconds total_time = old_top.timer()->latest_total_time();
+		if (total_time > old_top_fn_stats->worst_total_time()) {
+			old_top_fn_stats->set_worst_total_time(total_time);
+		}
+
+		Nanoseconds self_time = old_top.timer()->latest_self_time();
+		if (self_time > old_top_fn_stats->worst_self_time()) {
+			old_top_fn_stats->set_worst_self_time(self_time);
 		}
 
 		if (call_graph_enabled_) {
