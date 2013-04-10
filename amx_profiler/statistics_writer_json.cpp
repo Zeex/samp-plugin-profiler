@@ -22,32 +22,39 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#include <algorithm>
 #include <iomanip>
 #include <iostream>
 #include "duration.h"
 #include "function.h"
 #include "function_statistics.h"
 #include "performance_counter.h"
-#include "statistics_writer_xml.h"
+#include "statistics_writer_json.h"
 #include "statistics.h"
 #include "time_utils.h"
 
 namespace amx_profiler {
 
-void StatisticsWriterXml::Write(const Statistics *stats)
+std::string EscapString(const std::string &s) {
+	std::string t(s);
+	std::replace(t.begin(), t.end(), '\\', '/');
+	return t;
+}
+
+void StatisticsWriterJson::Write(const Statistics *stats)
 {
-	*stream() << "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-	          << "<stats script=\"" << script_name() << "\"";
+	*stream() << "{\n"
+	          << "  \"script_name\": \"" << EscapString(script_name()) << "\",\n";
 	
 	if (print_date()) {
-		*stream() << " timestamp=\"" << TimeStamp::Now() << "\"";
+		*stream() << "  \"timestamp\": " << TimeStamp::Now() << ",\n";
 	}
 
 	if (print_run_time()) {
-		*stream() << " run_time=\"" << Seconds(stats->GetTotalRunTime()).count() << "\"";
+		*stream() << "  \"run_time\": " << Seconds(stats->GetTotalRunTime()).count() << ",\n";
 	}
 
-	*stream() << ">\n";
+	*stream() << "  \"functions\": [\n";
 
 	std::vector<FunctionStatistics*> all_fn_stats;
 	stats->GetStatistics(all_fn_stats);
@@ -76,20 +83,20 @@ void StatisticsWriterXml::Write(const Statistics *stats)
 		double self_time_percent = fn_stats->self_time().count() * 100 / self_time_all.count();
 		double total_time_percent = fn_stats->total_time().count() * 100 / total_time_all.count();
 
-		*stream() << "\t<function"
-			<< " type=\"" << fn_stats->function()->GetTypeString() << "\""
-			<< " name=\"" << fn_stats->function()->name() << "\""
-			<< " calls=\"" << fn_stats->num_calls() << "\""
-			<< " self_time=\"" << std::fixed << fn_stats->self_time().count() << "\""
-			<< " self_time_percent=\"" <<  std::fixed << std::setprecision(2) << self_time_percent << "\""
-			<< " worst_self_time=\"" << fn_stats->worst_self_time().count() << "\""
-			<< " total_time=\"" << fn_stats->total_time().count() << "\""
-			<< " total_time_percent=\"" <<  std::fixed << std::setprecision(2) << total_time_percent << "\""
-			<< " worst_total_time=\"" << fn_stats->worst_total_time().count() << "\""
-		<< "/>\n";
+		*stream() << "    {\n"
+			<< "      \"type\": \"" << fn_stats->function()->GetTypeString() << "\",\n"
+			<< "      \"name\": \"" << fn_stats->function()->name() << "\",\n"
+			<< "      \"calls\": " << fn_stats->num_calls() << ",\n"
+			<< "      \"self_time\": " << std::fixed << fn_stats->self_time().count() << ",\n"
+			<< "      \"self_time_percent\": " <<  std::fixed << std::setprecision(2) << self_time_percent << ",\n"
+			<< "      \"worst_self_time\": " << fn_stats->worst_self_time().count() << ",\n"
+			<< "      \"total_time\": " << fn_stats->total_time().count() << ",\n"
+			<< "      \"total_time_percent\": " <<  std::fixed << std::setprecision(2) << total_time_percent << ",\n"
+			<< "      \"worst_total_time\": " << fn_stats->worst_total_time().count() << "\n"
+		<< "    },\n";
 	}
 
-	*stream() << "</stats>";
+	*stream() << "    {}\n  ]\n}\n";
 }
 
 } // namespace amx_profiler

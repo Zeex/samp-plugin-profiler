@@ -40,7 +40,7 @@
 #include <amx_profiler/debug_info.h>
 #include <amx_profiler/statistics_writer_html.h>
 #include <amx_profiler/statistics_writer_text.h>
-#include <amx_profiler/statistics_writer_xml.h>
+#include <amx_profiler/statistics_writer_json.h>
 #include <amx_profiler/profiler.h>
 #include "amxpath.h"
 #include "configreader.h"
@@ -303,8 +303,8 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 				writer = new amx_profiler::StatisticsWriterHtml;
 			} else if (cfg::profile_format == "txt" || cfg::profile_format == "text") {
 				writer = new amx_profiler::StatisticsWriterText;
-			} else if (cfg::profile_format == "xml") {
-				writer = new amx_profiler::StatisticsWriterXml;
+			} else if (cfg::profile_format == "json") {
+				writer = new amx_profiler::StatisticsWriterJson;
 			} else {
 				logprintf("[profiler] Unknown output format '%s'", cfg::profile_format.c_str());
 			}

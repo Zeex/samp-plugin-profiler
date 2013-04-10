@@ -29,7 +29,7 @@
 
 namespace amx_profiler {
 
-class StatisticsWriterXml : public StatisticsWriter {
+class StatisticsWriterJson : public StatisticsWriter {
 public:
 	virtual void Write(const Statistics *stats);
 };

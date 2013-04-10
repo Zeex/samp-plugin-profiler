@@ -38,8 +38,8 @@ set(AMX_PROFILER_SOURCES
 	statistics_writer_html.h
 	statistics_writer_text.cpp
 	statistics_writer_text.h
-	statistics_writer_xml.cpp
-	statistics_writer_xml.h
+	statistics_writer_json.cpp
+	statistics_writer_json.h
 	stdint.h
 	time_utils.cpp
 	time_utils.h
