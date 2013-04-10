@@ -41,7 +41,7 @@ public:
 	};
 
 	// Caller is reponsible for deleting returned Function objects.
-	static Function *Normal(ucell address, DebugInfo *debug_info = 0);
+	static Function *Normal(cell address, DebugInfo *debug_info = 0);
 	static Function *Public(AMX *amx, cell index);
 	static Function *Native(AMX *amx, cell index);
 
@@ -56,7 +56,7 @@ public:
 	// Returns address of the function. Addresses are unique among
 	// all types of functions, i.e. there can't exist a public and
 	// a native with the same address.
-	ucell address() const {
+	cell address() const {
 		return address_;
 	}
 
@@ -82,11 +82,11 @@ public:
 	}
 
 private:
-	Function(Type type, ucell address, std::string name);
+	Function(Type type, cell address, std::string name);
 
 private:
 	Type type_;
-	ucell address_;
+	cell address_;
 	std::string name_;
 };
 

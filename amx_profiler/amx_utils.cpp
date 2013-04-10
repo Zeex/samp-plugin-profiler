@@ -26,18 +26,18 @@
 
 namespace amx_profiler {
 
-ucell GetNativeAddress(AMX *amx, cell index) {
+cell GetNativeAddress(AMX *amx, cell index) {
 	AMX_HEADER *amxhdr = reinterpret_cast<AMX_HEADER*>(amx->base);
 
 	if (index >= 0) {
 		AMX_FUNCSTUBNT *natives = reinterpret_cast<AMX_FUNCSTUBNT*>(amx->base + amxhdr->natives);
-		return natives[index].address;
+		return static_cast<cell>(natives[index].address);
 	}
 
 	return 0;
 }
 
-ucell GetPublicAddress(AMX *amx, cell index) {
+cell GetPublicAddress(AMX *amx, cell index) {
 	AMX_HEADER *amxhdr = reinterpret_cast<AMX_HEADER*>(amx->base);
 
 	if (index == AMX_EXEC_MAIN) {
@@ -46,7 +46,7 @@ ucell GetPublicAddress(AMX *amx, cell index) {
 
 	if (index >= 0) {
 		AMX_FUNCSTUBNT *publics = reinterpret_cast<AMX_FUNCSTUBNT*>(amx->base + amxhdr->publics);
-		return publics[index].address;
+		return static_cast<cell>(publics[index].address);
 	}
 
 	return 0;

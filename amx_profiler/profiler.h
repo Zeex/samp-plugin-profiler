@@ -59,8 +59,8 @@ public:
 private:
 	Profiler();
 
-	void BeginFunction(ucell address, ucell frm);
-	void EndFunction(ucell address = 0);
+	void BeginFunction(cell address, cell frm);
+	void EndFunction(cell address = 0);
 
 private:
 	AMX *amx_;

@@ -35,7 +35,7 @@ class Function;
 
 class CallStack {
 public:
-	void Push(Function *function, ucell frame);
+	void Push(Function *function, cell frame);
 	void Push(const FunctionCall &call);
 
 	FunctionCall Pop();

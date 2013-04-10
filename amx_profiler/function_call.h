@@ -34,7 +34,7 @@ class Function;
 
 class FunctionCall {
 public:
-	FunctionCall(Function *function, ucell frame, FunctionCall *parent = 0);
+	FunctionCall(Function *function, cell frame, FunctionCall *parent = 0);
 
 	Function *function() { return fn_; }
 	const Function *function() const { return fn_; }
@@ -42,7 +42,7 @@ public:
 	FunctionCall *parent() { return parent_; }
 	const FunctionCall *parent() const { return parent_; }
 
-	ucell frame() const { return frame_; }
+	cell frame() const { return frame_; }
 
 	PerformanceCounter *timer() { return &timer_; }
 	const PerformanceCounter *timer() const { return &timer_; }
@@ -50,7 +50,7 @@ public:
 private:
 	Function *fn_;
 	FunctionCall *parent_;
-	ucell frame_;
+	cell frame_;
 	PerformanceCounter timer_;
 };
 

@@ -29,8 +29,8 @@
 
 namespace amx_profiler {
 
-ucell GetNativeAddress(AMX *amx, cell index);
-ucell GetPublicAddress(AMX *amx, cell index);
+cell GetNativeAddress(AMX *amx, cell index);
+cell GetPublicAddress(AMX *amx, cell index);
 
 const char *GetNativeName(AMX *amx, cell index);
 const char *GetPublicName(AMX *amx, cell index);

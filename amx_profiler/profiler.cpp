@@ -54,7 +54,7 @@ int Profiler::DebugHook(DebugHookFunc debug) {
 
 	if (amx_->frm < prev_frame) {
 		if (call_stack_.top()->frame() != amx_->frm) {
-			ucell address = static_cast<ucell>(amx_->cip) - 2*sizeof(cell);
+			cell address = amx_->cip - 2 * sizeof(cell);
 			Function *fn = stats_.GetFunction(address);
 			if (fn == 0) {
 				fn = Function::Normal(address, debug_info_);
@@ -82,7 +82,7 @@ int Profiler::CallbackHook(cell index, cell *result, cell *params, CallbackHookF
 	}
 
 	if (index >= 0) {
-		ucell address = GetNativeAddress(amx_, index);
+		cell address = GetNativeAddress(amx_, index);
 		if (address != 0) {
 			Function *fn = stats_.GetFunction(address);
 			if (fn == 0) {
@@ -108,7 +108,7 @@ int Profiler::ExecHook(cell *retval, int index, ExecHookFunc exec) {
 	}
 
 	if (index >= 0 || index == AMX_EXEC_MAIN) {
-		ucell address = GetPublicAddress(amx_, index);
+		cell address = GetPublicAddress(amx_, index);
 		if (address != 0) {
 			Function *fn = stats_.GetFunction(address);
 			if (fn == 0) {
@@ -128,7 +128,7 @@ int Profiler::ExecHook(cell *retval, int index, ExecHookFunc exec) {
 	return exec(amx_, retval, index);
 }
 
-void Profiler::BeginFunction(ucell address, ucell frm) {
+void Profiler::BeginFunction(cell address, cell frm) {
 	assert(address != 0);
 	FunctionStatistics *fn_stats = stats_.GetFunctionStatistis(address);
 
@@ -141,7 +141,7 @@ void Profiler::BeginFunction(ucell address, ucell frm) {
 	}
 }
 
-void Profiler::EndFunction(ucell address) {
+void Profiler::EndFunction(cell address) {
 	assert(!call_stack_.IsEmpty());
 	assert(address == 0 || stats_.GetFunction(address) != 0);
 

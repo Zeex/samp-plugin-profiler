@@ -32,13 +32,13 @@
 
 namespace amx_profiler {
 
-Function::Function(Type type, ucell address, std::string name)
+Function::Function(Type type, cell address, std::string name)
 	: type_(type), address_(address), name_(name)
 {
 }
 
 // static
-Function *Function::Normal(ucell address, DebugInfo *debug_info) {
+Function *Function::Normal(cell address, DebugInfo *debug_info) {
 	std::string name;
 
 	if (debug_info != 0 && debug_info->is_loaded()) {

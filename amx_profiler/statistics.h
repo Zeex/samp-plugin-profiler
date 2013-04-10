@@ -38,15 +38,15 @@ class FunctionStatistics;
 
 class Statistics {
 public:
-	typedef std::map<ucell, FunctionStatistics*> AddressToFuncStatsMap;
+	typedef std::map<cell, FunctionStatistics*> AddressToFuncStatsMap;
 
 	Statistics();
 	~Statistics();
 
 	void AddFunction(Function *fn);
-	Function *GetFunction(ucell address);
+	Function *GetFunction(cell address);
 
-	FunctionStatistics *GetFunctionStatistis(ucell address) const;
+	FunctionStatistics *GetFunctionStatistis(cell address) const;
 	void GetStatistics(std::vector<FunctionStatistics*> &stats) const;
 
 	Nanoseconds GetTotalRunTime() const {
