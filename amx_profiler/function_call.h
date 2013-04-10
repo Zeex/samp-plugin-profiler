@@ -25,7 +25,7 @@
 #ifndef AMX_PROFILER_FUNCTION_CALL_H
 #define AMX_PROFILER_FUNCTION_CALL_H
 
-#include <amx/amx.h>
+#include "amx_types.h"
 #include "performance_counter.h"
 
 namespace amx_profiler {
@@ -34,7 +34,7 @@ class Function;
 
 class FunctionCall {
 public:
-	FunctionCall(Function *function, cell frame, FunctionCall *parent = 0);
+	FunctionCall(Function *function, Address frame, FunctionCall *parent = 0);
 
 	Function *function() { return fn_; }
 	const Function *function() const { return fn_; }
@@ -42,7 +42,7 @@ public:
 	FunctionCall *parent() { return parent_; }
 	const FunctionCall *parent() const { return parent_; }
 
-	cell frame() const { return frame_; }
+	Address frame() const { return frame_; }
 
 	PerformanceCounter *timer() { return &timer_; }
 	const PerformanceCounter *timer() const { return &timer_; }
@@ -50,7 +50,7 @@ public:
 private:
 	Function *fn_;
 	FunctionCall *parent_;
-	cell frame_;
+	Address frame_;
 	PerformanceCounter timer_;
 };
 

@@ -40,7 +40,7 @@ Statistics::~Statistics() {
 	}
 }
 
-Function *Statistics::GetFunction(cell address) {
+Function *Statistics::GetFunction(Address address) {
 	AddressToFuncStatsMap::const_iterator iterator = address_to_fn_stats_.find(address);
 	if (iterator != address_to_fn_stats_.end()) {
 		return iterator->second->function();
@@ -53,7 +53,7 @@ void Statistics::AddFunction(Function *fn) {
 	address_to_fn_stats_.insert(std::make_pair(fn->address(), fn_stats));
 }
 
-FunctionStatistics *Statistics::GetFunctionStatistis(cell address) const {
+FunctionStatistics *Statistics::GetFunctionStatistis(Address address) const {
 	AddressToFuncStatsMap::const_iterator iterator = address_to_fn_stats_.find(address);
 	if (iterator != address_to_fn_stats_.end()) {
 		return iterator->second;

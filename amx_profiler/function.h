@@ -26,7 +26,7 @@
 #define AMX_PROFILER_FUNCTION_FUNCTION_H
 
 #include <string>
-#include <amx/amx.h>
+#include "amx_types.h"
 
 namespace amx_profiler {
 
@@ -41,9 +41,9 @@ public:
 	};
 
 	// Caller is reponsible for deleting returned Function objects.
-	static Function *Normal(cell address, DebugInfo *debug_info = 0);
-	static Function *Public(AMX *amx, cell index);
-	static Function *Native(AMX *amx, cell index);
+	static Function *Normal(Address address, DebugInfo *debug_info = 0);
+	static Function *Public(AMX *amx, PublicTableIndex index);
+	static Function *Native(AMX *amx, NativeTableIndex index);
 
 	// Returns the type of the function.
 	Type type() const {
@@ -56,7 +56,7 @@ public:
 	// Returns address of the function. Addresses are unique among
 	// all types of functions, i.e. there can't exist a public and
 	// a native with the same address.
-	cell address() const {
+	Address address() const {
 		return address_;
 	}
 
@@ -82,11 +82,11 @@ public:
 	}
 
 private:
-	Function(Type type, cell address, std::string name);
+	Function(Type type, Address address, std::string name);
 
 private:
 	Type type_;
-	cell address_;
+	Address address_;
 	std::string name_;
 };
 

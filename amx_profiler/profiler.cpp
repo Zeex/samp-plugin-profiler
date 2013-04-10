@@ -45,8 +45,8 @@ Profiler::~Profiler() {
 	}
 }
 
-int Profiler::DebugHook(DebugHookFunc debug) {
-	cell prev_frame = amx_->stp;
+int Profiler::DebugHook(AMX_DEBUG debug) {
+	Address prev_frame = amx_->stp;
 
 	if (!call_stack_.IsEmpty()) {
 		prev_frame = call_stack_.top()->frame();
@@ -54,7 +54,7 @@ int Profiler::DebugHook(DebugHookFunc debug) {
 
 	if (amx_->frm < prev_frame) {
 		if (call_stack_.top()->frame() != amx_->frm) {
-			cell address = amx_->cip - 2 * sizeof(cell);
+			Address address = amx_->cip - 2 * sizeof(cell);
 			Function *fn = stats_.GetFunction(address);
 			if (fn == 0) {
 				fn = Function::Normal(address, debug_info_);
@@ -76,13 +76,13 @@ int Profiler::DebugHook(DebugHookFunc debug) {
 	return AMX_ERR_NONE;
 }
 
-int Profiler::CallbackHook(cell index, cell *result, cell *params, CallbackHookFunc callback) {
+int Profiler::CallbackHook(cell index, cell *result, cell *params, AMX_CALLBACK callback) {
 	if (callback == 0) {
 		callback = ::amx_Callback;
 	}
 
 	if (index >= 0) {
-		cell address = GetNativeAddress(amx_, index);
+		Address address = GetNativeAddress(amx_, index);
 		if (address != 0) {
 			Function *fn = stats_.GetFunction(address);
 			if (fn == 0) {
@@ -102,13 +102,13 @@ int Profiler::CallbackHook(cell index, cell *result, cell *params, CallbackHookF
 	return callback(amx_, index, result, params);
 }
 
-int Profiler::ExecHook(cell *retval, int index, ExecHookFunc exec) {
+int Profiler::ExecHook(cell *retval, int index, AMX_EXEC exec) {
 	if (exec == 0) {
 		exec = ::amx_Exec;
 	}
 
 	if (index >= 0 || index == AMX_EXEC_MAIN) {
-		cell address = GetPublicAddress(amx_, index);
+		Address address = GetPublicAddress(amx_, index);
 		if (address != 0) {
 			Function *fn = stats_.GetFunction(address);
 			if (fn == 0) {
@@ -116,7 +116,7 @@ int Profiler::ExecHook(cell *retval, int index, ExecHookFunc exec) {
 				functions_.insert(fn);
 				stats_.AddFunction(fn);
 			}
-			BeginFunction(address, amx_->stk - 3*sizeof(cell));
+			BeginFunction(address, amx_->stk - 3 * sizeof(cell));
 		}
 		int error = exec(amx_, retval, index);
 		if (address != 0) {
@@ -128,7 +128,7 @@ int Profiler::ExecHook(cell *retval, int index, ExecHookFunc exec) {
 	return exec(amx_, retval, index);
 }
 
-void Profiler::BeginFunction(cell address, cell frm) {
+void Profiler::BeginFunction(Address address, cell frm) {
 	assert(address != 0);
 	FunctionStatistics *fn_stats = stats_.GetFunctionStatistis(address);
 
@@ -141,7 +141,7 @@ void Profiler::BeginFunction(cell address, cell frm) {
 	}
 }
 
-void Profiler::EndFunction(cell address) {
+void Profiler::EndFunction(Address address) {
 	assert(!call_stack_.IsEmpty());
 	assert(address == 0 || stats_.GetFunction(address) != 0);
 

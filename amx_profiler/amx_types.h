@@ -22,42 +22,21 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef AMX_PROFILER_STATISTICS_H
-#define AMX_PROFILER_STATISTICS_H
+#ifndef AMX_PROFILER_AMX_TYPES_H
+#define AMX_PROFILER_AMX_TYPES_H
 
-#include <map>
-#include <vector>
-#include "amx_types.h"
-#include "duration.h"
-#include "performance_counter.h"
+#include <amx/amx.h>
 
 namespace amx_profiler {
 
-class Function;
-class FunctionStatistics;
+typedef int (AMXAPI *AMX_EXEC)(AMX *amx, cell *retval, int index);
 
-class Statistics {
-public:
-	typedef std::map<Address, FunctionStatistics*> AddressToFuncStatsMap;
+typedef cell Address;
 
-	Statistics();
-	~Statistics();
-
-	void AddFunction(Function *fn);
-	Function *GetFunction(Address address);
-
-	FunctionStatistics *GetFunctionStatistis(Address address) const;
-	void GetStatistics(std::vector<FunctionStatistics*> &stats) const;
-
-	Nanoseconds GetTotalRunTime() const {
-		return run_time_counter_.QueryTotalTime();
-	}
-
-private:
-	PerformanceCounter run_time_counter_;
-	AddressToFuncStatsMap address_to_fn_stats_;
-};
+typedef int TableIndex;
+typedef TableIndex PublicTableIndex;
+typedef TableIndex NativeTableIndex;
 
 } // namespace amx_profiler
 
-#endif // !AMX_PROFILER_STATISTICS_H
+#endif // !AMX_PROFILER_AMX_TYPES_H

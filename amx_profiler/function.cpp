@@ -32,13 +32,13 @@
 
 namespace amx_profiler {
 
-Function::Function(Type type, cell address, std::string name)
+Function::Function(Type type, Address address, std::string name)
 	: type_(type), address_(address), name_(name)
 {
 }
 
 // static
-Function *Function::Normal(cell address, DebugInfo *debug_info) {
+Function *Function::Normal(Address address, DebugInfo *debug_info) {
 	std::string name;
 
 	if (debug_info != 0 && debug_info->is_loaded()) {
@@ -55,12 +55,12 @@ Function *Function::Normal(cell address, DebugInfo *debug_info) {
 }
 
 // static
-Function *Function::Public(AMX *amx, cell index) {
+Function *Function::Public(AMX *amx, Address index) {
 	return new Function(PUBLIC, GetPublicAddress(amx, index), GetPublicName(amx, index));
 }
 
 // static
-Function *Function::Native(AMX *amx, cell index) {
+Function *Function::Native(AMX *amx, Address index) {
 	return new Function(NATIVE, GetNativeAddress(amx, index), GetNativeName(amx, index));
 }
 

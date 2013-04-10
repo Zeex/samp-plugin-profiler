@@ -26,7 +26,7 @@
 #define AMX_PROFILER_CALL_STACK_H
 
 #include <list>
-#include <amx/amx.h>
+#include "amx_types.h"
 #include "function_call.h"
 
 namespace amx_profiler {
@@ -35,7 +35,7 @@ class Function;
 
 class CallStack {
 public:
-	void Push(Function *function, cell frame);
+	void Push(Function *function, Address frame);
 	void Push(const FunctionCall &call);
 
 	FunctionCall Pop();

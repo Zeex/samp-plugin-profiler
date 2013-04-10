@@ -26,6 +26,7 @@
 #define AMX_PROFILER_PROFILER_H
 
 #include <set>
+#include "amx_types.h"
 #include "call_graph.h"
 #include "call_stack.h"
 #include "debug_info.h"
@@ -37,10 +38,6 @@ namespace amx_profiler {
 
 class Profiler {
 public:
-	typedef int (AMXAPI *DebugHookFunc)(AMX *amx);
-	typedef int (AMXAPI *ExecHookFunc)(AMX *amx, cell *retval, int index);
-	typedef int (AMXAPI *CallbackHookFunc)(AMX *amx, cell index, cell *result, cell *params);
-
 	typedef std::set<Function*> FunctionSet;
 
 public:
@@ -52,15 +49,15 @@ public:
 	const CallStack *call_stack() const { return &call_stack_; }
 	const CallGraph *call_graph() const { return &call_graph_; }
 
-	int DebugHook(DebugHookFunc debug = 0);
-	int ExecHook(cell *retval, int index, ExecHookFunc exec = 0);
-	int CallbackHook(cell index, cell  *result, cell *params, CallbackHookFunc callback = 0);
+	int ExecHook(cell *retval, int index, AMX_EXEC exec = 0);
+	int DebugHook(AMX_DEBUG debug = 0);
+	int CallbackHook(cell index, cell  *result, cell *params, AMX_CALLBACK callback = 0);
 
 private:
 	Profiler();
 
-	void BeginFunction(cell address, cell frm);
-	void EndFunction(cell address = 0);
+	void BeginFunction(Address address, Address frm);
+	void EndFunction(Address address = 0);
 
 private:
 	AMX *amx_;

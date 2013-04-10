@@ -28,6 +28,7 @@
 #include <string>
 #include <amx/amx.h>
 #include <amx/amxdbg.h>
+#include "amx_types.h"
 #include "macros.h"
 
 namespace amx_profiler {
@@ -43,9 +44,9 @@ public:
 
 	bool is_loaded() const { return amxdbg_ != 0; }
 
-	long GetLine(cell address) const;
-	std::string GetFile(cell address) const;
-	std::string GetFunction(cell address) const;
+	long GetLine(Address address) const;
+	std::string GetFile(Address address) const;
+	std::string GetFunction(Address address) const;
 
 private:
 	AMX_DBG *amxdbg_;

@@ -25,15 +25,15 @@
 #ifndef AMX_PROFILER_AMX_UTILS_H
 #define AMX_PROFILER_AMX_UTILS_H
 
-#include <amx/amx.h>
+#include "amx_types.h"
 
 namespace amx_profiler {
 
-cell GetNativeAddress(AMX *amx, cell index);
-cell GetPublicAddress(AMX *amx, cell index);
+Address GetNativeAddress(AMX *amx, PublicTableIndex index);
+Address GetPublicAddress(AMX *amx, PublicTableIndex index);
 
-const char *GetNativeName(AMX *amx, cell index);
-const char *GetPublicName(AMX *amx, cell index);
+const char *GetNativeName(AMX *amx, PublicTableIndex index);
+const char *GetPublicName(AMX *amx, PublicTableIndex index);
 
 } // naemspace amx_profiler
 

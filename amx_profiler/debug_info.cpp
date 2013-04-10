@@ -62,13 +62,13 @@ void DebugInfo::Unload() {
 		delete amxdbg_;
 	}
 }
-long DebugInfo::GetLine(cell address) const {
+long DebugInfo::GetLine(Address address) const {
 	long line = 0;
 	dbg_LookupLine(amxdbg_, address, &line);
 	return line;
 }
 
-std::string DebugInfo::GetFile(cell address) const {
+std::string DebugInfo::GetFile(Address address) const {
 	std::string result;
 	const char *file;
 	if (dbg_LookupFile(amxdbg_, address, &file) == AMX_ERR_NONE)
@@ -76,7 +76,7 @@ std::string DebugInfo::GetFile(cell address) const {
 	return result;
 }
 
-std::string DebugInfo::GetFunction(cell address) const {
+std::string DebugInfo::GetFunction(Address address) const {
 	std::string result;
 	const char *function;
 	if (dbg_LookupFunction(amxdbg_, address, &function) == AMX_ERR_NONE)

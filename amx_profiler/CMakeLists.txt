@@ -5,6 +5,7 @@ if(MSVC)
 endif()
 
 set(AMX_PROFILER_SOURCES
+	amx_types.h
 	amx_utils.cpp
 	amx_utils.h
 	call_graph.cpp
