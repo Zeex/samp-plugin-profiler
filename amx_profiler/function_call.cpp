@@ -26,7 +26,7 @@
 
 namespace amx_profiler {
 
-FunctionCall::FunctionCall(Function *function, cell frame, FunctionCall *parent)
+FunctionCall::FunctionCall(Function *function, ucell frame, FunctionCall *parent)
 	: fn_(function)
 	, parent_(parent)
 	, frame_(frame)
