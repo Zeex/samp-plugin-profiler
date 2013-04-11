@@ -67,10 +67,10 @@ void StatisticsWriterJson::Write(const Statistics *stats)
 			<< "      \"type\": \"" << fn_stats->function()->GetTypeString() << "\",\n"
 			<< "      \"name\": \"" << fn_stats->function()->name() << "\",\n"
 			<< "      \"calls\": " << fn_stats->num_calls() << ",\n"
-			<< "      \"self_time\": " << fn_stats->self_time().count() << ",\n"
-			<< "      \"worst_self_time\": " << fn_stats->worst_self_time().count() << ",\n"
-			<< "      \"total_time\": " << fn_stats->total_time().count() << ",\n"
-			<< "      \"worst_total_time\": " << fn_stats->worst_total_time().count() << "\n"
+			<< "      \"selfTime\": " << fn_stats->self_time().count() << ",\n"
+			<< "      \"worstSelfTime\": " << fn_stats->worst_self_time().count() << ",\n"
+			<< "      \"totalTime\": " << fn_stats->total_time().count() << ",\n"
+			<< "      \"worstTotalTime\": " << fn_stats->worst_total_time().count() << "\n"
 		<< "    },\n";
 	}
 
