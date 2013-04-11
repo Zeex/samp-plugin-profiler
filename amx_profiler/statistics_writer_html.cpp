@@ -141,6 +141,9 @@ void StatisticsWriterHtml::Write(const Statistics *stats)
 		total_time_all += fn_stats->total_time(); 
 	};
 
+	std::ostream::fmtflags flags = stream()->flags();
+	stream()->flags(flags | std::ostream::fixed);
+
 	for (std::vector<FunctionStatistics*>::const_iterator iterator = all_fn_stats.begin();
 			iterator != all_fn_stats.end(); ++iterator)
 	{
@@ -161,18 +164,19 @@ void StatisticsWriterHtml::Write(const Statistics *stats)
 		<< "			<td>" << fn_stats->function()->GetTypeString() << "</td>\n"
 		<< "			<td>" << fn_stats->function()->name() << "</td>\n"
 		<< "			<td>" << fn_stats->num_calls() << "</td>\n"
-		<< "			<td>" << std::fixed << std::setprecision(2) << self_time_percent << "%</td>\n"
-		<< "			<td>" << std::fixed << std::setprecision(1) << self_time << "</td>\n"
-		<< "			<td>" << std::fixed << std::setprecision(1) << avg_self_time << "</td>\n"
-		<< "			<td>" << std::fixed << std::setprecision(1) << worst_self_time << "</td>\n"
-		<< "			<td>" << std::fixed << std::setprecision(2) << total_time_percent << "%</td>\n"
-		<< "			<td>" << std::fixed << std::setprecision(1) << total_time << "</td>\n"
-		<< "			<td>" << std::fixed << std::setprecision(1) << avg_total_time << "</td>\n"
-		<< "			<td>" << std::fixed << std::setprecision(1) << worst_total_time << "</td>\n"
+		<< "			<td>" << std::setprecision(2) << self_time_percent << "%</td>\n"
+		<< "			<td>" << std::setprecision(1) << self_time << "</td>\n"
+		<< "			<td>" << std::setprecision(1) << avg_self_time << "</td>\n"
+		<< "			<td>" << std::setprecision(1) << worst_self_time << "</td>\n"
+		<< "			<td>" << std::setprecision(2) << total_time_percent << "%</td>\n"
+		<< "			<td>" << std::setprecision(1) << total_time << "</td>\n"
+		<< "			<td>" << std::setprecision(1) << avg_total_time << "</td>\n"
+		<< "			<td>" << std::setprecision(1) << worst_total_time << "</td>\n"
 		<< "			</td>\n"
 		<< "		</tr>\n";
-
 	};
+
+	stream()->flags(flags);
 
 	*stream() <<
 	"		</tbody>\n"

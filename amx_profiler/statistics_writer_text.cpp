@@ -107,6 +107,9 @@ void StatisticsWriterText::Write(const Statistics *stats)
 		total_time_all += fn_stats->total_time(); 
 	}
 
+	std::ostream::fmtflags flags = stream()->flags();
+	stream()->flags(flags | std::ostream::fixed);
+
 	for (std::vector<FunctionStatistics*>::const_iterator iterator = all_fn_stats.begin();
 			iterator != all_fn_stats.end(); ++iterator)
 	{
@@ -126,17 +129,19 @@ void StatisticsWriterText::Write(const Statistics *stats)
 			<< "| " << std::setw(kTypeWidth) << fn_stats->function()->GetTypeString()
 			<< "| " << std::setw(kNameWidth) << fn_stats->function()->name()
 			<< "| " << std::setw(kCallsWidth) << fn_stats->num_calls()
-			<< "| " << std::setw(kSelfTimePercentWidth) << std::fixed << std::setprecision(2) << self_time_percent
-			<< "| " << std::setw(kSelfTimeWidth) << std::fixed << std::setprecision(1) << self_time
-			<< "| " << std::setw(kAvgSelfTimeWidth) << std::fixed << std::setprecision(1) << avg_self_time
-			<< "| " << std::setw(kWorstSelfTimeWidth) << std::fixed << std::setprecision(1) << worst_self_time
-			<< "| " << std::setw(kTotalTimePercentWidth) << std::fixed << std::setprecision(2) << total_time_percent
-			<< "| " << std::setw(kTotalTimeWidth) << std::fixed << std::setprecision(1) << total_time
-			<< "| " << std::setw(kAvgTotalTimeWidth) << std::fixed << std::setprecision(1) << avg_total_time
-			<< "| " << std::setw(kWorstTotalTimeWidth) << std::fixed << std::setprecision(1) << worst_total_time
+			<< "| " << std::setw(kSelfTimePercentWidth) << std::setprecision(2) << self_time_percent
+			<< "| " << std::setw(kSelfTimeWidth) << std::setprecision(1) << self_time
+			<< "| " << std::setw(kAvgSelfTimeWidth) << std::setprecision(1) << avg_self_time
+			<< "| " << std::setw(kWorstSelfTimeWidth) << std::setprecision(1) << worst_self_time
+			<< "| " << std::setw(kTotalTimePercentWidth) << std::setprecision(2) << total_time_percent
+			<< "| " << std::setw(kTotalTimeWidth) << std::setprecision(1) << total_time
+			<< "| " << std::setw(kAvgTotalTimeWidth) << std::setprecision(1) << avg_total_time
+			<< "| " << std::setw(kWorstTotalTimeWidth) << std::setprecision(1) << worst_total_time
 			<< "|\n";
 		DoHLine();
 	}
+
+	stream()->flags(flags);
 }
 
 } // namespace amx_profiler
