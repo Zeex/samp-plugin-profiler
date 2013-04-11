@@ -22,7 +22,6 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <algorithm>
 #include <iostream>
 #include "duration.h"
 #include "function.h"
@@ -34,23 +33,39 @@
 
 namespace amx_profiler {
 
-std::string EscapString(const std::string &s) {
-	std::string t(s);
-	std::replace(t.begin(), t.end(), '\\', '/');
+static std::string EscapString(const std::string &s) {
+	std::string t;
+
+	for (std::string::const_iterator iterator = s.begin();
+			iterator != s.end(); ++iterator) {
+		switch (*iterator) {
+			// According to http://www.json.org other escape sequences,
+			// apart from Unicode, are not supported by JSON.
+			case '"': t.append("\\\""); break;
+			case '\\': t.append("\\\\"); break;
+			case '\b': t.append("\\b"); break;
+			case '\f': t.append("\\f"); break;
+			case '\n': t.append("\\n"); break;
+			case '\r': t.append("\\r"); break;
+			case '\t': t.append("\\t"); break;
+			default: t.push_back(*iterator);
+		}
+	}
+
 	return t;
 }
 
 void StatisticsWriterJson::Write(const Statistics *stats)
 {
 	*stream() << "{\n"
-	          << "  \"script_name\": \"" << EscapString(script_name()) << "\",\n";
+	          << "  \"scriptName\": \"" << EscapString(script_name()) << "\",\n";
 	
 	if (print_date()) {
 		*stream() << "  \"timestamp\": " << TimeStamp::Now() << ",\n";
 	}
 
 	if (print_run_time()) {
-		*stream() << "  \"run_time\": " << Seconds(stats->GetTotalRunTime()).count() << ",\n";
+		*stream() << "  \"runTime\": " << Seconds(stats->GetTotalRunTime()).count() << ",\n";
 	}
 
 	*stream() << "  \"functions\": [\n";
