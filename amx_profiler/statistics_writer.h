@@ -25,6 +25,9 @@
 #ifndef AMX_PROFILER_STATISTICS_WRITER_H
 #define AMX_PROFILER_STATISTICS_WRITER_H
 
+#include <iosfwd>
+#include <string>
+
 namespace amx_profiler {
 
 class Statistics;
