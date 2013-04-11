@@ -32,8 +32,6 @@
 #include "statistics.h"
 #include "time_utils.h"
 
-static const char kTypeCol[] = "Type";
-
 static const int kTypeWidth = 7;
 static const int kNameWidth = 32;
 static const int kCallsWidth = 10;
@@ -50,7 +48,7 @@ static const int kWidthAll = kTypeWidth + kNameWidth + kCallsWidth
 	+ kSelfTimePercentWidth + kSelfTimeWidth + kAvgSelfTimeWidth + kWorstSelfTimeWidth
 	+ kTotalTimePercentWidth + kTotalTimeWidth + kAvgTotalTimeWidth + kWorstTotalTimeWidth;
 
-static const int kNumColumns = 9;
+static const int kNumColumns = 11;
 
 namespace amx_profiler {
 
