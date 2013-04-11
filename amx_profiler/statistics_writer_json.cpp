@@ -58,39 +58,18 @@ void StatisticsWriterJson::Write(const Statistics *stats)
 	std::vector<FunctionStatistics*> all_fn_stats;
 	stats->GetStatistics(all_fn_stats);
 
-	Nanoseconds self_time_all;
 	for (std::vector<FunctionStatistics*>::const_iterator iterator = all_fn_stats.begin();
 			iterator != all_fn_stats.end(); ++iterator)
 	{
 		const FunctionStatistics *fn_stats = *iterator;
-		self_time_all += fn_stats->self_time();
-	}
-
-	Nanoseconds total_time_all;
-	for (std::vector<FunctionStatistics*>::const_iterator iterator = all_fn_stats.begin();
-			iterator != all_fn_stats.end(); ++iterator)
-	{
-		const FunctionStatistics *fn_stats = *iterator;
-		total_time_all += fn_stats->total_time(); 
-	}
-
-	for (std::vector<FunctionStatistics*>::const_iterator iterator = all_fn_stats.begin();
-			iterator != all_fn_stats.end(); ++iterator)
-	{
-		const FunctionStatistics *fn_stats = *iterator;
-
-		long double self_time_percent = fn_stats->self_time().count() * 100 / self_time_all.count();
-		long double total_time_percent = fn_stats->total_time().count() * 100 / total_time_all.count();
 
 		*stream() << "    {\n"
 			<< "      \"type\": \"" << fn_stats->function()->GetTypeString() << "\",\n"
 			<< "      \"name\": \"" << fn_stats->function()->name() << "\",\n"
 			<< "      \"calls\": " << fn_stats->num_calls() << ",\n"
 			<< "      \"self_time\": " << fn_stats->self_time().count() << ",\n"
-			<< "      \"self_time_percent\": " << self_time_percent << ",\n"
 			<< "      \"worst_self_time\": " << fn_stats->worst_self_time().count() << ",\n"
 			<< "      \"total_time\": " << fn_stats->total_time().count() << ",\n"
-			<< "      \"total_time_percent\": " << total_time_percent << ",\n"
 			<< "      \"worst_total_time\": " << fn_stats->worst_total_time().count() << "\n"
 		<< "    },\n";
 	}
