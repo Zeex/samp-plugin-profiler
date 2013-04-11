@@ -23,7 +23,6 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include <algorithm>
-#include <iomanip>
 #include <iostream>
 #include "duration.h"
 #include "function.h"
@@ -87,11 +86,11 @@ void StatisticsWriterJson::Write(const Statistics *stats)
 			<< "      \"type\": \"" << fn_stats->function()->GetTypeString() << "\",\n"
 			<< "      \"name\": \"" << fn_stats->function()->name() << "\",\n"
 			<< "      \"calls\": " << fn_stats->num_calls() << ",\n"
-			<< "      \"self_time\": " << std::fixed << fn_stats->self_time().count() << ",\n"
-			<< "      \"self_time_percent\": " <<  std::fixed << std::setprecision(2) << self_time_percent << ",\n"
+			<< "      \"self_time\": " << fn_stats->self_time().count() << ",\n"
+			<< "      \"self_time_percent\": " << self_time_percent << ",\n"
 			<< "      \"worst_self_time\": " << fn_stats->worst_self_time().count() << ",\n"
 			<< "      \"total_time\": " << fn_stats->total_time().count() << ",\n"
-			<< "      \"total_time_percent\": " <<  std::fixed << std::setprecision(2) << total_time_percent << ",\n"
+			<< "      \"total_time_percent\": " << total_time_percent << ",\n"
 			<< "      \"worst_total_time\": " << fn_stats->worst_total_time().count() << "\n"
 		<< "    },\n";
 	}
