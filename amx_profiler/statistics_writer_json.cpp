@@ -79,8 +79,8 @@ void StatisticsWriterJson::Write(const Statistics *stats)
 	{
 		const FunctionStatistics *fn_stats = *iterator;
 
-		double self_time_percent = fn_stats->self_time().count() * 100 / self_time_all.count();
-		double total_time_percent = fn_stats->total_time().count() * 100 / total_time_all.count();
+		long double self_time_percent = fn_stats->self_time().count() * 100 / self_time_all.count();
+		long double total_time_percent = fn_stats->total_time().count() * 100 / total_time_all.count();
 
 		*stream() << "    {\n"
 			<< "      \"type\": \"" << fn_stats->function()->GetTypeString() << "\",\n"
