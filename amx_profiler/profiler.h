@@ -41,21 +41,34 @@ public:
 	typedef std::set<Function*> FunctionSet;
 
 public:
-	Profiler(AMX *amx, DebugInfo *debug_info = 0, bool enable_call_graph = true);
+	Profiler(AMX *amx, DebugInfo *debug_info = 0,
+	         bool enable_call_graph = true);
 	~Profiler();
-
-	const Statistics *stats() const { return &stats_; }
 
 	const CallStack *call_stack() const { return &call_stack_; }
 	const CallGraph *call_graph() const { return &call_graph_; }
 
+	// Retruns collected runtime statistics.
+	const Statistics *stats() const { return &stats_;  }
+
+	// This method should be called instead of amx_Exec(). It
+	// collects information about public function calls.
 	int ExecHook(cell *retval, int index, AMX_EXEC exec = 0);
+
+	// This method should be called from within AMX debug hook (see
+	// amx_SetDebugHook). It collects information about ordinary
+	// function calls.
 	int DebugHook(AMX_DEBUG debug = 0);
+
+	// This method should be called instead of amx_Callback().
+	// It collects information about native function calls.
 	int CallbackHook(cell index, cell  *result, cell *params, AMX_CALLBACK callback = 0);
 
 private:
 	Profiler();
 
+	// BeginFunction() and EndFunction() are called when entering a function
+	// (of either type) and returning from it respectively.
 	void BeginFunction(Address address, Address frm);
 	void EndFunction(Address address = 0);
 
