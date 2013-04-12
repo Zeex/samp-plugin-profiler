@@ -236,7 +236,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 
 	std::string filename = GetAmxPath(amx);
 	if (filename.empty()) {
-		logprintf("[profiler] Can't find matching .amx file");
+		logprintf("[profiler] Failed to find corresponding .amx file");
 		return AMX_ERR_NONE;
 	}
 
@@ -271,7 +271,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 		if (debug_info != 0) {
 			logprintf("[profiler] Attached profiler to '%s'", filename.c_str());
 		} else {
-			logprintf("[profiler] Attached profiler to '%s' (no debug symbols)", filename.c_str());
+			logprintf("[profiler] Attached profiler to '%s' (no debug info)", filename.c_str());
 		}
 	}
 
@@ -306,11 +306,11 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 			} else if (cfg::profile_format == "json") {
 				writer = new amx_profiler::StatisticsWriterJson;
 			} else {
-				logprintf("[profiler] Unknown output format '%s'", cfg::profile_format.c_str());
+				logprintf("[profiler] Unrecognized output format '%s'", cfg::profile_format.c_str());
 			}
 
 			if (writer != 0) {
-				logprintf("[profiler] Writing '%s'", profile_filename.c_str());
+				logprintf("[profiler] Writing profile to '%s'", profile_filename.c_str());
 				writer->set_stream(&profile_stream);
 				writer->set_script_name(amx_path);
 				writer->set_print_date(true);
@@ -332,11 +332,11 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 				if (cfg::call_graph_format == "dot") {
 					writer = new amx_profiler::CallGraphWriterDot;
 				} else {
-					logprintf("[profiler] Unknown call graph format '%s'", cfg::call_graph_format.c_str());
+					logprintf("[profiler] Unrecognized call graph format '%s'", cfg::call_graph_format.c_str());
 				}
 
 				if (writer != 0) {
-					logprintf("[profiler] Writing '%s'", call_graph_filename.c_str());
+					logprintf("[profiler] Writing call graph to '%s'", call_graph_filename.c_str());
 					writer->set_stream(&call_graph_stream);
 					writer->set_script_name(amx_path);
 					writer->set_root_node_name("SA-MP Server");
