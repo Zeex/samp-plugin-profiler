@@ -90,18 +90,6 @@ private:
 	DISALLOW_COPY_AND_ASSIGN(Profiler);
 };
 
-inline bool IsAmxProfilable(AMX *amx) {
-	uint16_t flags;
-	amx_Flags(amx, &flags);
-	if ((flags & AMX_FLAG_DEBUG) != 0) {
-		return true; 
-	}
-	if ((flags & AMX_FLAG_NOCHECKS) == 0) {
-		return true;
-	}
-	return false;
-}
-
 } // namespace amx_profiler
 
 #endif // !AMX_PROFILER_PROFILER_H
