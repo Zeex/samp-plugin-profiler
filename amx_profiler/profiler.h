@@ -41,9 +41,11 @@ public:
 	typedef std::set<Function*> FunctionSet;
 
 public:
-	Profiler(AMX *amx, DebugInfo *debug_info = 0,
-	         bool enable_call_graph = true);
+	Profiler(AMX *amx, DebugInfo *debug_info = 0);
 	~Profiler();
+
+	bool call_graph_enabled() const { return call_graph_enabled_; }
+	void set_call_graph_enabled(bool enabled) { call_graph_enabled_ = enabled; }
 
 	const CallStack *call_stack() const { return &call_stack_; }
 	const CallGraph *call_graph() const { return &call_graph_; }
@@ -75,6 +77,7 @@ private:
 private:
 	AMX *amx_;
 	DebugInfo *debug_info_;
+
 	bool call_graph_enabled_;
 
 	CallStack call_stack_;

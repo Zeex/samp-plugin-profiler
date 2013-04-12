@@ -31,10 +31,10 @@
 
 namespace amx_profiler {
 
-Profiler::Profiler(AMX *amx, DebugInfo *debug_info, bool enable_call_graph)
+Profiler::Profiler(AMX *amx, DebugInfo *debug_info)
 	: amx_(amx)
 	, debug_info_(debug_info)
-	, call_graph_enabled_(enable_call_graph)
+	, call_graph_enabled_(false)
 {
 }
 

@@ -267,12 +267,16 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 			}
 		}
 
-		::profilers[amx] = new amx_profiler::Profiler(amx, debug_info, cfg::call_graph);
+		amx_profiler::Profiler *profiler = new amx_profiler::Profiler(amx, debug_info);
+		profiler->set_call_graph_enabled(cfg::call_graph);
+
 		if (debug_info != 0) {
 			logprintf("[profiler] Attached profiler to '%s'", filename.c_str());
 		} else {
 			logprintf("[profiler] Attached profiler to '%s' (no debug info)", filename.c_str());
 		}
+
+		::profilers[amx] = profiler;
 	}
 
 	return AMX_ERR_NONE;
