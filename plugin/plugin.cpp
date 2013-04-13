@@ -276,7 +276,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 			} else if (cfg::profile_format == "json") {
 				writer = new amx_profiler::StatisticsWriterJson;
 			} else {
-				logprintf("[profiler] Unrecognized output format '%s'", cfg::profile_format.c_str());
+				logprintf("[profiler] Unrecognized profile format '%s'", cfg::profile_format.c_str());
 			}
 
 			if (writer != 0) {
