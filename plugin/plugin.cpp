@@ -135,17 +135,6 @@ static bool IsFilterScript(const std::string &amx_name) {
 	return ToUnixPath(amx_name).find("filterscripts/") != std::string::npos;
 }
 
-static bool GetPublicVariable(AMX *amx, const char *name, cell &value) {
-	cell amx_addr;
-	if (amx_FindPubVar(amx, name, &amx_addr) == AMX_ERR_NONE) {
-		cell *phys_addr;
-		amx_GetAddr(amx, amx_addr, &phys_addr);
-		value = *phys_addr;
-		return true;
-	}
-	return false;
-}
-
 static bool WantsProfiler(const std::string &amx_name) {
 	std::string good_amx_name = ToUnixPath(amx_name);
 
@@ -205,45 +194,42 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 	std::string filename = GetAmxPath(amx);
+
 	if (filename.empty()) {
 		logprintf("[profiler] Failed to find corresponding .amx file");
 		return AMX_ERR_NONE;
 	}
 
-	cell profiler_enabled = false;
-	if (GetPublicVariable(amx, "profiler_enabled", profiler_enabled)
-			&& !profiler_enabled) {
+	if (!WantsProfiler(filename)) {
 		return AMX_ERR_NONE;
 	}
 
-	if (profiler_enabled || WantsProfiler(filename)) {
-		amx_profiler::DebugInfo *debug_info = 0;
+	amx_profiler::DebugInfo *debug_info = 0;
 
-		if (amx_profiler::HaveDebugInfo(amx)) {
-			debug_info = new amx_profiler::DebugInfo(filename);
-			if (debug_info->is_loaded()) {
-				logprintf("[profiler] Loaded debug info from '%s'", filename.c_str());
-				::debug_infos[amx] = debug_info;
-			} else {
-				logprintf("[profiler] Error loading debug info from '%s'", filename.c_str());
-				delete debug_info;
-			}
-		}
-
-		amx_profiler::Profiler *profiler = new amx_profiler::Profiler(amx, debug_info);
-		profiler->set_call_graph_enabled(cfg::call_graph);
-
-		if (debug_info != 0) {
-			logprintf("[profiler] Attached profiler to '%s'", filename.c_str());
+	if (amx_profiler::HaveDebugInfo(amx)) {
+		debug_info = new amx_profiler::DebugInfo(filename);
+		if (debug_info->is_loaded()) {
+			logprintf("[profiler] Loaded debug info from '%s'", filename.c_str());
+			::debug_infos[amx] = debug_info;
 		} else {
-			logprintf("[profiler] Attached profiler to '%s' (no debug info)", filename.c_str());
+			logprintf("[profiler] Error loading debug info from '%s'", filename.c_str());
+			delete debug_info;
 		}
-
-		::old_debug_hooks[amx] = amx->debug;
-		amx_SetDebugHook(amx, hooks::amx_Debug);
-
-		::profilers[amx] = profiler;
 	}
+
+	amx_profiler::Profiler *profiler = new amx_profiler::Profiler(amx, debug_info);
+	profiler->set_call_graph_enabled(cfg::call_graph);
+
+	if (debug_info != 0) {
+		logprintf("[profiler] Attached profiler to '%s'", filename.c_str());
+	} else {
+		logprintf("[profiler] Attached profiler to '%s' (no debug info)", filename.c_str());
+	}
+
+	::old_debug_hooks[amx] = amx->debug;
+	amx_SetDebugHook(amx, hooks::amx_Debug);
+
+	::profilers[amx] = profiler;
 
 	return AMX_ERR_NONE;
 }
@@ -251,7 +237,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 	amx_profiler::Profiler *profiler = ::profilers[amx];
 
-	if (profiler) {
+	if (profiler != 0) {
 		std::string amx_path = GetAmxPath(amx);
 		std::string amx_name = std::string(amx_path, 0, amx_path.find_last_of("."));
 
