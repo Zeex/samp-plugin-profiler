@@ -22,8 +22,8 @@ set(PLUGIN_SOURCES
 	plugincommon.h
 	plugin.cpp
 	plugin.def
-	plugin.rc
-	pluginversion.h
+	${CMAKE_CURRENT_BINARY_DIR}/plugin.rc
+	${CMAKE_CURRENT_BINARY_DIR}/pluginversion.h
 )
 
 if(WIN32)
