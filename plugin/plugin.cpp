@@ -247,15 +247,8 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 	}
 
 	if (profiler_enabled || WantsProfiler(filename)) {
-		// Disable SYSREQ.D
-		amx->sysreq_d = 0;
-
-		// Store previous debug hook somewhere before overwriting it.
-		::old_debug_hooks[amx] = amx->debug;
-		amx_SetDebugHook(amx, hooks::amx_Debug);
-
-		// Load debug info if available.
 		amx_profiler::DebugInfo *debug_info = 0;
+
 		if (amx_profiler::HaveDebugInfo(amx)) {
 			debug_info = new amx_profiler::DebugInfo(filename);
 			if (debug_info->is_loaded()) {
@@ -275,6 +268,9 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 		} else {
 			logprintf("[profiler] Attached profiler to '%s' (no debug info)", filename.c_str());
 		}
+
+		::old_debug_hooks[amx] = amx->debug;
+		amx_SetDebugHook(amx, hooks::amx_Debug);
 
 		::profilers[amx] = profiler;
 	}

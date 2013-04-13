@@ -36,6 +36,10 @@ Profiler::Profiler(AMX *amx, DebugInfo *debug_info)
 	, debug_info_(debug_info)
 	, call_graph_enabled_(false)
 {
+	// The AMX VM normally replaces SYSREQ.C instructions with SYSREQ.D
+	// to speed up native calls. We don't want this to happen as then we
+	// would be unable to profile native functions.
+	amx->sysreq_d = 0;
 }
 
 Profiler::~Profiler() {
