@@ -43,7 +43,8 @@ else()
 endif()
 
 # Comma-separated version for RC.
-string(REGEX REPLACE "[.-]" "," version_rc ${version})
+string(REGEX REPLACE "[.]" "," version_rc ${version})
+string(REGEX REPLACE "[-].*" "" version_rc ${version_rc})
 # Append one or two ",0" to the end to make windres happy.
 string(REGEX REPLACE "^([0-9]+,[0-9]+)$" "\\1,0,0" version_rc ${version_rc})
 string(REGEX REPLACE "^([0-9]+,[0-9]+,[0-9]+)$" "\\1,0" version_rc ${version_rc})
