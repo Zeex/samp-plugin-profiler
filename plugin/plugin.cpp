@@ -32,9 +32,6 @@
 #include <sstream>
 #include <string>
 #include <subhook.h>
-#ifdef _WIN32
-	#include <windows.h>
-#endif
 #include <amx/amx.h>
 #include <amx_profiler/call_graph_writer_dot.h>
 #include <amx_profiler/debug_info.h>
@@ -53,14 +50,11 @@ extern void *pAMXFunctions;
 
 static logprintf_t logprintf;
 
-typedef std::map<AMX*, amx_profiler::Profiler*> AmxToProfilerMap;
-static AmxToProfilerMap profilers;
-
-typedef std::list<AMX*> AmxList;
-static AmxList loaded_scripts;
-
 typedef std::map<AMX*, AMX_DEBUG> AmxToAmxDebugMap;
 static AmxToAmxDebugMap old_debug_hooks;
+
+typedef std::map<AMX*, amx_profiler::Profiler*> AmxToProfilerMap;
+static AmxToProfilerMap profilers;
 
 typedef std::map<AMX*, amx_profiler::DebugInfo*> AmxToDebugInfoMap; 
 static AmxToDebugInfoMap debug_infos;
@@ -175,24 +169,6 @@ static bool WantsProfiler(const std::string &amx_name) {
 	return false;
 }
 
-#ifdef _WIN32
-
-PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx);
-
-static BOOL WINAPI ConsoleCtrlHandler(DWORD dwCtrlType) {
-	switch (dwCtrlType) {
-	case CTRL_CLOSE_EVENT:
-	case CTRL_BREAK_EVENT:
-		for (AmxList::const_iterator iterator = ::loaded_scripts.begin();
-				iterator != ::loaded_scripts.end(); ++iterator) {
-			AmxUnload(*iterator);
-		}
-	}
-	return FALSE;
-}
-
-#endif
-
 PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports() {
 	return SUPPORTS_VERSION | SUPPORTS_AMX_NATIVES;
 }
@@ -214,10 +190,6 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
 		((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Callback],
 		(void*)hooks::amx_Callback);
 
-	#ifdef _WIN32
-		SetConsoleCtrlHandler(ConsoleCtrlHandler, TRUE);
-	#endif
-
 	// Read plugin settings from server.cfg.
 	ConfigReader server_cfg("server.cfg");
 	cfg::profile_gamemode      = server_cfg.GetOption("profile_gamemode", cfg::profile_gamemode);
@@ -232,8 +204,6 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
 }
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
-	::loaded_scripts.push_back(amx);
-
 	std::string filename = GetAmxPath(amx);
 	if (filename.empty()) {
 		logprintf("[profiler] Failed to find corresponding .amx file");
