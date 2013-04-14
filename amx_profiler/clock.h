@@ -27,8 +27,14 @@
 
 #include <ctime>
 #include "duration.h"
+#include "exception.h"
 
 namespace amx_profiler {
+
+class UnsupportedClockType : public Exception {
+public:
+	UnsupportedClockType(const char *message) : Exception(message) {}
+};
 
 class TimePoint {
 public:
