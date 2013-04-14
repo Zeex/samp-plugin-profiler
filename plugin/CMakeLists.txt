@@ -44,11 +44,6 @@ if(UNIX OR MINGW)
 		COMPILE_FLAGS " -m32 -Wno-attributes")
 	set_property(TARGET plugin APPEND_STRING PROPERTY 
 		LINK_FLAGS " -m32 -Wl,--no-undefined")
-	if(WIN32)
-		# Link with static runtime
-		set_property(TARGET plugin APPEND_STRING PROPERTY 
-			LINK_FLAGS " -static-libgcc -static-libstdc++")
-	endif()
 endif()
 
 set(SUBHOOK_STATIC TRUE)
