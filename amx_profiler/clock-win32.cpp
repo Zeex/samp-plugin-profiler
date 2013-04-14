@@ -32,14 +32,14 @@ namespace amx_profiler {
 TimePoint Clock::Now() {
 	LARGE_INTEGER freq;
 	if (QueryPerformanceFrequency(&freq) == 0) {
-		return 0;
+		return Nanoseconds(0);
 	}
 
 	double ns_per_tick = 1E+9 / freq.QuadPart;
 
 	LARGE_INTEGER count;
 	if (QueryPerformanceCounter(&count) == 0) {
-		return 0;
+		return Nanoseconds(0);
 	}
 
 	return Nanoseconds(ns_per_tick * count.QuadPart);
