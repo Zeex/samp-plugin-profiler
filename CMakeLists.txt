@@ -32,6 +32,17 @@ if(PROFILER_USE_STATIC_RUNTIME)
 	endif()
 endif()
 
+# Disalow the use of SSE2 instruction set on Windows. Some people still have
+# old CPUs on their home PCs that do not support SSE2 and hosts typically use
+# modern CPUs and mostly run Linux.
+if(WIN32)
+	if(MSVC)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:SSE")
+	elseif(CMAKE_COMPILER_IS_GNUCXX)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=pentium3m")
+	endif()
+endif()
+
 git_describe(description --match "v[0-9]*.[0-9]**")
 if(description)
 	string(REGEX REPLACE "\\-g[0-9a-f]+$" "" description ${description})
