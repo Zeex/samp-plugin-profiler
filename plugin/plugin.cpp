@@ -26,6 +26,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <exception>
 #include <fstream>
 #include <list>
 #include <map>
@@ -66,7 +67,11 @@ namespace cfg {
 	std::string   profile_format        = "html";
 	bool          call_graph            = false;
 	std::string   call_graph_format     = "dot";
-};
+}
+
+static void PrintException(const std::exception &e) {
+	logprintf("[profiler] Error: %s", e.what());
+}
 
 namespace hooks {
 
@@ -76,14 +81,20 @@ SubHook amx_Callback_hook;
 static int AMXAPI amx_Debug(AMX *amx) {
 	amx_profiler::Profiler *profiler = ::profilers[amx];
 	if (profiler) {
-		profiler->DebugHook();
+		try {
+			profiler->DebugHook();
+		} catch (const std::exception &e) {
+			PrintException(e);
+		}
 	}
+
 	AmxToAmxDebugMap::const_iterator iterator = old_debug_hooks.find(amx);
 	if (iterator != old_debug_hooks.end()) {
 		if (iterator->second != 0) {
 			return (iterator->second)(amx);
 		}
 	}
+
 	return AMX_ERR_NONE;
 }
 
@@ -92,11 +103,15 @@ static int AMXAPI amx_Callback(AMX *amx, cell index, cell *result, cell *params)
 	SubHook::ScopedInstall i(&amx_Exec_hook);
 
 	amx_profiler::Profiler *profiler = ::profilers[amx];
-	if (profiler) {
-		return profiler->CallbackHook(index, result, params);
-	} else {
-		return ::amx_Callback(amx, index, result, params);
+	if (profiler != 0) {
+		try {
+			return profiler->CallbackHook(index, result, params);
+		} catch (const std::exception &e) {
+			PrintException(e);
+		}
 	}
+
+	return ::amx_Callback(amx, index, result, params);
 }
 
 static int AMXAPI amx_Exec(AMX *amx, cell *retval, int index) {
@@ -104,11 +119,15 @@ static int AMXAPI amx_Exec(AMX *amx, cell *retval, int index) {
 	SubHook::ScopedInstall i(&amx_Callback_hook);
 
 	amx_profiler::Profiler *profiler = ::profilers[amx];
-	if (profiler) {
-		return profiler->ExecHook(retval, index);
-	} else {
-		return ::amx_Exec(amx, retval, index);
+	if (profiler != 0) {
+		try {
+			return profiler->ExecHook(retval, index);
+		} catch (const std::exception &e) {
+			PrintException(e);
+		}
 	}
+
+	return ::amx_Exec(amx, retval, index);
 }
 
 } // namespace hooks
@@ -204,117 +223,127 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 		return AMX_ERR_NONE;
 	}
 
-	amx_profiler::DebugInfo *debug_info = 0;
+	try {
+		amx_profiler::DebugInfo *debug_info = 0;
 
-	if (amx_profiler::HaveDebugInfo(amx)) {
-		debug_info = new amx_profiler::DebugInfo(filename);
-		if (debug_info->is_loaded()) {
-			logprintf("[profiler] Loaded debug info from '%s'", filename.c_str());
-			::debug_infos[amx] = debug_info;
-		} else {
-			logprintf("[profiler] Error loading debug info from '%s'", filename.c_str());
-			delete debug_info;
+		if (amx_profiler::HaveDebugInfo(amx)) {
+			debug_info = new amx_profiler::DebugInfo(filename);
+			if (debug_info->is_loaded()) {
+				logprintf("[profiler] Loaded debug info from '%s'", filename.c_str());
+				::debug_infos[amx] = debug_info;
+			} else {
+				logprintf("[profiler] Error loading debug info from '%s'", filename.c_str());
+				delete debug_info;
+			}
 		}
+
+		amx_profiler::Profiler *profiler = new amx_profiler::Profiler(amx, debug_info);
+		profiler->set_call_graph_enabled(cfg::call_graph);
+
+		if (debug_info != 0) {
+			logprintf("[profiler] Attached profiler to '%s'", filename.c_str());
+		} else {
+			logprintf("[profiler] Attached profiler to '%s' (no debug info)", filename.c_str());
+		}
+
+		::old_debug_hooks[amx] = amx->debug;
+		amx_SetDebugHook(amx, hooks::amx_Debug);
+
+		::profilers[amx] = profiler;
 	}
-
-	amx_profiler::Profiler *profiler = new amx_profiler::Profiler(amx, debug_info);
-	profiler->set_call_graph_enabled(cfg::call_graph);
-
-	if (debug_info != 0) {
-		logprintf("[profiler] Attached profiler to '%s'", filename.c_str());
-	} else {
-		logprintf("[profiler] Attached profiler to '%s' (no debug info)", filename.c_str());
+	catch (const std::exception &e) {
+		PrintException(e);
 	}
-
-	::old_debug_hooks[amx] = amx->debug;
-	amx_SetDebugHook(amx, hooks::amx_Debug);
-
-	::profilers[amx] = profiler;
 
 	return AMX_ERR_NONE;
 }
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
-	amx_profiler::Profiler *profiler = ::profilers[amx];
+	try {
+		amx_profiler::Profiler *profiler = ::profilers[amx];
 
-	if (profiler != 0) {
-		std::string amx_path = GetAmxPath(amx);
-		std::string amx_name = std::string(amx_path, 0, amx_path.find_last_of("."));
+		if (profiler != 0) {
+			std::string amx_path = GetAmxPath(amx);
+			std::string amx_name = std::string(amx_path, 0, amx_path.find_last_of("."));
 
-		// Convert profile_format to lower case.
-		std::transform(
-			cfg::profile_format.begin(),
-			cfg::profile_format.end(),
-			cfg::profile_format.begin(),
-			::tolower
-		);
+			// Convert profile_format to lower case.
+			std::transform(
+				cfg::profile_format.begin(),
+				cfg::profile_format.end(),
+				cfg::profile_format.begin(),
+				::tolower
+			);
 
-		std::string profile_filename = amx_name + "-profile." + cfg::profile_format;
-		std::ofstream profile_stream(profile_filename.c_str());
+			std::string profile_filename = amx_name + "-profile." + cfg::profile_format;
+			std::ofstream profile_stream(profile_filename.c_str());
 
-		if (profile_stream.is_open()) {
-			amx_profiler::StatisticsWriter *writer = 0;
+			if (profile_stream.is_open()) {
+				amx_profiler::StatisticsWriter *writer = 0;
 
-			if (cfg::profile_format == "html") {
-				writer = new amx_profiler::StatisticsWriterHtml;
-			} else if (cfg::profile_format == "txt" || cfg::profile_format == "text") {
-				writer = new amx_profiler::StatisticsWriterText;
-			} else if (cfg::profile_format == "json") {
-				writer = new amx_profiler::StatisticsWriterJson;
-			} else {
-				logprintf("[profiler] Unrecognized profile format '%s'", cfg::profile_format.c_str());
-			}
-
-			if (writer != 0) {
-				logprintf("[profiler] Writing profile to '%s'", profile_filename.c_str());
-				writer->set_stream(&profile_stream);
-				writer->set_script_name(amx_path);
-				writer->set_print_date(true);
-				writer->set_print_run_time(true);
-				writer->Write(profiler->stats());
-				delete writer;
-			}
-
-			profile_stream.close();
-		}
-
-		if (cfg::call_graph) {
-			std::string call_graph_filename = amx_name + "-calls." + cfg::call_graph_format;
-			std::ofstream call_graph_stream(call_graph_filename.c_str());
-
-			if (call_graph_stream.is_open()) {
-				amx_profiler::CallGraphWriterDot *writer = 0;
-
-				if (cfg::call_graph_format == "dot") {
-					writer = new amx_profiler::CallGraphWriterDot;
+				if (cfg::profile_format == "html") {
+					writer = new amx_profiler::StatisticsWriterHtml;
+				} else if (cfg::profile_format == "txt" || cfg::profile_format == "text") {
+					writer = new amx_profiler::StatisticsWriterText;
+				} else if (cfg::profile_format == "json") {
+					writer = new amx_profiler::StatisticsWriterJson;
 				} else {
-					logprintf("[profiler] Unrecognized call graph format '%s'", cfg::call_graph_format.c_str());
+					logprintf("[profiler] Unrecognized profile format '%s'", cfg::profile_format.c_str());
 				}
 
 				if (writer != 0) {
-					logprintf("[profiler] Writing call graph to '%s'", call_graph_filename.c_str());
-					writer->set_stream(&call_graph_stream);
+					logprintf("[profiler] Writing profile to '%s'", profile_filename.c_str());
+					writer->set_stream(&profile_stream);
 					writer->set_script_name(amx_path);
-					writer->set_root_node_name("SA-MP Server");
-					writer->Write(profiler->call_graph());
+					writer->set_print_date(true);
+					writer->set_print_run_time(true);
+					writer->Write(profiler->stats());
 					delete writer;
 				}
 
-				call_graph_stream.close();
+				profile_stream.close();
+			}
+
+			if (cfg::call_graph) {
+				std::string call_graph_filename = amx_name + "-calls." + cfg::call_graph_format;
+				std::ofstream call_graph_stream(call_graph_filename.c_str());
+
+				if (call_graph_stream.is_open()) {
+					amx_profiler::CallGraphWriterDot *writer = 0;
+
+					if (cfg::call_graph_format == "dot") {
+						writer = new amx_profiler::CallGraphWriterDot;
+					} else {
+						logprintf("[profiler] Unrecognized call graph format '%s'", cfg::call_graph_format.c_str());
+					}
+
+					if (writer != 0) {
+						logprintf("[profiler] Writing call graph to '%s'", call_graph_filename.c_str());
+						writer->set_stream(&call_graph_stream);
+						writer->set_script_name(amx_path);
+						writer->set_root_node_name("SA-MP Server");
+						writer->Write(profiler->call_graph());
+						delete writer;
+					}
+
+					call_graph_stream.close();
+				}
 			}
 		}
-
-		AmxToProfilerMap::iterator iterator = ::profilers.find(amx);
-		if (iterator != ::profilers.end()) {
-			delete iterator->second;
-			::profilers.erase(iterator);
-		}
+	}
+	catch (const std::exception &e) {
+		PrintException(e);
 	}
 
-	AmxToDebugInfoMap::iterator iterator = ::debug_infos.find(amx);
-	if (iterator != ::debug_infos.end()) {
-		delete iterator->second;
-		::debug_infos.erase(iterator);
+	AmxToProfilerMap::iterator profiler_iterator = ::profilers.find(amx);
+	if (profiler_iterator != ::profilers.end()) {
+		delete profiler_iterator->second;
+		::profilers.erase(profiler_iterator);
+	}
+
+	AmxToDebugInfoMap::iterator dinfo_iterator = ::debug_infos.find(amx);
+	if (dinfo_iterator != ::debug_infos.end()) {
+		delete dinfo_iterator->second;
+		::debug_infos.erase(dinfo_iterator);
 	}
 
 	return AMX_ERR_NONE;

@@ -20,6 +20,7 @@ set(AMX_PROFILER_SOURCES
 	debug_info.cpp
 	debug_info.h
 	duration.h
+	exception.h
 	function.cpp
 	function.h
 	function_call.cpp
