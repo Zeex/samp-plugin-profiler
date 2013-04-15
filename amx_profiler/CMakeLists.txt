@@ -47,9 +47,9 @@ set(AMX_PROFILER_SOURCES
 )
 
 if(WIN32)
-	list(APPEND AMX_PROFILER_SOURCES clock-win32.cpp)
+	list(APPEND AMX_PROFILER_SOURCES clock_win32.cpp)
 else()
-	list(APPEND AMX_PROFILER_SOURCES clock-posix.cpp)
+	list(APPEND AMX_PROFILER_SOURCES clock_posix.cpp)
 endif()
 
 add_library(amx_profiler STATIC ${AMX_PROFILER_SOURCES})

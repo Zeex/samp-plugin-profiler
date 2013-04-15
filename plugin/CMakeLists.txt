@@ -27,9 +27,9 @@ set(PLUGIN_SOURCES
 )
 
 if(WIN32)
-	list(APPEND PLUGIN_SOURCES fileutils-win32.cpp)
+	list(APPEND PLUGIN_SOURCES fileutils_win32.cpp)
 else()
-	list(APPEND PLUGIN_SOURCES fileutils-posix.cpp)
+	list(APPEND PLUGIN_SOURCES fileutils_posix.cpp)
 endif()
 
 add_library(plugin MODULE ${PLUGIN_SOURCES})
