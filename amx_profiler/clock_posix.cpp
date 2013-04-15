@@ -34,7 +34,7 @@ TimePoint Clock::Now() {
 	struct timespec ts;
 
 	if (clock_gettime(CLOCK_MONOTONIC, &ts) == -1 && errno == EINVAL) {
-		throw SystemError("CLOCK_MONOTONIC is not supported on this system");
+		throw SystemError("clock_gettime");
 	}
 
 	int64_t ns = static_cast<int64_t>(ts.tv_sec) * 1000000000L + ts.tv_nsec;

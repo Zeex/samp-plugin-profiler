@@ -25,6 +25,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <cstddef>
 #include <cstring>
+#include <string>
 #include <windows.h>
 #include "system_error.h"
 
@@ -64,21 +65,15 @@ static std::string GetErrorMessage(DWORD error) {
 
 namespace amx_profiler {
 
-SystemError::SystemError()
-	: code_(GetLastError())
-	, Exception(GetErrorMessage(GetLastError()))
+SystemError::SystemError(const char *prefix)
+	: Exception(std::string(prefix) + std::string(": ") + GetErrorMessage(GetLastError()))
+	, code_(GetLastError())
 {
 }
 
-SystemError::SystemError(int code)
-	: code_(code)
-	, Exception(GetErrorMessage(code))
-{
-}
-
-SystemError::SystemError(const char *message)
-	: code_(0)
-	, Exception(message)
+SystemError::SystemError(const char *prefix, int code)
+	: Exception(std::string(prefix) + std::string(": ") + GetErrorMessage(GetLastError()))
+	, code_(code)
 {
 }
 

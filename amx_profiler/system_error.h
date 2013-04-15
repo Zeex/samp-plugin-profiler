@@ -31,9 +31,8 @@ namespace amx_profiler {
 
 class SystemError : public Exception {
 public:
-	SystemError();
-	SystemError(int code);
-	SystemError(const char *message);
+	SystemError(const char *prefix);
+	SystemError(const char *prefix, int code);
 
 	int code() const { return code_; }
 

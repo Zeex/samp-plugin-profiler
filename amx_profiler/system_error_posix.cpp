@@ -24,6 +24,7 @@
 
 #include <cerrno>
 #include <cstring>
+#include <string>
 #include "system_error.h"
 
 static const char *GetErrorMessage(int error) {
@@ -32,21 +33,15 @@ static const char *GetErrorMessage(int error) {
 
 namespace amx_profiler {
 
-SystemError::SystemError()
-	: Exception(GetErrorMessage(code_))
+SystemError::SystemError(const char *prefix)
+	: Exception(std::string(prefix) + std::string(": ") + GetErrorMessage(errno))
 	, code_(errno)
 {
 }
 
-SystemError::SystemError(int code)
-	: Exception(GetErrorMessage(code_))
+SystemError::SystemError(const char *prefix, int code)
+	: Exception(std::string(prefix) + std::string(": ") + GetErrorMessage(code))
 	, code_(code)
-{
-}
-
-SystemError::SystemError(const char *message)
-	: Exception(message)
-	, code_(0)
 {
 }
 
