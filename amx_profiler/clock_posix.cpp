@@ -33,7 +33,7 @@ namespace amx_profiler {
 TimePoint Clock::Now() {
 	struct timespec ts;
 
-	if (clock_gettime(CLOCK_MONOTONIC, &ts) == -1 && errno == EINVAL) {
+	if (clock_gettime(CLOCK_MONOTONIC, &ts) == -1) {
 		throw SystemError("clock_gettime");
 	}
 
