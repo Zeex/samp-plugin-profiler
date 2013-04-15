@@ -25,6 +25,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include "clock.h"
+#include "system_error.h"
 
 namespace amx_profiler {
 
@@ -32,14 +33,14 @@ namespace amx_profiler {
 TimePoint Clock::Now() {
 	LARGE_INTEGER freq;
 	if (QueryPerformanceFrequency(&freq) == 0) {
-		return Nanoseconds(0);
+		throw SystemError();
 	}
 
 	double ns_per_tick = 1E+9 / freq.QuadPart;
 
 	LARGE_INTEGER count;
 	if (QueryPerformanceCounter(&count) == 0) {
-		return Nanoseconds(0);
+		throw SystemError();
 	}
 
 	return Nanoseconds(ns_per_tick * count.QuadPart);
