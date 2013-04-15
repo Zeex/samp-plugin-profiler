@@ -119,14 +119,14 @@ private:
 	ValueType count_;
 };
 
-typedef Duration<long double, Ratio<1, 1000000000> > Nanoseconds;
-typedef Duration<long double, Ratio<1, 1000000> >    Microseconds;
-typedef Duration<long double, Ratio<1, 1000> >       Milliseconds;
-typedef Duration<long double, Ratio<1, 1> >          Seconds;
-typedef Duration<long double, Ratio<60, 1> >         Minutes;
-typedef Duration<long double, Ratio<3600, 1> >       Hours;
-typedef Duration<long double, Ratio<86400, 1> >      Days;
-typedef Duration<long double, Ratio<604800, 1> >     Weeks;
+typedef Duration<double, Ratio<1, 1000000000> > Nanoseconds;
+typedef Duration<double, Ratio<1, 1000000> >    Microseconds;
+typedef Duration<double, Ratio<1, 1000> >       Milliseconds;
+typedef Duration<double, Ratio<1, 1> >          Seconds;
+typedef Duration<double, Ratio<60, 1> >         Minutes;
+typedef Duration<double, Ratio<3600, 1> >       Hours;
+typedef Duration<double, Ratio<86400, 1> >      Days;
+typedef Duration<double, Ratio<604800, 1> >     Weeks;
 
 } // namespace amx_profiler
 

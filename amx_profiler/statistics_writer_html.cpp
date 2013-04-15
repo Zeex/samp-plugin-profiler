@@ -149,15 +149,15 @@ void StatisticsWriterHtml::Write(const Statistics *stats)
 	{
 		const FunctionStatistics *fn_stats = *iterator;
 
-		long double self_time_percent = fn_stats->self_time().count() * 100 / self_time_all.count();
-		long double self_time = Seconds(fn_stats->self_time()).count();
-		long double avg_self_time = Milliseconds(fn_stats->self_time()).count() / fn_stats->num_calls();
-		long double worst_self_time = Milliseconds(fn_stats->worst_self_time()).count();
+		double self_time_percent = fn_stats->self_time().count() * 100 / self_time_all.count();
+		double self_time = Seconds(fn_stats->self_time()).count();
+		double avg_self_time = Milliseconds(fn_stats->self_time()).count() / fn_stats->num_calls();
+		double worst_self_time = Milliseconds(fn_stats->worst_self_time()).count();
 
-		long double total_time_percent = fn_stats->total_time().count() * 100 / total_time_all.count();
-		long double total_time = Seconds(fn_stats->total_time()).count();
-		long double avg_total_time = Milliseconds(fn_stats->total_time()).count() / fn_stats->num_calls();
-		long double worst_total_time = Milliseconds(fn_stats->worst_total_time()).count();
+		double total_time_percent = fn_stats->total_time().count() * 100 / total_time_all.count();
+		double total_time = Seconds(fn_stats->total_time()).count();
+		double avg_total_time = Milliseconds(fn_stats->total_time()).count() / fn_stats->num_calls();
+		double worst_total_time = Milliseconds(fn_stats->worst_total_time()).count();
 
 		*stream()
 		<< "		<tr>\n"
