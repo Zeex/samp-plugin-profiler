@@ -22,36 +22,64 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef AMX_PROFILER_CLOCK_H
-#define AMX_PROFILER_CLOCK_H
+#define WIN32_LEAN_AND_MEAN
+#include <cstddef>
+#include <cstring>
+#include <windows.h>
+#include "system_error.h"
 
-#include <ctime>
-#include "duration.h"
+static char *StripNewLine(char *s) {
+	std::size_t length = std::strlen(s);
+
+	for (std::size_t i = length - 1; i >= 0; i--) {
+		if (s[i] != '\n' && s[i] != '\r') {
+			break;
+		}
+		s[i] = '\0';
+	}
+
+	return s;
+}
+
+static std::string GetErrorMessage(DWORD error) {
+	std::string message;
+
+	LPVOID buffer = NULL;
+	DWORD flags = FORMAT_MESSAGE_ALLOCATE_BUFFER |
+	              FORMAT_MESSAGE_FROM_SYSTEM |
+	              FORMAT_MESSAGE_IGNORE_INSERTS;
+	DWORD lang_id = MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT);
+	
+	DWORD result = FormatMessageA(flags, NULL, error, lang_id,
+	                              reinterpret_cast<LPSTR>(&buffer),
+	                              0, NULL);
+	if (result > 0) {
+		message.assign(StripNewLine(reinterpret_cast<char*>(buffer)));
+	}
+
+	LocalFree(buffer);
+
+	return message;
+}
 
 namespace amx_profiler {
 
-class TimePoint {
-public:
-	TimePoint() : time_(0) {}
-	TimePoint(Nanoseconds time) : time_(time) {}
+SystemError::SystemError()
+	: code_(GetLastError())
+	, Exception(GetErrorMessage(GetLastError()))
+{
+}
 
-	Nanoseconds operator+(const TimePoint &other) const {
-		return Nanoseconds(time_ + other.time_);
-	}
+SystemError::SystemError(int code)
+	: code_(code)
+	, Exception(GetErrorMessage(code))
+{
+}
 
-	Nanoseconds operator-(const TimePoint &other) const {
-		return Nanoseconds(time_ - other.time_);
-	}
+SystemError::SystemError(const char *message)
+	: code_(0)
+	, Exception(message)
+{
+}
 
-private:
-	Nanoseconds time_;
-};
-
-class Clock {
-public:
-	static TimePoint Now();
-};
-
-} // namespace amx_profiler
-
-#endif // !AMX_PROFILER_CLOCK_H
+}

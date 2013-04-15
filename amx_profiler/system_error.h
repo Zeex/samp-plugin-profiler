@@ -22,36 +22,25 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef AMX_PROFILER_CLOCK_H
-#define AMX_PROFILER_CLOCK_H
+#ifndef AMX_PROFILER_SYSTEM_ERROR_H
+#define AMX_PROFILER_SYSTEM_ERROR_H
 
-#include <ctime>
-#include "duration.h"
+#include "exception.h"
 
 namespace amx_profiler {
 
-class TimePoint {
+class SystemError : public Exception {
 public:
-	TimePoint() : time_(0) {}
-	TimePoint(Nanoseconds time) : time_(time) {}
+	SystemError();
+	SystemError(int code);
+	SystemError(const char *message);
 
-	Nanoseconds operator+(const TimePoint &other) const {
-		return Nanoseconds(time_ + other.time_);
-	}
-
-	Nanoseconds operator-(const TimePoint &other) const {
-		return Nanoseconds(time_ - other.time_);
-	}
+	int code() const { return code_; }
 
 private:
-	Nanoseconds time_;
-};
-
-class Clock {
-public:
-	static TimePoint Now();
+	int code_;
 };
 
 } // namespace amx_profiler
 
-#endif // !AMX_PROFILER_CLOCK_H
+#endif // !AMX_PROFILER_SYSTEM_ERROR_H

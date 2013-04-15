@@ -25,6 +25,7 @@
 #include <cerrno>
 #include <ctime>
 #include "clock.h"
+#include "system_error.h"
 
 namespace amx_profiler {
 
@@ -33,7 +34,7 @@ TimePoint Clock::Now() {
 	struct timespec ts;
 
 	if (clock_gettime(CLOCK_MONOTONIC, &ts) == -1 && errno == EINVAL) {
-		throw UnsupportedClockType("CLOCK_MONOTONIC is not supported on this system");
+		throw SystemError("CLOCK_MONOTONIC is not supported on this system");
 	}
 
 	int64_t ns = static_cast<int64_t>(ts.tv_sec) * 1000000000L + ts.tv_nsec;

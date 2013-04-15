@@ -43,14 +43,21 @@ set(AMX_PROFILER_SOURCES
 	statistics_writer_json.cpp
 	statistics_writer_json.h
 	stdint.h
+	system_error.h
 	time_utils.cpp
 	time_utils.h
 )
 
 if(WIN32)
-	list(APPEND AMX_PROFILER_SOURCES clock_win32.cpp)
+	list(APPEND AMX_PROFILER_SOURCES
+		clock_win32.cpp
+		system_error_win32.cpp
+	)
 else()
-	list(APPEND AMX_PROFILER_SOURCES clock_posix.cpp)
+	list(APPEND AMX_PROFILER_SOURCES
+		clock_posix.cpp
+		system_error_posix.cpp
+	)
 endif()
 
 add_library(amx_profiler STATIC ${AMX_PROFILER_SOURCES})
