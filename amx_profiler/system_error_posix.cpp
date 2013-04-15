@@ -24,7 +24,6 @@
 
 #include <cerrno>
 #include <cstring>
-#include <string>
 #include "system_error.h"
 
 static const char *GetErrorMessage(int error) {

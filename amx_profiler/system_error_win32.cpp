@@ -25,7 +25,6 @@
 #define WIN32_LEAN_AND_MEAN
 #include <cstddef>
 #include <cstring>
-#include <string>
 #include <windows.h>
 #include "system_error.h"
 

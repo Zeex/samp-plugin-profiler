@@ -26,6 +26,7 @@
 #define AMX_PROFILER_EXCEPTION_H
 
 #include <stdexcept>
+#include <string>
 
 namespace amx_profiler {
 
