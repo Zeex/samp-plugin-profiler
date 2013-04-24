@@ -27,20 +27,20 @@
 #include "system_error.h"
 
 static const char *GetErrorMessage(int error) {
-	return std::strerror(error);
+  return std::strerror(error);
 }
 
 namespace amx_profiler {
 
 SystemError::SystemError(const char *prefix)
-	: Exception(std::string(prefix) + std::string(": ") + GetErrorMessage(errno))
-	, code_(errno)
+ : Exception(std::string(prefix) + std::string(": ") + GetErrorMessage(errno)),
+   code_(errno)
 {
 }
 
 SystemError::SystemError(const char *prefix, int code)
-	: Exception(std::string(prefix) + std::string(": ") + GetErrorMessage(code))
-	, code_(code)
+ : Exception(std::string(prefix) + std::string(": ") + GetErrorMessage(code)),
+   code_(code)
 {
 }
 

@@ -30,58 +30,58 @@
 namespace amx_profiler {
 
 DebugInfo::DebugInfo()
-	: amxdbg_(0)
+ : amxdbg_(0)
 {
 }
 
 DebugInfo::DebugInfo(const AMX_DBG *amxdbg) 
-	: amxdbg_(new AMX_DBG)
+ : amxdbg_(new AMX_DBG)
 {
-	std::memcpy(amxdbg_, amxdbg, sizeof(AMX_DBG));
+  std::memcpy(amxdbg_, amxdbg, sizeof(AMX_DBG));
 }
 
 DebugInfo::DebugInfo(const std::string &filename)
-	: amxdbg_(0)
+ : amxdbg_(0)
 {
-	Load(filename);
+  Load(filename);
 }
 
 void DebugInfo::Load(const std::string &filename) {
-	std::FILE* fp = std::fopen(filename.c_str(), "rb");
-	if (fp != 0) {
-		amxdbg_ = new AMX_DBG;
-		if (dbg_LoadInfo(amxdbg_, fp) != AMX_ERR_NONE) 
-			delete amxdbg_;
-		fclose(fp);
-	}
+  std::FILE* fp = std::fopen(filename.c_str(), "rb");
+  if (fp != 0) {
+    amxdbg_ = new AMX_DBG;
+    if (dbg_LoadInfo(amxdbg_, fp) != AMX_ERR_NONE) 
+      delete amxdbg_;
+    fclose(fp);
+  }
 }
 
 void DebugInfo::Unload() {
-	if (amxdbg_ != 0) {
-		dbg_FreeInfo(amxdbg_);
-		delete amxdbg_;
-	}
+  if (amxdbg_ != 0) {
+    dbg_FreeInfo(amxdbg_);
+    delete amxdbg_;
+  }
 }
 long DebugInfo::GetLine(Address address) const {
-	long line = 0;
-	dbg_LookupLine(amxdbg_, address, &line);
-	return line;
+  long line = 0;
+  dbg_LookupLine(amxdbg_, address, &line);
+  return line;
 }
 
 std::string DebugInfo::GetFile(Address address) const {
-	std::string result;
-	const char *file;
-	if (dbg_LookupFile(amxdbg_, address, &file) == AMX_ERR_NONE)
-		result.assign(file);
-	return result;
+  std::string result;
+  const char *file;
+  if (dbg_LookupFile(amxdbg_, address, &file) == AMX_ERR_NONE)
+    result.assign(file);
+  return result;
 }
 
 std::string DebugInfo::GetFunction(Address address) const {
-	std::string result;
-	const char *function;
-	if (dbg_LookupFunction(amxdbg_, address, &function) == AMX_ERR_NONE)
-		result.assign(function);
-	return result;
+  std::string result;
+  const char *function;
+  if (dbg_LookupFunction(amxdbg_, address, &function) == AMX_ERR_NONE)
+    result.assign(function);
+  return result;
 }
 
 } // namespace amx_profiler

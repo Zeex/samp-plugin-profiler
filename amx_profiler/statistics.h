@@ -37,25 +37,25 @@ class Function;
 class FunctionStatistics;
 
 class Statistics {
-public:
-	typedef std::map<Address, FunctionStatistics*> AddressToFuncStatsMap;
+ public:
+  typedef std::map<Address, FunctionStatistics*> AddressToFuncStatsMap;
 
-	Statistics();
-	~Statistics();
+  Statistics();
+  ~Statistics();
 
-	void AddFunction(Function *fn);
-	Function *GetFunction(Address address);
+  void AddFunction(Function *fn);
+  Function *GetFunction(Address address);
 
-	FunctionStatistics *GetFunctionStatistis(Address address) const;
-	void GetStatistics(std::vector<FunctionStatistics*> &stats) const;
+  FunctionStatistics *GetFunctionStatistis(Address address) const;
+  void GetStatistics(std::vector<FunctionStatistics*> &stats) const;
 
-	Nanoseconds GetTotalRunTime() const {
-		return run_time_counter_.QueryTotalTime();
-	}
+  Nanoseconds GetTotalRunTime() const {
+    return run_time_counter_.QueryTotalTime();
+  }
 
-private:
-	PerformanceCounter run_time_counter_;
-	AddressToFuncStatsMap address_to_fn_stats_;
+ private:
+  PerformanceCounter run_time_counter_;
+  AddressToFuncStatsMap address_to_fn_stats_;
 };
 
 } // namespace amx_profiler

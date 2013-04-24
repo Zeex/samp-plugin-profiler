@@ -33,29 +33,29 @@ namespace amx_profiler {
 class Statistics;
 
 class StatisticsWriter {
-public:
-	StatisticsWriter();
-	virtual ~StatisticsWriter();
+ public:
+  StatisticsWriter();
+  virtual ~StatisticsWriter();
 
-	virtual void Write(const Statistics *stats) = 0;
+  virtual void Write(const Statistics *stats) = 0;
 
-	std::ostream *stream() const { return stream_; }
-	void set_stream(std::ostream *stream) { stream_ = stream; }
-	
-	std::string script_name() const { return script_name_; }
-	void set_script_name(std::string script_name) { script_name_ = script_name; }
-	
-	bool print_date() const { return print_date_; }
-	void set_print_date(bool print_date) { print_date_ = print_date; }
+  std::ostream *stream() const { return stream_; }
+  void set_stream(std::ostream *stream) { stream_ = stream; }
+  
+  std::string script_name() const { return script_name_; }
+  void set_script_name(std::string script_name) { script_name_ = script_name; }
+  
+  bool print_date() const { return print_date_; }
+  void set_print_date(bool print_date) { print_date_ = print_date; }
 
-	bool print_run_time() const { return print_run_time_; }
-	void set_print_run_time(bool print_run_time) { print_run_time_ = print_run_time; }
+  bool print_run_time() const { return print_run_time_; }
+  void set_print_run_time(bool print_run_time) { print_run_time_ = print_run_time; }
 
-private:
-	std::ostream *stream_;
-	std::string script_name_;
-	bool print_date_;
-	bool print_run_time_;
+ private:
+  std::ostream *stream_;
+  std::string script_name_;
+  bool print_date_;
+  bool print_run_time_;
 };
 
 } // namespace amx_profiler

@@ -29,43 +29,43 @@
 namespace amx_profiler {
 
 Statistics::Statistics() {
-	run_time_counter_.Start();
+  run_time_counter_.Start();
 }
 
 Statistics::~Statistics() {
-	for (AddressToFuncStatsMap::const_iterator iterator = address_to_fn_stats_.begin();
-	     iterator != address_to_fn_stats_.end(); ++iterator)
-	{
-		delete iterator->second;
-	}
+  for (AddressToFuncStatsMap::const_iterator iterator = address_to_fn_stats_.begin();
+       iterator != address_to_fn_stats_.end(); ++iterator)
+  {
+    delete iterator->second;
+  }
 }
 
 Function *Statistics::GetFunction(Address address) {
-	AddressToFuncStatsMap::const_iterator iterator = address_to_fn_stats_.find(address);
-	if (iterator != address_to_fn_stats_.end()) {
-		return iterator->second->function();
-	}
-	return 0;
+  AddressToFuncStatsMap::const_iterator iterator = address_to_fn_stats_.find(address);
+  if (iterator != address_to_fn_stats_.end()) {
+    return iterator->second->function();
+  }
+  return 0;
 }
 
 void Statistics::AddFunction(Function *fn) {
-	FunctionStatistics *fn_stats = new FunctionStatistics(fn);
-	address_to_fn_stats_.insert(std::make_pair(fn->address(), fn_stats));
+  FunctionStatistics *fn_stats = new FunctionStatistics(fn);
+  address_to_fn_stats_.insert(std::make_pair(fn->address(), fn_stats));
 }
 
 FunctionStatistics *Statistics::GetFunctionStatistis(Address address) const {
-	AddressToFuncStatsMap::const_iterator iterator = address_to_fn_stats_.find(address);
-	if (iterator != address_to_fn_stats_.end()) {
-		return iterator->second;
-	}
-	return 0;
+  AddressToFuncStatsMap::const_iterator iterator = address_to_fn_stats_.find(address);
+  if (iterator != address_to_fn_stats_.end()) {
+    return iterator->second;
+  }
+  return 0;
 }
 
 void Statistics::GetStatistics(std::vector<FunctionStatistics*> &stats) const {
-	for (AddressToFuncStatsMap::const_iterator iterator = address_to_fn_stats_.begin();
-			 iterator != address_to_fn_stats_.end(); ++iterator) {
-		stats.push_back(iterator->second);
-	}
+  for (AddressToFuncStatsMap::const_iterator iterator = address_to_fn_stats_.begin();
+       iterator != address_to_fn_stats_.end(); ++iterator) {
+    stats.push_back(iterator->second);
+  }
 }
 
 } // namespace amx_profiler

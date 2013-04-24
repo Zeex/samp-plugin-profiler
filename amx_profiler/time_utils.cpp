@@ -30,48 +30,48 @@
 namespace amx_profiler {
 
 std::time_t TimeStamp::Now() {
-	return std::time(0);
+  return std::time(0);
 }
 
 TimeStamp::TimeStamp()
-	: value_(Now())
+ : value_(Now())
 {
 }
 
 TimeStamp::TimeStamp(std::time_t value)
-	: value_(value)
+ : value_(value)
 {
 }
 
 const char *CTime(TimeStamp ts) {
-	std::time_t now = TimeStamp::Now();
+  std::time_t now = TimeStamp::Now();
 
-	char *string = const_cast<char*>(std::ctime(&now));
-	string[kCTimeResultLength] = '\0';
+  char *string = const_cast<char*>(std::ctime(&now));
+  string[kCTimeResultLength] = '\0';
 
-	return string;
+  return string;
 }
 
 TimeSpan::TimeSpan(Seconds d) {
-	hours_ = static_cast<int>(Hours(d).count());
-	d -= Hours(hours_);
+  hours_ = static_cast<int>(Hours(d).count());
+  d -= Hours(hours_);
 
-	minutes_ = static_cast<int>(Minutes(d).count());
-	d -= Minutes(minutes_);
+  minutes_ = static_cast<int>(Minutes(d).count());
+  d -= Minutes(minutes_);
 
-	seconds_ = static_cast<int>(Seconds(d).count());
-	d -= Seconds(seconds_);
+  seconds_ = static_cast<int>(Seconds(d).count());
+  d -= Seconds(seconds_);
 }
 
 std::ostream &operator<<(std::ostream &os, const TimeSpan &time) {
-	char fill = os.fill('0');
+  char fill = os.fill('0');
 
-	os << std::setw(2) << time.hours()   << ':'
-	   << std::setw(2) << time.minutes() << ':'
-	   << std::setw(2) << time.seconds();
+  os << std::setw(2) << time.hours()   << ':'
+     << std::setw(2) << time.minutes() << ':'
+     << std::setw(2) << time.seconds();
 
-	os.fill(fill);
-	return os;
+  os.fill(fill);
+  return os;
 }
 
 } // namespace amx_profiler

@@ -27,23 +27,23 @@
 namespace amx_profiler {
 
 FunctionCall::FunctionCall(Function *function, Address frame, FunctionCall *parent)
-	: fn_(function)
-	, parent_(parent)
-	, frame_(frame)
+ : fn_(function),
+   parent_(parent),
+   frame_(frame)
 {
-	FunctionCall *current = parent;
+  FunctionCall *current = parent;
 
-	while (current != 0) {
-		if (current->fn_ == this->fn_) {
-			timer_.set_shadow(current->timer());
-			break;
-		}
-		current = current->parent_;
-	}
+  while (current != 0) {
+    if (current->fn_ == this->fn_) {
+      timer_.set_shadow(current->timer());
+      break;
+    }
+    current = current->parent_;
+  }
 
-	if (parent_ != 0) {
-		timer_.set_parent(&parent_->timer_);
-	}
+  if (parent_ != 0) {
+    timer_.set_parent(&parent_->timer_);
+  }
 }
 
 } // namespace amx_profiler

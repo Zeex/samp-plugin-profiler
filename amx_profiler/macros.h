@@ -29,7 +29,7 @@
 // This should be used in the private: declarations for a class
 // http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml?showone=Copy_Constructors#Copy_Constructors
 #define DISALLOW_COPY_AND_ASSIGN(TypeName) \
-	TypeName(const TypeName&); \
-	void operator=(const TypeName&)
+  TypeName(const TypeName&); \
+  void operator=(const TypeName&)
 
 #endif // !AMX_PROFILER_MACROS_H

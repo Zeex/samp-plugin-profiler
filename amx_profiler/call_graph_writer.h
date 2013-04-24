@@ -32,33 +32,33 @@
 namespace amx_profiler {
 
 class CallGraphWriter {
-public:
-	class Visitor : public CallGraph::Visitor {
-	public:
-		Visitor(CallGraphWriter *writer) : writer_(writer) {}
-		virtual void Visit(const CallGraphNode *node) = 0;
-	protected:
-		CallGraphWriter *writer_;
-	};
+ public:
+  class Visitor : public CallGraph::Visitor {
+   public:
+    Visitor(CallGraphWriter *writer) : writer_(writer) {}
+    virtual void Visit(const CallGraphNode *node) = 0;
+   protected:
+    CallGraphWriter *writer_;
+  };
 
-	CallGraphWriter();
-	virtual ~CallGraphWriter();
+  CallGraphWriter();
+  virtual ~CallGraphWriter();
 
-	virtual void Write(const CallGraph *graph) = 0;
+  virtual void Write(const CallGraph *graph) = 0;
 
-	std::ostream *stream() const { return stream_; }
-	void set_stream(std::ostream *stream) { stream_ = stream; }
-	
-	std::string script_name() const { return script_name_; }
-	void set_script_name(std::string script_name) { script_name_ = script_name; }
+  std::ostream *stream() const { return stream_; }
+  void set_stream(std::ostream *stream) { stream_ = stream; }
+  
+  std::string script_name() const { return script_name_; }
+  void set_script_name(std::string script_name) { script_name_ = script_name; }
 
-	std::string root_node_name() const { return root_node_name_; }
-	void set_root_node_name(std::string root_node_name) { root_node_name_ = root_node_name; }
+  std::string root_node_name() const { return root_node_name_; }
+  void set_root_node_name(std::string root_node_name) { root_node_name_ = root_node_name; }
 
-private:
-	std::ostream *stream_;
-	std::string script_name_;
-	std::string root_node_name_;
+ private:
+  std::ostream *stream_;
+  std::string script_name_;
+  std::string root_node_name_;
 };
 
 } // namespace amx_profiler

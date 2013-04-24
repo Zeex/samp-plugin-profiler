@@ -31,92 +31,92 @@ namespace amx_profiler {
 
 template<int64_t x, int64_t y>
 struct Ratio {
-	static const int64_t X = x;
-	static const int64_t Y = y;
+  static const int64_t X = x;
+  static const int64_t Y = y;
 };
 
 template<typename D1, typename D2>
 D1 duration_cast(D2 d2) {
-	// (d2 / d1) * count
+  // (d2 / d1) * count
 
-	static const int64_t x1 = D1::RatioType::X;
-	static const int64_t y1 = D1::RatioType::Y;
-	static const int64_t x2 = D2::RatioType::X;
-	static const int64_t y2 = D2::RatioType::Y;
+  static const int64_t x1 = D1::RatioType::X;
+  static const int64_t y1 = D1::RatioType::Y;
+  static const int64_t x2 = D2::RatioType::X;
+  static const int64_t y2 = D2::RatioType::Y;
 
-	return static_cast<typename D1::ValueType>((d2.count() * (x2 * y1)) / (y2 * x1));
+  return static_cast<typename D1::ValueType>((d2.count() * (x2 * y1)) / (y2 * x1));
 }
 
 template<typename T, typename R>
 class Duration {
-public:
-	typedef T ValueType;
-	typedef R RatioType;
-	
-	typedef Duration<ValueType, RatioType> ThisType;
+ public:
+  typedef T ValueType;
+  typedef R RatioType;
+  
+  typedef Duration<ValueType, RatioType> ThisType;
 
-	Duration() : count_(ValueType()) {}
-	Duration(ValueType count) : count_(count) {}
+  Duration() : count_(ValueType()) {}
+  Duration(ValueType count) : count_(count) {}
 
-	template<typename T2, typename R2>
-	Duration(const Duration<T2, R2> &d) {
-		count_ = duration_cast<ThisType>(d).count_;
-	}
+  template<typename T2, typename R2>
+  Duration(const Duration<T2, R2> &d) {
+    count_ = duration_cast<ThisType>(d).count_;
+  }
 
-	ValueType count() const { return count_; }
+  ValueType count() const { return count_; }
 
-	ThisType operator+() const {
-		return ThisType(count_);
-	}
+  ThisType operator+() const {
+    return ThisType(count_);
+  }
 
-	ThisType operator-() const {
-		return ThisType(-count_);
-	}
+  ThisType operator-() const {
+    return ThisType(-count_);
+  }
 
-	template<typename D>
-	ThisType operator+(const D &other) const {
-		return ThisType(count_ + duration_cast<ThisType>(other).count_);
-	}
+  template<typename D>
+  ThisType operator+(const D &other) const {
+    return ThisType(count_ + duration_cast<ThisType>(other).count_);
+  }
 
-	template<typename D>
-	ThisType operator-(const D &other) const {
-		return ThisType(count_ - duration_cast<ThisType>(other).count_);
-	}
+  template<typename D>
+  ThisType operator-(const D &other) const {
+    return ThisType(count_ - duration_cast<ThisType>(other).count_);
+  }
 
-	template<typename D>
-	ThisType &operator-=(const D &other) {
-		count_ -= duration_cast<ThisType>(other).count_;
-		return *this;
-	}
+  template<typename D>
+  ThisType &operator-=(const D &other) {
+    count_ -= duration_cast<ThisType>(other).count_;
+    return *this;
+  }
 
-	template<typename D>
-	ThisType &operator+=(const D &other) {
-		count_ += duration_cast<ThisType>(other).count_;
-		return *this;
-	}
+  template<typename D>
+  ThisType &operator+=(const D &other) {
+    count_ += duration_cast<ThisType>(other).count_;
+    return *this;
+  }
 
-	template<typename D>
-	bool operator==(const D &other) const {
-		return count_ == duration_cast<ThisType>(other).count_;
-	}
+  template<typename D>
+  bool operator==(const D &other) const {
+    return count_ == duration_cast<ThisType>(other).count_;
+  }
 
-	template<typename D>
-	bool operator!=(const D &other) const {
-		return count_ != duration_cast<ThisType>(other).count_;
-	}
+  template<typename D>
+  bool operator!=(const D &other) const {
+    return count_ != duration_cast<ThisType>(other).count_;
+  }
 
-	template<typename D>
-	bool operator<(const D &other) const {
-		return count_ < duration_cast<ThisType>(other).count_;
-	}
+  template<typename D>
+  bool operator<(const D &other) const {
+    return count_ < duration_cast<ThisType>(other).count_;
+  }
 
-	template<typename D>
-	bool operator>(const D &other) const {
-		return count_ > duration_cast<ThisType>(other).count_;
-	}
+  template<typename D>
+  bool operator>(const D &other) const {
+    return count_ > duration_cast<ThisType>(other).count_;
+  }
 
-private:
-	ValueType count_;
+ private:
+  ValueType count_;
 };
 
 typedef Duration<double, Ratio<1, 1000000000> > Nanoseconds;

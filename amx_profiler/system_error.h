@@ -30,14 +30,14 @@
 namespace amx_profiler {
 
 class SystemError : public Exception {
-public:
-	SystemError(const char *prefix);
-	SystemError(const char *prefix, int code);
+ public:
+  SystemError(const char *prefix);
+  SystemError(const char *prefix, int code);
 
-	int code() const { return code_; }
+  int code() const { return code_; }
 
-private:
-	int code_;
+ private:
+  int code_;
 };
 
 } // namespace amx_profiler

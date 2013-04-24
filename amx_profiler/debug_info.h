@@ -34,32 +34,32 @@
 namespace amx_profiler {
 
 class DebugInfo {
-public:
-	DebugInfo();
-	explicit DebugInfo(const AMX_DBG *amxdbg);
-	explicit DebugInfo(const std::string &filename);
+ public:
+  DebugInfo();
+  explicit DebugInfo(const AMX_DBG *amxdbg);
+  explicit DebugInfo(const std::string &filename);
 
-	void Load(const std::string &filename);
-	void Unload();
+  void Load(const std::string &filename);
+  void Unload();
 
-	bool is_loaded() const { return amxdbg_ != 0; }
+  bool is_loaded() const { return amxdbg_ != 0; }
 
-	long GetLine(Address address) const;
-	std::string GetFile(Address address) const;
-	std::string GetFunction(Address address) const;
+  long GetLine(Address address) const;
+  std::string GetFile(Address address) const;
+  std::string GetFunction(Address address) const;
 
-private:
-	AMX_DBG *amxdbg_;
+ private:
+  AMX_DBG *amxdbg_;
 
-private:
-	DISALLOW_COPY_AND_ASSIGN(DebugInfo);
+ private:
+  DISALLOW_COPY_AND_ASSIGN(DebugInfo);
 };
 
 inline bool HaveDebugInfo(AMX *amx) {
-	uint16_t flags;
-	amx_Flags(amx, &flags);
-	return ((flags & AMX_FLAG_DEBUG) != 0);
-}	
+  uint16_t flags;
+  amx_Flags(amx, &flags);
+  return ((flags & AMX_FLAG_DEBUG) != 0);
+}  
 
 } // namespace amx_profiler
 

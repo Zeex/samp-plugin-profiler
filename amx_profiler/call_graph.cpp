@@ -29,58 +29,58 @@
 namespace amx_profiler {
 
 CallGraph::CallGraph(CallGraphNode *root)
-	: root_(root)
-	, sentinel_(new CallGraphNode(this, 0))
+ : root_(root),
+   sentinel_(new CallGraphNode(this, 0))
 {
-	if (!root) {
-		root_ = sentinel_;
-	}
+  if (!root) {
+    root_ = sentinel_;
+  }
 }
 
 CallGraph::~CallGraph() {
-	delete sentinel_;
-	for (NodeSet::const_iterator iterator = nodes_.begin();
-			iterator != nodes_.end(); ++iterator) {
-		delete *iterator;
-	}
+  delete sentinel_;
+  for (NodeSet::const_iterator iterator = nodes_.begin();
+       iterator != nodes_.end(); ++iterator) {
+    delete *iterator;
+  }
 }
 
 void CallGraph::OwnNode(CallGraphNode *node) {
-	nodes_.insert(node);
+  nodes_.insert(node);
 }
 
 void CallGraph::Traverse(Visitor *visitor) const {
-	sentinel_->Traverse(visitor);
+  sentinel_->Traverse(visitor);
 }
 
 bool CallGraphNode::Compare::operator()(const CallGraphNode *n1, const CallGraphNode *n2) const {
-	return n1->stats()->function()->address() < n2->stats()->function()->address();
+  return n1->stats()->function()->address() < n2->stats()->function()->address();
 }
 
 CallGraphNode::CallGraphNode(CallGraph *graph, FunctionStatistics *stats, CallGraphNode *caller) 
-	: graph_(graph)
-	, stats_(stats)
-	, caller_(caller)
+ : graph_(graph),
+   stats_(stats),
+   caller_(caller)
 {
 }
 
 CallGraphNode *CallGraphNode::AddCallee(FunctionStatistics *stats) {
-	CallGraphNode *node = new CallGraphNode(graph_, stats, this);
-	return AddCallee(node);
+  CallGraphNode *node = new CallGraphNode(graph_, stats, this);
+  return AddCallee(node);
 }
 
 CallGraphNode *CallGraphNode::AddCallee(CallGraphNode *node) {
-	graph_->OwnNode(node);
-	callees_.insert(node);
-	return node;
+  graph_->OwnNode(node);
+  callees_.insert(node);
+  return node;
 }
 
 void CallGraphNode::Traverse(CallGraph::Visitor *visitor) const {
-	visitor->Visit(this);
-	for (CalleeSet::const_iterator iterator = callees_.begin();
-			iterator != callees_.end(); ++iterator) {
-		(*iterator)->Traverse(visitor);
-	}
+  visitor->Visit(this);
+  for (CalleeSet::const_iterator iterator = callees_.begin();
+       iterator != callees_.end(); ++iterator) {
+    (*iterator)->Traverse(visitor);
+  }
 }
 
 } // namespace amx_profiler

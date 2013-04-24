@@ -30,48 +30,48 @@
 namespace amx_profiler {
 
 class PerformanceCounter {
-public:
-	PerformanceCounter(PerformanceCounter *parent = 0,
-	                   PerformanceCounter *shadow = 0);
+ public:
+  PerformanceCounter(PerformanceCounter *parent = 0,
+                     PerformanceCounter *shadow = 0);
 
-	void Start();
-	void Stop();
+  void Start();
+  void Stop();
 
-	void ResetTimes();
+  void ResetTimes();
 
-	Nanoseconds QueryTotalTime() const {
-		return Clock::Now() - start_point_;
-	}
+  Nanoseconds QueryTotalTime() const {
+    return Clock::Now() - start_point_;
+  }
 
-	void set_parent(PerformanceCounter *parent) { parent_ = parent; }
-	void set_shadow(PerformanceCounter *shadow) { shadow_ = shadow; }
+  void set_parent(PerformanceCounter *parent) { parent_ = parent; }
+  void set_shadow(PerformanceCounter *shadow) { shadow_ = shadow; }
 
-	Nanoseconds latest_total_time() const { return latest_total_time_; }
-	Nanoseconds latest_child_time() const { return latest_child_time_; }
+  Nanoseconds latest_total_time() const { return latest_total_time_; }
+  Nanoseconds latest_child_time() const { return latest_child_time_; }
 
-	Nanoseconds latest_self_time() const {
-		return latest_total_time_ - latest_child_time_;
-	}
+  Nanoseconds latest_self_time() const {
+    return latest_total_time_ - latest_child_time_;
+  }
 
-	Nanoseconds child_time() const { return child_time_; }
-	Nanoseconds total_time() const { return total_time_; }
+  Nanoseconds child_time() const { return child_time_; }
+  Nanoseconds total_time() const { return total_time_; }
 
-	Nanoseconds self_time() const {
-		return total_time_ - child_time_;
-	}
+  Nanoseconds self_time() const {
+    return total_time_ - child_time_;
+  }
 
-private:
-	bool started_;
+ private:
+  bool started_;
 
-	PerformanceCounter *parent_;
-	PerformanceCounter *shadow_;
+  PerformanceCounter *parent_;
+  PerformanceCounter *shadow_;
 
-	TimePoint start_point_;
+  TimePoint start_point_;
 
-	Nanoseconds latest_total_time_;
-	Nanoseconds latest_child_time_;
-	Nanoseconds child_time_;
-	Nanoseconds total_time_;
+  Nanoseconds latest_total_time_;
+  Nanoseconds latest_child_time_;
+  Nanoseconds child_time_;
+  Nanoseconds total_time_;
 };
 
 } // namespace amx_profiler

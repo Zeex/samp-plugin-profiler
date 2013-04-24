@@ -31,9 +31,9 @@
 namespace amx_profiler {
 
 class Exception : public std::runtime_error {
-public:
-	Exception(const char *message) : std::runtime_error(message) {}
-	Exception(const std::string &message) : std::runtime_error(message) {}
+ public:
+  Exception(const char *message) : std::runtime_error(message) {}
+  Exception(const std::string &message) : std::runtime_error(message) {}
 };
 
 }

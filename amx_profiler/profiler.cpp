@@ -32,151 +32,151 @@
 namespace amx_profiler {
 
 Profiler::Profiler(AMX *amx, DebugInfo *debug_info)
-	: amx_(amx)
-	, debug_info_(debug_info)
-	, call_graph_enabled_(false)
+ : amx_(amx),
+   debug_info_(debug_info),
+   call_graph_enabled_(false)
 {
-	// The AMX VM normally replaces SYSREQ.C instructions with SYSREQ.D
-	// to speed up native calls. We don't want this to happen as then we
-	// would be unable to profile native functions.
-	amx->sysreq_d = 0;
+  // The AMX VM normally replaces SYSREQ.C instructions with SYSREQ.D
+  // to speed up native calls. We don't want this to happen as then we
+  // would be unable to profile native functions.
+  amx->sysreq_d = 0;
 }
 
 Profiler::~Profiler() {
-	for (FunctionSet::const_iterator iterator = functions_.begin();
-			iterator != functions_.end(); ++iterator) {
-		delete *iterator;
-	}
+  for (FunctionSet::const_iterator iterator = functions_.begin();
+       iterator != functions_.end(); ++iterator) {
+    delete *iterator;
+  }
 }
 
 int Profiler::DebugHook(AMX_DEBUG debug) {
-	Address prev_frame = amx_->stp;
+  Address prev_frame = amx_->stp;
 
-	if (!call_stack_.IsEmpty()) {
-		prev_frame = call_stack_.top()->frame();
-	}
+  if (!call_stack_.IsEmpty()) {
+    prev_frame = call_stack_.top()->frame();
+  }
 
-	if (amx_->frm < prev_frame) {
-		if (call_stack_.top()->frame() != amx_->frm) {
-			Address address = amx_->cip - 2 * sizeof(cell);
-			Function *fn = stats_.GetFunction(address);
-			if (fn == 0) {
-				fn = Function::Normal(address, debug_info_);
-				functions_.insert(fn);
-				stats_.AddFunction(fn);
-			}
-			BeginFunction(address, amx_->frm);
-		}
-	} else if (amx_->frm > prev_frame) {
-		if (call_stack_.top()->function()->type() == Function::NORMAL) {
-			EndFunction();
-		}
-	}
+  if (amx_->frm < prev_frame) {
+    if (call_stack_.top()->frame() != amx_->frm) {
+      Address address = amx_->cip - 2 * sizeof(cell);
+      Function *fn = stats_.GetFunction(address);
+      if (fn == 0) {
+        fn = Function::Normal(address, debug_info_);
+        functions_.insert(fn);
+        stats_.AddFunction(fn);
+      }
+      BeginFunction(address, amx_->frm);
+    }
+  } else if (amx_->frm > prev_frame) {
+    if (call_stack_.top()->function()->type() == Function::NORMAL) {
+      EndFunction();
+    }
+  }
 
-	if (debug != 0) {
-		return debug(amx_);
-	}
+  if (debug != 0) {
+    return debug(amx_);
+  }
 
-	return AMX_ERR_NONE;
+  return AMX_ERR_NONE;
 }
 
 int Profiler::CallbackHook(cell index, cell *result, cell *params, AMX_CALLBACK callback) {
-	if (callback == 0) {
-		callback = ::amx_Callback;
-	}
+  if (callback == 0) {
+    callback = ::amx_Callback;
+  }
 
-	if (index >= 0) {
-		Address address = GetNativeAddress(amx_, index);
-		if (address != 0) {
-			Function *fn = stats_.GetFunction(address);
-			if (fn == 0) {
-				fn = Function::Native(amx_, index);
-				functions_.insert(fn);
-				stats_.AddFunction(fn);
-			}
-			BeginFunction(address, amx_->frm);
-		}
-		int error = callback(amx_, index, result, params);
-		if (address != 0) {
-			EndFunction(address);
-		}
-		return error;
-	}
+  if (index >= 0) {
+    Address address = GetNativeAddress(amx_, index);
+    if (address != 0) {
+      Function *fn = stats_.GetFunction(address);
+      if (fn == 0) {
+        fn = Function::Native(amx_, index);
+        functions_.insert(fn);
+        stats_.AddFunction(fn);
+      }
+      BeginFunction(address, amx_->frm);
+    }
+    int error = callback(amx_, index, result, params);
+    if (address != 0) {
+      EndFunction(address);
+    }
+    return error;
+  }
 
-	return callback(amx_, index, result, params);
+  return callback(amx_, index, result, params);
 }
 
 int Profiler::ExecHook(cell *retval, int index, AMX_EXEC exec) {
-	if (exec == 0) {
-		exec = ::amx_Exec;
-	}
+  if (exec == 0) {
+    exec = ::amx_Exec;
+  }
 
-	if (index >= 0 || index == AMX_EXEC_MAIN) {
-		Address address = GetPublicAddress(amx_, index);
-		if (address != 0) {
-			Function *fn = stats_.GetFunction(address);
-			if (fn == 0) {
-				fn = Function::Public(amx_, index);
-				functions_.insert(fn);
-				stats_.AddFunction(fn);
-			}
-			BeginFunction(address, amx_->stk - 3 * sizeof(cell));
-		}
-		int error = exec(amx_, retval, index);
-		if (address != 0) {
-			EndFunction(address);
-		}
-		return error;
-	}
+  if (index >= 0 || index == AMX_EXEC_MAIN) {
+    Address address = GetPublicAddress(amx_, index);
+    if (address != 0) {
+      Function *fn = stats_.GetFunction(address);
+      if (fn == 0) {
+        fn = Function::Public(amx_, index);
+        functions_.insert(fn);
+        stats_.AddFunction(fn);
+      }
+      BeginFunction(address, amx_->stk - 3 * sizeof(cell));
+    }
+    int error = exec(amx_, retval, index);
+    if (address != 0) {
+      EndFunction(address);
+    }
+    return error;
+  }
 
-	return exec(amx_, retval, index);
+  return exec(amx_, retval, index);
 }
 
 void Profiler::BeginFunction(Address address, cell frm) {
-	assert(address != 0);
-	FunctionStatistics *fn_stats = stats_.GetFunctionStatistis(address);
+  assert(address != 0);
+  FunctionStatistics *fn_stats = stats_.GetFunctionStatistis(address);
 
-	assert(fn_stats != 0);
-	fn_stats->AdjustNumCalls(1);
+  assert(fn_stats != 0);
+  fn_stats->AdjustNumCalls(1);
 
-	call_stack_.Push(fn_stats->function(), frm);
-	if (call_graph_enabled_) {
-		call_graph_.root()->AddCallee(fn_stats)->MakeRoot();
-	}
+  call_stack_.Push(fn_stats->function(), frm);
+  if (call_graph_enabled_) {
+    call_graph_.root()->AddCallee(fn_stats)->MakeRoot();
+  }
 }
 
 void Profiler::EndFunction(Address address) {
-	assert(!call_stack_.IsEmpty());
-	assert(address == 0 || stats_.GetFunction(address) != 0);
+  assert(!call_stack_.IsEmpty());
+  assert(address == 0 || stats_.GetFunction(address) != 0);
 
-	while (true) {
-		FunctionCall fn_call = call_stack_.Pop();
+  while (true) {
+    FunctionCall fn_call = call_stack_.Pop();
 
-		FunctionStatistics *fn_stats = stats_.GetFunctionStatistis(fn_call.function()->address());
-		assert(fn_stats != 0);
+    FunctionStatistics *fn_stats = stats_.GetFunctionStatistis(fn_call.function()->address());
+    assert(fn_stats != 0);
 
-		fn_stats->AdjustSelfTime(fn_call.timer()->self_time());
-		fn_stats->AdjustTotalTime(fn_call.timer()->total_time());
+    fn_stats->AdjustSelfTime(fn_call.timer()->self_time());
+    fn_stats->AdjustTotalTime(fn_call.timer()->total_time());
 
-		Nanoseconds total_time = fn_call.timer()->latest_total_time();
-		if (total_time > fn_stats->worst_total_time()) {
-			fn_stats->set_worst_total_time(total_time);
-		}
+    Nanoseconds total_time = fn_call.timer()->latest_total_time();
+    if (total_time > fn_stats->worst_total_time()) {
+      fn_stats->set_worst_total_time(total_time);
+    }
 
-		Nanoseconds self_time = fn_call.timer()->latest_self_time();
-		if (self_time > fn_stats->worst_self_time()) {
-			fn_stats->set_worst_self_time(self_time);
-		}
+    Nanoseconds self_time = fn_call.timer()->latest_self_time();
+    if (self_time > fn_stats->worst_self_time()) {
+      fn_stats->set_worst_self_time(self_time);
+    }
 
-		if (call_graph_enabled_) {
-			assert(call_graph_.root() != call_graph_.sentinel());
-			call_graph_.set_root(call_graph_.root()->caller());
-		}
+    if (call_graph_enabled_) {
+      assert(call_graph_.root() != call_graph_.sentinel());
+      call_graph_.set_root(call_graph_.root()->caller());
+    }
 
-		if (address == 0 || fn_call.function()->address() == address) {
-			break;
-		}
-	}
+    if (address == 0 || fn_call.function()->address() == address) {
+      break;
+    }
+  }
 }
 
 } // namespace amx_profiler

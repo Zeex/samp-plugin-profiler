@@ -31,25 +31,25 @@
 namespace amx_profiler {
 
 class TimePoint {
-public:
-	TimePoint() : time_(0) {}
-	TimePoint(Nanoseconds time) : time_(time) {}
+ public:
+  TimePoint() : time_(0) {}
+  TimePoint(Nanoseconds time) : time_(time) {}
 
-	Nanoseconds operator+(const TimePoint &other) const {
-		return Nanoseconds(time_ + other.time_);
-	}
+  Nanoseconds operator+(const TimePoint &other) const {
+    return Nanoseconds(time_ + other.time_);
+  }
 
-	Nanoseconds operator-(const TimePoint &other) const {
-		return Nanoseconds(time_ - other.time_);
-	}
+  Nanoseconds operator-(const TimePoint &other) const {
+    return Nanoseconds(time_ - other.time_);
+  }
 
-private:
-	Nanoseconds time_;
+ private:
+  Nanoseconds time_;
 };
 
 class Clock {
-public:
-	static TimePoint Now();
+ public:
+  static TimePoint Now();
 };
 
 } // namespace amx_profiler

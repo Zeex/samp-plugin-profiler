@@ -33,61 +33,61 @@ namespace amx_profiler {
 class DebugInfo;
 
 class Function {
-public:
-	enum Type {
-		NORMAL, // non-public functions
-		PUBLIC, // public functions
-		NATIVE  // native functions
-	};
+ public:
+  enum Type {
+    NORMAL, // non-public functions
+    PUBLIC, // public functions
+    NATIVE  // native functions
+  };
 
-	// Caller is reponsible for deleting returned Function objects.
-	static Function *Normal(Address address, DebugInfo *debug_info = 0);
-	static Function *Public(AMX *amx, PublicTableIndex index);
-	static Function *Native(AMX *amx, NativeTableIndex index);
+  // Caller is reponsible for deleting returned Function objects.
+  static Function *Normal(Address address, DebugInfo *debug_info = 0);
+  static Function *Public(AMX *amx, PublicTableIndex index);
+  static Function *Native(AMX *amx, NativeTableIndex index);
 
-	// Returns the type of the function.
-	Type type() const {
-		return type_;
-	}
+  // Returns the type of the function.
+  Type type() const {
+    return type_;
+  }
 
-	// Returns type() as a string.
-	const char *GetTypeString() const;
+  // Returns type() as a string.
+  const char *GetTypeString() const;
 
-	// Returns address of the function. Addresses are unique among
-	// all types of functions, i.e. there can't exist a public and
-	// a native with the same address.
-	Address address() const {
-		return address_;
-	}
+  // Returns address of the function. Addresses are unique among
+  // all types of functions, i.e. there can't exist a public and
+  // a native with the same address.
+  Address address() const {
+    return address_;
+  }
 
-	// Returns the name of the function. Public and native functions
-	// always have a name. Ordinary functions' names are extract from
-	// debugging symbols provided at construction time; if there was
-	// no debug info provided or the function was not found among it
-	// the name is built from the string "unknown@" followed by the
-	// function address in hex.
-	std::string name() const {
-		return name_;
-	}
+  // Returns the name of the function. Public and native functions
+  // always have a name. Ordinary functions' names are extract from
+  // debugging symbols provided at construction time; if there was
+  // no debug info provided or the function was not found among it
+  // the name is built from the string "unknown@" followed by the
+  // function address in hex.
+  std::string name() const {
+    return name_;
+  }
 
-	// Comparison operators.
-	bool operator==(const Function &other) const {
-		return address_ == other.address_;
-	}
-	bool operator!=(const Function &other) const {
-		return !operator==(other);
-	}
-	bool operator<(const Function &other) const {
-		return address_ < other.address_;
-	}
+  // Comparison operators.
+  bool operator==(const Function &other) const {
+    return address_ == other.address_;
+  }
+  bool operator!=(const Function &other) const {
+    return !operator==(other);
+  }
+  bool operator<(const Function &other) const {
+    return address_ < other.address_;
+  }
 
-private:
-	Function(Type type, Address address, std::string name);
+ private:
+  Function(Type type, Address address, std::string name);
 
-private:
-	Type type_;
-	Address address_;
-	std::string name_;
+ private:
+  Type type_;
+  Address address_;
+  std::string name_;
 };
 
 } // namespace amx_profiler

@@ -27,61 +27,61 @@
 namespace amx_profiler {
 
 Address GetNativeAddress(AMX *amx, NativeTableIndex index) {
-	AMX_HEADER *amxhdr = reinterpret_cast<AMX_HEADER*>(amx->base);
+  AMX_HEADER *amxhdr = reinterpret_cast<AMX_HEADER*>(amx->base);
 
-	if (index >= 0) {
-		AMX_FUNCSTUBNT *natives = reinterpret_cast<AMX_FUNCSTUBNT*>(amx->base + amxhdr->natives);
-		return static_cast<Address>(natives[index].address);
-	}
+  if (index >= 0) {
+    AMX_FUNCSTUBNT *natives = reinterpret_cast<AMX_FUNCSTUBNT*>(amx->base + amxhdr->natives);
+    return static_cast<Address>(natives[index].address);
+  }
 
-	return 0;
+  return 0;
 }
 
 Address GetPublicAddress(AMX *amx, PublicTableIndex index) {
-	AMX_HEADER *amxhdr = reinterpret_cast<AMX_HEADER*>(amx->base);
+  AMX_HEADER *amxhdr = reinterpret_cast<AMX_HEADER*>(amx->base);
 
-	if (index == AMX_EXEC_MAIN) {
-		return amxhdr->cip;
-	}
+  if (index == AMX_EXEC_MAIN) {
+    return amxhdr->cip;
+  }
 
-	if (index >= 0) {
-		AMX_FUNCSTUBNT *publics = reinterpret_cast<AMX_FUNCSTUBNT*>(amx->base + amxhdr->publics);
-		return static_cast<Address>(publics[index].address);
-	}
+  if (index >= 0) {
+    AMX_FUNCSTUBNT *publics = reinterpret_cast<AMX_FUNCSTUBNT*>(amx->base + amxhdr->publics);
+    return static_cast<Address>(publics[index].address);
+  }
 
-	return 0;
+  return 0;
 }
 
 const char *GetNativeName(AMX *amx, NativeTableIndex index) {
-	AMX_HEADER *amxhdr = reinterpret_cast<AMX_HEADER*>(amx->base);
+  AMX_HEADER *amxhdr = reinterpret_cast<AMX_HEADER*>(amx->base);
 
-	NativeTableIndex num_natives = 0;
-	amx_NumNatives(amx, &num_natives);
+  NativeTableIndex num_natives = 0;
+  amx_NumNatives(amx, &num_natives);
 
-	if (index >= 0 && index < num_natives) {
-		AMX_FUNCSTUBNT *natives = reinterpret_cast<AMX_FUNCSTUBNT*>(amx->base + amxhdr->natives);
-		return reinterpret_cast<char*>(natives[index].nameofs + amx->base);
-	}
+  if (index >= 0 && index < num_natives) {
+    AMX_FUNCSTUBNT *natives = reinterpret_cast<AMX_FUNCSTUBNT*>(amx->base + amxhdr->natives);
+    return reinterpret_cast<char*>(natives[index].nameofs + amx->base);
+  }
 
-	return "";
+  return "";
 }
 
 const char *GetPublicName(AMX *amx, PublicTableIndex index) {
-	AMX_HEADER *amxhdr = reinterpret_cast<AMX_HEADER*>(amx->base);
+  AMX_HEADER *amxhdr = reinterpret_cast<AMX_HEADER*>(amx->base);
 
-	if (index == AMX_EXEC_MAIN) {
-		return "main";
-	}
+  if (index == AMX_EXEC_MAIN) {
+    return "main";
+  }
 
-	PublicTableIndex num_publics = 0;
-	amx_NumPublics(amx, &num_publics);
+  PublicTableIndex num_publics = 0;
+  amx_NumPublics(amx, &num_publics);
 
-	if (index >= 0 && index < num_publics) {
-		AMX_FUNCSTUBNT *publics = reinterpret_cast<AMX_FUNCSTUBNT*>(amxhdr->publics + amx->base);
-		return reinterpret_cast<char*>(publics[index].nameofs + amx->base);
-	}
+  if (index >= 0 && index < num_publics) {
+    AMX_FUNCSTUBNT *publics = reinterpret_cast<AMX_FUNCSTUBNT*>(amxhdr->publics + amx->base);
+    return reinterpret_cast<char*>(publics[index].nameofs + amx->base);
+  }
 
-	return "";
+  return "";
 }
 
 } // naemspace amx_profiler

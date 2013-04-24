@@ -30,39 +30,40 @@
 #define CONFIGREADER_H
 
 class ConfigReader {
-public:
-	typedef std::map<std::string, std::string> OptionMap;
+ public:
+  typedef std::map<std::string, std::string> OptionMap;
 
-	ConfigReader();
-	ConfigReader(const std::string &filename);
+  ConfigReader();
+  ConfigReader(const std::string &filename);
 
-	bool LoadFile(const std::string &filename);
+  bool LoadFile(const std::string &filename);
 
-	template<typename T>
-	T GetOption(const std::string &name, const T &defaultValue) const;
+  template<typename T>
+  T GetOption(const std::string &name, const T &defaultValue) const;
 
-	bool IsLoaded() const { return loaded_; }
+  bool IsLoaded() const { return loaded_; }
 
-private:
-	bool loaded_;	
-	OptionMap options_;
+ private:
+  bool loaded_;  
+  OptionMap options_;
 };
 
 template<typename T>
 T ConfigReader::GetOption(const std::string &name, const T &defaultValue) const {
-	OptionMap::const_iterator iterator = options_.find(name);
-	if (iterator == options_.end()) {
-		return defaultValue;
-	}
-	std::stringstream sstream(iterator->second);
-	T value;
-	sstream >> value;
-	if (!sstream) {
-		return defaultValue;
-	}
-	return value;
+  OptionMap::const_iterator iterator = options_.find(name);
+  if (iterator == options_.end()) {
+    return defaultValue;
+  }
+  std::stringstream sstream(iterator->second);
+  T value;
+  sstream >> value;
+  if (!sstream) {
+    return defaultValue;
+  }
+  return value;
 }
 
-template<> std::string ConfigReader::GetOption(const std::string &name, const std::string &value) const;
+template<> std::string ConfigReader::GetOption(const std::string &name,
+                                               const std::string &value) const;
 
 #endif // !CONFIGREADER_H

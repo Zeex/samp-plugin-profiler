@@ -34,22 +34,22 @@ namespace amx_profiler {
 class Function;
 
 class CallStack {
-public:
-	void Push(Function *function, Address frame);
-	void Push(const FunctionCall &call);
+ public:
+  void Push(Function *function, Address frame);
+  void Push(const FunctionCall &call);
 
-	FunctionCall Pop();
+  FunctionCall Pop();
 
-	bool IsEmpty() const { return calls_.empty(); }
+  bool IsEmpty() const { return calls_.empty(); }
 
-	FunctionCall *top() { return &calls_.back(); }
-	const FunctionCall *top() const { return &calls_.back(); }
+  FunctionCall *top() { return &calls_.back(); }
+  const FunctionCall *top() const { return &calls_.back(); }
 
-	FunctionCall *bottom() { return &calls_.front(); }
-	const FunctionCall *bottom() const { return &calls_.front(); }
-	
-private:
-	std::list<FunctionCall> calls_;
+  FunctionCall *bottom() { return &calls_.front(); }
+  const FunctionCall *bottom() const { return &calls_.front(); }
+  
+ private:
+  std::list<FunctionCall> calls_;
 };
 
 } // namespace amx_profiler

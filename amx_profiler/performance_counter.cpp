@@ -28,51 +28,51 @@ namespace amx_profiler {
 
 PerformanceCounter::PerformanceCounter(PerformanceCounter *parent,
                                        PerformanceCounter *shadow) 
-	: started_(false)
-	, parent_(parent)
-	, shadow_(shadow)
+ : started_(false),
+   parent_(parent),
+   shadow_(shadow)
 {
 }
 
 void PerformanceCounter::Start() {
-	if (!started_) {
-		start_point_ = Clock::Now();
-		ResetTimes();
-		started_ = true;
-	}
+  if (!started_) {
+    start_point_ = Clock::Now();
+    ResetTimes();
+    started_ = true;
+  }
 }
 
 void PerformanceCounter::Stop() {
-	if (started_) {
-		Nanoseconds time = QueryTotalTime();
+  if (started_) {
+    Nanoseconds time = QueryTotalTime();
 
-		if (shadow_ != 0) {
-			latest_total_time_ = 0;
-			latest_child_time_ = child_time_;
-		} else {
-			latest_total_time_ = time;
-			latest_child_time_ = child_time_;
-		}
+    if (shadow_ != 0) {
+      latest_total_time_ = 0;
+      latest_child_time_ = child_time_;
+    } else {
+      latest_total_time_ = time;
+      latest_child_time_ = child_time_;
+    }
 
-		total_time_ = time;
-		if (parent_ != 0) {
-			parent_->child_time_ += time;
-		}
+    total_time_ = time;
+    if (parent_ != 0) {
+      parent_->child_time_ += time;
+    }
 
-		if (shadow_ != 0) {
-			shadow_->total_time_ -= total_time_;
-			shadow_->child_time_ -= self_time();
-		}
+    if (shadow_ != 0) {
+      shadow_->total_time_ -= total_time_;
+      shadow_->child_time_ -= self_time();
+    }
 
-		started_ = false;
-	} 
+    started_ = false;
+  } 
 }
 
 void PerformanceCounter::ResetTimes() {
-	latest_total_time_ = 0;
-	latest_child_time_ = 0;
-	total_time_ = 0;
-	child_time_ = 0;
+  latest_total_time_ = 0;
+  latest_child_time_ = 0;
+  total_time_ = 0;
+  child_time_ = 0;
 }
 
 } // namespace amx_profiler

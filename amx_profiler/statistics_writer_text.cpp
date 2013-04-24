@@ -45,101 +45,101 @@ static const int kAvgTotalTimeWidth = 15;
 static const int kWorstTotalTimeWidth = 15;
 
 static const int kWidthAll = kTypeWidth + kNameWidth + kCallsWidth
-	+ kSelfTimePercentWidth + kSelfTimeWidth + kAvgSelfTimeWidth + kWorstSelfTimeWidth
-	+ kTotalTimePercentWidth + kTotalTimeWidth + kAvgTotalTimeWidth + kWorstTotalTimeWidth;
+  + kSelfTimePercentWidth + kSelfTimeWidth + kAvgSelfTimeWidth + kWorstSelfTimeWidth
+  + kTotalTimePercentWidth + kTotalTimeWidth + kAvgTotalTimeWidth + kWorstTotalTimeWidth;
 
 static const int kNumColumns = 11;
 
 namespace amx_profiler {
 
 void StatisticsWriterText::DoHLine() {
-	char fillch = stream()->fill();
-	*stream() << std::setw(kWidthAll + kNumColumns * 2 + 1) 
-	          << std::setfill('-') << "" << std::setfill(fillch) << '\n';
+  char fillch = stream()->fill();
+  *stream() << std::setw(kWidthAll + kNumColumns * 2 + 1) 
+            << std::setfill('-') << "" << std::setfill(fillch) << '\n';
 }
 
 void StatisticsWriterText::Write(const Statistics *stats)
 {
-	*stream() << "Profile of '" << script_name() << "'";
+  *stream() << "Profile of '" << script_name() << "'";
 
-	if (print_date()) {
-		*stream() << " generated on " << CTime();
-	}
+  if (print_date()) {
+    *stream() << " generated on " << CTime();
+  }
 
-	if (print_run_time()) {
-		*stream() << " (duration: " << TimeSpan(stats->GetTotalRunTime()) << ")\n";
-	}
+  if (print_run_time()) {
+    *stream() << " (duration: " << TimeSpan(stats->GetTotalRunTime()) << ")\n";
+  }
 
-	DoHLine();
-	*stream() << std::left
-		<< "| " << std::setw(kTypeWidth) << "Type"
-		<< "| " << std::setw(kNameWidth) << "Name"
-		<< "| " << std::setw(kCallsWidth) << "Calls"
-		<< "| " << std::setw(kSelfTimePercentWidth) << "Self Time (%)"
-		<< "| " << std::setw(kSelfTimeWidth) << "Self Time (s)"
-		<< "| " << std::setw(kAvgSelfTimeWidth) << "Avg. ST (ms)"
-		<< "| " << std::setw(kWorstSelfTimeWidth) << "Worst ST (ms)"
-		<< "| " << std::setw(kTotalTimePercentWidth) << "Total Time (%)"
-		<< "| " << std::setw(kTotalTimeWidth) << "Total Time (s)"
-		<< "| " << std::setw(kAvgTotalTimeWidth) << "Avg. TT (ms)"
-		<< "| " << std::setw(kWorstTotalTimeWidth) << "Worst TT (ms)"
-		<< "|\n";
-	DoHLine();
+  DoHLine();
+  *stream() << std::left
+    << "| " << std::setw(kTypeWidth) << "Type"
+    << "| " << std::setw(kNameWidth) << "Name"
+    << "| " << std::setw(kCallsWidth) << "Calls"
+    << "| " << std::setw(kSelfTimePercentWidth) << "Self Time (%)"
+    << "| " << std::setw(kSelfTimeWidth) << "Self Time (s)"
+    << "| " << std::setw(kAvgSelfTimeWidth) << "Avg. ST (ms)"
+    << "| " << std::setw(kWorstSelfTimeWidth) << "Worst ST (ms)"
+    << "| " << std::setw(kTotalTimePercentWidth) << "Total Time (%)"
+    << "| " << std::setw(kTotalTimeWidth) << "Total Time (s)"
+    << "| " << std::setw(kAvgTotalTimeWidth) << "Avg. TT (ms)"
+    << "| " << std::setw(kWorstTotalTimeWidth) << "Worst TT (ms)"
+    << "|\n";
+  DoHLine();
 
-	std::vector<FunctionStatistics*> all_fn_stats;
-	stats->GetStatistics(all_fn_stats);
+  std::vector<FunctionStatistics*> all_fn_stats;
+  stats->GetStatistics(all_fn_stats);
 
-	Nanoseconds self_time_all;
-	for (std::vector<FunctionStatistics*>::const_iterator iterator = all_fn_stats.begin();
-			iterator != all_fn_stats.end(); ++iterator)
-	{
-		const FunctionStatistics *fn_stats = *iterator;
-		self_time_all += fn_stats->self_time(); 
-	}
+  Nanoseconds self_time_all;
+  for (std::vector<FunctionStatistics*>::const_iterator iterator = all_fn_stats.begin();
+       iterator != all_fn_stats.end(); ++iterator)
+  {
+    const FunctionStatistics *fn_stats = *iterator;
+    self_time_all += fn_stats->self_time(); 
+  }
 
-	Nanoseconds total_time_all;
-	for (std::vector<FunctionStatistics*>::const_iterator iterator = all_fn_stats.begin();
-			iterator != all_fn_stats.end(); ++iterator)
-	{
-		const FunctionStatistics *fn_stats = *iterator;
-		total_time_all += fn_stats->total_time(); 
-	}
+  Nanoseconds total_time_all;
+  for (std::vector<FunctionStatistics*>::const_iterator iterator = all_fn_stats.begin();
+       iterator != all_fn_stats.end(); ++iterator)
+  {
+    const FunctionStatistics *fn_stats = *iterator;
+    total_time_all += fn_stats->total_time(); 
+  }
 
-	std::ostream::fmtflags flags = stream()->flags();
-	stream()->flags(flags | std::ostream::fixed);
+  std::ostream::fmtflags flags = stream()->flags();
+  stream()->flags(flags | std::ostream::fixed);
 
-	for (std::vector<FunctionStatistics*>::const_iterator iterator = all_fn_stats.begin();
-			iterator != all_fn_stats.end(); ++iterator)
-	{
-		const FunctionStatistics *fn_stats = *iterator;
+  for (std::vector<FunctionStatistics*>::const_iterator iterator = all_fn_stats.begin();
+       iterator != all_fn_stats.end(); ++iterator)
+  {
+    const FunctionStatistics *fn_stats = *iterator;
 
-		double self_time_percent = fn_stats->self_time().count() * 100 / self_time_all.count();
-		double self_time = Seconds(fn_stats->self_time()).count();
-		double avg_self_time = Milliseconds(fn_stats->self_time()).count() / fn_stats->num_calls();
-		double worst_self_time = Milliseconds(fn_stats->worst_self_time()).count();
+    double self_time_percent = fn_stats->self_time().count() * 100 / self_time_all.count();
+    double self_time = Seconds(fn_stats->self_time()).count();
+    double avg_self_time = Milliseconds(fn_stats->self_time()).count() / fn_stats->num_calls();
+    double worst_self_time = Milliseconds(fn_stats->worst_self_time()).count();
 
-		double total_time_percent = fn_stats->total_time().count() * 100 / total_time_all.count();
-		double total_time = Seconds(fn_stats->total_time()).count();
-		double avg_total_time = Milliseconds(fn_stats->total_time()).count() / fn_stats->num_calls();
-		double worst_total_time = Milliseconds(fn_stats->worst_total_time()).count();
+    double total_time_percent = fn_stats->total_time().count() * 100 / total_time_all.count();
+    double total_time = Seconds(fn_stats->total_time()).count();
+    double avg_total_time = Milliseconds(fn_stats->total_time()).count() / fn_stats->num_calls();
+    double worst_total_time = Milliseconds(fn_stats->worst_total_time()).count();
 
-		*stream()
-			<< "| " << std::setw(kTypeWidth) << fn_stats->function()->GetTypeString()
-			<< "| " << std::setw(kNameWidth) << fn_stats->function()->name()
-			<< "| " << std::setw(kCallsWidth) << fn_stats->num_calls()
-			<< "| " << std::setw(kSelfTimePercentWidth) << std::setprecision(2) << self_time_percent
-			<< "| " << std::setw(kSelfTimeWidth) << std::setprecision(1) << self_time
-			<< "| " << std::setw(kAvgSelfTimeWidth) << std::setprecision(1) << avg_self_time
-			<< "| " << std::setw(kWorstSelfTimeWidth) << std::setprecision(1) << worst_self_time
-			<< "| " << std::setw(kTotalTimePercentWidth) << std::setprecision(2) << total_time_percent
-			<< "| " << std::setw(kTotalTimeWidth) << std::setprecision(1) << total_time
-			<< "| " << std::setw(kAvgTotalTimeWidth) << std::setprecision(1) << avg_total_time
-			<< "| " << std::setw(kWorstTotalTimeWidth) << std::setprecision(1) << worst_total_time
-			<< "|\n";
-		DoHLine();
-	}
+    *stream()
+      << "| " << std::setw(kTypeWidth) << fn_stats->function()->GetTypeString()
+      << "| " << std::setw(kNameWidth) << fn_stats->function()->name()
+      << "| " << std::setw(kCallsWidth) << fn_stats->num_calls()
+      << "| " << std::setw(kSelfTimePercentWidth) << std::setprecision(2) << self_time_percent
+      << "| " << std::setw(kSelfTimeWidth) << std::setprecision(1) << self_time
+      << "| " << std::setw(kAvgSelfTimeWidth) << std::setprecision(1) << avg_self_time
+      << "| " << std::setw(kWorstSelfTimeWidth) << std::setprecision(1) << worst_self_time
+      << "| " << std::setw(kTotalTimePercentWidth) << std::setprecision(2) << total_time_percent
+      << "| " << std::setw(kTotalTimeWidth) << std::setprecision(1) << total_time
+      << "| " << std::setw(kAvgTotalTimeWidth) << std::setprecision(1) << avg_total_time
+      << "| " << std::setw(kWorstTotalTimeWidth) << std::setprecision(1) << worst_total_time
+      << "|\n";
+    DoHLine();
+  }
 
-	stream()->flags(flags);
+  stream()->flags(flags);
 }
 
 } // namespace amx_profiler

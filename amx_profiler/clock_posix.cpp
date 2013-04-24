@@ -31,14 +31,14 @@ namespace amx_profiler {
 
 // static
 TimePoint Clock::Now() {
-	struct timespec ts;
+  struct timespec ts;
 
-	if (clock_gettime(CLOCK_MONOTONIC, &ts) == -1) {
-		throw SystemError("clock_gettime");
-	}
+  if (clock_gettime(CLOCK_MONOTONIC, &ts) == -1) {
+    throw SystemError("clock_gettime");
+  }
 
-	int64_t ns = static_cast<int64_t>(ts.tv_sec) * 1000000000L + ts.tv_nsec;
-	return Nanoseconds(ns);
+  int64_t ns = static_cast<int64_t>(ts.tv_sec) * 1000000000L + ts.tv_nsec;
+  return Nanoseconds(ns);
 }
 
 } // namespace amx_profiler

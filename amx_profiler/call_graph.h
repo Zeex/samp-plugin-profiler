@@ -33,64 +33,64 @@ class CallGraphNode;
 class FunctionStatistics;
 
 class CallGraph {
-	friend class CallGraphNode;
+  friend class CallGraphNode;
 
-public:
-	class Visitor {
-	public:
-		virtual void Visit(const CallGraphNode *node) = 0;
-	};
+ public:
+  class Visitor {
+   public:
+    virtual void Visit(const CallGraphNode *node) = 0;
+  };
 
-	typedef std::set<CallGraphNode*> NodeSet;
+  typedef std::set<CallGraphNode*> NodeSet;
 
-	CallGraph(CallGraphNode *root = 0);
-	~CallGraph();
+  CallGraph(CallGraphNode *root = 0);
+  ~CallGraph();
 
-	CallGraphNode *root() const { return root_; }
-	void set_root(CallGraphNode *root) { root_ = root;}
+  CallGraphNode *root() const { return root_; }
+  void set_root(CallGraphNode *root) { root_ = root;}
 
-	CallGraphNode *sentinel() const { return sentinel_; }
+  CallGraphNode *sentinel() const { return sentinel_; }
 
-	void Traverse(Visitor *visitor) const;
+  void Traverse(Visitor *visitor) const;
 
-private:
-	void OwnNode(CallGraphNode *node);
+ private:
+  void OwnNode(CallGraphNode *node);
 
-private:
-	CallGraphNode *root_;
-	CallGraphNode *sentinel_;
-	NodeSet nodes_;
+ private:
+  CallGraphNode *root_;
+  CallGraphNode *sentinel_;
+  NodeSet nodes_;
 };
 
 class CallGraphNode {
-public:
-	class Compare {
-	public:
-		bool operator()(const CallGraphNode *n1, const CallGraphNode *n2) const;
-	};
+ public:
+  class Compare {
+   public:
+    bool operator()(const CallGraphNode *n1, const CallGraphNode *n2) const;
+  };
 
-	typedef std::set<CallGraphNode*, Compare> CalleeSet;
+  typedef std::set<CallGraphNode*, Compare> CalleeSet;
 
-	CallGraphNode(CallGraph *graph, FunctionStatistics *stats, CallGraphNode *caller = 0);
+  CallGraphNode(CallGraph *graph, FunctionStatistics *stats, CallGraphNode *caller = 0);
 
-	void MakeRoot() { graph_->set_root(this); }
+  void MakeRoot() { graph_->set_root(this); }
 
-	CallGraph *graph() const { return graph_; }
-	FunctionStatistics *stats() const { return stats_; }
+  CallGraph *graph() const { return graph_; }
+  FunctionStatistics *stats() const { return stats_; }
 
-	CallGraphNode *caller() const { return caller_; }
-	const CalleeSet &callees() const { return callees_; }
+  CallGraphNode *caller() const { return caller_; }
+  const CalleeSet &callees() const { return callees_; }
 
-	CallGraphNode *AddCallee(FunctionStatistics *stats);
-	CallGraphNode *AddCallee(CallGraphNode *node);
+  CallGraphNode *AddCallee(FunctionStatistics *stats);
+  CallGraphNode *AddCallee(CallGraphNode *node);
 
-	void Traverse(CallGraph::Visitor *visitor) const;
+  void Traverse(CallGraph::Visitor *visitor) const;
 
-private:
-	CallGraph *graph_;
-	FunctionStatistics *stats_;
-	CallGraphNode *caller_;
-	CalleeSet callees_;
+ private:
+  CallGraph *graph_;
+  FunctionStatistics *stats_;
+  CallGraphNode *caller_;
+  CalleeSet callees_;
 };
 
 } // namespace amx_profiler

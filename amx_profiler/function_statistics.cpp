@@ -27,17 +27,17 @@
 namespace amx_profiler {
 
 FunctionStatistics::FunctionStatistics(Function *fn)
-	: fn_(fn)
-	, num_calls_(0)
+ : fn_(fn),
+   num_calls_(0)
 {
 }
 
 void FunctionStatistics::AdjustSelfTime(Nanoseconds delta) {
-	self_time_ += delta;
+  self_time_ += delta;
 }
 
 void FunctionStatistics::AdjustTotalTime(Nanoseconds delta) {
-	total_time_ += delta;
+  total_time_ += delta;
 }
 
 } // namespace amx_profiler

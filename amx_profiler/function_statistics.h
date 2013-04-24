@@ -33,39 +33,39 @@ class Function;
 
 // Various runtime information about a function.
 class FunctionStatistics {
-public:
-	explicit FunctionStatistics(Function *fn);
+ public:
+  explicit FunctionStatistics(Function *fn);
 
-	Function *function() { return fn_; }
-	const Function *function() const { return fn_; }
+  Function *function() { return fn_; }
+  const Function *function() const { return fn_; }
 
-	long num_calls() const { return num_calls_; }
-	void AdjustNumCalls(long delta) { num_calls_ += delta; }
+  long num_calls() const { return num_calls_; }
+  void AdjustNumCalls(long delta) { num_calls_ += delta; }
 
-	Nanoseconds self_time() const { return self_time_; }
-	Nanoseconds total_time() const { return total_time_; }
+  Nanoseconds self_time() const { return self_time_; }
+  Nanoseconds total_time() const { return total_time_; }
 
-	Nanoseconds worst_self_time() const { return worst_self_time_; }
-	Nanoseconds worst_total_time() const { return worst_total_time_; }
+  Nanoseconds worst_self_time() const { return worst_self_time_; }
+  Nanoseconds worst_total_time() const { return worst_total_time_; }
 
-	void set_worst_self_time(Nanoseconds worst_self_time) {
-		worst_self_time_ = worst_self_time;
-	}
+  void set_worst_self_time(Nanoseconds worst_self_time) {
+    worst_self_time_ = worst_self_time;
+  }
 
-	void set_worst_total_time(Nanoseconds worst_total_time) {
-		worst_total_time_ = worst_total_time;
-	}
+  void set_worst_total_time(Nanoseconds worst_total_time) {
+    worst_total_time_ = worst_total_time;
+  }
 
-	void AdjustSelfTime(Nanoseconds delta);
-	void AdjustTotalTime(Nanoseconds delta);
+  void AdjustSelfTime(Nanoseconds delta);
+  void AdjustTotalTime(Nanoseconds delta);
 
-private:
-	Function *fn_;
-	long num_calls_;
-	Nanoseconds self_time_;
-	Nanoseconds total_time_;
-	Nanoseconds worst_self_time_;
-	Nanoseconds worst_total_time_;
+ private:
+  Function *fn_;
+  long num_calls_;
+  Nanoseconds self_time_;
+  Nanoseconds total_time_;
+  Nanoseconds worst_self_time_;
+  Nanoseconds worst_total_time_;
 };
 
 } // namespace amx_profiler

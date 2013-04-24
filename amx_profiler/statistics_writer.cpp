@@ -30,9 +30,9 @@
 namespace amx_profiler {
 
 StatisticsWriter::StatisticsWriter()
-	: stream_(0)
-	, print_date_(false)
-	, print_run_time_(false)
+ : stream_(0),
+   print_date_(false),
+   print_run_time_(false)
 {
 }
 

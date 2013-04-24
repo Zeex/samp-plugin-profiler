@@ -29,50 +29,50 @@
 #include "system_error.h"
 
 static char *StripNewLine(char *s) {
-	std::size_t length = std::strlen(s);
+  std::size_t length = std::strlen(s);
 
-	for (std::size_t i = length - 1; i >= 0; i--) {
-		if (s[i] != '\n' && s[i] != '\r') {
-			break;
-		}
-		s[i] = '\0';
-	}
+  for (std::size_t i = length - 1; i >= 0; i--) {
+    if (s[i] != '\n' && s[i] != '\r') {
+      break;
+    }
+    s[i] = '\0';
+  }
 
-	return s;
+  return s;
 }
 
 static std::string GetErrorMessage(DWORD error) {
-	std::string message;
+  std::string message;
 
-	LPVOID buffer = NULL;
-	DWORD flags = FORMAT_MESSAGE_ALLOCATE_BUFFER |
-	              FORMAT_MESSAGE_FROM_SYSTEM |
-	              FORMAT_MESSAGE_IGNORE_INSERTS;
-	DWORD lang_id = MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT);
-	
-	DWORD result = FormatMessageA(flags, NULL, error, lang_id,
-	                              reinterpret_cast<LPSTR>(&buffer),
-	                              0, NULL);
-	if (result > 0) {
-		message.assign(StripNewLine(reinterpret_cast<char*>(buffer)));
-	}
+  LPVOID buffer = NULL;
+  DWORD flags = FORMAT_MESSAGE_ALLOCATE_BUFFER |
+                FORMAT_MESSAGE_FROM_SYSTEM |
+                FORMAT_MESSAGE_IGNORE_INSERTS;
+  DWORD lang_id = MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT);
+  
+  DWORD result = FormatMessageA(flags, NULL, error, lang_id,
+                                reinterpret_cast<LPSTR>(&buffer),
+                                0, NULL);
+  if (result > 0) {
+    message.assign(StripNewLine(reinterpret_cast<char*>(buffer)));
+  }
 
-	LocalFree(buffer);
+  LocalFree(buffer);
 
-	return message;
+  return message;
 }
 
 namespace amx_profiler {
 
 SystemError::SystemError(const char *prefix)
-	: Exception(std::string(prefix) + std::string(": ") + GetErrorMessage(GetLastError()))
-	, code_(GetLastError())
+ : Exception(std::string(prefix) + std::string(": ") + GetErrorMessage(GetLastError())),
+   code_(GetLastError())
 {
 }
 
 SystemError::SystemError(const char *prefix, int code)
-	: Exception(std::string(prefix) + std::string(": ") + GetErrorMessage(GetLastError()))
-	, code_(code)
+ : Exception(std::string(prefix) + std::string(": ") + GetErrorMessage(GetLastError())),
+   code_(code)
 {
 }
 

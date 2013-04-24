@@ -31,19 +31,19 @@ namespace amx_profiler {
 
 // static
 TimePoint Clock::Now() {
-	LARGE_INTEGER freq;
-	if (QueryPerformanceFrequency(&freq) != 0) {
-		throw SystemError("QueryPerformanceFrequency");
-	}
+  LARGE_INTEGER freq;
+  if (QueryPerformanceFrequency(&freq) != 0) {
+    throw SystemError("QueryPerformanceFrequency");
+  }
 
-	double ns_per_tick = 1E+9 / freq.QuadPart;
+  double ns_per_tick = 1E+9 / freq.QuadPart;
 
-	LARGE_INTEGER count;
-	if (QueryPerformanceCounter(&count) == 0) {
-		throw SystemError("QueryPerformanceCounter");
-	}
+  LARGE_INTEGER count;
+  if (QueryPerformanceCounter(&count) == 0) {
+    throw SystemError("QueryPerformanceCounter");
+  }
 
-	return Nanoseconds(ns_per_tick * count.QuadPart);
+  return Nanoseconds(ns_per_tick * count.QuadPart);
 }
 
 } // namespace amx_profiler

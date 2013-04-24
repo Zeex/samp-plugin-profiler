@@ -34,62 +34,62 @@
 namespace amx_profiler {
 
 static std::string EscapString(const std::string &s) {
-	std::string t;
+  std::string t;
 
-	for (std::string::const_iterator iterator = s.begin();
-			iterator != s.end(); ++iterator) {
-		switch (*iterator) {
-			// According to http://www.json.org other escape sequences,
-			// apart from Unicode, are not supported by JSON.
-			case '"': t.append("\\\""); break;
-			case '\\': t.append("\\\\"); break;
-			case '\b': t.append("\\b"); break;
-			case '\f': t.append("\\f"); break;
-			case '\n': t.append("\\n"); break;
-			case '\r': t.append("\\r"); break;
-			case '\t': t.append("\\t"); break;
-			default: t.push_back(*iterator);
-		}
-	}
+  for (std::string::const_iterator iterator = s.begin();
+       iterator != s.end(); ++iterator) {
+    switch (*iterator) {
+      // According to http://www.json.org other escape sequences,
+      // apart from Unicode, are not supported by JSON.
+      case '"': t.append("\\\""); break;
+      case '\\': t.append("\\\\"); break;
+      case '\b': t.append("\\b"); break;
+      case '\f': t.append("\\f"); break;
+      case '\n': t.append("\\n"); break;
+      case '\r': t.append("\\r"); break;
+      case '\t': t.append("\\t"); break;
+      default: t.push_back(*iterator);
+    }
+  }
 
-	return t;
+  return t;
 }
 
 void StatisticsWriterJson::Write(const Statistics *stats)
 {
-	*stream() << "{\n"
-	          << "  \"scriptName\": \"" << EscapString(script_name()) << "\",\n";
-	
-	if (print_date()) {
-		*stream() << "  \"timestamp\": " << TimeStamp::Now() << ",\n";
-	}
+  *stream() << "{\n"
+            << "  \"scriptName\": \"" << EscapString(script_name()) << "\",\n";
+  
+  if (print_date()) {
+    *stream() << "  \"timestamp\": " << TimeStamp::Now() << ",\n";
+  }
 
-	if (print_run_time()) {
-		*stream() << "  \"runTime\": " << Seconds(stats->GetTotalRunTime()).count() << ",\n";
-	}
+  if (print_run_time()) {
+    *stream() << "  \"runTime\": " << Seconds(stats->GetTotalRunTime()).count() << ",\n";
+  }
 
-	*stream() << "  \"functions\": [\n";
+  *stream() << "  \"functions\": [\n";
 
-	std::vector<FunctionStatistics*> all_fn_stats;
-	stats->GetStatistics(all_fn_stats);
+  std::vector<FunctionStatistics*> all_fn_stats;
+  stats->GetStatistics(all_fn_stats);
 
-	for (std::vector<FunctionStatistics*>::const_iterator iterator = all_fn_stats.begin();
-			iterator != all_fn_stats.end(); ++iterator)
-	{
-		const FunctionStatistics *fn_stats = *iterator;
+  for (std::vector<FunctionStatistics*>::const_iterator iterator = all_fn_stats.begin();
+       iterator != all_fn_stats.end(); ++iterator)
+  {
+    const FunctionStatistics *fn_stats = *iterator;
 
-		*stream() << "    {\n"
-			<< "      \"type\": \"" << fn_stats->function()->GetTypeString() << "\",\n"
-			<< "      \"name\": \"" << fn_stats->function()->name() << "\",\n"
-			<< "      \"calls\": " << fn_stats->num_calls() << ",\n"
-			<< "      \"selfTime\": " << fn_stats->self_time().count() << ",\n"
-			<< "      \"worstSelfTime\": " << fn_stats->worst_self_time().count() << ",\n"
-			<< "      \"totalTime\": " << fn_stats->total_time().count() << ",\n"
-			<< "      \"worstTotalTime\": " << fn_stats->worst_total_time().count() << "\n"
-		<< "    },\n";
-	}
+    *stream() << "    {\n"
+      << "      \"type\": \"" << fn_stats->function()->GetTypeString() << "\",\n"
+      << "      \"name\": \"" << fn_stats->function()->name() << "\",\n"
+      << "      \"calls\": " << fn_stats->num_calls() << ",\n"
+      << "      \"selfTime\": " << fn_stats->self_time().count() << ",\n"
+      << "      \"worstSelfTime\": " << fn_stats->worst_self_time().count() << ",\n"
+      << "      \"totalTime\": " << fn_stats->total_time().count() << ",\n"
+      << "      \"worstTotalTime\": " << fn_stats->worst_total_time().count() << "\n"
+    << "    },\n";
+  }
 
-	*stream() << "    {}\n  ]\n}\n";
+  *stream() << "    {}\n  ]\n}\n";
 }
 
 } // namespace amx_profiler

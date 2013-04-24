@@ -33,25 +33,25 @@ namespace amx_profiler {
 class Function;
 
 class FunctionCall {
-public:
-	FunctionCall(Function *function, Address frame, FunctionCall *parent = 0);
+ public:
+  FunctionCall(Function *function, Address frame, FunctionCall *parent = 0);
 
-	Function *function() { return fn_; }
-	const Function *function() const { return fn_; }
+  Function *function() { return fn_; }
+  const Function *function() const { return fn_; }
 
-	FunctionCall *parent() { return parent_; }
-	const FunctionCall *parent() const { return parent_; }
+  FunctionCall *parent() { return parent_; }
+  const FunctionCall *parent() const { return parent_; }
 
-	Address frame() const { return frame_; }
+  Address frame() const { return frame_; }
 
-	PerformanceCounter *timer() { return &timer_; }
-	const PerformanceCounter *timer() const { return &timer_; }
+  PerformanceCounter *timer() { return &timer_; }
+  const PerformanceCounter *timer() const { return &timer_; }
 
-private:
-	Function *fn_;
-	FunctionCall *parent_;
-	Address frame_;
-	PerformanceCounter timer_;
+ private:
+  Function *fn_;
+  FunctionCall *parent_;
+  Address frame_;
+  PerformanceCounter timer_;
 };
 
 } // namespace amx_profiler

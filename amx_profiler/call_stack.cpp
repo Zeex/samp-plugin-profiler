@@ -29,20 +29,20 @@
 namespace amx_profiler {
 
 void CallStack::Push(Function *function, Address frame) {
-	FunctionCall *parent = calls_.empty() ? 0 : &calls_.back();
-	Push(FunctionCall(function, frame, parent));
+  FunctionCall *parent = calls_.empty() ? 0 : &calls_.back();
+  Push(FunctionCall(function, frame, parent));
 }
 
 void CallStack::Push(const FunctionCall &call) {
-	calls_.push_back(call);
-	calls_.back().timer()->Start();
+  calls_.push_back(call);
+  calls_.back().timer()->Start();
 }
 
 FunctionCall CallStack::Pop() {
-	FunctionCall top = calls_.back();
-	calls_.pop_back();
-	top.timer()->Stop();
-	return top;
+  FunctionCall top = calls_.back();
+  calls_.pop_back();
+  top.timer()->Stop();
+  return top;
 }
 
 } // namespace amx_profiler

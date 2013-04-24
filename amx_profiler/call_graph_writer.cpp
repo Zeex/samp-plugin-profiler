@@ -27,8 +27,8 @@
 namespace amx_profiler {
 
 CallGraphWriter::CallGraphWriter()
-	: stream_(0)
-	, root_node_name_("<host>")
+ : stream_(0),
+   root_node_name_("<host>")
 {
 }
 

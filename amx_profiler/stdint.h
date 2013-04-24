@@ -26,18 +26,18 @@
 #define AMX_PROFILER_STDINT_H
 
 #if defined __GNUC__ || (defined _MSC_VER && _MSC_VER >= 1600)
-	#include <stdint.h>
-	namespace amx_profiler {
-		using ::int64_t;
-		using ::uint64_t;
-	}
+  #include <stdint.h>
+  namespace amx_profiler {
+    using ::int64_t;
+    using ::uint64_t;
+  }
 #else
-	namespace amx_profiler {
-		#if defined _WIN32
-			typedef signed __int64 int64_t;
-			typedef unsigned __int64 uint64_t;
-		#endif
-	}	
+  namespace amx_profiler {
+    #if defined _WIN32
+      typedef signed __int64 int64_t;
+      typedef unsigned __int64 uint64_t;
+    #endif
+  }  
 #endif
 
 #endif // !AMX_PROFILER_STDINT_H

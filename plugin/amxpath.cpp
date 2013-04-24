@@ -27,91 +27,91 @@
 #include "fileutils.h"
 
 AmxFile::AmxFile(std::string name)
-	: amx_(new AMX)
-	, name_(name)
-	, mtime_(fileutils::GetModificationTime(name))
+ : amx_(new AMX),
+   name_(name),
+   mtime_(fileutils::GetModificationTime(name))
 {
-	if (aux_LoadProgram(amx_, const_cast<char*>(name.c_str()), 0)
-			!= AMX_ERR_NONE) {
-		delete amx_;
-		amx_ = 0;
-	}
+  if (aux_LoadProgram(amx_, const_cast<char*>(name.c_str()), 0)
+      != AMX_ERR_NONE) {
+    delete amx_;
+    amx_ = 0;
+  }
 }
 
 AmxFile::~AmxFile() {
-	if (amx_ != 0) {
-		aux_FreeProgram(amx_);
-	}
+  if (amx_ != 0) {
+    aux_FreeProgram(amx_);
+  }
 }
 
 AmxPathFinder::~AmxPathFinder() {
-	for (FileCache::iterator iterator = file_cache_.begin();
-			iterator != file_cache_.end(); ++iterator)
-	{
-		delete iterator->second;
-	}
+  for (FileCache::iterator iterator = file_cache_.begin();
+       iterator != file_cache_.end(); ++iterator)
+  {
+    delete iterator->second;
+  }
 }
 
 std::string AmxPathFinder::FindAmxPath(AMX *amx) const {
-	std::string result;
+  std::string result;
 
-	PathCache::const_iterator iterator = path_cache_.find(amx);
-	if (iterator != path_cache_.end()) {
-		result = iterator->second;
-	} else {
-		result = FindAmxPath(reinterpret_cast<AMX_HEADER*>(amx->base));
-		if (!result.empty()) {
-			path_cache_.insert(std::make_pair(amx, result));
-		}
-	}
+  PathCache::const_iterator iterator = path_cache_.find(amx);
+  if (iterator != path_cache_.end()) {
+    result = iterator->second;
+  } else {
+    result = FindAmxPath(reinterpret_cast<AMX_HEADER*>(amx->base));
+    if (!result.empty()) {
+      path_cache_.insert(std::make_pair(amx, result));
+    }
+  }
 
-	return result;
+  return result;
 }
 
 std::string AmxPathFinder::FindAmxPath(AMX_HEADER *amxhdr) const {
-	std::string result;
+  std::string result;
 
-	for (DirSet::const_iterator iterator = search_dirs_.begin();
-			iterator != search_dirs_.end(); ++iterator)
-	{
-		const std::string &dir = *iterator;
+  for (DirSet::const_iterator iterator = search_dirs_.begin();
+       iterator != search_dirs_.end(); ++iterator)
+  {
+    const std::string &dir = *iterator;
 
-		std::vector<std::string> files;
-		fileutils::GetDirectoryFiles(dir, "*.amx", files);
+    std::vector<std::string> files;
+    fileutils::GetDirectoryFiles(dir, "*.amx", files);
 
-		for (std::vector<std::string>::const_iterator dir_iterator = files.begin();
-				dir_iterator != files.end(); ++dir_iterator)
-		{
-			std::string filename;
-			filename.append(dir);
-			filename.append(fileutils::kNativePathSepString);
-			filename.append(*dir_iterator);
+    for (std::vector<std::string>::const_iterator dir_iterator = files.begin();
+         dir_iterator != files.end(); ++dir_iterator)
+    {
+      std::string filename;
+      filename.append(dir);
+      filename.append(fileutils::kNativePathSepString);
+      filename.append(*dir_iterator);
 
-			FileCache::iterator cache_iterator = file_cache_.find(filename);
-			if (cache_iterator == file_cache_.end() ||
-				cache_iterator->second->mtime() < fileutils::GetModificationTime(filename))
-			{
-				if (cache_iterator != file_cache_.end()) {
-					file_cache_.erase(cache_iterator);
-				}
+      FileCache::iterator cache_iterator = file_cache_.find(filename);
+      if (cache_iterator == file_cache_.end() ||
+        cache_iterator->second->mtime() < fileutils::GetModificationTime(filename))
+      {
+        if (cache_iterator != file_cache_.end()) {
+          file_cache_.erase(cache_iterator);
+        }
 
-				AmxFile *amx_file = new AmxFile(filename);
-				if (amx_file->is_loaded()) {
-					file_cache_.insert(std::make_pair(filename, amx_file));
-				}
-			}
-		}
-	}
+        AmxFile *amx_file = new AmxFile(filename);
+        if (amx_file->is_loaded()) {
+          file_cache_.insert(std::make_pair(filename, amx_file));
+        }
+      }
+    }
+  }
 
-	for (FileCache::const_iterator iterator = file_cache_.begin();
-			iterator != file_cache_.end(); ++iterator) 
-	{
-		void *amxhdr2 = iterator->second->amx()->base;
-		if (std::memcmp(amxhdr, amxhdr2, sizeof(AMX_HEADER)) == 0) {
-			result = iterator->first;
-			break;
-		}
-	}
+  for (FileCache::const_iterator iterator = file_cache_.begin();
+       iterator != file_cache_.end(); ++iterator) 
+  {
+    void *amxhdr2 = iterator->second->amx()->base;
+    if (std::memcmp(amxhdr, amxhdr2, sizeof(AMX_HEADER)) == 0) {
+      result = iterator->first;
+      break;
+    }
+  }
 
-	return result;
+  return result;
 }

@@ -34,32 +34,32 @@ namespace amx_profiler {
 const int kCTimeResultLength = 24;
 
 class TimeStamp {
-public:
-	static std::time_t Now();
+ public:
+  static std::time_t Now();
 
-	TimeStamp();
-	TimeStamp(std::time_t value);
+  TimeStamp();
+  TimeStamp(std::time_t value);
 
-	std::time_t value() const { return value_; }
+  std::time_t value() const { return value_; }
 
-private:
-	std::time_t value_;
+ private:
+  std::time_t value_;
 };
 
 const char *CTime(TimeStamp ts = TimeStamp());
 
 class TimeSpan {
-public:
-	TimeSpan(Seconds d);
+ public:
+  TimeSpan(Seconds d);
 
-	int hours()   const { return hours_; }
-	int minutes() const { return minutes_; }
-	int seconds() const { return seconds_; }
+  int hours()   const { return hours_; }
+  int minutes() const { return minutes_; }
+  int seconds() const { return seconds_; }
 
-private:
-	int hours_;
-	int minutes_;
-	int seconds_;
+ private:
+  int hours_;
+  int minutes_;
+  int seconds_;
 };
 
 std::ostream &operator<<(std::ostream &os, const TimeSpan &time);

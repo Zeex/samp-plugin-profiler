@@ -33,48 +33,48 @@
 #include <amx/amxaux.h>
 
 class AmxFile {
-public:
-	explicit AmxFile(std::string name);
-	~AmxFile();
+ public:
+  explicit AmxFile(std::string name);
+  ~AmxFile();
 
-	AMX *amx() { return amx_; }
-	const AMX *amx() const { return amx_; }
+  AMX *amx() { return amx_; }
+  const AMX *amx() const { return amx_; }
 
-	bool is_loaded() const { return amx_ != 0; }
+  bool is_loaded() const { return amx_ != 0; }
 
-	std::string name() const { return name_; }
-	std::time_t mtime() const { return mtime_; }
+  std::string name() const { return name_; }
+  std::time_t mtime() const { return mtime_; }
 
-private:
-	AmxFile(const AmxFile &);
-	void operator=(const AmxFile &);
+ private:
+  AmxFile(const AmxFile &);
+  void operator=(const AmxFile &);
 
-private:
-	AMX *amx_;
-	std::string name_;
-	std::time_t mtime_;
+ private:
+  AMX *amx_;
+  std::string name_;
+  std::time_t mtime_;
 };
 
 class AmxPathFinder {
-public:
-	~AmxPathFinder();
+ public:
+  ~AmxPathFinder();
 
-	void AddSearchDirectory(const std::string &path) {
-		search_dirs_.insert(path);
-	}
+  void AddSearchDirectory(const std::string &path) {
+    search_dirs_.insert(path);
+  }
 
-	std::string FindAmxPath(AMX *amx) const;
-	std::string FindAmxPath(AMX_HEADER *amxhdr) const;
+  std::string FindAmxPath(AMX *amx) const;
+  std::string FindAmxPath(AMX_HEADER *amxhdr) const;
 
-private:
-	typedef std::set<std::string> DirSet;
-	DirSet search_dirs_;
+ private:
+  typedef std::set<std::string> DirSet;
+  DirSet search_dirs_;
 
-	typedef std::map<std::string, AmxFile*> FileCache;
-	mutable FileCache file_cache_;
+  typedef std::map<std::string, AmxFile*> FileCache;
+  mutable FileCache file_cache_;
 
-	typedef std::map<AMX*, std::string> PathCache;
-	mutable PathCache path_cache_;
+  typedef std::map<AMX*, std::string> PathCache;
+  mutable PathCache path_cache_;
 };
 
 #endif // !AMXPATH_H
