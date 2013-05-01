@@ -32,7 +32,7 @@ namespace amx_profiler {
 // static
 TimePoint Clock::Now() {
   LARGE_INTEGER freq;
-  if (QueryPerformanceFrequency(&freq) != 0) {
+  if (QueryPerformanceFrequency(&freq) == 0) {
     throw SystemError("QueryPerformanceFrequency");
   }
 
