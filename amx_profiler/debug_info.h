@@ -44,9 +44,9 @@ class DebugInfo {
 
   bool is_loaded() const { return amxdbg_ != 0; }
 
-  long GetLine(Address address) const;
-  std::string GetFile(Address address) const;
-  std::string GetFunction(Address address) const;
+  long LookupLine(Address address) const;
+  std::string LookupFile(Address address) const;
+  std::string LookupFunction(Address address) const;
 
  private:
   AMX_DBG *amxdbg_;

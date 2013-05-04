@@ -44,7 +44,7 @@ Function *Function::Normal(Address address, DebugInfo *debug_info) {
   std::string name;
 
   if (debug_info != 0 && debug_info->is_loaded()) {
-    name = debug_info->GetFunction(address);
+    name = debug_info->LookupFunction(address);
   }
 
   if (name.empty()) {
