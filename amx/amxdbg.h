@@ -146,6 +146,7 @@ int AMXAPI dbg_LoadInfo(AMX_DBG *amxdbg, FILE *fp);
 
 int AMXAPI dbg_LookupFile(const AMX_DBG *amxdbg, ucell address, const char **filename);
 int AMXAPI dbg_LookupFunction(const AMX_DBG *amxdbg, ucell address, const char **funcname);
+int AMXAPI dbg_LookupFunctionExact(const AMX_DBG *amxdbg, ucell address, const char **funcname);
 int AMXAPI dbg_LookupLine(const AMX_DBG *amxdbg, ucell address, long *line);
 
 int AMXAPI dbg_GetFunctionAddress(const AMX_DBG *amxdbg, const char *funcname, const char *filename, ucell *address);

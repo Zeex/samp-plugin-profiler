@@ -23,11 +23,14 @@
  *  Version: $Id: amxdbg.c 3363 2005-07-23 09:03:29Z thiadmer $
  */
 
-/* Edited by Zeex on 2011-06-18
+/*
  * Changes:
+ *  2011-06-18
  *  - stupid fix for dbg_LookupFunction which worked incorrectly 
  *    because of some bug(?) in compiler
  *  - fix: hdr.flags not aligned before use in dbg_LoadInfo()
+ *  2013-05-05
+ *  - added dbg_LookupFunctionExact() 
  */
 #include <assert.h>
 #include <stdio.h>
@@ -266,6 +269,29 @@ int AMXAPI dbg_LookupFunction(const AMX_DBG *amxdbg, ucell address, const char *
     if (amxdbg->symboltbl[index]->ident == iFUNCTN
         && amxdbg->symboltbl[index]->codestart <= address
         && amxdbg->symboltbl[index]->codeend > address) {
+      if (amxdbg->symboltbl[index]->name[0] != '@') 
+        break;
+    }
+  } /* for */
+  if (index >= amxdbg->hdr->symbols)
+    return AMX_ERR_NOTFOUND;
+
+  *funcname = amxdbg->symboltbl[index]->name;
+  return AMX_ERR_NONE;
+}
+
+int AMXAPI dbg_LookupFunctionExact(const AMX_DBG *amxdbg, ucell address, const char **funcname)
+{
+  /* Same as dbg_LookupFunction() but matches exact function address.
+   */
+  int index;
+
+  assert(amxdbg != NULL);
+  assert(funcname != NULL);
+  *funcname = NULL;
+  for (index = 0; index < amxdbg->hdr->symbols; index++) {
+    if (amxdbg->symboltbl[index]->ident == iFUNCTN
+        && amxdbg->symboltbl[index]->codestart == address) {
       if (amxdbg->symboltbl[index]->name[0] != '@') 
         break;
     }
