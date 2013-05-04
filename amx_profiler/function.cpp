@@ -43,8 +43,8 @@ Function::Function(Type type, Address address, std::string name)
 Function *Function::Normal(Address address, DebugInfo *debug_info) {
   std::string name;
 
-  if (debug_info != 0 && debug_info->is_loaded()) {
-    name = debug_info->LookupFunction(address);
+  if (address != 0 && debug_info != 0 && debug_info->is_loaded()) {
+    name = debug_info->LookupFunctionExact(address);
   }
 
   if (name.empty()) {

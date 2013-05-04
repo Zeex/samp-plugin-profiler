@@ -24,10 +24,23 @@
 
 #include "amx_types.h"
 
+AMX_HEADER *GetAmxHeader(AMX *amx) {
+  return reinterpret_cast<AMX_HEADER*>(amx->base);
+}
+
+static unsigned char *GetAmxCodePtr(AMX *amx) {
+  return amx->base + GetAmxHeader(amx)->cod;
+}
+
+static unsigned char *GetAmxDataPtr(AMX *amx) {
+  return (amx->data != 0) ? amx->data
+                          : amx->base + GetAmxHeader(amx)->dat;
+}
+
 namespace amx_profiler {
 
 Address GetNativeAddress(AMX *amx, NativeTableIndex index) {
-  AMX_HEADER *amxhdr = reinterpret_cast<AMX_HEADER*>(amx->base);
+  AMX_HEADER *amxhdr = GetAmxHeader(amx);
 
   if (index >= 0) {
     AMX_FUNCSTUBNT *natives = reinterpret_cast<AMX_FUNCSTUBNT*>(amx->base + amxhdr->natives);
@@ -38,7 +51,7 @@ Address GetNativeAddress(AMX *amx, NativeTableIndex index) {
 }
 
 Address GetPublicAddress(AMX *amx, PublicTableIndex index) {
-  AMX_HEADER *amxhdr = reinterpret_cast<AMX_HEADER*>(amx->base);
+  AMX_HEADER *amxhdr = GetAmxHeader(amx);
 
   if (index == AMX_EXEC_MAIN) {
     return amxhdr->cip;
@@ -53,7 +66,7 @@ Address GetPublicAddress(AMX *amx, PublicTableIndex index) {
 }
 
 const char *GetNativeName(AMX *amx, NativeTableIndex index) {
-  AMX_HEADER *amxhdr = reinterpret_cast<AMX_HEADER*>(amx->base);
+  AMX_HEADER *amxhdr = GetAmxHeader(amx);
 
   NativeTableIndex num_natives = 0;
   amx_NumNatives(amx, &num_natives);
@@ -67,7 +80,7 @@ const char *GetNativeName(AMX *amx, NativeTableIndex index) {
 }
 
 const char *GetPublicName(AMX *amx, PublicTableIndex index) {
-  AMX_HEADER *amxhdr = reinterpret_cast<AMX_HEADER*>(amx->base);
+  AMX_HEADER *amxhdr = GetAmxHeader(amx);
 
   if (index == AMX_EXEC_MAIN) {
     return "main";
@@ -82,6 +95,24 @@ const char *GetPublicName(AMX *amx, PublicTableIndex index) {
   }
 
   return "";
+}
+
+Address GetRetrunAddress(AMX *amx, Address frame) {
+  if (frame >= 0 && frame >= amx->stk && frame < amx->stp) {
+    unsigned char *data = GetAmxDataPtr(amx);
+    return *reinterpret_cast<cell*>(data + frame + sizeof(cell));
+  }
+  return 0;
+}
+
+Address GetCalleeAddress(AMX *amx, Address frame) {
+  Address return_address = GetRetrunAddress(amx, frame);
+  if (return_address != 0) {
+    Address code_start = reinterpret_cast<Address>(GetAmxCodePtr(amx));
+    Address target_address_offset = code_start + return_address - sizeof(cell);
+    return *reinterpret_cast<cell*>(target_address_offset) - code_start;
+  }
+  return 0;
 }
 
 } // naemspace amx_profiler

@@ -35,6 +35,9 @@ Address GetPublicAddress(AMX *amx, PublicTableIndex index);
 const char *GetNativeName(AMX *amx, PublicTableIndex index);
 const char *GetPublicName(AMX *amx, PublicTableIndex index);
 
+Address GetReturnAddress(AMX *amx, Address frame);
+Address GetCalleeAddress(AMX *amx, Address frame);
+
 } // naemspace amx_profiler
 
 #endif // !AMX_PROFILER_AMX_UTILS_H

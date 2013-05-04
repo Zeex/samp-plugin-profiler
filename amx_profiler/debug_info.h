@@ -47,6 +47,7 @@ class DebugInfo {
   long LookupLine(Address address) const;
   std::string LookupFile(Address address) const;
   std::string LookupFunction(Address address) const;
+  std::string LookupFunctionExact(Address address) const;
 
  private:
   AMX_DBG *amxdbg_;

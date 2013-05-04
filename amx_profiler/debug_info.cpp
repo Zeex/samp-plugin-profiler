@@ -85,5 +85,13 @@ std::string DebugInfo::LookupFunction(Address address) const {
   return result;
 }
 
+std::string DebugInfo::LookupFunctionExact(Address address) const {
+  std::string result;
+  const char *function;
+  if (dbg_LookupFunctionExact(amxdbg_, address, &function) == AMX_ERR_NONE)
+    result.assign(function);
+  return result;
+}
+
 } // namespace amx_profiler
 

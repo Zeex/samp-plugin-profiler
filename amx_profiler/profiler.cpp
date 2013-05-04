@@ -58,14 +58,16 @@ int Profiler::DebugHook(AMX_DEBUG debug) {
 
   if (amx_->frm < prev_frame) {
     if (call_stack_.top()->frame() != amx_->frm) {
-      Address address = amx_->cip - 2 * sizeof(cell);
-      Function *fn = stats_.GetFunction(address);
-      if (fn == 0) {
-        fn = Function::Normal(address, debug_info_);
-        functions_.insert(fn);
-        stats_.AddFunction(fn);
+      Address address = GetCalleeAddress(amx_, amx_->frm);
+      if (address != 0) {
+        Function *fn = stats_.GetFunction(address);
+        if (fn == 0) {
+          fn = Function::Normal(address, debug_info_);
+          functions_.insert(fn);
+          stats_.AddFunction(fn);
+        }
+        BeginFunction(address, amx_->frm);
       }
-      BeginFunction(address, amx_->frm);
     }
   } else if (amx_->frm > prev_frame) {
     if (call_stack_.top()->function()->type() == Function::NORMAL) {
