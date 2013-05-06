@@ -29,10 +29,10 @@
 
 namespace amx_profiler {
 
-Address GetNativeAddress(AMX *amx, PublicTableIndex index);
+Address GetNativeAddress(AMX *amx, NativeTableIndex index);
 Address GetPublicAddress(AMX *amx, PublicTableIndex index);
 
-const char *GetNativeName(AMX *amx, PublicTableIndex index);
+const char *GetNativeName(AMX *amx, NativeTableIndex index);
 const char *GetPublicName(AMX *amx, PublicTableIndex index);
 
 Address GetReturnAddress(AMX *amx, Address frame);
