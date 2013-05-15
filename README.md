@@ -7,7 +7,15 @@ Profiler provides detailed information about how long each function takes to
 execute and how many times it is called. Additionally it can build a call
 graph based on the collected information.
 
-This plugin can recognize the following `server.cfg` options:
+Download
+--------
+
+Get latest binaries for Windows and Linux [here][download].
+
+Settings
+--------
+
+Profiler settings can be changed via the following `server.cfg` options:
 
 *	`profile_gamemode <0|1>`
 
@@ -19,7 +27,8 @@ This plugin can recognize the following `server.cfg` options:
 
 *	`profile_format <format>`
 
-	Set statistics output format. This can be one of: `html` (default), `xml`, `txt`.
+	Set statistics output format. This can be one of: `html` (default), `xml`,
+	`txt`.
 
 	NOTE for `html`: it is possible to sort stats by clicking on column names!!
 
@@ -29,9 +38,11 @@ This plugin can recognize the following `server.cfg` options:
 
 *	`call_graph_format <format>`
 
-	Set call graph format. Currently only `dot` is supported (can be viewed in [GraphViz][graphviz]).
+	Set call graph format. Currently only `dot` is supported (can be viewed
+	in [GraphViz][graphviz]).
 
 [donate]: http://pledgie.com/campaigns/19751
 [donate_button]: http://www.pledgie.com/campaigns/19751.png
 [github]: https://github.com/Zeex/samp-plugin-profiler
+[download]: https://www.dropbox.com/sh/opuv919doup7f4f/LMTF03IklK
 [graphviz]: http://www.graphviz.org
