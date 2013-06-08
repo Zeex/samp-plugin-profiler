@@ -13,6 +13,14 @@ if(NOT (MSVC_IDE AND MSVC_VERSION LESS 1600))
   set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 endif()
 
+# Target 32-bit machines.
+if(CMAKE_COMPILER_IS_GNUCC)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32")
+endif()
+if(CMAKE_COMPILER_IS_GNUCXX)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
+endif()
+
 # Suppress annoying GCC warning about 'packed' attribute being ignored.
 if(CMAKE_COMPILER_IS_GNUCC)
   if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 4.0)

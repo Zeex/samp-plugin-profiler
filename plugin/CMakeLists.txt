@@ -39,13 +39,6 @@ if(UNIX OR MINGW)
   set_target_properties(plugin PROPERTIES PREFIX "")
 endif()
 
-if(UNIX OR MINGW)
-  set_property(TARGET plugin APPEND_STRING PROPERTY 
-    COMPILE_FLAGS " -m32 -Wno-attributes")
-  set_property(TARGET plugin APPEND_STRING PROPERTY 
-    LINK_FLAGS " -m32 -Wl,--no-undefined")
-endif()
-
 set(SUBHOOK_STATIC TRUE)
 add_subdirectory(subhook)
 
