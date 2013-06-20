@@ -91,10 +91,11 @@ bool ConfigReader::LoadFile(const std::string &filename) {
 }
 
 template<>
-std::string ConfigReader::GetOption<std::string>(const std::string &name, const std::string &defaultValue) const {
+std::string ConfigReader::GetOptionDefault(const std::string &name,
+                                           const std::string &default_) const {
   OptionMap::const_iterator iterator = options_.find(name);
   if (iterator == options_.end()) {
-    return defaultValue;
+    return default_;
   }
   return iterator->second;
 }

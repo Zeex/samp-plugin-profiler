@@ -39,7 +39,10 @@ class ConfigReader {
   bool LoadFile(const std::string &filename);
 
   template<typename T>
-  T GetOption(const std::string &name, const T &defaultValue) const;
+  void GetOption(const std::string &name, T &value) const;
+
+  template<typename T>
+  T GetOptionDefault(const std::string &name, const T &defaultValue) const;
 
   bool IsLoaded() const { return loaded_; }
 
@@ -49,21 +52,23 @@ class ConfigReader {
 };
 
 template<typename T>
-T ConfigReader::GetOption(const std::string &name, const T &defaultValue) const {
-  OptionMap::const_iterator iterator = options_.find(name);
-  if (iterator == options_.end()) {
-    return defaultValue;
-  }
-  std::stringstream sstream(iterator->second);
-  T value;
-  sstream >> value;
-  if (!sstream) {
-    return defaultValue;
-  }
-  return value;
+void ConfigReader::GetOption(const std::string &name, T &value) const {
+  value = GetOptionDefault(name, value);
 }
 
-template<> std::string ConfigReader::GetOption(const std::string &name,
-                                               const std::string &value) const;
+template<typename T>
+T ConfigReader::GetOptionDefault(const std::string &name,
+                                 const T &default_) const {
+  OptionMap::const_iterator iterator = options_.find(name);
+  if (iterator != options_.end()) {
+    std::stringstream sstream(iterator->second);
+    T value;
+    sstream >> value;
+    if (sstream) {
+      return value;
+    }
+  }
+  return default_;
+}
 
 #endif // !CONFIGREADER_H

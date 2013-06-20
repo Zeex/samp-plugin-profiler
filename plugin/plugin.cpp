@@ -200,11 +200,11 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
 
   // Read plugin settings from server.cfg.
   ConfigReader server_cfg("server.cfg");
-  cfg::profile_gamemode      = server_cfg.GetOption("profile_gamemode", cfg::profile_gamemode);
-  cfg::profile_filterscripts = server_cfg.GetOption("profile_filterscripts", cfg::profile_filterscripts);
-  cfg::profile_format        = server_cfg.GetOption("profile_format", cfg::profile_format);
-  cfg::call_graph            = server_cfg.GetOption("call_graph", cfg::call_graph);
-  cfg::call_graph_format     = server_cfg.GetOption("call_graph_format", cfg::call_graph_format);
+  server_cfg.GetOption("profile_gamemode", cfg::profile_gamemode);
+  server_cfg.GetOption("profile_filterscripts", cfg::profile_filterscripts);
+  server_cfg.GetOption("profile_format", cfg::profile_format);
+  server_cfg.GetOption("call_graph", cfg::call_graph);
+  server_cfg.GetOption("call_graph_format", cfg::call_graph_format);
 
   logprintf("  Profiler v" PROJECT_VERSION_STRING " is OK.");
 
