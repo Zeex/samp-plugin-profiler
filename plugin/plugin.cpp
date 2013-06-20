@@ -78,7 +78,7 @@ namespace hooks {
 SubHook amx_Exec_hook;
 SubHook amx_Callback_hook;
 
-static int AMXAPI amx_Debug(AMX *amx) {
+int AMXAPI amx_Debug(AMX *amx) {
   amx_profiler::Profiler *profiler = ::profilers[amx];
   if (profiler) {
     try {
@@ -98,7 +98,7 @@ static int AMXAPI amx_Debug(AMX *amx) {
   return AMX_ERR_NONE;
 }
 
-static int AMXAPI amx_Callback(AMX *amx, cell index, cell *result, cell *params) {
+int AMXAPI amx_Callback(AMX *amx, cell index, cell *result, cell *params) {
   SubHook::ScopedRemove r(&amx_Callback_hook);
   SubHook::ScopedInstall i(&amx_Exec_hook);
 
@@ -114,7 +114,7 @@ static int AMXAPI amx_Callback(AMX *amx, cell index, cell *result, cell *params)
   return ::amx_Callback(amx, index, result, params);
 }
 
-static int AMXAPI amx_Exec(AMX *amx, cell *retval, int index) {
+int AMXAPI amx_Exec(AMX *amx, cell *retval, int index) {
   SubHook::ScopedRemove r(&amx_Exec_hook);
   SubHook::ScopedInstall i(&amx_Callback_hook);
 
