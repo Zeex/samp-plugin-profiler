@@ -301,6 +301,8 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
         }
 
         profile_stream.close();
+      } else {
+        logprintf("[profiler]: Error opening file '%s'", profile_filename.c_str());
       }
 
       if (cfg::call_graph) {
@@ -326,6 +328,8 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
           }
 
           call_graph_stream.close();
+        } else {
+          logprintf("[profiler]: Error opening file '%s'", call_graph_filename.c_str());
         }
       }
     }
