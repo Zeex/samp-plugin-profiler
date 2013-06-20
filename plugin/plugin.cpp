@@ -232,18 +232,21 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
         logprintf("[profiler] Loaded debug info from '%s'", filename.c_str());
         ::debug_infos[amx] = debug_info;
       } else {
-        logprintf("[profiler] Error loading debug info from '%s'", filename.c_str());
+        logprintf("[profiler] Error loading debug info from '%s'",
+                  filename.c_str());
         delete debug_info;
       }
     }
 
-    amx_profiler::Profiler *profiler = new amx_profiler::Profiler(amx, debug_info);
+    amx_profiler::Profiler *profiler = new amx_profiler::Profiler(amx,
+                                                                  debug_info);
     profiler->set_call_graph_enabled(cfg::call_graph);
 
     if (debug_info != 0) {
       logprintf("[profiler] Attached profiler to '%s'", filename.c_str());
     } else {
-      logprintf("[profiler] Attached profiler to '%s' (no debug info)", filename.c_str());
+      logprintf("[profiler] Attached profiler to '%s' (no debug info)",
+                filename.c_str());
     }
 
     ::old_debug_hooks[amx] = amx->debug;
@@ -264,7 +267,8 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 
     if (profiler != 0) {
       std::string amx_path = GetAmxPath(amx);
-      std::string amx_name = std::string(amx_path, 0, amx_path.find_last_of("."));
+      std::string amx_name = std::string(amx_path, 0,
+                                         amx_path.find_last_of("."));
 
       // Convert profile_format to lower case.
       std::transform(
@@ -274,7 +278,8 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
         ::tolower
       );
 
-      std::string profile_filename = amx_name + "-profile." + cfg::profile_format;
+      std::string profile_filename = amx_name + "-profile." +
+                                     cfg::profile_format;
       std::ofstream profile_stream(profile_filename.c_str());
 
       if (profile_stream.is_open()) {
@@ -282,16 +287,19 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 
         if (cfg::profile_format == "html") {
           writer = new amx_profiler::StatisticsWriterHtml;
-        } else if (cfg::profile_format == "txt" || cfg::profile_format == "text") {
+        } else if (cfg::profile_format == "txt" ||
+                   cfg::profile_format == "text") {
           writer = new amx_profiler::StatisticsWriterText;
         } else if (cfg::profile_format == "json") {
           writer = new amx_profiler::StatisticsWriterJson;
         } else {
-          logprintf("[profiler] Unrecognized profile format '%s'", cfg::profile_format.c_str());
+          logprintf("[profiler] Unrecognized profile format '%s'",
+                    cfg::profile_format.c_str());
         }
 
         if (writer != 0) {
-          logprintf("[profiler] Writing profile to '%s'", profile_filename.c_str());
+          logprintf("[profiler] Writing profile to '%s'",
+                    profile_filename.c_str());
           writer->set_stream(&profile_stream);
           writer->set_script_name(amx_path);
           writer->set_print_date(true);
@@ -302,11 +310,13 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 
         profile_stream.close();
       } else {
-        logprintf("[profiler]: Error opening file '%s'", profile_filename.c_str());
+        logprintf("[profiler]: Error opening file '%s'",
+                  profile_filename.c_str());
       }
 
       if (cfg::call_graph) {
-        std::string call_graph_filename = amx_name + "-calls." + cfg::call_graph_format;
+        std::string call_graph_filename = amx_name + "-calls." +
+                                          cfg::call_graph_format;
         std::ofstream call_graph_stream(call_graph_filename.c_str());
 
         if (call_graph_stream.is_open()) {
@@ -315,11 +325,13 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
           if (cfg::call_graph_format == "dot") {
             writer = new amx_profiler::CallGraphWriterDot;
           } else {
-            logprintf("[profiler] Unrecognized call graph format '%s'", cfg::call_graph_format.c_str());
+            logprintf("[profiler] Unrecognized call graph format '%s'",
+                      cfg::call_graph_format.c_str());
           }
 
           if (writer != 0) {
-            logprintf("[profiler] Writing call graph to '%s'", call_graph_filename.c_str());
+            logprintf("[profiler] Writing call graph to '%s'",
+                      call_graph_filename.c_str());
             writer->set_stream(&call_graph_stream);
             writer->set_script_name(amx_path);
             writer->set_root_node_name("SA-MP Server");
@@ -329,7 +341,8 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
 
           call_graph_stream.close();
         } else {
-          logprintf("[profiler]: Error opening file '%s'", call_graph_filename.c_str());
+          logprintf("[profiler]: Error opening file '%s'",
+                    call_graph_filename.c_str());
         }
       }
     }
