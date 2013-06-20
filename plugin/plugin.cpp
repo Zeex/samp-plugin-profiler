@@ -132,6 +132,10 @@ int AMXAPI amx_Exec(AMX *amx, cell *retval, int index) {
 
 } // namespace hooks
 
+static void ToLower(std::string &s) {
+  std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+}
+
 static std::string GetAmxPath(AMX *amx) {
   // Has to be static to make caching work in AmxUnload().
   static AmxPathFinder finder;
@@ -270,14 +274,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
       std::string amx_name = std::string(amx_path, 0,
                                          amx_path.find_last_of("."));
 
-      // Convert profile_format to lower case.
-      std::transform(
-        cfg::profile_format.begin(),
-        cfg::profile_format.end(),
-        cfg::profile_format.begin(),
-        ::tolower
-      );
-
+      ToLower(cfg::profile_format);
       std::string profile_filename = amx_name + "-profile." +
                                      cfg::profile_format;
       std::ofstream profile_stream(profile_filename.c_str());
@@ -315,6 +312,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
       }
 
       if (cfg::call_graph) {
+        ToLower(cfg::call_graph_format);
         std::string call_graph_filename = amx_name + "-calls." +
                                           cfg::call_graph_format;
         std::ofstream call_graph_stream(call_graph_filename.c_str());
