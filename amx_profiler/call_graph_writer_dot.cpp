@@ -89,7 +89,7 @@ void CallGraphWriterDot::WriteNode::Visit(const CallGraphNode *node) {
   {
     const CallGraphNode *callee = *iterator;
 
-    *stream << "\t\"" << caller_name << "\" -> \""
+    *stream << "  \"" << caller_name << "\" -> \""
             << callee->stats()->function()->name() << "\" [color=\"";
 
     Function::Type fn_type = callee->stats()->function()->type();
@@ -113,7 +113,7 @@ void CallGraphWriterDot::WriteNodeColor::Visit(const CallGraphNode *node) {
   std::ostream *stream = writer_->stream();
 
   if (node == node->graph()->sentinel()) {
-    *stream << "\t\"" << writer_->root_node_name() << "\" [shape=diamond];\n";
+    *stream << "  \"" << writer_->root_node_name() << "\" [shape=diamond];\n";
     return;
   }
 
@@ -131,7 +131,7 @@ void CallGraphWriterDot::WriteNodeColor::Visit(const CallGraphNode *node) {
     1.0
   };
 
-  *stream << "\t\"" << node->stats()->function()->name() << "\" [color=\""
+  *stream << "  \"" << node->stats()->function()->name() << "\" [color=\""
           << hsb.h << ", "
           << hsb.s << ", "
           << hsb.b << "\""
