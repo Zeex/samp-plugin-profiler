@@ -190,6 +190,11 @@ void DeleteMapEntry(Map &map, const Key &key) {
   }
 }
 
+template<typename Func>
+void *FunctionToVoidPtr(Func func) {
+  return (void*)func;
+}
+
 PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports() {
   return SUPPORTS_VERSION | SUPPORTS_AMX_NATIVES;
 }
@@ -202,18 +207,17 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
   pAMXFunctions = ppData[PLUGIN_DATA_AMX_EXPORTS];
   logprintf = (logprintf_t)ppData[PLUGIN_DATA_LOGPRINTF];
 
-  ((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Align16] = (void*)amx_Align_stub;
-  ((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Align32] = (void*)amx_Align_stub;
-  ((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Align64] = (void*)amx_Align_stub;
+  void **exports = reinterpret_cast<void**>(pAMXFunctions);
 
-  hooks::amx_Exec_hook.Install(
-    ((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Exec],
-    (void*)hooks::amx_Exec);
-  hooks::amx_Callback_hook.Install(
-    ((void**)pAMXFunctions)[PLUGIN_AMX_EXPORT_Callback],
-    (void*)hooks::amx_Callback);
+  exports[PLUGIN_AMX_EXPORT_Align16] = FunctionToVoidPtr(amx_Align_stub);
+  exports[PLUGIN_AMX_EXPORT_Align32] = FunctionToVoidPtr(amx_Align_stub);
+  exports[PLUGIN_AMX_EXPORT_Align64] = FunctionToVoidPtr(amx_Align_stub);
 
-  // Read plugin settings from server.cfg.
+  hooks::amx_Exec_hook.Install(exports[PLUGIN_AMX_EXPORT_Exec],
+                               FunctionToVoidPtr(hooks::amx_Exec));
+  hooks::amx_Callback_hook.Install(exports[PLUGIN_AMX_EXPORT_Callback],
+                                   FunctionToVoidPtr(hooks::amx_Callback));
+
   ConfigReader server_cfg("server.cfg");
   server_cfg.GetOption("profile_gamemode", cfg::profile_gamemode);
   server_cfg.GetOption("profile_filterscripts", cfg::profile_filterscripts);
