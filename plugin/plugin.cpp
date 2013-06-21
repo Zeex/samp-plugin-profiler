@@ -181,6 +181,15 @@ static bool WantsProfiler(const std::string &amx_name) {
   return false;
 }
 
+template<typename Map, typename Key>
+void DeleteMapEntry(Map &map, const Key &key) {
+  typename Map::iterator iterator = map.find(key);
+  if (iterator != map.end()) {
+    delete iterator->second;
+    map.erase(iterator);
+  }
+}
+
 PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports() {
   return SUPPORTS_VERSION | SUPPORTS_AMX_NATIVES;
 }
@@ -351,17 +360,8 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
     PrintException(e);
   }
 
-  AmxToProfilerMap::iterator profiler_iterator = ::profilers.find(amx);
-  if (profiler_iterator != ::profilers.end()) {
-    delete profiler_iterator->second;
-    ::profilers.erase(profiler_iterator);
-  }
-
-  AmxToDebugInfoMap::iterator dinfo_iterator = ::debug_infos.find(amx);
-  if (dinfo_iterator != ::debug_infos.end()) {
-    delete dinfo_iterator->second;
-    ::debug_infos.erase(dinfo_iterator);
-  }
+  DeleteMapEntry(::profilers, amx);
+  DeleteMapEntry(::debug_infos, amx);
 
   return AMX_ERR_NONE;
 }
