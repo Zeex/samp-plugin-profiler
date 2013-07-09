@@ -44,5 +44,5 @@ Profiler settings can be changed via the following `server.cfg` options:
 [donate]: http://pledgie.com/campaigns/19751
 [donate_button]: http://www.pledgie.com/campaigns/19751.png
 [github]: https://github.com/Zeex/samp-plugin-profiler
-[download]: https://www.dropbox.com/sh/opuv919doup7f4f/LMTF03IklK
+[download]: https://github.com/Zeex/samp-plugin-profiler/releases 
 [graphviz]: http://www.graphviz.org
