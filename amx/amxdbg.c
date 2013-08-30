@@ -292,7 +292,7 @@ int AMXAPI dbg_LookupFunctionExact(const AMX_DBG *amxdbg, ucell address, const c
   for (index = 0; index < amxdbg->hdr->symbols; index++) {
     if (amxdbg->symboltbl[index]->ident == iFUNCTN
         && amxdbg->symboltbl[index]->codestart == address) {
-      if (amxdbg->symboltbl[index]->name[0] != '@') 
+      if (amxdbg->symboltbl[index]->name[0] != '@')
         break;
     }
   } /* for */
