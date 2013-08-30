@@ -40,7 +40,7 @@ class CallStack {
 
   FunctionCall Pop();
 
-  bool IsEmpty() const { return calls_.empty(); }
+  bool is_empty() const { return calls_.empty(); }
 
   FunctionCall *top() { return &calls_.back(); }
   const FunctionCall *top() const { return &calls_.back(); }

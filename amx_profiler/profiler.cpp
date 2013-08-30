@@ -52,7 +52,7 @@ Profiler::~Profiler() {
 int Profiler::DebugHook(AMX_DEBUG debug) {
   Address prev_frame = amx_->stp;
 
-  if (!call_stack_.IsEmpty()) {
+  if (!call_stack_.is_empty()) {
     prev_frame = call_stack_.top()->frame();
   }
 
@@ -148,7 +148,7 @@ void Profiler::BeginFunction(Address address, cell frm) {
 }
 
 void Profiler::EndFunction(Address address) {
-  assert(!call_stack_.IsEmpty());
+  assert(!call_stack_.is_empty());
   assert(address == 0 || stats_.GetFunction(address) != 0);
 
   while (true) {
