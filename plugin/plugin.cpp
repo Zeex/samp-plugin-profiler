@@ -254,6 +254,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
         logprintf("[profiler] Error loading debug info from '%s'",
                   filename.c_str());
         delete debug_info;
+        debug_info = 0;
       }
     }
 
