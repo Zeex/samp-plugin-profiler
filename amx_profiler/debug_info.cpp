@@ -49,9 +49,10 @@ DebugInfo::DebugInfo(const std::string &filename)
 void DebugInfo::Load(const std::string &filename) {
   std::FILE* fp = std::fopen(filename.c_str(), "rb");
   if (fp != 0) {
-    amxdbg_ = new AMX_DBG;
-    if (dbg_LoadInfo(amxdbg_, fp) != AMX_ERR_NONE) 
-      delete amxdbg_;
+    AMX_DBG amxdbg;
+    if (dbg_LoadInfo(&amxdbg, fp) == AMX_ERR_NONE) {
+      amxdbg_ = new AMX_DBG(amxdbg);
+    }
     fclose(fp);
   }
 }
