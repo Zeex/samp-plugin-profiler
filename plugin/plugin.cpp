@@ -182,7 +182,7 @@ static bool WantsProfiler(const std::string &amx_name) {
 }
 
 template<typename Map, typename Key>
-void DeleteMapEntry(Map &map, const Key &key) {
+static void DeleteMapEntry(Map &map, const Key &key) {
   typename Map::iterator iterator = map.find(key);
   if (iterator != map.end()) {
     delete iterator->second;
@@ -191,16 +191,16 @@ void DeleteMapEntry(Map &map, const Key &key) {
 }
 
 template<typename Func>
-void *FunctionToVoidPtr(Func func) {
+static void *FunctionToVoidPtr(Func func) {
   return (void*)func;
-}
-
-PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports() {
-  return SUPPORTS_VERSION | SUPPORTS_AMX_NATIVES;
 }
 
 static void *AMXAPI amx_Align_stub(void *v) {
   return v;
+}
+
+PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports() {
+  return SUPPORTS_VERSION | SUPPORTS_AMX_NATIVES;
 }
 
 PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
