@@ -49,8 +49,11 @@ class DebugInfo {
   std::string LookupFunction(Address address) const;
   std::string LookupFunctionExact(Address address) const;
 
+  int last_error() const { return last_error_; }
+
  private:
   AMX_DBG *amxdbg_;
+  mutable int last_error_;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(DebugInfo);
