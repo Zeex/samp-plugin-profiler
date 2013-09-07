@@ -204,45 +204,50 @@ static void *AMXAPI amx_Align_stub(void *v) {
 }
 
 PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
-  pAMXFunctions = ppData[PLUGIN_DATA_AMX_EXPORTS];
-  logprintf = (logprintf_t)ppData[PLUGIN_DATA_LOGPRINTF];
+  try {
+    pAMXFunctions = ppData[PLUGIN_DATA_AMX_EXPORTS];
+    logprintf = (logprintf_t) ppData[PLUGIN_DATA_LOGPRINTF];
 
-  void **exports = reinterpret_cast<void**>(pAMXFunctions);
+    void **exports = reinterpret_cast<void**>(pAMXFunctions);
 
-  exports[PLUGIN_AMX_EXPORT_Align16] = FunctionToVoidPtr(amx_Align_stub);
-  exports[PLUGIN_AMX_EXPORT_Align32] = FunctionToVoidPtr(amx_Align_stub);
-  exports[PLUGIN_AMX_EXPORT_Align64] = FunctionToVoidPtr(amx_Align_stub);
+    exports[PLUGIN_AMX_EXPORT_Align16] = FunctionToVoidPtr(amx_Align_stub);
+    exports[PLUGIN_AMX_EXPORT_Align32] = FunctionToVoidPtr(amx_Align_stub);
+    exports[PLUGIN_AMX_EXPORT_Align64] = FunctionToVoidPtr(amx_Align_stub);
 
-  hooks::amx_Exec_hook.Install(exports[PLUGIN_AMX_EXPORT_Exec],
-                               FunctionToVoidPtr(hooks::amx_Exec));
-  hooks::amx_Callback_hook.Install(exports[PLUGIN_AMX_EXPORT_Callback],
-                                   FunctionToVoidPtr(hooks::amx_Callback));
+    hooks::amx_Exec_hook.Install(exports[PLUGIN_AMX_EXPORT_Exec],
+                                 FunctionToVoidPtr(hooks::amx_Exec));
+    hooks::amx_Callback_hook.Install(exports[PLUGIN_AMX_EXPORT_Callback],
+                                     FunctionToVoidPtr(hooks::amx_Callback));
 
-  ConfigReader server_cfg("server.cfg");
-  server_cfg.GetOption("profile_gamemode", cfg::profile_gamemode);
-  server_cfg.GetOption("profile_filterscripts", cfg::profile_filterscripts);
-  server_cfg.GetOption("profile_format", cfg::profile_format);
-  server_cfg.GetOption("call_graph", cfg::call_graph);
-  server_cfg.GetOption("call_graph_format", cfg::call_graph_format);
+    ConfigReader server_cfg("server.cfg");
+    server_cfg.GetOption("profile_gamemode", cfg::profile_gamemode);
+    server_cfg.GetOption("profile_filterscripts", cfg::profile_filterscripts);
+    server_cfg.GetOption("profile_format", cfg::profile_format);
+    server_cfg.GetOption("call_graph", cfg::call_graph);
+    server_cfg.GetOption("call_graph_format", cfg::call_graph_format);
 
-  logprintf("  Profiler v" PROJECT_VERSION_STRING " is OK.");
+    logprintf("  Profiler v" PROJECT_VERSION_STRING " is OK.");
+  }
+  catch (std::exception &e) {
+    PrintException(e);
+  }
 
   return true;
 }
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
-  std::string filename = GetAmxPath(amx);
-
-  if (filename.empty()) {
-    logprintf("[profiler] Failed to find corresponding .amx file");
-    return AMX_ERR_NONE;
-  }
-
-  if (!WantsProfiler(filename)) {
-    return AMX_ERR_NONE;
-  }
-
   try {
+    std::string filename = GetAmxPath(amx);
+
+    if (filename.empty()) {
+      logprintf("[profiler] Failed to find corresponding .amx file");
+      return AMX_ERR_NONE;
+    }
+
+    if (!WantsProfiler(filename)) {
+      return AMX_ERR_NONE;
+    }
+
     amx_profiler::DebugInfo *debug_info = 0;
 
     if (amx_profiler::HaveDebugInfo(amx)) {
@@ -359,13 +364,13 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
         }
       }
     }
+
+    DeleteMapEntry(::profilers, amx);
+    DeleteMapEntry(::debug_infos, amx);
   }
   catch (const std::exception &e) {
     PrintException(e);
   }
-
-  DeleteMapEntry(::profilers, amx);
-  DeleteMapEntry(::debug_infos, amx);
 
   return AMX_ERR_NONE;
 }
