@@ -25,7 +25,9 @@
 #ifndef AMX_PROFILER_CALL_GRAPH_H
 #define AMX_PROFILER_CALL_GRAPH_H
 
+#include <map>
 #include <set>
+#include "macros.h"
 
 namespace amx_profiler {
 
@@ -41,7 +43,13 @@ class CallGraph {
     virtual void Visit(const CallGraphNode *node) = 0;
   };
 
-  typedef std::set<CallGraphNode*> NodeSet;
+  class CompareStats {
+   public:
+     bool operator()(const FunctionStatistics *lhs,
+                     const FunctionStatistics *rhs) const;
+  };
+
+  typedef std::map<FunctionStatistics*, CallGraphNode*, CompareStats> Nodes;
 
   CallGraph(CallGraphNode *root = 0);
   ~CallGraph();
@@ -51,27 +59,33 @@ class CallGraph {
 
   CallGraphNode *sentinel() const { return sentinel_; }
 
-  void Traverse(Visitor *visitor) const;
+  CallGraphNode *AddCallee(FunctionStatistics *stats);
 
- private:
-  void OwnNode(CallGraphNode *node);
+  void Traverse(Visitor *visitor) const;
 
  private:
   CallGraphNode *root_;
   CallGraphNode *sentinel_;
-  NodeSet nodes_;
+  Nodes nodes_;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(CallGraph);
 };
 
 class CallGraphNode {
  public:
-  class Compare {
+  typedef std::set<CallGraphNode*> Callees;
+
+  class CompareNodes {
    public:
-    bool operator()(const CallGraphNode *n1, const CallGraphNode *n2) const;
+     bool operator()(const CallGraphNode *lhs,
+                     const CallGraphNode *rhs) const {
+       return CallGraph::CompareStats()(lhs->stats(), rhs->stats());
+     }
   };
 
-  typedef std::set<CallGraphNode*, Compare> CalleeSet;
-
-  CallGraphNode(CallGraph *graph, FunctionStatistics *stats, CallGraphNode *caller = 0);
+  CallGraphNode(CallGraph *graph, FunctionStatistics *stats,
+                CallGraphNode *caller = 0);
 
   void MakeRoot() { graph_->set_root(this); }
 
@@ -79,18 +93,18 @@ class CallGraphNode {
   FunctionStatistics *stats() const { return stats_; }
 
   CallGraphNode *caller() const { return caller_; }
-  const CalleeSet &callees() const { return callees_; }
+  const Callees &callees() const { return callees_; }
 
-  CallGraphNode *AddCallee(FunctionStatistics *stats);
   CallGraphNode *AddCallee(CallGraphNode *node);
-
-  void Traverse(CallGraph::Visitor *visitor) const;
 
  private:
   CallGraph *graph_;
   FunctionStatistics *stats_;
   CallGraphNode *caller_;
-  CalleeSet callees_;
+  Callees callees_;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(CallGraphNode);
 };
 
 } // namespace amx_profiler

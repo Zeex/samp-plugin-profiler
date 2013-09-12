@@ -28,6 +28,22 @@
 
 namespace amx_profiler {
 
+namespace {
+
+class Deleter : public CallGraph::Visitor {
+ public:
+  virtual void Visit(const CallGraphNode *node) {
+    delete node;
+  }
+};
+
+} // anonymous namespace
+
+bool CallGraph::CompareStats::operator()(const FunctionStatistics *lhs,
+                                         const FunctionStatistics *rhs) const {
+  return lhs->function()->address() < rhs->function()->address();
+}
+
 CallGraph::CallGraph(CallGraphNode *root)
  : root_(root),
    sentinel_(new CallGraphNode(this, 0))
@@ -38,23 +54,26 @@ CallGraph::CallGraph(CallGraphNode *root)
 }
 
 CallGraph::~CallGraph() {
-  delete sentinel_;
-  for (NodeSet::const_iterator iterator = nodes_.begin();
-       iterator != nodes_.end(); ++iterator) {
-    delete *iterator;
-  }
+  Deleter deleter;
+  Traverse(&deleter);
 }
 
-void CallGraph::OwnNode(CallGraphNode *node) {
-  nodes_.insert(node);
+CallGraphNode *CallGraph::AddCallee(FunctionStatistics *stats) {
+  Nodes::iterator iterator = nodes_.find(stats);
+  if (iterator == nodes_.end()) {
+    CallGraphNode *node = new CallGraphNode(this, stats, root_);
+    nodes_.insert(std::make_pair(stats, node));
+    return root_->AddCallee(node);
+  }
+  return root_->AddCallee(iterator->second);
 }
 
 void CallGraph::Traverse(Visitor *visitor) const {
-  sentinel_->Traverse(visitor);
-}
-
-bool CallGraphNode::Compare::operator()(const CallGraphNode *n1, const CallGraphNode *n2) const {
-  return n1->stats()->function()->address() < n2->stats()->function()->address();
+  visitor->Visit(sentinel_);
+  for (Nodes::const_iterator iterator = nodes_.begin();
+       iterator != nodes_.end(); ++iterator) {
+    visitor->Visit(iterator->second);
+  }
 }
 
 CallGraphNode::CallGraphNode(CallGraph *graph, FunctionStatistics *stats, CallGraphNode *caller) 
@@ -64,23 +83,9 @@ CallGraphNode::CallGraphNode(CallGraph *graph, FunctionStatistics *stats, CallGr
 {
 }
 
-CallGraphNode *CallGraphNode::AddCallee(FunctionStatistics *stats) {
-  CallGraphNode *node = new CallGraphNode(graph_, stats, this);
-  return AddCallee(node);
-}
-
 CallGraphNode *CallGraphNode::AddCallee(CallGraphNode *node) {
-  graph_->OwnNode(node);
   callees_.insert(node);
   return node;
-}
-
-void CallGraphNode::Traverse(CallGraph::Visitor *visitor) const {
-  visitor->Visit(this);
-  for (CalleeSet::const_iterator iterator = callees_.begin();
-       iterator != callees_.end(); ++iterator) {
-    (*iterator)->Traverse(visitor);
-  }
 }
 
 } // namespace amx_profiler

@@ -143,7 +143,7 @@ void Profiler::BeginFunction(Address address, cell frm) {
 
   call_stack_.Push(fn_stats->function(), frm);
   if (call_graph_enabled_) {
-    call_graph_.root()->AddCallee(fn_stats)->MakeRoot();
+    call_graph_.AddCallee(fn_stats)->MakeRoot();
   }
 }
 
