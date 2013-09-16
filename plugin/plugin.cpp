@@ -250,7 +250,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 
     amx_profiler::DebugInfo *debug_info = 0;
 
-    if (amx_profiler::HaveDebugInfo(amx)) {
+    if (amx_profiler::HasDebugInfo(amx)) {
       debug_info = new amx_profiler::DebugInfo(filename);
       if (debug_info->is_loaded()) {
         ::debug_infos[amx] = debug_info;

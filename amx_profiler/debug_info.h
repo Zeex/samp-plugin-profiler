@@ -59,13 +59,8 @@ class DebugInfo {
   DISALLOW_COPY_AND_ASSIGN(DebugInfo);
 };
 
-inline bool HaveDebugInfo(AMX *amx) {
-  uint16_t flags;
-  amx_Flags(amx, &flags);
-  return ((flags & AMX_FLAG_DEBUG) != 0);
-}  
+bool HasDebugInfo(AMX *amx);
 
 } // namespace amx_profiler
 
 #endif // !AMX_PROFILER_DEBUGINFO_H
-

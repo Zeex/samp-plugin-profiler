@@ -104,5 +104,11 @@ std::string DebugInfo::LookupFunctionExact(Address address) const {
   return result;
 }
 
+bool HasDebugInfo(AMX *amx) {
+  uint16_t flags;
+  amx_Flags(amx, &flags);
+  return ((flags & AMX_FLAG_DEBUG) != 0);
+}  
+
 } // namespace amx_profiler
 
