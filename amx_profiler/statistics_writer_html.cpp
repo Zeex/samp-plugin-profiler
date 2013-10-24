@@ -193,12 +193,6 @@ void StatisticsWriterHtml::Write(const Statistics *stats)
   "    $(\"#func-stats\").tablesorter();\n"
   "  });\n"
   "  </script>\n"
-  "  <br/>\n"
-  "  <footer>\n"
-  ;
-
-  *stream() <<
-  "  </footer>\n"
   "</body>\n"
   "</html>\n"
   ;
