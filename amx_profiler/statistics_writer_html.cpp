@@ -37,19 +37,31 @@ namespace amx_profiler {
 void StatisticsWriterHtml::Write(const Statistics *stats)
 {
   *stream() <<
-  "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\n"
-  "\"http://www.w3.org/TR/html4/loose.dtd\">\n"
+  "<!DOCTYPE html>\n"
   "<html>\n"
   "<head>\n"
   "  <title>" << "Profile of '" << script_name() << "'</title>\n"
+  "  <script type=\"text/javascript\"\n"
+  "          src=\"http://code.jquery.com/jquery-latest.min.js\">\n"
+  "  </script>\n"
+  "  <script type=\"text/javascript\"\n"
+  "          src=\"http://tablesorter.com/__jquery.tablesorter.min.js\">\n"
+  "  </script>\n"
+  "  <script type=\"text/javascript\">\n"
+  "    $(document).ready(function() {\n"
+  "      $('#data').tablesorter();\n"
+  "      $('#data tr').hover(\n"
+  "        function(event) { this.style.backgroundColor = '#c0e3eb'; },\n"
+  "        function(event) { this.style.backgroundColor = ''; }\n"
+  "      );\n"
+  "    });\n"
+  "  </script>\n"
   "</head>\n"
-  "<body>\n";
+  "<body>\n"
+  ;
 
   *stream() <<
   "  <style type=\"text/css\">\n"
-  "    table.meta {\n"
-  "      width: auto;\n"
-  "    }\n"
   "    table {\n"
   "      border-spacing: 0;\n"
   "      border-collapse: collapse;\n"
@@ -68,21 +80,23 @@ void StatisticsWriterHtml::Write(const Statistics *stats)
   "      background-color: #eeeeee;\n"
   "    }\n"
   "  </style>\n"
-  "  <table class=\"meta\" border=\"1\">\n"
+  "  <table>\n"
   "    <thead>\n"
   "      <tr>\n"
   "        <th>Name</th>\n"
   "        <th>Value</th>\n"
   "      </tr>\n"
   "    </thead>\n"
-  "    <tbody>\n";
+  "    <tbody>\n"
+  ;
 
   if (print_date()) {
     *stream() <<
     "      <tr>\n"
     "        <td>Date</td>\n"
     "        <td>" << CTime() << "</td>\n"
-    "      </tr>\n";
+    "      </tr>\n"
+    ;
   }
 
   if (print_run_time()) {
@@ -90,14 +104,15 @@ void StatisticsWriterHtml::Write(const Statistics *stats)
     "      <tr>\n"
     "        <td>Duration</td>\n"
     "        <td>" << TimeSpan(stats->GetTotalRunTime()) << "</td>\n"
-    "      </tr>\n";
+    "      </tr>\n"
+    ;
   }
 
   *stream() <<
   "    </tbody>\n"
   "  </table>\n"
-  "  <br/>"
-  "  <table id=\"func-stats\" class=\"tablesorter\" border=\"1\" width=\"100%\">\n"
+  "  <br/>\n"
+  "  <table id=\"data\" class=\"tablesorter\" border=\"1\" width=\"100%\">\n"
   "    <thead>\n"
   "      <tr>\n"
   "        <th rowspan=\"2\">Type</th>\n"
@@ -172,7 +187,6 @@ void StatisticsWriterHtml::Write(const Statistics *stats)
     << "      <td>" << std::setprecision(1) << total_time << "</td>\n"
     << "      <td>" << std::setprecision(1) << avg_total_time << "</td>\n"
     << "      <td>" << std::setprecision(1) << worst_total_time << "</td>\n"
-    << "      </td>\n"
     << "    </tr>\n";
   };
 
@@ -181,24 +195,6 @@ void StatisticsWriterHtml::Write(const Statistics *stats)
   *stream() <<
   "    </tbody>\n"
   "  </table>\n"
-  ;
-
-  *stream() <<
-  "  <script type=\"text/javascript\"\n"
-  "          src=\"http://code.jquery.com/jquery-latest.min.js\">\n"
-  "  </script>\n"
-  "  <script type=\"text/javascript\"\n"
-  "          src=\"http://tablesorter.com/__jquery.tablesorter.min.js\">\n"
-  "  </script>\n"
-  "  <script type=\"text/javascript\">\n"
-  "    $(document).ready(function() {\n"
-  "      $(\"#func-stats\").tablesorter();\n"
-  "    });\n"
-  "    $('tr').hover(\n"
-  "      function(event) { this.style.backgroundColor = '#c0e3eb'; },\n"
-  "      function(event) { this.style.backgroundColor = ''; }\n"
-  "    );\n"
-  "  </script>\n"
   "</body>\n"
   "</html>\n"
   ;
