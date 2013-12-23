@@ -42,6 +42,6 @@ endif()
 set(SUBHOOK_STATIC TRUE)
 add_subdirectory(subhook)
 
-target_link_libraries(plugin amx_profiler subhook)
+target_link_libraries(plugin amxprof subhook)
 
 install(TARGETS plugin LIBRARY DESTINATION ".")

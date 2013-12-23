@@ -72,7 +72,7 @@ set(PROJECT_VERSION    ${version})
 set(PROJECT_VERSION_RC ${version_rc})
 
 add_subdirectory(amx)
-add_subdirectory(amx_profiler)
+add_subdirectory(amxprof)
 add_subdirectory(plugin)
 
 set_target_properties(plugin PROPERTIES OUTPUT_NAME ${PROJECT_NAME})

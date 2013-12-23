@@ -34,12 +34,12 @@
 #include <string>
 #include <subhook.h>
 #include <amx/amx.h>
-#include <amx_profiler/call_graph_writer_dot.h>
-#include <amx_profiler/debug_info.h>
-#include <amx_profiler/statistics_writer_html.h>
-#include <amx_profiler/statistics_writer_text.h>
-#include <amx_profiler/statistics_writer_json.h>
-#include <amx_profiler/profiler.h>
+#include <amxprof/call_graph_writer_dot.h>
+#include <amxprof/debug_info.h>
+#include <amxprof/statistics_writer_html.h>
+#include <amxprof/statistics_writer_text.h>
+#include <amxprof/statistics_writer_json.h>
+#include <amxprof/profiler.h>
 #include "amxpath.h"
 #include "configreader.h"
 #include "plugin.h"
@@ -54,10 +54,10 @@ static logprintf_t logprintf;
 typedef std::map<AMX*, AMX_DEBUG> AmxToAmxDebugMap;
 static AmxToAmxDebugMap old_debug_hooks;
 
-typedef std::map<AMX*, amx_profiler::Profiler*> AmxToProfilerMap;
+typedef std::map<AMX*, amxprof::Profiler*> AmxToProfilerMap;
 static AmxToProfilerMap profilers;
 
-typedef std::map<AMX*, amx_profiler::DebugInfo*> AmxToDebugInfoMap; 
+typedef std::map<AMX*, amxprof::DebugInfo*> AmxToDebugInfoMap; 
 static AmxToDebugInfoMap debug_infos;
 
 // Plugin settings and their defauls.
@@ -79,7 +79,7 @@ SubHook amx_Exec_hook;
 SubHook amx_Callback_hook;
 
 int AMXAPI amx_Debug(AMX *amx) {
-  amx_profiler::Profiler *profiler = ::profilers[amx];
+  amxprof::Profiler *profiler = ::profilers[amx];
   if (profiler) {
     try {
       profiler->DebugHook();
@@ -102,7 +102,7 @@ int AMXAPI amx_Callback(AMX *amx, cell index, cell *result, cell *params) {
   SubHook::ScopedRemove r(&amx_Callback_hook);
   SubHook::ScopedInstall i(&amx_Exec_hook);
 
-  amx_profiler::Profiler *profiler = ::profilers[amx];
+  amxprof::Profiler *profiler = ::profilers[amx];
   if (profiler != 0) {
     try {
       return profiler->CallbackHook(index, result, params);
@@ -118,7 +118,7 @@ int AMXAPI amx_Exec(AMX *amx, cell *retval, int index) {
   SubHook::ScopedRemove r(&amx_Exec_hook);
   SubHook::ScopedInstall i(&amx_Callback_hook);
 
-  amx_profiler::Profiler *profiler = ::profilers[amx];
+  amxprof::Profiler *profiler = ::profilers[amx];
   if (profiler != 0) {
     try {
       return profiler->ExecHook(retval, index);
@@ -248,10 +248,10 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
       return AMX_ERR_NONE;
     }
 
-    amx_profiler::DebugInfo *debug_info = 0;
+    amxprof::DebugInfo *debug_info = 0;
 
-    if (amx_profiler::HasDebugInfo(amx)) {
-      debug_info = new amx_profiler::DebugInfo(filename);
+    if (amxprof::HasDebugInfo(amx)) {
+      debug_info = new amxprof::DebugInfo(filename);
       if (debug_info->is_loaded()) {
         ::debug_infos[amx] = debug_info;
       } else {
@@ -262,7 +262,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
       }
     }
 
-    amx_profiler::Profiler *profiler = new amx_profiler::Profiler(amx,
+    amxprof::Profiler *profiler = new amxprof::Profiler(amx,
                                                                   debug_info);
     profiler->set_call_graph_enabled(cfg::call_graph);
 
@@ -287,7 +287,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
   try {
-    amx_profiler::Profiler *profiler = ::profilers[amx];
+    amxprof::Profiler *profiler = ::profilers[amx];
 
     if (profiler != 0) {
       std::string amx_path = GetAmxPath(amx);
@@ -300,15 +300,15 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
       std::ofstream profile_stream(profile_filename.c_str());
 
       if (profile_stream.is_open()) {
-        amx_profiler::StatisticsWriter *writer = 0;
+        amxprof::StatisticsWriter *writer = 0;
 
         if (cfg::profile_format == "html") {
-          writer = new amx_profiler::StatisticsWriterHtml;
+          writer = new amxprof::StatisticsWriterHtml;
         } else if (cfg::profile_format == "txt" ||
                    cfg::profile_format == "text") {
-          writer = new amx_profiler::StatisticsWriterText;
+          writer = new amxprof::StatisticsWriterText;
         } else if (cfg::profile_format == "json") {
-          writer = new amx_profiler::StatisticsWriterJson;
+          writer = new amxprof::StatisticsWriterJson;
         } else {
           logprintf("[profiler] Unrecognized profile format '%s'",
                     cfg::profile_format.c_str());
@@ -338,10 +338,10 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
         std::ofstream call_graph_stream(call_graph_filename.c_str());
 
         if (call_graph_stream.is_open()) {
-          amx_profiler::CallGraphWriterDot *writer = 0;
+          amxprof::CallGraphWriterDot *writer = 0;
 
           if (cfg::call_graph_format == "dot") {
-            writer = new amx_profiler::CallGraphWriterDot;
+            writer = new amxprof::CallGraphWriterDot;
           } else {
             logprintf("[profiler] Unrecognized call graph format '%s'",
                       cfg::call_graph_format.c_str());
