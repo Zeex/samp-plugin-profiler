@@ -27,7 +27,7 @@
 #include "clock.h"
 #include "system_error.h"
 
-namespace amx_profiler {
+namespace amxprof {
 
 // static
 TimePoint Clock::Now() {
@@ -41,4 +41,4 @@ TimePoint Clock::Now() {
   return Nanoseconds(ns);
 }
 
-} // namespace amx_profiler
+} // namespace amxprof

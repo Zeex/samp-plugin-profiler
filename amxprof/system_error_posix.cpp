@@ -30,7 +30,7 @@ static const char *GetErrorMessage(int error) {
   return std::strerror(error);
 }
 
-namespace amx_profiler {
+namespace amxprof {
 
 SystemError::SystemError(const char *prefix)
  : Exception(std::string(prefix) + std::string(": ") + GetErrorMessage(errno)),
@@ -44,4 +44,4 @@ SystemError::SystemError(const char *prefix, int code)
 {
 }
 
-}
+} // namespace amxprof

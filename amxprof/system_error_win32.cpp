@@ -49,7 +49,7 @@ static std::string GetErrorMessage(DWORD error) {
                 FORMAT_MESSAGE_FROM_SYSTEM |
                 FORMAT_MESSAGE_IGNORE_INSERTS;
   DWORD lang_id = MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT);
-  
+
   DWORD result = FormatMessageA(flags, NULL, error, lang_id,
                                 reinterpret_cast<LPSTR>(&buffer),
                                 0, NULL);
@@ -76,4 +76,4 @@ SystemError::SystemError(const char *prefix, int code)
 {
 }
 
-}
+} // namespace amxprof
