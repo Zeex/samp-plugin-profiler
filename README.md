@@ -2,6 +2,7 @@
 =========================
 
 [![Donate][donate_button]][donate]
+[![Build Status][build_status]][build]
 
 Profiler provides detailed information about how long each function takes to
 execute and how many times it is called. Additionally it can build a call
@@ -41,8 +42,10 @@ Profiler settings can be changed via the following `server.cfg` options:
 	Set call graph format. Currently only `dot` is supported (can be viewed
 	in [GraphViz][graphviz]).
 
+[github]: https://github.com/Zeex/samp-plugin-profiler
 [donate]: http://pledgie.com/campaigns/19751
 [donate_button]: http://www.pledgie.com/campaigns/19751.png
-[github]: https://github.com/Zeex/samp-plugin-profiler
+[build]: https://travis-ci.org/Zeex/samp-plugin-profiler
+[build_status]: https://travis-ci.org/Zeex/samp-plugin-profiler.png?branch=master
 [download]: https://github.com/Zeex/samp-plugin-profiler/releases 
 [graphviz]: http://www.graphviz.org
