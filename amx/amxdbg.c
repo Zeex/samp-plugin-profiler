@@ -31,6 +31,8 @@
  *  - fix: hdr.flags not aligned before use in dbg_LoadInfo()
  *  2013-05-05
  *  - added dbg_LookupFunctionExact() 
+ *  2014-08-31
+ *  - added workaround for the line number overflow bug
  */
 #include <assert.h>
 #include <stdio.h>
@@ -66,6 +68,7 @@ int AMXAPI dbg_LoadInfo(AMX_DBG *amxdbg, FILE *fp)
   AMX_DBG_HDR dbghdr;
   unsigned char *ptr;
   int index, dim;
+  AMX_DBG_LINE *line;
   AMX_DBG_SYMDIM *symdim;
 
   assert(fp != NULL);
@@ -155,6 +158,20 @@ int AMXAPI dbg_LoadInfo(AMX_DBG *amxdbg, FILE *fp)
   #endif
   ptr += dbghdr.lines * sizeof(AMX_DBG_LINE);
 
+  /* detect dbghdr.lines overflow */
+  while ((line = (AMX_DBG_LINE *)ptr)
+         && (cell)line->address > (cell)(line - 1)->address) {
+    dbghdr.lines = -1;
+    #if BYTE_ORDER==BIG_ENDIAN
+      for (index = 0; index <= dbghdr.lines; index++) {
+        amx_AlignCell(&linetbl[index].address);
+        amx_Align32((uint32_t*)&linetbl[index].line);
+        line++;
+      } /* for */
+    #endif
+    ptr += ((uint32_t)dbghdr.lines + 1) * sizeof(AMX_DBG_LINE);
+  } /* while */
+
   /* symbol table (plus index tags) */
   for (index = 0; index < dbghdr.symbols; index++) {
     assert(amxdbg->symboltbl != NULL);
@@ -238,13 +255,17 @@ int AMXAPI dbg_LookupFile(const AMX_DBG *amxdbg, ucell address, const char **fil
 
 int AMXAPI dbg_LookupLine(const AMX_DBG *amxdbg, ucell address, long *line)
 {
+  int lines;
   int index;
 
   assert(amxdbg != NULL);
   assert(line != NULL);
   *line = 0;
+  /* work around a possible overflow of amxdbg->hdr->lines */
+  lines = ((unsigned char*)amxdbg->symboltbl[0]
+    - (unsigned char*)amxdbg->linetbl) / sizeof(AMX_DBG_LINE);
   /* this is a simple linear look-up; a binary search would be possible too */
-  for (index = 0; index < amxdbg->hdr->lines && amxdbg->linetbl[index].address <= address; index++)
+  for (index = 0; index < lines && amxdbg->linetbl[index].address <= address; index++)
     /* nothing */;
   /* reset for overrun */
   if (--index < 0)
