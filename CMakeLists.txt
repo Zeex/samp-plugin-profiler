@@ -3,7 +3,7 @@ project(profiler)
 option(PROFILER_USE_STATIC_RUNTIME "Use static C++ runtime" OFF)
 
 cmake_minimum_required(VERSION 2.8.8)
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 include(AmxConfig)
 include(GetGitRevisionDescription)
