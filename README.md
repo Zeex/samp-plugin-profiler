@@ -42,6 +42,11 @@ Profiler settings can be changed via the following `server.cfg` options:
 	Set call graph format. Currently only `dot` is supported (can be viewed
 	in [GraphViz][graphviz]).
 
+License
+-------
+
+Licensed under the 2-clause BSD license. See the LICENSE.txt file.
+
 [github]: https://github.com/Zeex/samp-plugin-profiler
 [donate]: http://pledgie.com/campaigns/19751
 [donate_button]: http://www.pledgie.com/campaigns/19751.png
