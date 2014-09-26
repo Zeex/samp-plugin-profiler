@@ -1,4 +1,7 @@
-include_directories(${CMAKE_SOURCE_DIR})
+include(AmxConfig)
+include(Plugin)
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(subhook)
 
@@ -32,15 +35,10 @@ else()
   list(APPEND PLUGIN_SOURCES fileutils_posix.cpp)
 endif()
 
-add_library(plugin MODULE ${PLUGIN_SOURCES})
+add_plugin(plugin ${PLUGIN_SOURCES})
 
-if(UNIX OR MINGW)
-  # Remove the "lib" prefix of the output filename added in GCC/MinGW builds.
-  set_target_properties(plugin PROPERTIES PREFIX "")
-endif()
-
-set(SUBHOOK_STATIC TRUE)
-add_subdirectory(subhook)
+add_subdirectory(amx)
+add_subdirectory(amxprof)
 
 target_link_libraries(plugin amxprof subhook)
 

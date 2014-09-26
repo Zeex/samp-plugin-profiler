@@ -5,7 +5,6 @@ option(PROFILER_USE_STATIC_RUNTIME "Use static C++ runtime" OFF)
 cmake_minimum_required(VERSION 2.8.8)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-include(AmxConfig)
 include(GetGitRevisionDescription)
 
 # Enable project folders in Visual Studio 2010+ (and possibly other IDEs).
@@ -43,6 +42,8 @@ if(WIN32)
   endif()
 endif()
 
+add_subdirectory(deps)
+
 git_describe(description --match "v[0-9]*.[0-9]**")
 if(description)
   string(REGEX REPLACE "\\-g[0-9a-f]+$" "" description ${description})
@@ -63,9 +64,7 @@ string(REGEX REPLACE "^([0-9]+,[0-9]+,[0-9]+)$" "\\1,0" version_rc ${version_rc}
 set(PROJECT_VERSION    ${version})
 set(PROJECT_VERSION_RC ${version_rc})
 
-add_subdirectory(amx)
-add_subdirectory(amxprof)
-add_subdirectory(plugin)
+add_subdirectory(src)
 
 set_target_properties(plugin PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
 
