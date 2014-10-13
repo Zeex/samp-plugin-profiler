@@ -214,10 +214,12 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
     exports[PLUGIN_AMX_EXPORT_Align32] = FunctionToVoidPtr(amx_Align_stub);
     exports[PLUGIN_AMX_EXPORT_Align64] = FunctionToVoidPtr(amx_Align_stub);
 
-    hooks::amx_Exec_hook.Install(exports[PLUGIN_AMX_EXPORT_Exec],
-                                 FunctionToVoidPtr(hooks::amx_Exec));
-    hooks::amx_Callback_hook.Install(exports[PLUGIN_AMX_EXPORT_Callback],
-                                     FunctionToVoidPtr(hooks::amx_Callback));
+    hooks::amx_Exec_hook.SetSrc(exports[PLUGIN_AMX_EXPORT_Exec]);
+    hooks::amx_Exec_hook.SetDst(FunctionToVoidPtr(hooks::amx_Exec));
+    hooks::amx_Exec_hook.Install();
+
+    hooks::amx_Callback_hook.SetSrc(exports[PLUGIN_AMX_EXPORT_Callback]);
+    hooks::amx_Callback_hook.SetDst(FunctionToVoidPtr(hooks::amx_Callback));
 
     ConfigReader server_cfg("server.cfg");
     server_cfg.GetOption("profile_gamemode", cfg::profile_gamemode);
