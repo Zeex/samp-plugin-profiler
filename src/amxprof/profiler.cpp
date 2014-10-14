@@ -134,7 +134,7 @@ int Profiler::ExecHook(cell *retval, int index, AMX_EXEC exec) {
   return exec(amx_, retval, index);
 }
 
-void Profiler::BeginFunction(Address address, cell frm) {
+void Profiler::BeginFunction(Address address, Address frm) {
   assert(address != 0);
   FunctionStatistics *fn_stats = stats_.GetFunctionStatistis(address);
 
