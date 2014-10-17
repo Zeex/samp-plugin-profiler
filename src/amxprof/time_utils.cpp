@@ -43,13 +43,11 @@ TimeStamp::TimeStamp(std::time_t value)
 {
 }
 
-const char *CTime(TimeStamp ts) {
+std::string CTime(TimeStamp ts) {
   std::time_t now = TimeStamp::Now();
-
-  char *string = const_cast<char*>(std::ctime(&now));
-  string[kCTimeResultLength] = '\0';
-
-  return string;
+  std::string str = std::ctime(&now);
+  str.erase(str.length() - 1);
+  return str;
 }
 
 TimeSpan::TimeSpan(Seconds d) {

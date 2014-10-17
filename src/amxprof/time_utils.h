@@ -27,11 +27,10 @@
 
 #include <ctime>
 #include <iosfwd>
+#include <string>
 #include "duration.h"
 
 namespace amxprof {
-
-const int kCTimeResultLength = 24;
 
 class TimeStamp {
  public:
@@ -46,7 +45,7 @@ class TimeStamp {
   std::time_t value_;
 };
 
-const char *CTime(TimeStamp ts = TimeStamp());
+std::string CTime(TimeStamp ts = TimeStamp());
 
 class TimeSpan {
  public:
