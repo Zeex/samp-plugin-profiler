@@ -17,16 +17,21 @@ set(PLUGIN_SOURCES
   amxpath.cpp
   amxpath.h
   amxplugin.cpp
+  amxservice.h
   configreader.cpp
   configreader.h
   fileutils.cpp
   fileutils.h
+  logprintf.cpp
+  logprintf.h
   plugin.h
   plugincommon.h
   plugin.cpp
   plugin.def
   ${CMAKE_CURRENT_BINARY_DIR}/plugin.rc
   ${CMAKE_CURRENT_BINARY_DIR}/pluginversion.h
+  profiler.cpp
+  profiler.h
 )
 
 if(WIN32)
