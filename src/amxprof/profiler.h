@@ -38,19 +38,20 @@ namespace amxprof {
 
 class Profiler {
  public:
-  typedef std::set<Function*> FunctionSet;
-
- public:
   Profiler(AMX *amx, DebugInfo *debug_info = 0);
   ~Profiler();
 
-  bool call_graph_enabled() const { return call_graph_enabled_; }
-  void set_call_graph_enabled(bool enabled) { call_graph_enabled_ = enabled; }
+  bool call_graph_enabled() const {
+    return call_graph_enabled_;
+  }
+  void set_call_graph_enabled(bool enabled) {
+    call_graph_enabled_ = enabled;
+  }
 
   const CallStack *call_stack() const { return &call_stack_; }
   const CallGraph *call_graph() const { return &call_graph_; }
 
-  // Retruns collected runtime statistics.
+  // Retruns all gathered information.
   const Statistics *stats() const { return &stats_;  }
 
   // This method should be called instead of amx_Exec(). It
@@ -64,30 +65,30 @@ class Profiler {
 
   // This method should be called instead of amx_Callback().
   // It collects information about native function calls.
-  int CallbackHook(cell index, cell  *result, cell *params, AMX_CALLBACK callback = 0);
+  int CallbackHook(cell index,
+                   cell *result,
+                   cell *params,
+                   AMX_CALLBACK callback = 0);
 
  private:
   Profiler();
 
-  // BeginFunction() and EndFunction() are called when entering a function
-  // (of either type) and returning from it respectively.
-  void BeginFunction(Address address, Address frm);
-  void EndFunction(Address address = 0);
+  // BeginFunction() and EndFunction() are called when entering
+  // a function and returning from it respectively.
+  void EnterFunction(Address address, Address frm);
+  void LeaveFunction(Address address = 0);
 
  private:
   AMX *amx_;
   DebugInfo *debug_info_;
-
   bool call_graph_enabled_;
-
   CallStack call_stack_;
   CallGraph call_graph_;
-
   Statistics stats_;
-  FunctionSet functions_;
+  std::set<Function*> functions_;
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(Profiler);
+  AMXPROF_DISALLOW_COPY_AND_ASSIGN(Profiler);
 };
 
 } // namespace amxprof

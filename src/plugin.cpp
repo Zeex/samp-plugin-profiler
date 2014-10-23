@@ -28,8 +28,6 @@
 #include "pluginversion.h"
 #include "profiler.h"
 
-typedef void (*logprintf_t)(const char *format, ...);
-
 extern void *pAMXFunctions;
 
 namespace hooks {

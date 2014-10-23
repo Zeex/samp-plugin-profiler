@@ -43,7 +43,7 @@ Profiler::Profiler(AMX *amx, DebugInfo *debug_info)
 }
 
 Profiler::~Profiler() {
-  for (FunctionSet::const_iterator iterator = functions_.begin();
+  for (std::set<Function*>::const_iterator iterator = functions_.begin();
        iterator != functions_.end(); ++iterator) {
     delete *iterator;
   }
@@ -66,12 +66,12 @@ int Profiler::DebugHook(AMX_DEBUG debug) {
           functions_.insert(fn);
           stats_.AddFunction(fn);
         }
-        BeginFunction(address, amx_->frm);
+        EnterFunction(address, amx_->frm);
       }
     }
   } else if (amx_->frm > prev_frame) {
     if (call_stack_.top()->function()->type() == Function::NORMAL) {
-      EndFunction();
+      LeaveFunction();
     }
   }
 
@@ -96,11 +96,11 @@ int Profiler::CallbackHook(cell index, cell *result, cell *params, AMX_CALLBACK 
         functions_.insert(fn);
         stats_.AddFunction(fn);
       }
-      BeginFunction(address, amx_->frm);
+      EnterFunction(address, amx_->frm);
     }
     int error = callback(amx_, index, result, params);
     if (address != 0) {
-      EndFunction(address);
+      LeaveFunction(address);
     }
     return error;
   }
@@ -122,11 +122,11 @@ int Profiler::ExecHook(cell *retval, int index, AMX_EXEC exec) {
         functions_.insert(fn);
         stats_.AddFunction(fn);
       }
-      BeginFunction(address, amx_->stk - 3 * sizeof(cell));
+      EnterFunction(address, amx_->stk - 3 * sizeof(cell));
     }
     int error = exec(amx_, retval, index);
     if (address != 0) {
-      EndFunction(address);
+      LeaveFunction(address);
     }
     return error;
   }
@@ -134,7 +134,7 @@ int Profiler::ExecHook(cell *retval, int index, AMX_EXEC exec) {
   return exec(amx_, retval, index);
 }
 
-void Profiler::BeginFunction(Address address, Address frm) {
+void Profiler::EnterFunction(Address address, Address frm) {
   assert(address != 0);
   FunctionStatistics *fn_stats = stats_.GetFunctionStatistis(address);
 
@@ -147,7 +147,7 @@ void Profiler::BeginFunction(Address address, Address frm) {
   }
 }
 
-void Profiler::EndFunction(Address address) {
+void Profiler::LeaveFunction(Address address) {
   assert(!call_stack_.is_empty());
   assert(address == 0 || stats_.GetFunction(address) != 0);
 

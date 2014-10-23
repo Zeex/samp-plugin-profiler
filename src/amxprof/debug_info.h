@@ -56,7 +56,7 @@ class DebugInfo {
   mutable int last_error_;
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(DebugInfo);
+  AMXPROF_DISALLOW_COPY_AND_ASSIGN(DebugInfo);
 };
 
 bool HasDebugInfo(AMX *amx);

@@ -69,7 +69,7 @@ class CallGraph {
   Nodes nodes_;
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(CallGraph);
+  AMXPROF_DISALLOW_COPY_AND_ASSIGN(CallGraph);
 };
 
 class CallGraphNode {
@@ -104,7 +104,7 @@ class CallGraphNode {
   Callees callees_;
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(CallGraphNode);
+  AMXPROF_DISALLOW_COPY_AND_ASSIGN(CallGraphNode);
 };
 
 } // namespace amxprof

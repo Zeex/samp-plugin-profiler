@@ -28,7 +28,7 @@
 // A macro to disallow the copy constructor and operator= functions
 // This should be used in the private: declarations for a class
 // http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml?showone=Copy_Constructors#Copy_Constructors
-#define DISALLOW_COPY_AND_ASSIGN(TypeName) \
+#define AMXPROF_DISALLOW_COPY_AND_ASSIGN(TypeName) \
   TypeName(const TypeName&); \
   void operator=(const TypeName&)
 
