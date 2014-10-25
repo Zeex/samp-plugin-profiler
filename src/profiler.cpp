@@ -29,8 +29,6 @@
 #include <sstream>
 #include <string>
 #include <amxprof/call_graph_writer_dot.h>
-#include <amxprof/debug_info.h>
-#include <amxprof/profiler.h>
 #include <amxprof/statistics_writer_html.h>
 #include <amxprof/statistics_writer_json.h>
 #include <amxprof/statistics_writer_text.h>
@@ -98,62 +96,16 @@ bool IsFilterScript(const std::string &amx_path) {
 
 } // anonymous namespace
 
-int Profiler::Debug() {
-  if (profiler_ != 0) {
-    try {
-      return profiler_->DebugHook(prev_debug_);
-    } catch (const std::exception &e) {
-      PrintException(e);
-    }
-  }
-  if (prev_debug_ != 0) {
-    return prev_debug_(amx());
-  }
-  return AMX_ERR_NONE;
-}
-
-int Profiler::Callback(cell index, cell *result, cell *params) {
-  if (profiler_ != 0) {
-    try {
-      return profiler_->CallbackHook(index, result, params, prev_callback_);
-    } catch (const std::exception &e) {
-      PrintException(e);
-    }
-  }
-  if (prev_callback_ != 0) {
-    return prev_callback_(amx(), index, result, params);
-  }
-  return AMX_ERR_NONE;
-}
-
-int Profiler::Exec(cell *retval, int index) {
-  if (profiler_ != 0) {
-    try {
-      return profiler_->ExecHook(retval, index, amx_Exec);
-    } catch (const std::exception &e) {
-      PrintException(e);
-    }
-  }
-  return amx_Exec(amx(), retval, index);
-}
-
-Profiler::Profiler(AMX *amx)
-  : AMXService<Profiler>(amx),
-    prev_debug_(amx->debug),
-    prev_callback_(amx->callback),
-    profiler_(0),
-    debug_info_(0)
-{
+int Profiler::Load() {
   try {
-    std::string amx_path = ToUnixPath(GetAmxPath(amx));
+    std::string amx_path = ToUnixPath(GetAmxPath(amx()));
     if (amx_path.empty()) {
       Printf("Failed to find .amx file");
-      return;
+      return AMX_ERR_NONE;
     }
 
-    bool attach_profiler = false;
     if (IsGameMode(amx_path)) {
-      attach_profiler = profile_gamemode_;
+      is_attached_ = profile_gamemode_;
     } else if (IsFilterScript(amx_path)) {
       std::stringstream fs_stream(profile_filterscripts_);
       do {
@@ -161,29 +113,25 @@ Profiler::Profiler(AMX *amx)
         fs_stream >> fs_name;
         if (amx_path == "filterscripts/" + fs_name + ".amx" ||
             amx_path == "filterscripts/" + fs_name) {
-          attach_profiler = true;
+          is_attached_ = true;
           break;
         }
       } while (!fs_stream.eof());
     }
-    if (!attach_profiler) {
-      return;
+    if (!is_attached_) {
+      return AMX_ERR_NONE;
     }
 
-    if (amxprof::HasDebugInfo(amx)) {
-      debug_info_ = new amxprof::DebugInfo(amx_path);
-      if (!debug_info_->is_loaded()) {
+    if (amxprof::HasDebugInfo(amx())) {
+      debug_info_.Load(amx_path);
+      if (!debug_info_.is_loaded()) {
         Printf("Error loading debug info: %s",
-               aux_StrError(debug_info_->last_error()));
-        delete debug_info_;
-        debug_info_ = 0;
+               aux_StrError(debug_info_.last_error()));
       }
     }
 
-    profiler_ = new amxprof::Profiler(amx, debug_info_);
-    profiler_->set_call_graph_enabled(call_graph_);
-
-    if (debug_info_ != 0) {
+    if (debug_info_.is_loaded()) {
+      profiler_.set_debug_info(&debug_info_);
       Printf("Attached profiler to '%s'", amx_path.c_str());
     } else {
       Printf("Attached profiler to '%s' (no debug info)", amx_path.c_str());
@@ -192,18 +140,18 @@ Profiler::Profiler(AMX *amx)
   catch (const std::exception &e) {
     PrintException(e);
   }
+  return AMX_ERR_NONE;
 }
 
-Profiler::~Profiler() {
+int Profiler::Unload() {
   try {
-    if (profiler_ != 0) {
+    if (is_attached_) {
       std::string amx_path = GetAmxPath(amx());
       std::string amx_name = std::string(amx_path, 0,
                                          amx_path.find_last_of("."));
 
       ToLower(profile_format_);
-      std::string profile_filename = amx_name + "-profile." +
-                                     profile_format_;
+      std::string profile_filename = amx_name + "-profile." + profile_format_;
       std::ofstream profile_stream(profile_filename.c_str());
 
       if (profile_stream.is_open()) {
@@ -212,7 +160,7 @@ Profiler::~Profiler() {
         if (profile_format_ == "html") {
           writer = new amxprof::StatisticsWriterHtml;
         } else if (profile_format_ == "txt" ||
-                   profile_format_ == "text") {
+                    profile_format_ == "text") {
           writer = new amxprof::StatisticsWriterText;
         } else if (profile_format_ == "json") {
           writer = new amxprof::StatisticsWriterJson;
@@ -226,7 +174,7 @@ Profiler::~Profiler() {
           writer->set_script_name(amx_path);
           writer->set_print_date(true);
           writer->set_print_run_time(true);
-          writer->Write(profiler_->stats());
+          writer->Write(profiler_.stats());
           delete writer;
         }
 
@@ -256,7 +204,7 @@ Profiler::~Profiler() {
             writer->set_stream(&call_graph_stream);
             writer->set_script_name(amx_path);
             writer->set_root_node_name("SA-MP Server");
-            writer->Write(profiler_->call_graph());
+            writer->Write(profiler_.call_graph());
             delete writer;
           }
 
@@ -266,11 +214,58 @@ Profiler::~Profiler() {
         }
       }
     }
-
-    delete profiler_;
-    delete debug_info_;
   }
   catch (const std::exception &e) {
     PrintException(e);
   }
+  return AMX_ERR_NONE;
+}
+
+int Profiler::Debug() {
+  if (is_attached_) {
+    try {
+      return profiler_.DebugHook(prev_debug_);
+    } catch (const std::exception &e) {
+      PrintException(e);
+    }
+  }
+  if (prev_debug_ != 0) {
+    return prev_debug_(amx());
+  }
+  return AMX_ERR_NONE;
+}
+
+int Profiler::Callback(cell index, cell *result, cell *params) {
+  if (is_attached_) {
+    try {
+      return profiler_.CallbackHook(index, result, params, prev_callback_);
+    } catch (const std::exception &e) {
+      PrintException(e);
+    }
+  }
+  if (prev_callback_ != 0) {
+    return prev_callback_(amx(), index, result, params);
+  }
+  return AMX_ERR_NONE;
+}
+
+int Profiler::Exec(cell *retval, int index) {
+  if (is_attached_) {
+    try {
+      return profiler_.ExecHook(retval, index, amx_Exec);
+    } catch (const std::exception &e) {
+      PrintException(e);
+    }
+  }
+  return amx_Exec(amx(), retval, index);
+}
+
+Profiler::Profiler(AMX *amx)
+  : AMXService<Profiler>(amx),
+    prev_debug_(amx->debug),
+    prev_callback_(amx->callback),
+    is_attached_(false),
+    profiler_(amx, call_graph_)
+{
+  amx->sysreq_d = 0;
 }

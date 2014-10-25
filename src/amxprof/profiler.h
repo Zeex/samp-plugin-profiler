@@ -38,33 +38,34 @@ namespace amxprof {
 
 class Profiler {
  public:
-  Profiler(AMX *amx, DebugInfo *debug_info = 0);
+  Profiler(AMX *amx, bool enable_call_graph = false);
   ~Profiler();
 
-  bool call_graph_enabled() const {
-    return call_graph_enabled_;
-  }
-  void set_call_graph_enabled(bool enabled) {
-    call_graph_enabled_ = enabled;
-  }
+ public:
+  const Statistics *stats() const { return &stats_; }
 
   const CallStack *call_stack() const { return &call_stack_; }
   const CallGraph *call_graph() const { return &call_graph_; }
 
-  // Retruns all gathered information.
-  const Statistics *stats() const { return &stats_;  }
+  // Debug info is needed for function names. If not set the functions
+  // will be shown as "unknown@XXXXXXXX" where XXXXXXXX is the AMX code
+  // offset (except for public functions, whose names are duplicated
+  // in the AMX name table).
+  void set_debug_info(DebugInfo *debug_info) {
+    debug_info_ = debug_info;
+  }
 
-  // This method should be called instead of amx_Exec(). It
-  // collects information about public function calls.
-  int ExecHook(cell *retval, int index, AMX_EXEC exec = 0);
-
-  // This method should be called from within AMX debug hook (see
-  // amx_SetDebugHook). It collects information about ordinary
-  // function calls.
+ public:
+  // This method should be called from within your AMX debug hook (see
+  // amx_SetDebugHook). It collects statistics for ordinary functions.
   int DebugHook(AMX_DEBUG debug = 0);
 
+  // This method should be called instead of amx_Exec().
+  // It collects statistics for public functions.
+  int ExecHook(cell *retval, int index, AMX_EXEC exec = 0);
+
   // This method should be called instead of amx_Callback().
-  // It collects information about native function calls.
+  // It collects statistics for native functions.
   int CallbackHook(cell index,
                    cell *result,
                    cell *params,

@@ -25,31 +25,30 @@
 #ifndef PROFILER_H
 #define PROFILER_H
 
+#include <amxprof/debug_info.h>
+#include <amxprof/profiler.h>
 #include "amxservice.h"
 #include "configreader.h"
-
-namespace amxprof {
-  class DebugInfo;
-  class Profiler;
-}
 
 class Profiler : public AMXService<Profiler> {
  friend class AMXService<Profiler>;
 
  public:
+  int Load();
+  int Unload();
   int Debug();
   int Callback(cell index, cell *result, cell *params);
   int Exec(cell *retval, int index);
 
  private:
   Profiler(AMX *amx);
-  ~Profiler();
 
  private:
   AMX_DEBUG prev_debug_;
   AMX_CALLBACK prev_callback_;
-  amxprof::Profiler *profiler_;
-  amxprof::DebugInfo *debug_info_;
+  bool is_attached_;
+  amxprof::Profiler profiler_;
+  amxprof::DebugInfo debug_info_;
 
  private:
   static ConfigReader server_cfg_;

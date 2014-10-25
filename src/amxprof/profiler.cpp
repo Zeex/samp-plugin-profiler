@@ -31,15 +31,11 @@
 
 namespace amxprof {
 
-Profiler::Profiler(AMX *amx, DebugInfo *debug_info)
+Profiler::Profiler(AMX *amx, bool enable_call_graph)
  : amx_(amx),
-   debug_info_(debug_info),
-   call_graph_enabled_(false)
+   debug_info_(0),
+   call_graph_enabled_(enable_call_graph)
 {
-  // The AMX VM normally replaces SYSREQ.C instructions with SYSREQ.D
-  // to speed up native calls. We don't want this to happen as then we
-  // would be unable to profile native functions.
-  amx->sysreq_d = 0;
 }
 
 Profiler::~Profiler() {
