@@ -24,6 +24,7 @@
 
 #include <subhook.h>
 #include "logprintf.h"
+#include "natives.h"
 #include "plugin.h"
 #include "pluginversion.h"
 #include "profiler.h"
@@ -85,15 +86,20 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
   int error = Profiler::CreateInstance(amx)->Load();
-  if (Profiler::GetInstance(amx)->IsAttached()) {
+  if (error == AMX_ERR_NONE
+      && Profiler::GetInstance(amx)->GetState() > PROFILER_DISABLED) {
+    Profiler::GetInstance(amx)->Start();
     amx_SetDebugHook(amx, hooks::amx_Debug);
     amx_SetCallback(amx, hooks::amx_Callback);
+    return RegisterNatives(amx);
   }
   return error;
 }
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
   int error = Profiler::GetInstance(amx)->Unload();
+  Profiler::GetInstance(amx)->Stop();
+  Profiler::GetInstance(amx)->Dump();
   Profiler::DestroyInstance(amx);
   return error;
 }

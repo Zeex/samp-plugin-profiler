@@ -24,6 +24,8 @@ set(PLUGIN_SOURCES
   fileutils.h
   logprintf.cpp
   logprintf.h
+  natives.cpp
+  natives.h
   plugin.h
   plugincommon.h
   plugin.cpp

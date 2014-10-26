@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2014 Zeex
+// Copyright (c) 2014 Zeex
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -22,58 +22,11 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef PROFILER_H
-#define PROFILER_H
+#ifndef NATIVES_H
+#define NATIVES_H
 
-#include <exception>
-#include <amxprof/debug_info.h>
-#include <amxprof/profiler.h>
-#include "amxservice.h"
-#include "configreader.h"
+#include <amx/amx.h>
 
-enum ProfilerState {
-  PROFILER_DISABLED,
-  PROFILER_ATTACHED,
-  PROFILER_STARTING,
-  PROFILER_STARTED,
-  PROFILER_STOPPING,
-  PROFILER_STOPPED
-};
+int RegisterNatives(AMX *amx);
 
-class Profiler : public AMXService<Profiler> {
- friend class AMXService<Profiler>;
-
- public:
-  int Load();
-  int Unload();
-
-  int Debug();
-  int Callback(cell index, cell *result, cell *params);
-  int Exec(cell *retval, int index);
-
- public:
-  ProfilerState GetState() const;
-  void Start();
-  void Stop();
-  void Dump();
-
- private:
-  Profiler(AMX *amx);
-
- private:
-  AMX_DEBUG prev_debug_;
-  AMX_CALLBACK prev_callback_;
-  amxprof::Profiler profiler_;
-  amxprof::DebugInfo debug_info_;
-  ProfilerState state_;
-
- private:
-  static ConfigReader server_cfg_;
-  static bool profile_gamemode_;
-  static std::string profile_filterscripts_;
-  static std::string profile_format_;
-  static bool call_graph_;
-  static std::string call_graph_format_;
-};
-
-#endif // !PROFILER_H
+#endif // !NATIVES_H

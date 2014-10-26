@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2014 Zeex
+// Copyright (c) 2014 Zeex
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -22,58 +22,40 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef PROFILER_H
-#define PROFILER_H
+#include "natives.h"
+#include "profiler.h"
 
-#include <exception>
-#include <amxprof/debug_info.h>
-#include <amxprof/profiler.h>
-#include "amxservice.h"
-#include "configreader.h"
+namespace {
 
-enum ProfilerState {
-  PROFILER_DISABLED,
-  PROFILER_ATTACHED,
-  PROFILER_STARTING,
-  PROFILER_STARTED,
-  PROFILER_STOPPING,
-  PROFILER_STOPPED
+cell AMX_NATIVE_CALL Profiler_GetState(AMX *amx, cell *params) {
+  return static_cast<cell>(Profiler::GetInstance(amx)->GetState());
+}
+
+cell AMX_NATIVE_CALL Profiler_Start(AMX *amx, cell *params) {
+  Profiler::GetInstance(amx)->Start();
+  return 0;
+}
+
+cell AMX_NATIVE_CALL Profiler_Stop(AMX *amx, cell *params) {
+  Profiler::GetInstance(amx)->Stop();
+  return 0;
+}
+
+cell AMX_NATIVE_CALL Profiler_Dump(AMX *amx, cell *params) {
+  Profiler::GetInstance(amx)->Dump();
+  return 0;
+}
+
+const AMX_NATIVE_INFO natives[] = {
+  { "Profiler_GetState", Profiler_GetState },
+  { "Profiler_Start",    Profiler_Start },
+  { "Profiler_Stop",     Profiler_Stop },
+  { "Profiler_Dump",     Profiler_Dump }
 };
 
-class Profiler : public AMXService<Profiler> {
- friend class AMXService<Profiler>;
+} // anonymous namespace
 
- public:
-  int Load();
-  int Unload();
-
-  int Debug();
-  int Callback(cell index, cell *result, cell *params);
-  int Exec(cell *retval, int index);
-
- public:
-  ProfilerState GetState() const;
-  void Start();
-  void Stop();
-  void Dump();
-
- private:
-  Profiler(AMX *amx);
-
- private:
-  AMX_DEBUG prev_debug_;
-  AMX_CALLBACK prev_callback_;
-  amxprof::Profiler profiler_;
-  amxprof::DebugInfo debug_info_;
-  ProfilerState state_;
-
- private:
-  static ConfigReader server_cfg_;
-  static bool profile_gamemode_;
-  static std::string profile_filterscripts_;
-  static std::string profile_format_;
-  static bool call_graph_;
-  static std::string call_graph_format_;
-};
-
-#endif // !PROFILER_H
+int RegisterNatives(AMX *amx) {
+  std::size_t num_natives = sizeof(natives) / sizeof(AMX_NATIVE_INFO);
+  return amx_Register(amx, natives, static_cast<int>(num_natives));
+}
