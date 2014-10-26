@@ -80,10 +80,9 @@ void ToLower(std::string &s) {
   std::transform(s.begin(), s.end(), s.begin(), ::tolower);
 }
 
-std::string ToUnixPath(const std::string &path) {
-  std::string fsPath = path;
-  std::replace(fsPath.begin(), fsPath.end(), '\\', '/');
-  return fsPath;
+std::string ToUnixPath(std::string path) {
+  std::replace(path.begin(), path.end(), '\\', '/');
+  return path;
 }
 
 bool IsGameMode(const std::string &amx_path) {
