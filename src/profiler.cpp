@@ -23,6 +23,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include <algorithm>
+#include <cassert>
 #include <cstdarg>
 #include <exception>
 #include <fstream>
@@ -97,43 +98,46 @@ bool IsFilterScript(const std::string &amx_path) {
 
 int Profiler::Load() {
   try {
-    std::string amx_path = ToUnixPath(GetAmxPath(amx()));
-    if (amx_path.empty()) {
-      Printf("Failed to find .amx file");
-      return AMX_ERR_NONE;
-    }
-
-    if (IsGameMode(amx_path)) {
-      is_attached_ = profile_gamemode_;
-    } else if (IsFilterScript(amx_path)) {
-      std::stringstream fs_stream(profile_filterscripts_);
-      do {
-        std::string fs_name;
-        fs_stream >> fs_name;
-        if (amx_path == "filterscripts/" + fs_name + ".amx" ||
-            amx_path == "filterscripts/" + fs_name) {
-          is_attached_ = true;
-          break;
-        }
-      } while (!fs_stream.eof());
-    }
     if (!is_attached_) {
-      return AMX_ERR_NONE;
-    }
-
-    if (amxprof::HasDebugInfo(amx())) {
-      debug_info_.Load(amx_path);
-      if (!debug_info_.is_loaded()) {
-        Printf("Error loading debug info: %s",
-               aux_StrError(debug_info_.last_error()));
+      std::string amx_path = ToUnixPath(GetAmxPath(amx()));
+      if (amx_path.empty()) {
+        Printf("Failed to find .amx file");
+        return AMX_ERR_GENERAL;
       }
-    }
 
-    if (debug_info_.is_loaded()) {
-      profiler_.set_debug_info(&debug_info_);
-      Printf("Attached profiler to %s", amx_path.c_str());
-    } else {
-      Printf("Attached profiler to %s (no debug info)", amx_path.c_str());
+      if (IsGameMode(amx_path)) {
+        is_attached_ = profile_gamemode_;
+      } else if (IsFilterScript(amx_path)) {
+        std::stringstream fs_stream(profile_filterscripts_);
+        do {
+          std::string fs_name;
+          fs_stream >> fs_name;
+          if (amx_path == "filterscripts/" + fs_name + ".amx" ||
+              amx_path == "filterscripts/" + fs_name) {
+            is_attached_ = true;
+            break;
+          }
+        } while (!fs_stream.eof());
+      }
+      if (!is_attached_) {
+        return AMX_ERR_GENERAL;
+      }
+
+      if (amxprof::HasDebugInfo(amx())) {
+        debug_info_.Load(amx_path);
+        if (debug_info_.is_loaded()) {
+          profiler_.set_debug_info(&debug_info_);
+        } else {
+          const char *error = aux_StrError(debug_info_.last_error());
+          Printf("Error loading debug info: %s", error);
+        }
+      }
+
+      if (debug_info_.is_loaded()) {
+        Printf("Attached profiler to %s", amx_path.c_str());
+      } else {
+        Printf("Attached profiler to %s (no debug info)", amx_path.c_str());
+      }
     }
   }
   catch (const std::exception &e) {
