@@ -36,9 +36,12 @@ class Profiler : public AMXService<Profiler> {
  public:
   int Load();
   int Unload();
+
   int Debug();
   int Callback(cell index, cell *result, cell *params);
   int Exec(cell *retval, int index);
+
+  bool IsAttached() const { return is_attached_; }
 
  private:
   Profiler(AMX *amx);

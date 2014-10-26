@@ -84,16 +84,16 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
 }
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
-  Profiler::CreateInstance(amx);
-  if (Profiler::GetInstance(amx)->Load() == AMX_ERR_NONE) {
+  int error = Profiler::CreateInstance(amx)->Load();
+  if (Profiler::GetInstance(amx)->IsAttached()) {
     amx_SetDebugHook(amx, hooks::amx_Debug);
     amx_SetCallback(amx, hooks::amx_Callback);
   }
-  return AMX_ERR_NONE;
+  return error;
 }
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
-  Profiler::GetInstance(amx)->Unload();
+  int error = Profiler::GetInstance(amx)->Unload();
   Profiler::DestroyInstance(amx);
-  return AMX_ERR_NONE;
+  return error;
 }

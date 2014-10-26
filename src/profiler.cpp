@@ -102,7 +102,7 @@ int Profiler::Load() {
       std::string amx_path = ToUnixPath(GetAmxPath(amx()));
       if (amx_path.empty()) {
         Printf("Failed to find .amx file");
-        return AMX_ERR_GENERAL;
+        return AMX_ERR_NONE;
       }
 
       if (IsGameMode(amx_path)) {
@@ -120,7 +120,7 @@ int Profiler::Load() {
         } while (!fs_stream.eof());
       }
       if (!is_attached_) {
-        return AMX_ERR_GENERAL;
+        return AMX_ERR_NONE;
       }
 
       if (amxprof::HasDebugInfo(amx())) {
