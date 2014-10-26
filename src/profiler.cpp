@@ -39,15 +39,15 @@
 ConfigReader Profiler::server_cfg_("server.cfg");
 
 bool Profiler::profile_gamemode_ =
-  server_cfg_.GetOptionDefault("profile_gamemode", false);
+    server_cfg_.GetOptionDefault("profile_gamemode", false);
 std::string Profiler::profile_filterscripts_ =
-  server_cfg_.GetOptionDefault<std::string>("profile_filterscripts", "");
+    server_cfg_.GetOptionDefault<std::string>("profile_filterscripts", "");
 std::string Profiler::profile_format_ =
-  server_cfg_.GetOptionDefault<std::string>("profile_format", "html");
+    server_cfg_.GetOptionDefault<std::string>("profile_format", "html");
 bool Profiler::call_graph_ =
-  server_cfg_.GetOptionDefault("call_graph", false);
+    server_cfg_.GetOptionDefault("call_graph", false);
 std::string Profiler::call_graph_format_ =
-  server_cfg_.GetOptionDefault<std::string>("call_graph_format", "dot");
+    server_cfg_.GetOptionDefault<std::string>("call_graph_format", "dot");
 
 #define logprintf Use_Printf_isntead_of_logprintf
 
@@ -131,9 +131,9 @@ int Profiler::Load() {
 
     if (debug_info_.is_loaded()) {
       profiler_.set_debug_info(&debug_info_);
-      Printf("Attached profiler to '%s'", amx_path.c_str());
+      Printf("Attached profiler to %s", amx_path.c_str());
     } else {
-      Printf("Attached profiler to '%s' (no debug info)", amx_path.c_str());
+      Printf("Attached profiler to %s (no debug info)", amx_path.c_str());
     }
   }
   catch (const std::exception &e) {
@@ -164,11 +164,11 @@ int Profiler::Unload() {
         } else if (profile_format_ == "json") {
           writer = new amxprof::StatisticsWriterJson;
         } else {
-          Printf("Unrecognized profile format '%s'", profile_format_.c_str());
+          Printf("Unrecognized profile format: %s", profile_format_.c_str());
         }
 
         if (writer != 0) {
-          Printf("Writing stats to '%s'", profile_filename.c_str());
+          Printf("Writing profile to %s", profile_filename.c_str());
           writer->set_stream(&profile_stream);
           writer->set_script_name(amx_path);
           writer->set_print_date(true);
@@ -179,7 +179,7 @@ int Profiler::Unload() {
 
         profile_stream.close();
       } else {
-        Printf("Error opening file '%s'", profile_filename.c_str());
+        Printf("Error opening %s for writing", profile_filename.c_str());
       }
 
       if (call_graph_) {
@@ -194,12 +194,12 @@ int Profiler::Unload() {
           if (call_graph_format_ == "dot") {
             writer = new amxprof::CallGraphWriterDot;
           } else {
-            Printf("Unrecognized call graph format '%s'",
+            Printf("Unrecognized call graph format: %s",
                    call_graph_format_.c_str());
           }
 
           if (writer != 0) {
-            Printf("Writing call graph to '%s'", call_graph_filename.c_str());
+            Printf("Writing call graph to %s", call_graph_filename.c_str());
             writer->set_stream(&call_graph_stream);
             writer->set_script_name(amx_path);
             writer->set_root_node_name("SA-MP Server");
@@ -209,7 +209,7 @@ int Profiler::Unload() {
 
           call_graph_stream.close();
         } else {
-          Printf("Error opening file '%s'", call_graph_filename.c_str());
+          Printf("Error opening %s for writing", call_graph_filename.c_str());
         }
       }
     }

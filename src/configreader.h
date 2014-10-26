@@ -47,7 +47,7 @@ class ConfigReader {
   bool IsLoaded() const { return loaded_; }
 
  private:
-  bool loaded_;  
+  bool loaded_;
   OptionMap options_;
 };
 
