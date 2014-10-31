@@ -53,9 +53,9 @@ class Profiler : public AMXService<Profiler> {
 
  public:
   ProfilerState GetState() const;
-  void Start();
-  void Stop();
-  void Dump();
+  bool Start();
+  bool Stop();
+  bool Dump() const;
 
  private:
   Profiler(AMX *amx);

@@ -204,15 +204,23 @@ ProfilerState Profiler::GetState() const {
   return state_;
 }
 
-void Profiler::Start() {
-  state_ = PROFILER_STARTING;
+bool Profiler::Start() {
+  if (state_ >= PROFILER_ATTACHED) {
+    state_ = PROFILER_STARTING;
+    return true;
+  }
+  return false;
 }
 
-void Profiler::Stop() {
-  state_ = PROFILER_STOPPING;
+bool Profiler::Stop() {
+  if (state_ >= PROFILER_STARTED) {
+    state_ = PROFILER_STOPPING;
+    return true;
+  }
+  return false;
 }
 
-void Profiler::Dump() {
+bool Profiler::Dump() const {
   try {
     if (state_ >= PROFILER_ATTACHED) {
       std::string amx_path = ToUnixPath(GetAmxPath(amx()));
@@ -283,11 +291,13 @@ void Profiler::Dump() {
           Printf("Error opening %s for writing", call_graph_filename.c_str());
         }
       }
+      return true;
     }
   }
   catch (const std::exception &e) {
     PrintException(e);
   }
+  return false;
 }
 
 Profiler::Profiler(AMX *amx)

@@ -32,18 +32,15 @@ cell AMX_NATIVE_CALL Profiler_GetState(AMX *amx, cell *params) {
 }
 
 cell AMX_NATIVE_CALL Profiler_Start(AMX *amx, cell *params) {
-  Profiler::GetInstance(amx)->Start();
-  return 0;
+  return Profiler::GetInstance(amx)->Start();
 }
 
 cell AMX_NATIVE_CALL Profiler_Stop(AMX *amx, cell *params) {
-  Profiler::GetInstance(amx)->Stop();
-  return 0;
+  return Profiler::GetInstance(amx)->Stop();
 }
 
 cell AMX_NATIVE_CALL Profiler_Dump(AMX *amx, cell *params) {
-  Profiler::GetInstance(amx)->Dump();
-  return 0;
+  return Profiler::GetInstance(amx)->Dump();
 }
 
 const AMX_NATIVE_INFO natives[] = {
