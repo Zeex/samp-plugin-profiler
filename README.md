@@ -1,7 +1,6 @@
 [Profiler plugin][github]
 =========================
 
-[![Donate][donate_button]][donate]
 [![Build Status][build_status]][build]
 
 Profiler provides detailed information about how long each function takes to
@@ -48,8 +47,6 @@ License
 Licensed under the 2-clause BSD license. See the LICENSE.txt file.
 
 [github]: https://github.com/Zeex/samp-plugin-profiler
-[donate]: http://pledgie.com/campaigns/19751
-[donate_button]: http://www.pledgie.com/campaigns/19751.png
 [build]: https://travis-ci.org/Zeex/samp-plugin-profiler
 [build_status]: https://travis-ci.org/Zeex/samp-plugin-profiler.png?branch=master
 [download]: https://github.com/Zeex/samp-plugin-profiler/releases 
