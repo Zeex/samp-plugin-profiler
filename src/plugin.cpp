@@ -34,17 +34,21 @@ extern void *pAMXFunctions;
 namespace hooks {
 
 SubHook exec_hook;
+SubHook callback_hook;
 
 int AMXAPI amx_Debug(AMX *amx) {
   return Profiler::GetInstance(amx)->Debug();
 }
 
 int AMXAPI amx_Callback(AMX *amx, cell index, cell *result, cell *params) {
+  SubHook::ScopedRemove _(&callback_hook);
+  SubHook::ScopedInstall __(&exec_hook);
   return Profiler::GetInstance(amx)->Callback(index, result, params);
 }
 
 int AMXAPI amx_Exec(AMX *amx, cell *retval, int index) {
   SubHook::ScopedRemove _(&exec_hook);
+  SubHook::ScopedInstall __(&callback_hook);
   if (amx->flags & AMX_FLAG_BROWSE) {
     return ::amx_Exec(amx, retval, index);
   }
@@ -80,6 +84,9 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
   hooks::exec_hook.SetDst(FunctionToVoidPtr(hooks::amx_Exec));
   hooks::exec_hook.Install();
 
+  hooks::callback_hook.SetSrc(exports[PLUGIN_AMX_EXPORT_Callback]);
+  hooks::callback_hook.SetDst(FunctionToVoidPtr(hooks::amx_Callback));
+
   logprintf("  Profiler v" PROJECT_VERSION_STRING " is OK.");
   return true;
 }
@@ -90,7 +97,6 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
       && Profiler::GetInstance(amx)->GetState() > PROFILER_DISABLED) {
     Profiler::GetInstance(amx)->Start();
     amx_SetDebugHook(amx, hooks::amx_Debug);
-    amx_SetCallback(amx, hooks::amx_Callback);
     return RegisterNatives(amx);
   }
   return error;

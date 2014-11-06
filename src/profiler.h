@@ -62,7 +62,6 @@ class Profiler : public AMXService<Profiler> {
 
  private:
   AMX_DEBUG prev_debug_;
-  AMX_CALLBACK prev_callback_;
   amxprof::Profiler profiler_;
   amxprof::DebugInfo debug_info_;
   ProfilerState state_;

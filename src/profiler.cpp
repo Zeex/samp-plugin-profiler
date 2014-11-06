@@ -169,15 +169,12 @@ int Profiler::Debug() {
 int Profiler::Callback(cell index, cell *result, cell *params) {
   if (state_ == PROFILER_STARTED) {
     try {
-      return profiler_.CallbackHook(index, result, params, prev_callback_);
+      return profiler_.CallbackHook(index, result, params, amx_Callback);
     } catch (const std::exception &e) {
       PrintException(e);
     }
   }
-  if (prev_callback_ != 0) {
-    return prev_callback_(amx(), index, result, params);
-  }
-  return AMX_ERR_NONE;
+  return amx_Callback(amx(), index, result, params);
 }
 
 int Profiler::Exec(cell *retval, int index) {
@@ -303,11 +300,8 @@ bool Profiler::Dump() const {
 Profiler::Profiler(AMX *amx)
   : AMXService<Profiler>(amx),
     prev_debug_(amx->debug),
-    prev_callback_(amx->callback),
     profiler_(amx, call_graph_),
     state_(PROFILER_DISABLED)
 {
   amx->sysreq_d = 0;
 }
-
-
