@@ -22,6 +22,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#include <cstring>
 #include <subhook.h>
 #include "logprintf.h"
 #include "natives.h"
@@ -30,40 +31,35 @@
 #include "profiler.h"
 
 extern void *pAMXFunctions;
+static void *exports[PLUGIN_AMX_EXPORT_UTF8Put + 1];
 
-namespace hooks {
+static SubHook exec_hook;
 
-SubHook exec_hook;
-SubHook callback_hook;
-
-int AMXAPI amx_Debug(AMX *amx) {
-  return Profiler::GetInstance(amx)->Debug();
+static int AMXAPI amx_Debug_Profiler(AMX *amx) {
+  Profiler *profiler = Profiler::GetInstance(amx);
+  return profiler->Debug();
 }
 
-int AMXAPI amx_Callback(AMX *amx, cell index, cell *result, cell *params) {
-  SubHook::ScopedRemove _(&callback_hook);
-  SubHook::ScopedInstall __(&exec_hook);
-  return Profiler::GetInstance(amx)->Callback(index, result, params);
+static int AMXAPI amx_Callback_Profiler(AMX *amx,
+                                        cell index,
+                                        cell *result,
+                                        cell *params) {
+  Profiler *profiler = Profiler::GetInstance(amx);
+  return profiler->Callback(index, result, params);
 }
 
-int AMXAPI amx_Exec(AMX *amx, cell *retval, int index) {
-  SubHook::ScopedRemove _(&exec_hook);
-  SubHook::ScopedInstall __(&callback_hook);
+static int AMXAPI amx_Exec_Profiler(AMX *amx, cell *retval, int index) {
   if (amx->flags & AMX_FLAG_BROWSE) {
-    return ::amx_Exec(amx, retval, index);
+    // Not an actual exec, just some internal AMX hack.
+    return amx_Exec(amx, retval, index);
+  } else {
+    Profiler *profiler = Profiler::GetInstance(amx);
+    return profiler->Exec(retval, index);
   }
-  return Profiler::GetInstance(amx)->Exec(retval, index);
 }
 
-} // namespace hooks
-
-template<typename Func>
-static void *FunctionToVoidPtr(Func func) {
-  return (void*)func;
-}
-
-static void *AMXAPI amx_Align_stub(void *v) {
-  return v;
+static void *AMXAPI amx_Align_Profiler(void *v) {
+  return v; // x86 is already little endian
 }
 
 PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports() {
@@ -71,41 +67,54 @@ PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports() {
 }
 
 PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
-  pAMXFunctions = ppData[PLUGIN_DATA_AMX_EXPORTS];
+  void **real_exports = (void **)ppData[PLUGIN_DATA_AMX_EXPORTS];
+  std::memcpy(exports, real_exports, sizeof(exports));
+
+  exports[PLUGIN_AMX_EXPORT_Align16] = (void *)amx_Align_Profiler;
+  exports[PLUGIN_AMX_EXPORT_Align32] = (void *)amx_Align_Profiler;
+  exports[PLUGIN_AMX_EXPORT_Align64] = (void *)amx_Align_Profiler;
+
+  exec_hook.Install(exports[PLUGIN_AMX_EXPORT_Exec], (void *)amx_Exec_Profiler);
+  exports[PLUGIN_AMX_EXPORT_Exec] = exec_hook.GetTrampoline();
+
+  pAMXFunctions = exports;
   logprintf = (logprintf_t)ppData[PLUGIN_DATA_LOGPRINTF];
-
-  void **exports = reinterpret_cast<void**>(pAMXFunctions);
-
-  exports[PLUGIN_AMX_EXPORT_Align16] = FunctionToVoidPtr(amx_Align_stub);
-  exports[PLUGIN_AMX_EXPORT_Align32] = FunctionToVoidPtr(amx_Align_stub);
-  exports[PLUGIN_AMX_EXPORT_Align64] = FunctionToVoidPtr(amx_Align_stub);
-
-  hooks::exec_hook.SetSrc(exports[PLUGIN_AMX_EXPORT_Exec]);
-  hooks::exec_hook.SetDst(FunctionToVoidPtr(hooks::amx_Exec));
-  hooks::exec_hook.Install();
-
-  hooks::callback_hook.SetSrc(exports[PLUGIN_AMX_EXPORT_Callback]);
-  hooks::callback_hook.SetDst(FunctionToVoidPtr(hooks::amx_Callback));
 
   logprintf("  Profiler v" PROJECT_VERSION_STRING " is OK.");
   return true;
 }
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
-  int error = Profiler::CreateInstance(amx)->Load();
-  if (error == AMX_ERR_NONE
-      && Profiler::GetInstance(amx)->GetState() > PROFILER_DISABLED) {
-    Profiler::GetInstance(amx)->Start();
-    amx_SetDebugHook(amx, hooks::amx_Debug);
+  Profiler *profiler = Profiler::CreateInstance(amx);
+
+  int error = profiler->Load();
+  if (error != AMX_ERR_NONE) {
+    return error;
+  }
+
+  if (profiler->GetState() > PROFILER_DISABLED) {
+    profiler->Start();
+
+    amx_SetDebugHook(amx, amx_Debug_Profiler);
+    amx_SetCallback(amx, amx_Callback_Profiler);
+
+    // This should stop the VM from replacing SYSREQ.C instructions with
+    // SYSREQ.D and allow us to profile native functions.
+    amx->sysreq_d = 0;
+
     return RegisterNatives(amx);
   }
-  return error;
+
+  return AMX_ERR_NONE;
 }
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
-  int error = Profiler::GetInstance(amx)->Unload();
-  Profiler::GetInstance(amx)->Stop();
-  Profiler::GetInstance(amx)->Dump();
+  Profiler *profiler = Profiler::GetInstance(amx);
+
+  int error = profiler->Unload();
+  profiler->Stop();
+  profiler->Dump();
+
   Profiler::DestroyInstance(amx);
   return error;
 }

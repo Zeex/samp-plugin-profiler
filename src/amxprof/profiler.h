@@ -60,16 +60,16 @@ class Profiler {
   // amx_SetDebugHook). It collects statistics for ordinary functions.
   int DebugHook(AMX_DEBUG debug = 0);
 
-  // This method should be called instead of amx_Exec().
-  // It collects statistics for public functions.
-  int ExecHook(cell *retval, int index, AMX_EXEC exec = 0);
-
   // This method should be called instead of amx_Callback().
   // It collects statistics for native functions.
   int CallbackHook(cell index,
                    cell *result,
                    cell *params,
                    AMX_CALLBACK callback = 0);
+
+  // This method should be called instead of amx_Exec().
+  // It collects statistics for public functions.
+  int ExecHook(cell *retval, int index, AMX_EXEC exec = 0);
 
  private:
   Profiler();

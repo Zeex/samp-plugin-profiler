@@ -95,6 +95,15 @@ bool IsFilterScript(const std::string &amx_path) {
 
 } // anonymous namespace
 
+Profiler::Profiler(AMX *amx)
+ : prev_debug_(amx->debug),
+   prev_callback_(amx->callback),
+   AMXService<Profiler>(amx),
+   profiler_(amx, call_graph_),
+   state_(PROFILER_DISABLED)
+{
+}
+
 int Profiler::Load() {
   try {
     if (state_ < PROFILER_ATTACHED) {
@@ -169,12 +178,12 @@ int Profiler::Debug() {
 int Profiler::Callback(cell index, cell *result, cell *params) {
   if (state_ == PROFILER_STARTED) {
     try {
-      return profiler_.CallbackHook(index, result, params, amx_Callback);
+      return profiler_.CallbackHook(index, result, params, prev_callback_);
     } catch (const std::exception &e) {
       PrintException(e);
     }
   }
-  return amx_Callback(amx(), index, result, params);
+  return prev_callback_(amx(), index, result, params);
 }
 
 int Profiler::Exec(cell *retval, int index) {
@@ -295,13 +304,4 @@ bool Profiler::Dump() const {
     PrintException(e);
   }
   return false;
-}
-
-Profiler::Profiler(AMX *amx)
-  : AMXService<Profiler>(amx),
-    prev_debug_(amx->debug),
-    profiler_(amx, call_graph_),
-    state_(PROFILER_DISABLED)
-{
-  amx->sysreq_d = 0;
 }
