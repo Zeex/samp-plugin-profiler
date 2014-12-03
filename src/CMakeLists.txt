@@ -1,9 +1,10 @@
 include(AmxConfig)
 include(Plugin)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
-include_directories(subhook)
+include_directories(
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_BINARY_DIR}
+)
 
 add_definitions(-DSUBHOOK_STATIC)
 if(UNIX AND NOT WIN32)
@@ -13,7 +14,7 @@ endif()
 configure_file(plugin.rc.in plugin.rc @ONLY)
 configure_file(pluginversion.h.in pluginversion.h @ONLY)
 
-set(PLUGIN_SOURCES
+set(PROFILER_SOURCES
   amxpath.cpp
   amxpath.h
   amxplugin.cpp
@@ -37,16 +38,15 @@ set(PLUGIN_SOURCES
 )
 
 if(WIN32)
-  list(APPEND PLUGIN_SOURCES fileutils_win32.cpp)
+  list(APPEND PROFILER_SOURCES fileutils_win32.cpp)
 else()
-  list(APPEND PLUGIN_SOURCES fileutils_posix.cpp)
+  list(APPEND PROFILER_SOURCES fileutils_posix.cpp)
 endif()
 
-add_plugin(plugin ${PLUGIN_SOURCES})
+add_plugin(profiler ${PROFILER_SOURCES})
 
 add_subdirectory(amx)
 add_subdirectory(amxprof)
+target_link_libraries(profiler amxprof subhook)
 
-target_link_libraries(plugin amxprof subhook)
-
-install(TARGETS plugin LIBRARY DESTINATION ".")
+install(TARGETS profiler LIBRARY DESTINATION ".")

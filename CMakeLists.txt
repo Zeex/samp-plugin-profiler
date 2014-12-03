@@ -67,8 +67,6 @@ set(PROJECT_VERSION_RC ${version_rc})
 add_subdirectory(include)
 add_subdirectory(src)
 
-set_target_properties(plugin PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
-
 set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
 if(WIN32)
   set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${PROJECT_VERSION}-win32")
