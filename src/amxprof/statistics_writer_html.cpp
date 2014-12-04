@@ -67,7 +67,7 @@ void StatisticsWriterHtml::Write(const Statistics *stats)
   "    table, th, td {\n"
   "      border: thin solid #555;\n"
   "      border-collapse: collapse;\n"
-  "      padding: 5px 10px;\n"
+  "      padding: 7px 10px;\n"
   "    }\n"
   "    th, td {\n"
   "      border: none;\n"
