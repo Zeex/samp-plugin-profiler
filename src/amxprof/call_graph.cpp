@@ -59,13 +59,15 @@ CallGraph::~CallGraph() {
 }
 
 CallGraphNode *CallGraph::AddCallee(FunctionStatistics *stats) {
+  CallGraphNode *node = 0;
   Nodes::iterator iterator = nodes_.find(stats);
   if (iterator == nodes_.end()) {
-    CallGraphNode *node = new CallGraphNode(this, stats, root_);
+    node = new CallGraphNode(this, stats, root_);
     nodes_.insert(std::make_pair(stats, node));
-    return root_->AddCallee(node);
+  } else {
+    node = iterator->second;
   }
-  return root_->AddCallee(iterator->second);
+  return root_ != 0 ? root_->AddCallee(node) : node;
 }
 
 void CallGraph::Traverse(Visitor *visitor) const {
@@ -76,7 +78,9 @@ void CallGraph::Traverse(Visitor *visitor) const {
   }
 }
 
-CallGraphNode::CallGraphNode(CallGraph *graph, FunctionStatistics *stats, CallGraphNode *caller) 
+CallGraphNode::CallGraphNode(CallGraph *graph,
+                             FunctionStatistics *stats,
+                             CallGraphNode *caller)
  : graph_(graph),
    stats_(stats),
    caller_(caller)
