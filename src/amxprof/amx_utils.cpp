@@ -22,22 +22,62 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include "amx_types.h"
+#include <cassert>
+#include "amx_utils.h"
+
+namespace amxprof {
+namespace {
+
+cell *GetOpcodeTable() {
+  #ifdef AMXPROF_RELOCATE_OPCODES
+    cell *opcode_table = 0;
+    AMX amx = {0};
+    amx.flags |= AMX_FLAG_BROWSE;
+    amx_Exec(&amx, reinterpret_cast<cell*>(&opcode_table), 0);
+    amx.flags &= ~AMX_FLAG_BROWSE;
+    return opcode_table;
+  #else
+    return 0;
+  #endif
+}
+
+cell FindOpcode(cell *opcode_table, cell opcode) {
+  #ifdef AMXPROF_RELOCATE_OPCODES
+    assert(opcode_table != 0);
+    for (int i = 0; i < NUM_OPCODES; i++) {
+      if (opcode_table[i] == opcode) {
+        return i;
+      }
+    }
+    return opcode;
+  #else
+    (void)opcode_table;
+    return opcode;
+  #endif
+}
 
 AMX_HEADER *GetAmxHeader(AMX *amx) {
   return reinterpret_cast<AMX_HEADER*>(amx->base);
 }
 
-static unsigned char *GetAmxCodePtr(AMX *amx) {
+unsigned char *GetAmxCodePtr(AMX *amx) {
   return amx->base + GetAmxHeader(amx)->cod;
 }
 
-static unsigned char *GetAmxDataPtr(AMX *amx) {
+unsigned char *GetAmxDataPtr(AMX *amx) {
   return (amx->data != 0) ? amx->data
                           : amx->base + GetAmxHeader(amx)->dat;
 }
 
-namespace amxprof {
+} // anonymous namespace
+
+cell RelocateOpcode(cell opcode) {
+  #ifdef AMXPROF_RELOCATE_OPCODES
+    static cell *opcode_table = GetOpcodeTable();
+    opcode = FindOpcode(opcode_table, opcode);
+  #endif
+	return opcode;
+}
 
 Address GetNativeAddress(AMX *amx, NativeTableIndex index) {
   AMX_HEADER *amxhdr = GetAmxHeader(amx);
@@ -97,7 +137,7 @@ const char *GetPublicName(AMX *amx, PublicTableIndex index) {
   return "";
 }
 
-Address GetRetrunAddress(AMX *amx, Address frame) {
+Address GetReturnAddress(AMX *amx, Address frame) {
   if (frame >= 0 && frame >= amx->stk && frame < amx->stp) {
     unsigned char *data = GetAmxDataPtr(amx);
     return *reinterpret_cast<cell*>(data + frame + sizeof(cell));
@@ -106,13 +146,25 @@ Address GetRetrunAddress(AMX *amx, Address frame) {
 }
 
 Address GetCalleeAddress(AMX *amx, Address frame) {
-  Address return_address = GetRetrunAddress(amx, frame);
-  if (return_address != 0) {
-    Address code_start = reinterpret_cast<Address>(GetAmxCodePtr(amx));
-    Address target_address_offset = code_start + return_address - sizeof(cell);
-    return *reinterpret_cast<cell*>(target_address_offset) - code_start;
+  AMX_HEADER *amxhdr = GetAmxHeader(amx);
+  cell code_size = amxhdr->dat - amxhdr->cod;
+
+  Address return_address = GetReturnAddress(amx, frame);
+  Address call_address = return_address - 2*sizeof(cell);
+
+  if (return_address <= 0 || return_address >= code_size) {
+    return 0;
   }
-  return 0;
+
+  unsigned char *code = GetAmxCodePtr(amx);
+  cell opcode = *reinterpret_cast<cell*>(code + call_address);
+  cell target = *reinterpret_cast<cell*>(code + call_address + sizeof(opcode));
+
+  if (RelocateOpcode(opcode) != OP_CALL) {
+    return 0;
+  }
+
+  return target - reinterpret_cast<Address>(code);
 }
 
 } // naemspace amxprof

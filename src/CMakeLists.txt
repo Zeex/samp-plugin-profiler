@@ -6,9 +6,8 @@ include_directories(
   ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-add_definitions(-DSUBHOOK_STATIC)
-if(UNIX AND NOT WIN32)
-  add_definitions(-DLINUX)
+if(UNIX)
+  add_definitions(-DAMXPROF_RELOCATE_OPCODES)
 endif()
 
 configure_file(plugin.rc.in plugin.rc @ONLY)

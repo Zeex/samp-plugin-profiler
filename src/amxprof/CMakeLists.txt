@@ -1,7 +1,7 @@
 include(AmxConfig)
 
 if(MSVC)
-  add_definitions(-D_CRT_SECURE_NO_WARNINGS)  
+  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 endif()
 
 set(AMXPROF_SOURCES
