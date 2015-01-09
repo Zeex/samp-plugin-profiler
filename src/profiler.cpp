@@ -70,6 +70,20 @@ void PrintException(const std::exception &e) {
   Printf("Error: %s", e.what());
 }
 
+template<typename Func>
+void SplitString(const std::string &s, char delim, Func func) {
+  std::string::size_type begin = 0;
+  std::string::size_type end;
+
+  while (begin < s.length()) {
+    end = s.find(delim, begin);
+    end = (end == std::string::npos) ? s.length() : end;
+    func(std::string(s.begin() + begin,
+                     s.begin() + end));
+    begin = end + 1;
+  }
+}
+
 void ToLower(std::string &s) {
   std::transform(s.begin(), s.end(), s.begin(), ::tolower);
 }
@@ -100,6 +114,13 @@ Profiler::Profiler(AMX *amx)
   amx_path_finder.AddSearchDirectory("gamemodes");
   amx_path_finder.AddSearchDirectory("filterscripts");
 
+  const char *var = getenv("AMX_PATH");
+  if (var != 0) {
+    SplitString(var, fileutils::kNativePathListSepChar,
+      std::bind1st(std::mem_fun(&AmxPathFinder::AddSearchDirectory),
+                   &amx_path_finder));
+  }
+
   amx_path_ = ToUnixPath(amx_path_finder.FindAmxPath(amx));
   amx_name_ = fileutils::GetDirectory(amx_path_)
             + "/"
@@ -110,7 +131,7 @@ int Profiler::Load() {
   try {
     if (state_ < PROFILER_ATTACHED) {
       if (amx_path_.empty()) {
-        Printf("Failed to find .amx file");
+        Printf("Could not find the .amx file");
         return AMX_ERR_NONE;
       }
 

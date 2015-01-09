@@ -59,7 +59,7 @@ class AmxPathFinder {
  public:
   ~AmxPathFinder();
 
-  void AddSearchDirectory(const std::string &path) {
+  void AddSearchDirectory(std::string path) {
     search_dirs_.insert(path);
   }
 
