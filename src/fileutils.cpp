@@ -30,6 +30,15 @@
 
 namespace fileutils {
 
+std::string GetDirectory(const std::string &path) {
+  std::string dir;
+  std::string::size_type lastSep = path.find_last_of("/\\");
+  if (lastSep != std::string::npos) {
+    dir = path.substr(0, lastSep);
+  }
+  return dir;
+}
+
 std::string GetFileName(const std::string &path) {
   std::string::size_type lastSep = path.find_last_of("/\\");
   if (lastSep != std::string::npos) {
@@ -43,7 +52,7 @@ std::string GetBaseName(const std::string &path) {
   std::string::size_type period = base.rfind('.');
   if (period != std::string::npos) {
     base.erase(period);
-  } 
+  }
   return base;
 }
 
@@ -52,7 +61,7 @@ std::string GetExtenstion(const std::string &path) {
   std::string::size_type period = path.rfind('.');
   if (period != std::string::npos) {
     ext = path.substr(period + 1);
-  } 
+  }
   return ext;
 }
 

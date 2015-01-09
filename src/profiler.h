@@ -63,6 +63,8 @@ class Profiler : public AMXService<Profiler> {
   Profiler(AMX *amx);
 
  private:
+  std::string amx_path_;
+  std::string amx_name_;
   AMX_DEBUG prev_debug_;
   AMX_CALLBACK prev_callback_;
   amxprof::Profiler profiler_;

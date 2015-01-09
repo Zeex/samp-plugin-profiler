@@ -33,6 +33,7 @@
 #include <amxprof/statistics_writer_json.h>
 #include <amxprof/statistics_writer_text.h>
 #include "amxpath.h"
+#include "fileutils.h"
 #include "logprintf.h"
 #include "profiler.h"
 
@@ -69,13 +70,6 @@ void PrintException(const std::exception &e) {
   Printf("Error: %s", e.what());
 }
 
-std::string GetAmxPath(AMX *amx) {
-  static AmxPathFinder finder;
-  finder.AddSearchDirectory("gamemodes");
-  finder.AddSearchDirectory("filterscripts");
-  return finder.FindAmxPath(amx);
-}
-
 void ToLower(std::string &s) {
   std::transform(s.begin(), s.end(), s.begin(), ::tolower);
 }
@@ -85,12 +79,12 @@ std::string ToUnixPath(std::string path) {
   return path;
 }
 
-bool IsGameMode(const std::string &amx_path) {
-  return amx_path.find("gamemodes/") != std::string::npos;
+bool IsGameMode(const std::string &amx_path_) {
+  return amx_path_.find("gamemodes/") != std::string::npos;
 }
 
-bool IsFilterScript(const std::string &amx_path) {
-  return amx_path.find("filterscripts/") != std::string::npos;
+bool IsFilterScript(const std::string &amx_path_) {
+  return amx_path_.find("filterscripts/") != std::string::npos;
 }
 
 } // anonymous namespace
@@ -102,27 +96,34 @@ Profiler::Profiler(AMX *amx)
    profiler_(amx, call_graph_),
    state_(PROFILER_DISABLED)
 {
+  AmxPathFinder amx_path_finder;
+  amx_path_finder.AddSearchDirectory("gamemodes");
+  amx_path_finder.AddSearchDirectory("filterscripts");
+
+  amx_path_ = ToUnixPath(amx_path_finder.FindAmxPath(amx));
+  amx_name_ = fileutils::GetDirectory(amx_path_)
+            + "/"
+            + fileutils::GetBaseName(amx_path_);
 }
 
 int Profiler::Load() {
   try {
     if (state_ < PROFILER_ATTACHED) {
-      std::string amx_path = ToUnixPath(GetAmxPath(amx()));
-      if (amx_path.empty()) {
+      if (amx_path_.empty()) {
         Printf("Failed to find .amx file");
         return AMX_ERR_NONE;
       }
 
       bool attach = false;
-      if (IsGameMode(amx_path)) {
+      if (IsGameMode(amx_path_)) {
         attach = profile_gamemode_;
-      } else if (IsFilterScript(amx_path)) {
+      } else if (IsFilterScript(amx_path_)) {
         std::stringstream fs_stream(profile_filterscripts_);
         do {
           std::string fs_name;
           fs_stream >> fs_name;
-          if (amx_path == "filterscripts/" + fs_name + ".amx" ||
-              amx_path == "filterscripts/" + fs_name) {
+          if (amx_path_ == "filterscripts/" + fs_name + ".amx" ||
+              amx_path_ == "filterscripts/" + fs_name) {
             attach = true;
             break;
           }
@@ -133,7 +134,7 @@ int Profiler::Load() {
       }
 
       if (amxprof::HasDebugInfo(amx())) {
-        debug_info_.Load(amx_path);
+        debug_info_.Load(amx_path_);
         if (debug_info_.is_loaded()) {
           profiler_.set_debug_info(&debug_info_);
         } else {
@@ -143,9 +144,9 @@ int Profiler::Load() {
       }
 
       if (debug_info_.is_loaded()) {
-        Printf("Attached profiler to %s", amx_path.c_str());
+        Printf("Attached profiler to %s", amx_path_.c_str());
       } else {
-        Printf("Attached profiler to %s (no debug info)", amx_path.c_str());
+        Printf("Attached profiler to %s (no debug info)", amx_path_.c_str());
       }
 
       state_ = PROFILER_ATTACHED;
@@ -229,13 +230,9 @@ bool Profiler::Stop() {
 bool Profiler::Dump() const {
   try {
     if (state_ >= PROFILER_ATTACHED) {
-      std::string amx_path = ToUnixPath(GetAmxPath(amx()));
-      std::string amx_name =
-          std::string(amx_path, 0, amx_path.find_last_of("."));
-
       ToLower(profile_format_);
       std::string profile_filename =
-          amx_name + "-profile." + profile_format_;
+          amx_name_ + "-profile." + profile_format_;
       std::ofstream profile_stream(profile_filename.c_str());
 
       if (profile_stream.is_open()) {
@@ -255,7 +252,7 @@ bool Profiler::Dump() const {
         if (writer != 0) {
           Printf("Writing profile to %s", profile_filename.c_str());
           writer->set_stream(&profile_stream);
-          writer->set_script_name(amx_path);
+          writer->set_script_name(amx_path_);
           writer->set_print_date(true);
           writer->set_print_run_time(true);
           writer->Write(profiler_.stats());
@@ -270,7 +267,7 @@ bool Profiler::Dump() const {
       if (call_graph_) {
         ToLower(call_graph_format_);
         std::string call_graph_filename =
-            amx_name + "-calls." + call_graph_format_;
+            amx_name_ + "-calls." + call_graph_format_;
         std::ofstream call_graph_stream(call_graph_filename.c_str());
 
         if (call_graph_stream.is_open()) {
@@ -286,7 +283,7 @@ bool Profiler::Dump() const {
           if (writer != 0) {
             Printf("Writing call graph to %s", call_graph_filename.c_str());
             writer->set_stream(&call_graph_stream);
-            writer->set_script_name(amx_path);
+            writer->set_script_name(amx_path_);
             writer->set_root_node_name("SA-MP Server");
             writer->Write(profiler_.call_graph());
             delete writer;
