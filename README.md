@@ -51,6 +51,6 @@ Licensed under the 2-clause BSD license. See the LICENSE.txt file.
 [version]: http://badge.fury.io/gh/Zeex%2Fsamp-plugin-profiler
 [version_badge]: https://badge.fury.io/gh/Zeex%2Fsamp-plugin-profiler.svg
 [build]: https://travis-ci.org/Zeex/samp-plugin-profiler
-[build_status]: https://travis-ci.org/Zeex/samp-plugin-profiler.png?branch=master
+[build_status]: https://travis-ci.org/Zeex/samp-plugin-profiler.svg?branch=master
 [download]: https://github.com/Zeex/samp-plugin-profiler/releases 
 [graphviz]: http://www.graphviz.org
