@@ -31,8 +31,6 @@ Profiler settings can be changed via the following `server.cfg` options:
 	Set statistics output format. This can be one of: `html` (default), `xml`,
 	`txt`.
 
-	NOTE for `html`: it is possible to sort stats by clicking on column names!!
-
 *	`call_graph <0|1>`
 
 	Toggle call graph generation. Default is `0`.
