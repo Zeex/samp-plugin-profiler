@@ -58,14 +58,15 @@ static std::string EscapString(const std::string &s) {
 void StatisticsWriterJson::Write(const Statistics *stats)
 {
   *stream() << "{\n"
-            << "  \"scriptName\": \"" << EscapString(script_name()) << "\",\n";
-  
+            << "  \"script\": \"" << EscapString(script_name()) << "\",\n";
+
   if (print_date()) {
-    *stream() << "  \"timestamp\": " << TimeStamp::Now() << ",\n";
+    *stream() << "  \"date\": " << TimeStamp::Now() << ",\n";
   }
 
   if (print_run_time()) {
-    *stream() << "  \"runTime\": " << Seconds(stats->GetTotalRunTime()).count() << ",\n";
+    *stream() << "  \"duration\": "
+              << Seconds(stats->GetTotalRunTime()).count() << ",\n";
   }
 
   *stream() << "  \"functions\": [\n";
@@ -79,13 +80,20 @@ void StatisticsWriterJson::Write(const Statistics *stats)
     const FunctionStatistics *fn_stats = *iterator;
 
     *stream() << "    {\n"
-      << "      \"type\": \"" << fn_stats->function()->GetTypeString() << "\",\n"
-      << "      \"name\": \"" << fn_stats->function()->name() << "\",\n"
-      << "      \"calls\": " << fn_stats->num_calls() << ",\n"
-      << "      \"selfTime\": " << fn_stats->self_time().count() << ",\n"
-      << "      \"worstSelfTime\": " << fn_stats->worst_self_time().count() << ",\n"
-      << "      \"totalTime\": " << fn_stats->total_time().count() << ",\n"
-      << "      \"worstTotalTime\": " << fn_stats->worst_total_time().count() << "\n"
+      << "      \"type\": \""
+        << fn_stats->function()->GetTypeString() << "\",\n"
+      << "      \"name\": \""
+        << fn_stats->function()->name() << "\",\n"
+      << "      \"calls\": "
+       << fn_stats->num_calls() << ",\n"
+      << "      \"selfTime\": "
+        << fn_stats->self_time().count() << ",\n"
+      << "      \"worstSelfTime\": "
+        << fn_stats->worst_self_time().count() << ",\n"
+      << "      \"totalTime\": "
+        << fn_stats->total_time().count() << ",\n"
+      << "      \"worstTotalTime\": "
+        << fn_stats->worst_total_time().count() << "\n"
     << "    },\n";
   }
 
@@ -93,4 +101,3 @@ void StatisticsWriterJson::Write(const Statistics *stats)
 }
 
 } // namespace amxprof
-
