@@ -74,10 +74,10 @@ void StatisticsWriterJson::Write(const Statistics *stats)
   std::vector<FunctionStatistics*> all_fn_stats;
   stats->GetStatistics(all_fn_stats);
 
-  for (std::vector<FunctionStatistics*>::const_iterator iterator = all_fn_stats.begin();
-       iterator != all_fn_stats.end(); ++iterator)
-  {
-    const FunctionStatistics *fn_stats = *iterator;
+  typedef std::vector<FunctionStatistics*>::const_iterator FuncIterator;
+
+  for (FuncIterator it = all_fn_stats.begin(); it != all_fn_stats.end(); ++it) {
+    const FunctionStatistics *fn_stats = *it;
 
     *stream() << "    {\n"
       << "      \"type\": \""

@@ -147,41 +147,43 @@ void StatisticsWriterHtml::Write(const Statistics *stats)
   std::vector<FunctionStatistics*> all_fn_stats;
   stats->GetStatistics(all_fn_stats);
 
+  typedef std::vector<FunctionStatistics*>::const_iterator FuncIterator;
+
   Nanoseconds self_time_all;
-  for (std::vector<FunctionStatistics*>::const_iterator iterator = all_fn_stats.begin();
-       iterator != all_fn_stats.end(); ++iterator)
-  {
-    const FunctionStatistics *fn_stats = *iterator;
+  for (FuncIterator it = all_fn_stats.begin(); it != all_fn_stats.end(); ++it) {
+    const FunctionStatistics *fn_stats = *it;
     self_time_all += fn_stats->self_time();
   };
 
   Nanoseconds total_time_all;
-  for (std::vector<FunctionStatistics*>::const_iterator iterator = all_fn_stats.begin();
-       iterator != all_fn_stats.end(); ++iterator)
-  {
-    const FunctionStatistics *fn_stats = *iterator;
+  for (FuncIterator it = all_fn_stats.begin(); it != all_fn_stats.end(); ++it) {
+    const FunctionStatistics *fn_stats = *it;
     total_time_all += fn_stats->total_time();
   };
 
   std::ostream::fmtflags flags = stream()->flags();
   stream()->flags(flags | std::ostream::fixed);
 
-  for (std::vector<FunctionStatistics*>::const_iterator iterator = all_fn_stats.begin();
-       iterator != all_fn_stats.end(); ++iterator)
-  {
-    const FunctionStatistics *fn_stats = *iterator;
+  for (FuncIterator it = all_fn_stats.begin(); it != all_fn_stats.end(); ++it) {
+    const FunctionStatistics *fn_stats = *it;
 
-    double self_time_percent = fn_stats->self_time().count() * 100 / self_time_all.count();
-    double total_time_percent = fn_stats->total_time().count() * 100 / total_time_all.count();
+    double self_time_percent =
+      fn_stats->self_time().count() * 100 / self_time_all.count();
+    double total_time_percent =
+      fn_stats->total_time().count() * 100 / total_time_all.count();
 
     double self_time = Seconds(fn_stats->self_time()).count();
     double total_time = Seconds(fn_stats->total_time()).count();
 
-    double avg_self_time = Milliseconds(fn_stats->self_time()).count() / fn_stats->num_calls();
-    double avg_total_time = Milliseconds(fn_stats->total_time()).count() / fn_stats->num_calls();
+    double avg_self_time =
+      Milliseconds(fn_stats->self_time()).count() / fn_stats->num_calls();
+    double avg_total_time =
+      Milliseconds(fn_stats->total_time()).count() / fn_stats->num_calls();
 
-    double worst_self_time = Milliseconds(fn_stats->worst_self_time()).count();
-    double worst_total_time = Milliseconds(fn_stats->worst_total_time()).count();
+    double worst_self_time =
+      Milliseconds(fn_stats->worst_self_time()).count();
+    double worst_total_time =
+      Milliseconds(fn_stats->worst_total_time()).count();
 
     *stream()
     << "    <tr>\n"

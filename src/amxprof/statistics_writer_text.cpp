@@ -54,7 +54,7 @@ namespace amxprof {
 
 void StatisticsWriterText::DoHLine() {
   char fillch = stream()->fill();
-  *stream() << std::setw(kWidthAll + kNumColumns * 2 + 1) 
+  *stream() << std::setw(kWidthAll + kNumColumns * 2 + 1)
             << std::setfill('-') << "" << std::setfill(fillch) << '\n';
 }
 
@@ -89,54 +89,64 @@ void StatisticsWriterText::Write(const Statistics *stats)
   std::vector<FunctionStatistics*> all_fn_stats;
   stats->GetStatistics(all_fn_stats);
 
+  typedef std::vector<FunctionStatistics*>::const_iterator FuncIterator;
+
   Nanoseconds self_time_all;
-  for (std::vector<FunctionStatistics*>::const_iterator iterator = all_fn_stats.begin();
-       iterator != all_fn_stats.end(); ++iterator)
-  {
-    const FunctionStatistics *fn_stats = *iterator;
-    self_time_all += fn_stats->self_time(); 
+  for (FuncIterator it = all_fn_stats.begin(); it != all_fn_stats.end(); ++it) {
+    const FunctionStatistics *fn_stats = *it;
+    self_time_all += fn_stats->self_time();
   }
 
   Nanoseconds total_time_all;
-  for (std::vector<FunctionStatistics*>::const_iterator iterator = all_fn_stats.begin();
-       iterator != all_fn_stats.end(); ++iterator)
-  {
-    const FunctionStatistics *fn_stats = *iterator;
-    total_time_all += fn_stats->total_time(); 
+  for (FuncIterator it = all_fn_stats.begin(); it != all_fn_stats.end(); ++it) {
+    const FunctionStatistics *fn_stats = *it;
+    total_time_all += fn_stats->total_time();
   }
 
   std::ostream::fmtflags flags = stream()->flags();
   stream()->flags(flags | std::ostream::fixed);
 
-  for (std::vector<FunctionStatistics*>::const_iterator iterator = all_fn_stats.begin();
-       iterator != all_fn_stats.end(); ++iterator)
-  {
-    const FunctionStatistics *fn_stats = *iterator;
+  for (FuncIterator it = all_fn_stats.begin(); it != all_fn_stats.end(); ++it) {
+    const FunctionStatistics *fn_stats = *it;
 
-    double self_time_percent = fn_stats->self_time().count() * 100 / self_time_all.count();
-    double total_time_percent = fn_stats->total_time().count() * 100 / total_time_all.count();
+    double self_time_percent =
+      fn_stats->self_time().count() * 100 / self_time_all.count();
+    double total_time_percent =
+      fn_stats->total_time().count() * 100 / total_time_all.count();
 
     double self_time = Seconds(fn_stats->self_time()).count();
     double total_time = Seconds(fn_stats->total_time()).count();
 
-    double avg_self_time = Milliseconds(fn_stats->self_time()).count() / fn_stats->num_calls();
-    double avg_total_time = Milliseconds(fn_stats->total_time()).count() / fn_stats->num_calls();
+    double avg_self_time =
+      Milliseconds(fn_stats->self_time()).count() / fn_stats->num_calls();
+    double avg_total_time =
+      Milliseconds(fn_stats->total_time()).count() / fn_stats->num_calls();
 
-    double worst_self_time = Milliseconds(fn_stats->worst_self_time()).count();
-    double worst_total_time = Milliseconds(fn_stats->worst_total_time()).count();
+    double worst_self_time =
+      Milliseconds(fn_stats->worst_self_time()).count();
+    double worst_total_time =
+      Milliseconds(fn_stats->worst_total_time()).count();
 
     *stream()
       << "| " << std::setw(kTypeWidth) << fn_stats->function()->GetTypeString()
       << "| " << std::setw(kNameWidth) << fn_stats->function()->name()
       << "| " << std::setw(kCallsWidth) << fn_stats->num_calls()
-      << "| " << std::setw(kSelfTimePercentWidth) << std::setprecision(2) << self_time_percent
-      << "| " << std::setw(kSelfTimeWidth) << std::setprecision(1) << self_time
-      << "| " << std::setw(kAvgSelfTimeWidth) << std::setprecision(1) << avg_self_time
-      << "| " << std::setw(kWorstSelfTimeWidth) << std::setprecision(1) << worst_self_time
-      << "| " << std::setw(kTotalTimePercentWidth) << std::setprecision(2) << total_time_percent
-      << "| " << std::setw(kTotalTimeWidth) << std::setprecision(1) << total_time
-      << "| " << std::setw(kAvgTotalTimeWidth) << std::setprecision(1) << avg_total_time
-      << "| " << std::setw(kWorstTotalTimeWidth) << std::setprecision(1) << worst_total_time
+      << "| " << std::setw(kSelfTimePercentWidth) << std::setprecision(2)
+        << self_time_percent
+      << "| " << std::setw(kSelfTimeWidth) << std::setprecision(1)
+        << self_time
+      << "| " << std::setw(kAvgSelfTimeWidth) << std::setprecision(1)
+        << avg_self_time
+      << "| " << std::setw(kWorstSelfTimeWidth) << std::setprecision(1)
+        << worst_self_time
+      << "| " << std::setw(kTotalTimePercentWidth) << std::setprecision(2)
+        << total_time_percent
+      << "| " << std::setw(kTotalTimeWidth) << std::setprecision(1)
+        << total_time
+      << "| " << std::setw(kAvgTotalTimeWidth) << std::setprecision(1)
+        << avg_total_time
+      << "| " << std::setw(kWorstTotalTimeWidth) << std::setprecision(1)
+        << worst_total_time
       << "|\n";
     DoHLine();
   }
