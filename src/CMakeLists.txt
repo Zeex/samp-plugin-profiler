@@ -1,5 +1,5 @@
-include(AmxConfig)
-include(Plugin)
+include(AMXConfig)
+include(AddSAMPPlugin)
 
 include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
@@ -42,7 +42,7 @@ else()
   list(APPEND PROFILER_SOURCES fileutils_posix.cpp)
 endif()
 
-add_plugin(profiler ${PROFILER_SOURCES})
+add_samp_plugin(profiler ${PROFILER_SOURCES})
 
 add_subdirectory(amx)
 add_subdirectory(amxprof)
