@@ -61,7 +61,7 @@ void StatisticsWriterJson::Write(const Statistics *stats)
             << "  \"script\": \"" << EscapString(script_name()) << "\",\n";
 
   if (print_date()) {
-    *stream() << "  \"date\": " << TimeStamp::Now() << ",\n";
+    *stream() << "  \"timestamp\": " << TimeStamp::Now() << ",\n";
   }
 
   if (print_run_time()) {
