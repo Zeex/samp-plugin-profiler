@@ -26,6 +26,7 @@
 #include <cassert>
 #include <cstdarg>
 #include <fstream>
+#include <functional>
 #include <sstream>
 #include <string>
 #include <amxprof/call_graph_writer_dot.h>
