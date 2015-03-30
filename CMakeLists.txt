@@ -24,6 +24,16 @@ if(CMAKE_COMPILER_IS_GNUCXX)
   endif()
 endif()
 
+# This fixes compile errors on 64-bit systems.
+if(NOT CMAKE_SIZEOF_VOID_P EQUAL 4)
+  if(CMAKE_COMPILER_IS_GNUCC)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32")
+  endif()
+  if(CMAKE_COMPILER_IS_GNUCXX)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
+  endif()
+endif()
+
 # Link against the static version of libstdc++.
 if(PROFILER_USE_STATIC_RUNTIME)
   if(CMAKE_COMPILER_IS_GNUCXX)
