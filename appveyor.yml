@@ -1,7 +1,7 @@
 version: '{build}'
 
 configuration:
-  - RelWithDebInfo
+  - Debug
 
 before_build:
   - cmake . -G "Visual Studio 10 2010"
@@ -13,3 +13,6 @@ build_script:
 artifacts:
   - path: profiler-*-win32.zip
     name: Binaries
+
+  - path: src/Debug/profiler.pdb
+    name: Debug info
