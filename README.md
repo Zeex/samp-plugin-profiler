@@ -9,15 +9,73 @@ Profiler provides detailed information about how long each function takes to
 execute and how many times it is called. Additionally it can build a call
 graph based on the collected information.
 
-Download
---------
+Installing
+----------
 
-Get latest binaries for Windows and Linux [here][download].
+1. Download a compiled plugin form the [Releases][download] page on Github or
+build it yourself from source code (see below).
+2. Extract/copy `profiler.so` or `profiler.dll` to `<sever>/plugins/`.
+3. Add `profiler` (Windows) or `profiler.so` (Linux) to the `plugins` line of your server.cfg.
 
-Settings
---------
+Building on Linux
+-----------------
 
-Profiler settings can be changed via the following `server.cfg` options:
+Install gcc and g++, make and cmake. On Ubuntu you would do that with:
+
+```
+sudo apt-get install gcc g++ make cmake
+```
+
+If you're building on a 64-bit system you'll need multilib packages for gcc and g++:
+
+```
+sudo apt-get install gcc-multilib g++-multilib
+```
+
+If you're building on CentOS, install the following packages:
+
+```
+yum install gcc gcc-c++ cmake28 make
+```
+
+Now you're ready to build Profiler:
+
+```
+cd profiler
+mkdir build && cd build
+cmake ../ -DCMAKE_BUILD_TYPE=Release
+make
+```
+
+Building on Windows
+-------------------
+
+You'll need to install CMake and Visual Studio (Express edition will suffice).
+After that, either run cmake from the command line:
+
+```
+cd profiler
+mkdir build && cd build
+path/to/cmake.exe ../
+```
+
+or do the same from cmake-gui. This will generate a Visual Studio project in
+the build folder.
+
+To build the project:
+
+```
+path/to/cmake.exe --build . --config Release
+```
+
+You can also build it from within Visual Studio: open build/profiler.sln and
+go to menu -> Build -> Build Solution (or just press F7).
+
+Configuration
+-------------
+
+Profiler reads settings from server.cfg, the server configuration file. Below is
+the list of available settings:
 
 *	`profile_gamemode <0|1>`
 
