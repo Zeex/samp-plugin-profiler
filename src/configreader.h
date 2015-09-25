@@ -41,8 +41,13 @@ class ConfigReader {
   template<typename T>
   void GetOption(const std::string &name, T &value) const;
 
+  void GetOption(const std::string &name, std::string &value) const;
+
   template<typename T>
   T GetOptionDefault(const std::string &name, const T &defaultValue) const;
+
+  std::string GetOptionDefault(const std::string &name,
+                               const std::string &defaultValue) const;
 
   bool IsLoaded() const { return loaded_; }
 

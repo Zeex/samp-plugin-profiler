@@ -43,13 +43,13 @@ ConfigReader Profiler::server_cfg_("server.cfg");
 bool Profiler::profile_gamemode_ =
     server_cfg_.GetOptionDefault("profile_gamemode", false);
 std::string Profiler::profile_filterscripts_ =
-    server_cfg_.GetOptionDefault<std::string>("profile_filterscripts", "");
+    server_cfg_.GetOptionDefault("profile_filterscripts", std::string());
 std::string Profiler::profile_format_ =
-    server_cfg_.GetOptionDefault<std::string>("profile_format", "html");
+    server_cfg_.GetOptionDefault("profile_format", std::string("html"));
 bool Profiler::call_graph_ =
     server_cfg_.GetOptionDefault("call_graph", false);
 std::string Profiler::call_graph_format_ =
-    server_cfg_.GetOptionDefault<std::string>("call_graph_format", "dot");
+    server_cfg_.GetOptionDefault("call_graph_format", std::string("dot"));
 
 #define logprintf Use_Printf_isntead_of_logprintf
 
