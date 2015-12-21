@@ -25,7 +25,6 @@
 #ifndef PROFILER_H
 #define PROFILER_H
 
-#include <exception>
 #include <amxprof/debug_info.h>
 #include <amxprof/profiler.h>
 #include "amxservice.h"
@@ -35,6 +34,7 @@ typedef amxprof::AMX_EXEC AMX_EXEC;
 
 enum ProfilerState {
   PROFILER_DISABLED,
+  PROFILER_ATTACHING,
   PROFILER_ATTACHED,
   PROFILER_STARTING,
   PROFILER_STARTED,
@@ -55,6 +55,7 @@ class Profiler : public AMXService<Profiler> {
 
  public:
   ProfilerState GetState() const;
+  bool Attach();
   bool Start();
   bool Stop();
   bool Dump() const;
@@ -70,14 +71,6 @@ class Profiler : public AMXService<Profiler> {
   amxprof::Profiler profiler_;
   amxprof::DebugInfo debug_info_;
   ProfilerState state_;
-
- private:
-  static ConfigReader server_cfg_;
-  static bool profile_gamemode_;
-  static std::string profile_filterscripts_;
-  static std::string profile_format_;
-  static bool call_graph_;
-  static std::string call_graph_format_;
 };
 
 #endif // !PROFILER_H

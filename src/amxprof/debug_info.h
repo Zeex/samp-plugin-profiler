@@ -39,7 +39,7 @@ class DebugInfo {
   explicit DebugInfo(const AMX_DBG *amxdbg);
   explicit DebugInfo(const std::string &filename);
 
-  void Load(const std::string &filename);
+  bool Load(const std::string &filename);
   void Unload();
 
   bool is_loaded() const { return amxdbg_ != 0; }

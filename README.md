@@ -77,27 +77,54 @@ Configuration
 Profiler reads settings from server.cfg, the server configuration file. Below is
 the list of available settings:
 
+*   `profiler_gamemodes <gm_name1> <gm_name2> ...`
+
+    Specify which gamemodes should be profiled.
+
+    Names are either gamemodes' file names or paths relative to the `gamemodes/`
+    directory in case if the AMX file is not a direct child of `gamemodes/`.
+
+*   `profile_filterscripts <fs_name1> <fs_name2> ...`
+
+    Specify which filterscripts should be profiled.
+
+*   `profiler_outputformat <format>`
+
+    Set statistics output format. This can be one of: `html` (default), `xml`,
+    `txt`.
+
+*   `profiler_callgraph <0|1>`
+
+    Enable or disable call graph generation. Default is `0`.
+
+*   `profiler_callgraphformat <format>`
+
+    Set call graph format. Currently only `dot` is supported (can be viewed
+    in [GraphViz][graphviz]).
+
+## Old (deprecated) config variables
+
 *	`profile_gamemode <0|1>`
 
 	Toggle gamemode profiling. Default is `0`.
 
-*	`profile_filterscripts <name1> <name2> ...`
+    Same as setting `profiler_gamemodes` to the name of the current gamemode.
 
-	A list of filter scripts to be profiled.
+*	`profile_filterscripts <fs_name1> <fs_name2> ...`
+
+	Same as `profiler_filterscripts`.
 
 *	`profile_format <format>`
 
-	Set statistics output format. This can be one of: `html` (default), `xml`,
-	`txt`.
+	Same as `profiler_outputformat`.
 
 *	`call_graph <0|1>`
 
-	Toggle call graph generation. Default is `0`.
+	Same as `profiler_callgraph`.
 
 *	`call_graph_format <format>`
 
-	Set call graph format. Currently only `dot` is supported (can be viewed
-	in [GraphViz][graphviz]).
+	Same as `profiler_callgraphformat`.
 
 License
 -------

@@ -49,16 +49,18 @@ DebugInfo::DebugInfo(const std::string &filename)
   Load(filename);
 }
 
-void DebugInfo::Load(const std::string &filename) {
+bool DebugInfo::Load(const std::string &filename) {
   std::FILE* fp = std::fopen(filename.c_str(), "rb");
   if (fp != 0) {
     AMX_DBG amxdbg;
     last_error_ = dbg_LoadInfo(&amxdbg, fp);
     if (last_error_ == AMX_ERR_NONE) {
       amxdbg_ = new AMX_DBG(amxdbg);
+      return true;
     }
     fclose(fp);
   }
+  return false;
 }
 
 void DebugInfo::Unload() {

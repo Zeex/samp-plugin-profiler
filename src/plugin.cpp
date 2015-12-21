@@ -101,11 +101,9 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
     // This should stop the VM from replacing SYSREQ.C instructions with
     // SYSREQ.D and allow us to profile native functions.
     amx->sysreq_d = 0;
-
-    return RegisterNatives(amx);
   }
 
-  return AMX_ERR_NONE;
+  return RegisterNatives(amx);
 }
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
