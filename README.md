@@ -102,7 +102,7 @@ the list of available settings:
     Set call graph format. Currently only `dot` is supported (can be viewed
     in [GraphViz][graphviz]).
 
-## Old (deprecated) config variables
+### Old (deprecated) config variables
 
 *	`profile_gamemode <0|1>`
 
