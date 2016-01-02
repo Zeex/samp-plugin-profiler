@@ -6,6 +6,10 @@ include_directories(
   ${CMAKE_CURRENT_BINARY_DIR}
 )
 
+if(MSVC)
+  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+endif()
+
 if(UNIX)
   add_definitions(-DAMXPROF_RELOCATE_OPCODES)
 endif()
