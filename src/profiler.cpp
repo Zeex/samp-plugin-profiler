@@ -330,8 +330,7 @@ bool Profiler::Dump() const {
 
       if (output_format == "html") {
         writer = new amxprof::StatisticsWriterHtml;
-      } else if (output_format == "txt" ||
-                  output_format == "text") {
+      } else if (output_format == "txt" || output_format == "text") {
         writer = new amxprof::StatisticsWriterText;
       } else if (output_format == "json") {
         writer = new amxprof::StatisticsWriterJson;
