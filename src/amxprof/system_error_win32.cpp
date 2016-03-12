@@ -31,11 +31,11 @@
 static char *StripNewLine(char *s) {
   std::size_t length = std::strlen(s);
 
-  for (std::size_t i = length - 1; i >= 0; i--) {
-    if (s[i] != '\n' && s[i] != '\r') {
+  for (std::size_t i = length; i > 0; i--) {
+    if (s[i - 1] != '\n' && s[i - 1] != '\r') {
       break;
     }
-    s[i] = '\0';
+    s[i - 1] = '\0';
   }
 
   return s;
