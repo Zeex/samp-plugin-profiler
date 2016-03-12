@@ -53,7 +53,7 @@ void Statistics::AddFunction(Function *fn) {
   address_to_fn_stats_.insert(std::make_pair(fn->address(), fn_stats));
 }
 
-FunctionStatistics *Statistics::GetFunctionStatistis(Address address) const {
+FunctionStatistics *Statistics::GetFunctionStatistics(Address address) const {
   AddressToFuncStatsMap::const_iterator iterator = address_to_fn_stats_.find(address);
   if (iterator != address_to_fn_stats_.end()) {
     return iterator->second;

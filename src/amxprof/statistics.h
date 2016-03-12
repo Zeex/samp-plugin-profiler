@@ -46,7 +46,7 @@ class Statistics {
   void AddFunction(Function *fn);
   Function *GetFunction(Address address);
 
-  FunctionStatistics *GetFunctionStatistis(Address address) const;
+  FunctionStatistics *GetFunctionStatistics(Address address) const;
   void GetStatistics(std::vector<FunctionStatistics*> &stats) const;
 
   Nanoseconds GetTotalRunTime() const {

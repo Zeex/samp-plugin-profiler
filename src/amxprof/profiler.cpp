@@ -132,7 +132,7 @@ int Profiler::ExecHook(cell *retval, int index, AMX_EXEC exec) {
 
 void Profiler::EnterFunction(Address address, Address frm) {
   assert(address != 0);
-  FunctionStatistics *fn_stats = stats_.GetFunctionStatistis(address);
+  FunctionStatistics *fn_stats = stats_.GetFunctionStatistics(address);
 
   assert(fn_stats != 0);
   fn_stats->AdjustNumCalls(1);
@@ -150,7 +150,8 @@ void Profiler::LeaveFunction(Address address) {
   while (true) {
     FunctionCall fn_call = call_stack_.Pop();
 
-    FunctionStatistics *fn_stats = stats_.GetFunctionStatistis(fn_call.function()->address());
+    FunctionStatistics *fn_stats =
+      stats_.GetFunctionStatistics(fn_call.function()->address());
     assert(fn_stats != 0);
 
     fn_stats->AdjustSelfTime(fn_call.timer()->self_time());
