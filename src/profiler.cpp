@@ -236,7 +236,7 @@ int Profiler::Exec(cell *retval, int index) {
         }
         // fallthrough
       case PROFILER_STARTING:
-        state_ = PROFILER_STARTED;
+        CompleteStart();
         break;
     }
   }
@@ -245,7 +245,7 @@ int Profiler::Exec(cell *retval, int index) {
       int error = profiler_.ExecHook(retval, index, amx_Exec);
       if (state_ == PROFILER_STOPPING
           && profiler_.call_stack()->is_empty()) {
-        state_ = PROFILER_STOPPED;
+        CompleteStop();
       }
       return error;
     } catch (const std::exception &e) {
@@ -278,9 +278,9 @@ bool Profiler::Attach() {
     }
 
     if (debug_info_.is_loaded()) {
-      Printf("Attached profiler to %s", amx_path_.c_str());
+      Printf("Attached profiler to %s", amx_name_.c_str());
     } else {
-      Printf("Attached profiler to %s (no debug info)", amx_path_.c_str());
+      Printf("Attached profiler to %s (no debug info)", amx_name_.c_str());
     }
 
     state_ = PROFILER_ATTACHED;
@@ -304,6 +304,11 @@ bool Profiler::Start() {
   return false;
 }
 
+void Profiler::CompleteStart() {
+  Printf("Started profiling %s", amx_name_.c_str());
+  state_ = PROFILER_STARTED;
+}
+
 bool Profiler::Stop() {
   if (state_ >= PROFILER_STARTED) {
     state_ = PROFILER_STOPPING;
@@ -312,9 +317,14 @@ bool Profiler::Stop() {
   return false;
 }
 
+void Profiler::CompleteStop() {
+  Printf("Stopped profiling %s", amx_name_.c_str());
+  state_ = PROFILER_STOPPED;
+}
+
 bool Profiler::Dump() const {
   try {
-    Printf("Dumping profiling statistics...");
+    Printf("Dumping profiling statistics for %s", amx_name_.c_str());
 
     if (state_ < PROFILER_ATTACHED) {
       Printf("Profiler not attached, nothing to dump");

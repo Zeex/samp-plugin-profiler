@@ -63,6 +63,9 @@ class Profiler : public AMXService<Profiler> {
  private:
   Profiler(AMX *amx);
 
+  void CompleteStart();
+  void CompleteStop();
+
  private:
   std::string amx_path_;
   std::string amx_name_;
