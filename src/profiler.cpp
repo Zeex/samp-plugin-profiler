@@ -30,6 +30,8 @@
 #include <sstream>
 #include <string>
 #include <amxprof/call_graph_writer_dot.h>
+#include <amxprof/function.h>
+#include <amxprof/function_statistics.h>
 #include <amxprof/statistics_writer_html.h>
 #include <amxprof/statistics_writer_json.h>
 #include <amxprof/statistics_writer_text.h>
@@ -312,9 +314,42 @@ bool Profiler::Stop() {
 
 bool Profiler::Dump() const {
   try {
+    Printf("Dumping profiling statistics...");
+
     if (state_ < PROFILER_ATTACHED) {
+      Printf("Profiler not attached, nothing to dump");
       return false;
     }
+
+    std::vector<amxprof::FunctionStatistics*> fn_stats;
+    profiler_.stats()->GetStatistics(fn_stats);
+
+    int num_native_functions = 0;
+    int num_public_functions = 0;
+    int num_other_functions = 0;
+    long num_calls = 0;
+
+    for (std::vector<amxprof::FunctionStatistics*>::const_iterator
+         iterator = fn_stats.begin();
+         iterator != fn_stats.end();
+         ++iterator) {
+      amxprof::Function *fn = (*iterator)->function();
+      if (fn->type() == amxprof::Function::NATIVE) {
+        num_native_functions++;
+      } else if (fn->type() == amxprof::Function::PUBLIC) {
+        num_public_functions++;
+      } else {
+        num_other_functions++;
+      }
+      num_calls += (*iterator)->num_calls();
+    }
+
+    Printf("Total functions logged: %zu (native: %d, public: %d, other: %d)",
+           fn_stats.size(),
+           num_native_functions,
+           num_public_functions,
+           num_other_functions);
+    Printf("Total function calls logged: %ld", num_calls);
 
     std::string output_format = cfg::output_format;
     if (output_format.empty()) {
