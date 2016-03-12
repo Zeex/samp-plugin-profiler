@@ -57,12 +57,12 @@ Function *Function::Normal(Address address, DebugInfo *debug_info) {
 }
 
 // static
-Function *Function::Public(AMX *amx, Address index) {
+Function *Function::Public(AMX *amx, PublicTableIndex index) {
   return new Function(PUBLIC, GetPublicAddress(amx, index), GetPublicName(amx, index));
 }
 
 // static
-Function *Function::Native(AMX *amx, Address index) {
+Function *Function::Native(AMX *amx, NativeTableIndex index) {
   return new Function(NATIVE, GetNativeAddress(amx, index), GetNativeName(amx, index));
 }
 
