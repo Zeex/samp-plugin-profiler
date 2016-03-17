@@ -37,7 +37,7 @@ enum ProfilerState {
   PROFILER_STOPPED
 };
 
-native Profiler_GetState();
+native ProfilerState:Profiler_GetState();
 native Profiler_Start();
 native Profiler_Stop();
 native Profiler_Dump();
