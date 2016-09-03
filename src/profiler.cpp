@@ -48,15 +48,15 @@ namespace cfg {
 ConfigReader server_cfg("server.cfg");
 
 std::string gamemodes =
-    server_cfg.GetOptionDefault<std::string>("profiler_gamemodes", "");
+    server_cfg.GetOptionDefault("profiler_gamemodes", "");
 std::string filterscripts =
-    server_cfg.GetOptionDefault<std::string>("profiler_filterscripts", "");
+    server_cfg.GetOptionDefault("profiler_filterscripts", "");
 std::string output_format =
-    server_cfg.GetOptionDefault<std::string>("profiler_outputformat", "html");
+    server_cfg.GetOptionDefault("profiler_outputformat", "html");
 bool call_graph =
     server_cfg.GetOptionDefault("profiler_callgraph", false);
 std::string call_graph_format =
-    server_cfg.GetOptionDefault<std::string>("profiler_callgraphformat", "dot");
+    server_cfg.GetOptionDefault("profiler_callgraphformat", "dot");
 
 namespace old {
 
@@ -64,13 +64,13 @@ namespace old {
 bool profile_gamemode =
     server_cfg.GetOptionDefault("profile_gamemode", false);
 std::string profile_filterscripts =
-    server_cfg.GetOptionDefault<std::string>("profile_filterscripts", "");
+    server_cfg.GetOptionDefault("profile_filterscripts", "");
 std::string profile_format =
-    server_cfg.GetOptionDefault<std::string>("profile_format", "html");
+    server_cfg.GetOptionDefault("profile_format", "html");
 bool call_graph =
     server_cfg.GetOptionDefault("call_graph", false);
 std::string call_graph_format =
-    server_cfg.GetOptionDefault<std::string>("call_graph_format", "dot");
+    server_cfg.GetOptionDefault("call_graph_format", "dot");
 
 } // namespace old
 } // namespace cfg

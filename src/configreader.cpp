@@ -32,12 +32,12 @@
 
 #include "configreader.h"
 
-ConfigReader::ConfigReader() 
+ConfigReader::ConfigReader()
  : loaded_(false)
 {
 }
 
-ConfigReader::ConfigReader(const std::string &filename) 
+ConfigReader::ConfigReader(const std::string &filename)
  : loaded_(false)
 {
   LoadFile(filename);
