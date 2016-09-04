@@ -25,10 +25,10 @@
 #ifndef PROFILER_H
 #define PROFILER_H
 
+#include <configreader.h>
 #include <amxprof/debug_info.h>
 #include <amxprof/profiler.h>
 #include "amxservice.h"
-#include "configreader.h"
 
 typedef amxprof::AMX_EXEC AMX_EXEC;
 

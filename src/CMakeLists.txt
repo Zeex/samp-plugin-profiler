@@ -22,8 +22,6 @@ set(PROFILER_SOURCES
   amxpath.h
   amxplugin.cpp
   amxservice.h
-  configreader.cpp
-  configreader.h
   fileutils.cpp
   fileutils.h
   logprintf.cpp
@@ -50,6 +48,6 @@ add_samp_plugin(profiler ${PROFILER_SOURCES})
 
 add_subdirectory(amx)
 add_subdirectory(amxprof)
-target_link_libraries(profiler amxprof subhook)
+target_link_libraries(profiler amxprof configreader subhook)
 
 install(TARGETS profiler LIBRARY DESTINATION ".")
