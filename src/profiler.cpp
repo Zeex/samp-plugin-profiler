@@ -51,7 +51,7 @@ ConfigReader server_cfg("server.cfg");
 std::string gamemodes =
     server_cfg.GetValueWithDefault("profiler_gamemodes");
 std::vector<std::string> filterscripts =
-    server_cfg.GetValuesWithDefault<std::string>("profiler_filterscripts");
+    server_cfg.GetValues<std::string>("profiler_filterscripts");
 std::string output_format =
     server_cfg.GetValueWithDefault("profiler_outputformat", "html");
 bool call_graph =
@@ -65,7 +65,7 @@ namespace old {
 bool profile_gamemode =
     server_cfg.GetValueWithDefault("profile_gamemode", false);
 std::vector<std::string> profile_filterscripts =
-    server_cfg.GetValuesWithDefault<std::string>("profile_filterscripts");
+    server_cfg.GetValues<std::string>("profile_filterscripts");
 std::string profile_format =
     server_cfg.GetValueWithDefault("profile_format", "html");
 bool call_graph =

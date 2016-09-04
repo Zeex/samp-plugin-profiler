@@ -60,9 +60,7 @@ class ConfigReader {
   void GetValues(const std::string &name, std::vector<T> &values) const;
 
   template<typename T>
-  std::vector<T> GetValuesWithDefault(
-    const std::string &name,
-    const std::vector<T> &defaultValues = std::vector<T>()) const;
+  std::vector<T> GetValues(const std::string &name) const;
 
  private:
   option_map options_;
@@ -99,13 +97,10 @@ void ConfigReader::GetValues(const std::string &name,
 }
 
 template<typename T>
-std::vector<T> ConfigReader::GetValuesWithDefault(
-  const std::string &name,
-  const std::vector<T> &defaultValues) const
-{
+std::vector<T> ConfigReader::GetValues(const std::string &name) const {
   option_map::const_iterator iterator = options_.find(name);
   if (iterator == options_.end()) {
-    return defaultValues;
+    return std::vector<T>();
   }
 
   std::vector<T> values;
@@ -118,7 +113,7 @@ std::vector<T> ConfigReader::GetValuesWithDefault(
     return values;
   }
 
-  return defaultValues;
+  return std::vector<T>();
 }
 
 #endif // !CONFIGREADER_H

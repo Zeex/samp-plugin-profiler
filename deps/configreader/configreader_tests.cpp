@@ -43,7 +43,7 @@ void Failed() {
 template<typename T, typename U>
 void Check(bool result,
            const char *op1,
-           const T &op1_value, 
+           const T &op1_value,
            const char *op2,
            const U &op2_value,
            char rel) {
@@ -75,7 +75,7 @@ int main() {
   std::string s = config.GetValueWithDefault("s", "");
   CHECK_EQUAL(s, "string with\twhitespace");
 
-  std::vector<std::string> v = config.GetValuesWithDefault<std::string>("v");
+  std::vector<std::string> v = config.GetValues<std::string>("v");
   CHECK_EQUAL(v.size(), 2);
   CHECK_EQUAL(v[0], "hello");
   CHECK_EQUAL(v[1], "world");
