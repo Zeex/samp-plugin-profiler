@@ -70,7 +70,7 @@ bool ConfigReader::LoadFile(const std::string &filename) {
     std::string line, name, value;
 
     while (std::getline(cfg, line, '\n')) {
-      std::stringstream stream(line);
+      std::istringstream stream(line);
 
       std::getline(stream, name, ' ');
       TrimString(name);
@@ -87,15 +87,18 @@ bool ConfigReader::LoadFile(const std::string &filename) {
   return loaded_;
 }
 
-void ConfigReader::GetOption(const std::string &name, std::string &value) const {
-  value = GetOptionDefault(name, value);
+void ConfigReader::GetValue(const std::string &name,
+                            std::string &value) const {
+  value = GetValueWithDefault(name, value);
 }
 
-std::string ConfigReader::GetOptionDefault(const std::string &name,
-                                           const std::string &default_) const {
-  OptionMap::const_iterator iterator = options_.find(name);
+std::string ConfigReader::GetValueWithDefault(
+  const std::string &name,
+  const std::string &defaultValue) const
+{
+  option_map::const_iterator iterator = options_.find(name);
   if (iterator != options_.end()) {
     return iterator->second;
   }
-  return default_;
+  return defaultValue;
 }

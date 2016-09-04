@@ -22,58 +22,103 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#include <iterator>
 #include <map>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #ifndef CONFIGREADER_H
 #define CONFIGREADER_H
 
 class ConfigReader {
  public:
-  typedef std::map<std::string, std::string> OptionMap;
+  typedef std::map<std::string, std::string> option_map;
 
   ConfigReader();
   ConfigReader(const std::string &filename);
 
   bool LoadFile(const std::string &filename);
 
-  template<typename T>
-  void GetOption(const std::string &name, T &value) const;
-
-  void GetOption(const std::string &name, std::string &value) const;
+  void GetValue(const std::string &name, std::string &value) const;
 
   template<typename T>
-  T GetOptionDefault(const std::string &name, const T &defaultValue) const;
+  void GetValue(const std::string &name, T &value) const;
 
-  std::string GetOptionDefault(const std::string &name,
-                               const std::string &defaultValue) const;
+  template<typename T>
+  T GetValueWithDefault(const std::string &name,
+                        const T &defaultValue = T()) const;
+
+  std::string GetValueWithDefault(
+    const std::string &name,
+    const std::string &defaultValue = std::string()) const;
+
+  template<typename T>
+  void GetValues(const std::string &name, std::vector<T> &values) const;
+
+  template<typename T>
+  std::vector<T> GetValuesWithDefault(
+    const std::string &name,
+    const std::vector<T> &defaultValues = std::vector<T>()) const;
 
   bool IsLoaded() const { return loaded_; }
 
  private:
   bool loaded_;
-  OptionMap options_;
+  option_map options_;
 };
 
 template<typename T>
-void ConfigReader::GetOption(const std::string &name, T &value) const {
+void ConfigReader::GetValue(const std::string &name, T &value) const {
   value = GetOptionDefault(name, value);
 }
 
 template<typename T>
-T ConfigReader::GetOptionDefault(const std::string &name,
-                                 const T &default_) const {
-  OptionMap::const_iterator iterator = options_.find(name);
-  if (iterator != options_.end()) {
-    std::stringstream sstream(iterator->second);
-    T value;
-    sstream >> value;
-    if (sstream) {
-      return value;
-    }
+void ConfigReader::GetValues(const std::string &name,
+                             std::vector<T> &values) const {
+  values = GetValuesWithDefault(name, values);
+}
+
+template<typename T>
+std::vector<T> ConfigReader::GetValuesWithDefault(
+  const std::string &name,
+  const std::vector<T> &defaultValues) const
+{
+  option_map::const_iterator iterator = options_.find(name);
+  if (iterator == options_.end()) {
+    return defaultValues;
   }
-  return default_;
+
+  std::vector<T> values;
+  std::istringstream sstream(iterator->second);
+  std::copy(std::istream_iterator<T>(sstream),
+            std::istream_iterator<T>(),
+            std::back_inserter(values));
+
+  if (sstream || values.size() > 0) {
+    return values;
+  }
+
+  return defaultValues;
+}
+
+template<typename T>
+T ConfigReader::GetValueWithDefault(const std::string &name,
+                                    const T &defaultValue) const {
+  option_map::const_iterator iterator = options_.find(name);
+  if (iterator == options_.end()) {
+    return defaultValue;
+  }
+
+  std::istringstream sstream(iterator->second);
+  T value;
+  sstream >> value;
+
+  if (sstream) {
+    return value;
+  }
+
+  return defaultValue;
 }
 
 #endif // !CONFIGREADER_H

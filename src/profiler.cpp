@@ -27,6 +27,7 @@
 #include <cstdarg>
 #include <exception>
 #include <fstream>
+#include <iterator>
 #include <sstream>
 #include <string>
 #include <amxprof/call_graph_writer_dot.h>
@@ -48,29 +49,29 @@ namespace cfg {
 ConfigReader server_cfg("server.cfg");
 
 std::string gamemodes =
-    server_cfg.GetOptionDefault("profiler_gamemodes", "");
-std::string filterscripts =
-    server_cfg.GetOptionDefault("profiler_filterscripts", "");
+    server_cfg.GetValueWithDefault("profiler_gamemodes");
+std::vector<std::string> filterscripts =
+    server_cfg.GetValuesWithDefault<std::string>("profiler_filterscripts");
 std::string output_format =
-    server_cfg.GetOptionDefault("profiler_outputformat", "html");
+    server_cfg.GetValueWithDefault("profiler_outputformat", "html");
 bool call_graph =
-    server_cfg.GetOptionDefault("profiler_callgraph", false);
+    server_cfg.GetValueWithDefault("profiler_callgraph", false);
 std::string call_graph_format =
-    server_cfg.GetOptionDefault("profiler_callgraphformat", "dot");
+    server_cfg.GetValueWithDefault("profiler_callgraphformat", "dot");
 
 namespace old {
 
 // old config variables.
 bool profile_gamemode =
-    server_cfg.GetOptionDefault("profile_gamemode", false);
-std::string profile_filterscripts =
-    server_cfg.GetOptionDefault("profile_filterscripts", "");
+    server_cfg.GetValueWithDefault("profile_gamemode", false);
+std::vector<std::string> profile_filterscripts =
+    server_cfg.GetValuesWithDefault<std::string>("profile_filterscripts");
 std::string profile_format =
-    server_cfg.GetOptionDefault("profile_format", "html");
+    server_cfg.GetValueWithDefault("profile_format", "html");
 bool call_graph =
-    server_cfg.GetOptionDefault("call_graph", false);
+    server_cfg.GetValueWithDefault("call_graph", false);
 std::string call_graph_format =
-    server_cfg.GetOptionDefault("call_graph_format", "dot");
+    server_cfg.GetValueWithDefault("call_graph_format", "dot");
 
 } // namespace old
 } // namespace cfg
@@ -144,8 +145,12 @@ bool ShouldBeProfiled(const std::string amx_path) {
   }
   if (IsFilterScript(amx_path)) {
     std::vector<std::string> fs_names;
-    SplitString(cfg::old::profile_filterscripts, ' ', fs_names);
-    SplitString(cfg::filterscripts, ' ', fs_names);
+    std::copy(cfg::old::profile_filterscripts.begin(),
+              cfg::old::profile_filterscripts.end(),
+              std::back_inserter(fs_names));
+    std::copy(cfg::filterscripts.begin(),
+              cfg::filterscripts.end(),
+              std::back_inserter(fs_names));
     for (std::vector<std::string>::const_iterator iterator = fs_names.begin();
          iterator != fs_names.end(); ++iterator) {
       const std::string &fs_name = *iterator;
