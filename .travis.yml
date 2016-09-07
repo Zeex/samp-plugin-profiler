@@ -10,9 +10,24 @@ install:
   - sudo apt-get install gcc-multilib g++-multilib cmake
 
 before_script:
-  - cmake . -DCMAKE_COMPILER=${CC}
+  - cmake . -DCMAKE_BUILD_TYPE=Release
+            -DCMAKE_COMPILER=${CC}
             -DCMAKE_CXX_COMPILER=${CXX}
 
 script:
   - make
   - make package
+
+deploy:
+  provider: releases
+  api_key:
+    secure: QZw1oGU/9HoLGwiTvjJGK/QkhzK3YXhnX33FYE9gz1R06K/OTtA+GXNtgcB+A0yziKfZhhSBeLizcVZ2AlyT5nHp+4WD5hkZlZGHbwiRIE7ZJtReyWwzwZ0WludvoE0Tt0/9hDernK+DsiFStbKv7ARNKKwwSmQBIONueIg7D0g=
+  file_glob: true
+  file:
+    - 'profiler-*-linux.tar.gz'
+  draft: true
+  skip_cleanup: true
+  on:
+    repo: Zeex/samp-plugin-profiler
+    tags: true
+    condition: "$CC = gcc"
