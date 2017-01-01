@@ -329,12 +329,11 @@ void Profiler::CompleteStop() {
 
 bool Profiler::Dump() const {
   try {
-    Printf("Dumping profiling statistics for %s", amx_name_.c_str());
-
     if (state_ < PROFILER_ATTACHED) {
-      Printf("Profiler not attached, nothing to dump");
       return false;
     }
+
+    Printf("Dumping profiling statistics for %s", amx_name_.c_str());
 
     std::vector<amxprof::FunctionStatistics*> fn_stats;
     profiler_.stats()->GetStatistics(fn_stats);
