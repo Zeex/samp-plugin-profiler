@@ -27,6 +27,7 @@
 
 #include <dirent.h>
 #include <fnmatch.h>
+#include <sys/stat.h>
 
 #include "fileutils.h"
 
@@ -38,14 +39,16 @@ const char *kNativePathSepString = "/";
 const char kNativePathListSepChar = ':';
 const char *kNativePathListSepString = ":";
 
-void GetDirectoryFiles(const std::string &directory, const std::string &pattern, 
-                       std::vector<std::string> &files) 
+void GetDirectoryFiles(const std::string &directory, const std::string &pattern,
+                       std::vector<std::string> &files)
 {
   DIR *dp;
   if ((dp = opendir(directory.c_str())) != 0) {
     struct dirent *dirp;
     while ((dirp = readdir(dp)) != 0) {
-      if (!fnmatch(pattern.c_str(), dirp->d_name, FNM_CASEFOLD | FNM_NOESCAPE | FNM_PERIOD)) {
+      if (!fnmatch(pattern.c_str(),
+                   dirp->d_name,
+                   FNM_CASEFOLD | FNM_NOESCAPE | FNM_PERIOD)) {
         files.push_back(dirp->d_name);
       }
     }
@@ -53,5 +56,13 @@ void GetDirectoryFiles(const std::string &directory, const std::string &pattern,
   }
 }
 
-} // namespace fileutils
+bool SameFile(const std::string &path1, const std::string &path2) {
+  struct stat stat1, stat2;
+  if (stat(path1.c_str(), &stat1) < 0 ||
+      stat(path2.c_str(), &stat2) < 0) {
+    return false;
+  }
+  return stat1.st_dev == stat2.st_dev && stat1.st_ino == stat2.st_ino;
+}
 
+} // namespace fileutils

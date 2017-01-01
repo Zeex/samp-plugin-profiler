@@ -48,6 +48,8 @@ void GetDirectoryFiles(const std::string &directory,
                        const std::string &pattern,
                        std::vector<std::string> &files);
 
+bool SameFile(const std::string &path1, const std::string &path2);
+
 } // namespace fileutils
 
 #endif // !FILEUTILS_H

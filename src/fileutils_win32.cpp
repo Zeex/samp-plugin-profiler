@@ -25,11 +25,25 @@
 #include <string>
 #include <vector>
 
-#include <Windows.h>
+#include <windows.h>
 
 #include "fileutils.h"
 
 namespace fileutils {
+
+namespace {
+
+HANDLE OpenFile(const std::string &path) {
+  return CreateFile(path.c_str(),
+                    GENERIC_READ,
+                    FILE_SHARE_READ | FILE_SHARE_WRITE,
+                    NULL,
+                    OPEN_EXISTING,
+                    FILE_ATTRIBUTE_NORMAL,
+                    NULL);
+}
+
+} // namespace
 
 const char kNativePathSepChar = '\\';
 const char *kNativePathSepString = "\\";
@@ -37,8 +51,9 @@ const char *kNativePathSepString = "\\";
 const char kNativePathListSepChar = ';';
 const char *kNativePathListSepString = ";";
 
-void GetDirectoryFiles(const std::string &directory, const std::string &pattern, 
-                       std::vector<std::string> &files) 
+void GetDirectoryFiles(const std::string &directory,
+                       const std::string &pattern,
+                       std::vector<std::string> &files)
 {
   std::string fileName;
   fileName.append(directory);
@@ -59,6 +74,44 @@ void GetDirectoryFiles(const std::string &directory, const std::string &pattern,
   } while (FindNextFile(hFindFile, &findFileData) != 0);
 
   FindClose(hFindFile);
+}
+
+bool SameFile(const std::string &path1, const std::string &path2) {
+  // Note: both files must stay open simultaneously, otherwise CreateFile()
+  // may return the same file ID for both files.
+
+  HANDLE file1_handle = OpenFile(path1);
+  if (file1_handle == INVALID_HANDLE_VALUE) {
+    return false;
+  }
+
+  BY_HANDLE_FILE_INFORMATION file1_info;
+  if (!GetFileInformationByHandle(file1_handle, &file1_info)) {
+    return false;
+  }
+
+  HANDLE file2_handle = OpenFile(path2);
+  if (file2_handle == INVALID_HANDLE_VALUE) {
+    CloseHandle(file1_handle);
+    return false;
+  }
+
+  BY_HANDLE_FILE_INFORMATION file2_info;
+  if (!GetFileInformationByHandle(file2_handle, &file2_info)) {
+    CloseHandle(file1_handle);
+    CloseHandle(file2_handle);
+    return false;
+  }
+
+  bool same_file =
+    file1_info.dwVolumeSerialNumber == file2_info.dwVolumeSerialNumber
+    && file1_info.nFileIndexLow == file2_info.nFileIndexLow
+    && file1_info.nFileIndexHigh == file2_info.nFileIndexHigh;
+
+  CloseHandle(file1_handle);
+  CloseHandle(file2_handle);
+
+  return same_file;
 }
 
 } // namespace fileutils

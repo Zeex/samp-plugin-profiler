@@ -137,8 +137,8 @@ bool ShouldBeProfiled(const std::string amx_path) {
     for (std::vector<std::string>::const_iterator iterator = gm_names.begin();
          iterator != gm_names.end(); ++iterator) {
       const std::string &gm_name = *iterator;
-      if (amx_path == "gamemodes/" + gm_name + ".amx" ||
-          amx_path == "gamemodes/" + gm_name) {
+      if (fileutils::SameFile(amx_path, "gamemodes/" + gm_name + ".amx") ||
+          fileutils::SameFile(amx_path, "gamemodes/" + gm_name)) {
         return true;
       }
     }
@@ -154,8 +154,8 @@ bool ShouldBeProfiled(const std::string amx_path) {
     for (std::vector<std::string>::const_iterator iterator = fs_names.begin();
          iterator != fs_names.end(); ++iterator) {
       const std::string &fs_name = *iterator;
-      if (amx_path == "filterscripts/" + fs_name + ".amx" ||
-          amx_path == "filterscripts/" + fs_name) {
+      if (fileutils::SameFile(amx_path, "filterscripts/" + fs_name + ".amx") ||
+          fileutils::SameFile(amx_path, "filterscripts/" + fs_name)) {
         return true;
       }
     }
