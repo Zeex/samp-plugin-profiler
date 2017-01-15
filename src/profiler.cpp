@@ -358,8 +358,8 @@ bool Profiler::Dump() const {
       num_calls += (*iterator)->num_calls();
     }
 
-    Printf("Total functions logged: %zu (native: %d, public: %d, other: %d)",
-           fn_stats.size(),
+    Printf("Total functions logged: %llu (native: %d, public: %d, other: %d)",
+           (unsigned long long)fn_stats.size(),
            num_native_functions,
            num_public_functions,
            num_other_functions);
