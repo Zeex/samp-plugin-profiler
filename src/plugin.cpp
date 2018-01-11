@@ -80,7 +80,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
   pAMXFunctions = exports;
   logprintf = (logprintf_t)ppData[PLUGIN_DATA_LOGPRINTF];
 
-  logprintf("  Profiler v" PROJECT_VERSION_STRING " is OK.");
+  logprintf("  Profiler plugin " PROJECT_VERSION_STRING);
   return true;
 }
 
