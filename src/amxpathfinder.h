@@ -22,59 +22,60 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef AMXPATH_H
-#define AMXPATH_H
+#ifndef AMXPATHFINDER_H
+#define AMXPATHFINDER_H
 
 #include <ctime>
+#include <list>
 #include <map>
-#include <set>
 #include <string>
 #include <amx/amx.h>
-#include <amx/amxaux.h>
 
-class AmxFile {
+class AMXPathFinder {
  public:
-  explicit AmxFile(std::string name);
-  ~AmxFile();
+  ~AMXPathFinder();
 
-  AMX *amx() { return amx_; }
-  const AMX *amx() const { return amx_; }
+  void AddSearchPath(std::string path);
+  void AddKnownFile(AMX *amx, std::string path);
 
-  bool is_loaded() const { return amx_ != 0; }
-
-  std::string name() const { return name_; }
-  std::time_t mtime() const { return mtime_; }
+  std::string Find(AMX *amx);
 
  private:
-  AmxFile(const AmxFile &);
-  void operator=(const AmxFile &);
+  std::list<std::string> search_paths_;
+
+  class AMXFile {
+   public:
+    explicit AMXFile(const std::string &name);
+    ~AMXFile();
+
+    bool IsLoaded() const { return amx_ != 0; }
+
+    const AMX *amx() const {
+      return amx_;
+    }
+    const std::string &name() const {
+      return name_;
+    }
+    std::time_t mtime() const {
+      return mtime_;
+    }
+
+   private:
+    AMXFile(const AMXFile &other);
+    AMXFile &operator=(const AMXFile &other);
+
+   private:
+    AMX *amx_;
+    std::string name_;
+    std::time_t mtime_;
+  };
 
  private:
-  AMX *amx_;
-  std::string name_;
-  std::time_t mtime_;
+  typedef std::map<std::string, AMXFile*> StringToAMXFileMap;
+  StringToAMXFileMap string_to_amx_file_;
+
+  typedef std::map<AMX*, std::string> AMXToStringMap;
+  AMXToStringMap amx_to_string_;
 };
 
-class AmxPathFinder {
- public:
-  ~AmxPathFinder();
-
-  void AddSearchDirectory(std::string path) {
-    search_dirs_.insert(path);
-  }
-
-  std::string FindAmxPath(AMX *amx) const;
-  std::string FindAmxPath(AMX_HEADER *amxhdr) const;
-
- private:
-  typedef std::set<std::string> DirSet;
-  DirSet search_dirs_;
-
-  typedef std::map<std::string, AmxFile*> FileCache;
-  mutable FileCache file_cache_;
-
-  typedef std::map<AMX*, std::string> PathCache;
-  mutable PathCache path_cache_;
-};
-
-#endif // !AMXPATH_H
+#endif // AMXPATHFINDER_H

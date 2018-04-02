@@ -42,10 +42,16 @@ enum ProfilerState {
   PROFILER_STOPPED
 };
 
+class AMXPathFinder;
+
 class ProfilerHandler : public AMXHandler<ProfilerHandler> {
  friend class AMXHandler<ProfilerHandler>;
 
  public:
+  void set_amx_path_finder(AMXPathFinder *finder) {
+    amx_path_finder_ = finder;
+  }
+
   int Load();
   int Unload();
 
@@ -67,6 +73,7 @@ class ProfilerHandler : public AMXHandler<ProfilerHandler> {
   void CompleteStop();
 
  private:
+  AMXPathFinder *amx_path_finder_;
   std::string amx_path_;
   std::string amx_name_;
   AMX_DEBUG prev_debug_;

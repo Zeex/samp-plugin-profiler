@@ -19,8 +19,8 @@ configure_file(pluginversion.h.in pluginversion.h @ONLY)
 
 set(PROFILER_SOURCES
   amxhandler.h
-  amxpath.cpp
-  amxpath.h
+  amxpathfinder.cpp
+  amxpathfinder.h
   amxplugin.cpp
   fileutils.cpp
   fileutils.h

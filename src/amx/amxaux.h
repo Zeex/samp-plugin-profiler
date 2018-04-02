@@ -26,8 +26,8 @@ extern  "C" {
 #endif
 
 /* loading and freeing programs */
-size_t AMXAPI aux_ProgramSize(char *filename);
-int AMXAPI aux_LoadProgram(AMX *amx, char *filename, void *memblock);
+size_t AMXAPI aux_ProgramSize(const char *filename);
+int AMXAPI aux_LoadProgram(AMX *amx, const char *filename, void *memblock);
 int AMXAPI aux_FreeProgram(AMX *amx);
 
 /* a readable error message from an error code */

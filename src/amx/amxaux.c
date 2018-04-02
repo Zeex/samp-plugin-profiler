@@ -22,7 +22,7 @@
 #include "amx.h"
 #include "amxaux.h"
 
-size_t AMXAPI aux_ProgramSize(char *filename)
+size_t AMXAPI aux_ProgramSize(const char *filename)
 {
   FILE *fp;
   AMX_HEADER hdr;
@@ -37,7 +37,7 @@ size_t AMXAPI aux_ProgramSize(char *filename)
   return (hdr.magic==AMX_MAGIC) ? (size_t)hdr.stp : 0;
 }
 
-int AMXAPI aux_LoadProgram(AMX *amx, char *filename, void *memblock)
+int AMXAPI aux_LoadProgram(AMX *amx, const char *filename, void *memblock)
 {
   FILE *fp;
   AMX_HEADER hdr;

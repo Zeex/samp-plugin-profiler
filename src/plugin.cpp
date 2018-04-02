@@ -23,24 +23,92 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include <cstring>
+#include <functional>
 #include <subhook.h>
+#ifdef _WIN32
+  #include <windows.h>
+#else
+  #include <stdio.h>
+#endif
+#include "amxpathfinder.h"
+#include "fileutils.h"
 #include "logprintf.h"
 #include "natives.h"
 #include "plugin.h"
 #include "pluginversion.h"
-#include "ProfilerHandler.h"
+#include "profilerhandler.h"
+#include "stringutils.h"
 
 extern void *pAMXFunctions;
-static void *exports[PLUGIN_AMX_EXPORT_UTF8Put + 1];
 
-static SubHook exec_hook;
+namespace {
 
-static int AMXAPI amx_Debug_Profiler(AMX *amx) {
+// Holds pointers to AMX functions. Usually setting pAMXFunctions is enough
+// but we want to replace amx_Align* functions without own versions.
+void *exports[PLUGIN_AMX_EXPORT_UTF8Put + 1];
+
+// amx_Exec() hook. This hook is used to intercept calls to public functions.
+SubHook exec_hook;
+
+// Path to the last loaded AMX file. This is used to make a connection between
+// *.amx files and their corresponding AMX instances.
+std::string last_amx_path;
+
+// Stores paths to loaded AMX files and is able to find a path by a pointer to
+// an AMX instance.
+AMXPathFinder amx_path_finder;
+
+#ifdef _WIN32
+  SubHook create_file_hook;
+
+  HANDLE
+  WINAPI
+  CreateFileHookA(
+      _In_ LPCSTR lpFileName,
+      _In_ DWORD dwDesiredAccess,
+      _In_ DWORD dwShareMode,
+      _In_opt_ LPSECURITY_ATTRIBUTES lpSecurityAttributes,
+      _In_ DWORD dwCreationDisposition,
+      _In_ DWORD dwFlagsAndAttributes,
+      _In_opt_ HANDLE hTemplateFile)
+  {
+    SubHook::ScopedRemove _(&create_file_hook);
+
+    std::string file_ext(fileutils::GetExtenstion(lpFileName));
+    if (stringutils::ToLower(file_ext) == "amx") {
+      last_amx_path = lpFileName;
+    }
+
+    return CreateFileA(
+      lpFileName,
+      dwDesiredAccess,
+      dwShareMode,
+      lpSecurityAttributes,
+      dwCreationDisposition,
+      dwFlagsAndAttributes,
+      hTemplateFile);
+  }
+#else
+  SubHook fopen_hook;
+
+  FILE *FopenHook(const char *filename, const char *mode) {
+    SubHook::ScopedRemove _(&fopen_hook);
+
+    std::string file_ext(fileutils::GetExtenstion(filename));
+    if (stringutils::ToLower(file_ext) == "amx") {
+      last_amx_path = filename;
+    }
+
+    return fopen(filename, mode);
+  }
+#endif
+
+int AMXAPI amx_Debug_Profiler(AMX *amx) {
   ProfilerHandler *profiler = ProfilerHandler::GetHandler(amx);
   return profiler->Debug();
 }
 
-static int AMXAPI amx_Callback_Profiler(AMX *amx,
+int AMXAPI amx_Callback_Profiler(AMX *amx,
                                         cell index,
                                         cell *result,
                                         cell *params) {
@@ -48,7 +116,7 @@ static int AMXAPI amx_Callback_Profiler(AMX *amx,
   return profiler->Callback(index, result, params);
 }
 
-static int AMXAPI amx_Exec_Profiler(AMX *amx, cell *retval, int index) {
+int AMXAPI amx_Exec_Profiler(AMX *amx, cell *retval, int index) {
   if (amx->flags & AMX_FLAG_BROWSE) {
     // Not an actual exec, just some internal AMX hack.
     return amx_Exec(amx, retval, index);
@@ -58,9 +126,11 @@ static int AMXAPI amx_Exec_Profiler(AMX *amx, cell *retval, int index) {
   }
 }
 
-static void *AMXAPI amx_Align_Profiler(void *v) {
+void *AMXAPI amx_Align_Profiler(void *v) {
   return v; // x86 is already little endian
 }
+
+} // anonymous namespace
 
 PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports() {
   return SUPPORTS_VERSION | SUPPORTS_AMX_NATIVES;
@@ -74,18 +144,42 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
   exports[PLUGIN_AMX_EXPORT_Align32] = (void *)amx_Align_Profiler;
   exports[PLUGIN_AMX_EXPORT_Align64] = (void *)amx_Align_Profiler;
 
-  exec_hook.Install(exports[PLUGIN_AMX_EXPORT_Exec], (void *)amx_Exec_Profiler);
+  exec_hook.Install(exports[PLUGIN_AMX_EXPORT_Exec],
+                    (void *)amx_Exec_Profiler);
   exports[PLUGIN_AMX_EXPORT_Exec] = exec_hook.GetTrampoline();
 
   pAMXFunctions = exports;
   logprintf = (logprintf_t)ppData[PLUGIN_DATA_LOGPRINTF];
+
+  #if _WIN32
+    create_file_hook.Install((void*)CreateFileA, (void*)CreateFileHookA);
+  #else
+    fopen_hook.Install((void*)fopen, (void*)FopenHook);
+  #endif
+
+  amx_path_finder.AddSearchPath("gamemodes");
+  amx_path_finder.AddSearchPath("filterscripts");
+
+  const char *amx_path_var = getenv("AMX_PATH");
+  if (amx_path_var != 0) {
+    stringutils::SplitString(
+      amx_path_var,
+      fileutils::kNativePathListSepChar,
+      std::bind1st(std::mem_fun(&AMXPathFinder::AddSearchPath),
+                   &amx_path_finder));
+  }
 
   logprintf("  Profiler plugin " PROJECT_VERSION_STRING);
   return true;
 }
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
+  if (last_amx_path.length() != 0) {
+    amx_path_finder.AddKnownFile(amx, last_amx_path);
+  }
+
   ProfilerHandler *profiler = ProfilerHandler::CreateHandler(amx);
+  profiler->set_amx_path_finder(&amx_path_finder);
 
   int error = profiler->Load();
   if (error != AMX_ERR_NONE) {

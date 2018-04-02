@@ -30,13 +30,14 @@
 #include <iterator>
 #include <sstream>
 #include <string>
+#include <amx/amxaux.h>
 #include <amxprof/call_graph_writer_dot.h>
 #include <amxprof/function.h>
 #include <amxprof/function_statistics.h>
 #include <amxprof/statistics_writer_html.h>
 #include <amxprof/statistics_writer_json.h>
 #include <amxprof/statistics_writer_text.h>
-#include "amxpath.h"
+#include "amxpathfinder.h"
 #include "fileutils.h"
 #include "logprintf.h"
 #include "profilerhandler.h"
@@ -150,23 +151,10 @@ ProfilerHandler::ProfilerHandler(AMX *amx)
    profiler_(amx, IsCallGraphEnabled()),
    state_(PROFILER_DISABLED)
 {
-  AmxPathFinder amx_path_finder;
-  amx_path_finder.AddSearchDirectory("gamemodes");
-  amx_path_finder.AddSearchDirectory("filterscripts");
+}
 
-  const char *amx_search_path = getenv("AMX_PATH");
-  if (amx_search_path != 0) {
-    std::vector<std::string> dirs;
-    stringutils::SplitString(amx_search_path,
-                             fileutils::kNativePathListSepChar,
-                             dirs);
-    for (std::vector<std::string>::const_iterator iterator = dirs.begin();
-         iterator != dirs.end(); ++iterator) {
-      amx_path_finder.AddSearchDirectory(*iterator);
-    }
-  }
-
-  amx_path_ = fileutils::ToUnixPath(amx_path_finder.FindAmxPath(amx));
+int ProfilerHandler::Load() {
+  amx_path_ = fileutils::ToUnixPath(amx_path_finder_->Find(amx()));
   amx_name_ = fileutils::GetDirectory(amx_path_)
             + "/"
             + fileutils::GetBaseName(amx_path_);
@@ -174,9 +162,6 @@ ProfilerHandler::ProfilerHandler(AMX *amx)
   if (amx_path_.empty()) {
     Printf("Could not find AMX file (try setting AMX_PATH?)");
   }
-}
-
-int ProfilerHandler::Load() {
   if (ShouldBeProfiled(amx_path_)) {
     Attach();
   }
