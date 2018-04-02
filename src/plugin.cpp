@@ -28,7 +28,7 @@
 #include "natives.h"
 #include "plugin.h"
 #include "pluginversion.h"
-#include "profiler.h"
+#include "ProfilerHandler.h"
 
 extern void *pAMXFunctions;
 static void *exports[PLUGIN_AMX_EXPORT_UTF8Put + 1];
@@ -36,7 +36,7 @@ static void *exports[PLUGIN_AMX_EXPORT_UTF8Put + 1];
 static SubHook exec_hook;
 
 static int AMXAPI amx_Debug_Profiler(AMX *amx) {
-  Profiler *profiler = Profiler::GetInstance(amx);
+  ProfilerHandler *profiler = ProfilerHandler::GetHandler(amx);
   return profiler->Debug();
 }
 
@@ -44,7 +44,7 @@ static int AMXAPI amx_Callback_Profiler(AMX *amx,
                                         cell index,
                                         cell *result,
                                         cell *params) {
-  Profiler *profiler = Profiler::GetInstance(amx);
+  ProfilerHandler *profiler = ProfilerHandler::GetHandler(amx);
   return profiler->Callback(index, result, params);
 }
 
@@ -53,7 +53,7 @@ static int AMXAPI amx_Exec_Profiler(AMX *amx, cell *retval, int index) {
     // Not an actual exec, just some internal AMX hack.
     return amx_Exec(amx, retval, index);
   } else {
-    Profiler *profiler = Profiler::GetInstance(amx);
+    ProfilerHandler *profiler = ProfilerHandler::GetHandler(amx);
     return profiler->Exec(retval, index);
   }
 }
@@ -85,7 +85,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
 }
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
-  Profiler *profiler = Profiler::CreateInstance(amx);
+  ProfilerHandler *profiler = ProfilerHandler::CreateHandler(amx);
 
   int error = profiler->Load();
   if (error != AMX_ERR_NONE) {
@@ -107,12 +107,12 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx) {
 }
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx) {
-  Profiler *profiler = Profiler::GetInstance(amx);
+  ProfilerHandler *profiler = ProfilerHandler::GetHandler(amx);
 
   int error = profiler->Unload();
   profiler->Stop();
   profiler->Dump();
 
-  Profiler::DestroyInstance(amx);
+  ProfilerHandler::DestroyHandler(amx);
   return error;
 }

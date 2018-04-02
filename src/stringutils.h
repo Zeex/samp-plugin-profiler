@@ -1,4 +1,4 @@
-// Copyright (C) 2014-2015 Zeex
+// Copyright (c) 2018 Zeex
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -22,37 +22,30 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include "natives.h"
-#include "profilerhandler.h"
+#include <string>
+#include <vector>
 
-namespace {
+namespace stringutils {
 
-cell AMX_NATIVE_CALL Profiler_GetState(AMX *amx, cell *params) {
-  return static_cast<cell>(ProfilerHandler::GetHandler(amx)->GetState());
+void SplitString(const std::string &s,
+                 char delim,
+                 std::vector<std::string> &parts);
+
+template<typename Func>
+void SplitString(const std::string &s, char delim, Func func) {
+  std::string::size_type begin = 0;
+  std::string::size_type end;
+
+  while (begin < s.length()) {
+    end = s.find(delim, begin);
+    end = (end == std::string::npos) ? s.length() : end;
+    func(std::string(s.begin() + begin,
+                     s.begin() + end));
+    begin = end + 1;
+  }
 }
 
-cell AMX_NATIVE_CALL Profiler_Start(AMX *amx, cell *params) {
-  return ProfilerHandler::GetHandler(amx)->Start();
-}
+std::string ToLower(const std::string &s);
+std::string ToUpper(const std::string &s);
 
-cell AMX_NATIVE_CALL Profiler_Stop(AMX *amx, cell *params) {
-  return ProfilerHandler::GetHandler(amx)->Stop();
-}
-
-cell AMX_NATIVE_CALL Profiler_Dump(AMX *amx, cell *params) {
-  return ProfilerHandler::GetHandler(amx)->Dump();
-}
-
-const AMX_NATIVE_INFO natives[] = {
-  { "Profiler_GetState", Profiler_GetState },
-  { "Profiler_Start",    Profiler_Start },
-  { "Profiler_Stop",     Profiler_Stop },
-  { "Profiler_Dump",     Profiler_Dump }
-};
-
-} // anonymous namespace
-
-int RegisterNatives(AMX *amx) {
-  std::size_t num_natives = sizeof(natives) / sizeof(AMX_NATIVE_INFO);
-  return amx_Register(amx, natives, static_cast<int>(num_natives));
-}
+} // namespace stringutils

@@ -39,7 +39,8 @@
 #include "amxpath.h"
 #include "fileutils.h"
 #include "logprintf.h"
-#include "profiler.h"
+#include "profilerhandler.h"
+#include "stringutils.h"
 
 #define logprintf Use_Printf_isntead_of_logprintf
 
@@ -92,29 +93,6 @@ void PrintException(const std::exception &e) {
   Printf("Error: %s", e.what());
 }
 
-void SplitString(const std::string &s,
-                 char delim,
-                 std::vector<std::string> &comps) {
-  std::string::size_type begin = 0;
-  std::string::size_type end;
-
-  while (begin < s.length()) {
-    end = s.find(delim, begin);
-    end = (end == std::string::npos) ? s.length() : end;
-    comps.push_back(std::string(s.begin() + begin, s.begin() + end));
-    begin = end + 1;
-  }
-}
-
-void ToLower(std::string &s) {
-  std::transform(s.begin(), s.end(), s.begin(), ::tolower);
-}
-
-std::string ToUnixPath(std::string path) {
-  std::replace(path.begin(), path.end(), '\\', '/');
-  return path;
-}
-
 bool IsCallGraphEnabled() {
   return cfg::call_graph || cfg::old::call_graph;
 }
@@ -133,7 +111,7 @@ bool ShouldBeProfiled(const std::string amx_path) {
       return true;
     }
     std::vector<std::string> gm_names;
-    SplitString(cfg::gamemodes, ' ', gm_names);
+    stringutils::SplitString(cfg::gamemodes, ' ', gm_names);
     for (std::vector<std::string>::const_iterator iterator = gm_names.begin();
          iterator != gm_names.end(); ++iterator) {
       const std::string &gm_name = *iterator;
@@ -165,8 +143,8 @@ bool ShouldBeProfiled(const std::string amx_path) {
 
 } // anonymous namespace
 
-Profiler::Profiler(AMX *amx)
- : AMXService<Profiler>(amx),
+ProfilerHandler::ProfilerHandler(AMX *amx)
+ : AMXHandler<ProfilerHandler>(amx),
    prev_debug_(amx->debug),
    prev_callback_(amx->callback),
    profiler_(amx, IsCallGraphEnabled()),
@@ -179,14 +157,16 @@ Profiler::Profiler(AMX *amx)
   const char *amx_search_path = getenv("AMX_PATH");
   if (amx_search_path != 0) {
     std::vector<std::string> dirs;
-    SplitString(amx_search_path, fileutils::kNativePathListSepChar, dirs);
+    stringutils::SplitString(amx_search_path,
+                             fileutils::kNativePathListSepChar,
+                             dirs);
     for (std::vector<std::string>::const_iterator iterator = dirs.begin();
          iterator != dirs.end(); ++iterator) {
       amx_path_finder.AddSearchDirectory(*iterator);
     }
   }
 
-  amx_path_ = ToUnixPath(amx_path_finder.FindAmxPath(amx));
+  amx_path_ = fileutils::ToUnixPath(amx_path_finder.FindAmxPath(amx));
   amx_name_ = fileutils::GetDirectory(amx_path_)
             + "/"
             + fileutils::GetBaseName(amx_path_);
@@ -196,18 +176,18 @@ Profiler::Profiler(AMX *amx)
   }
 }
 
-int Profiler::Load() {
+int ProfilerHandler::Load() {
   if (ShouldBeProfiled(amx_path_)) {
     Attach();
   }
   return AMX_ERR_NONE;
 }
 
-int Profiler::Unload() {
+int ProfilerHandler::Unload() {
   return AMX_ERR_NONE;
 }
 
-int Profiler::Debug() {
+int ProfilerHandler::Debug() {
   if (state_ == PROFILER_STARTED) {
     try {
       return profiler_.DebugHook(prev_debug_);
@@ -221,7 +201,7 @@ int Profiler::Debug() {
   return AMX_ERR_NONE;
 }
 
-int Profiler::Callback(cell index, cell *result, cell *params) {
+int ProfilerHandler::Callback(cell index, cell *result, cell *params) {
   if (state_ == PROFILER_STARTED) {
     try {
       return profiler_.CallbackHook(index, result, params, prev_callback_);
@@ -232,7 +212,7 @@ int Profiler::Callback(cell index, cell *result, cell *params) {
   return prev_callback_(amx(), index, result, params);
 }
 
-int Profiler::Exec(cell *retval, int index) {
+int ProfilerHandler::Exec(cell *retval, int index) {
   if (profiler_.call_stack()->is_empty()) {
     switch (state_) {
       case PROFILER_ATTACHING:
@@ -260,11 +240,11 @@ int Profiler::Exec(cell *retval, int index) {
   return amx_Exec(amx(), retval, index);
 }
 
-ProfilerState Profiler::GetState() const {
+ProfilerState ProfilerHandler::GetState() const {
   return state_;
 }
 
-bool Profiler::Attach() {
+bool ProfilerHandler::Attach() {
   try {
     if (amx_path_.empty()) {
       return false;
@@ -297,7 +277,7 @@ bool Profiler::Attach() {
   return false;
 }
 
-bool Profiler::Start() {
+bool ProfilerHandler::Start() {
   if (state_ < PROFILER_ATTACHED) {
     state_ = PROFILER_ATTACHING;
     return true;
@@ -309,12 +289,12 @@ bool Profiler::Start() {
   return false;
 }
 
-void Profiler::CompleteStart() {
+void ProfilerHandler::CompleteStart() {
   Printf("Started profiling %s", amx_name_.c_str());
   state_ = PROFILER_STARTED;
 }
 
-bool Profiler::Stop() {
+bool ProfilerHandler::Stop() {
   if (state_ >= PROFILER_STARTED) {
     state_ = PROFILER_STOPPING;
     return true;
@@ -322,12 +302,12 @@ bool Profiler::Stop() {
   return false;
 }
 
-void Profiler::CompleteStop() {
+void ProfilerHandler::CompleteStop() {
   Printf("Stopped profiling %s", amx_name_.c_str());
   state_ = PROFILER_STOPPED;
 }
 
-bool Profiler::Dump() const {
+bool ProfilerHandler::Dump() const {
   try {
     if (state_ < PROFILER_ATTACHED) {
       return false;
@@ -369,7 +349,7 @@ bool Profiler::Dump() const {
     if (output_format.empty()) {
       output_format = cfg::old::profile_format;
     }
-    ToLower(output_format);
+    stringutils::ToLower(output_format);
     std::string profile_filename =
         amx_name_ + "-profile." + output_format;
     std::ofstream profile_stream(profile_filename.c_str());
@@ -407,7 +387,7 @@ bool Profiler::Dump() const {
       if (call_graph_format.empty()) {
         call_graph_format = cfg::old::call_graph_format;
       }
-      ToLower(call_graph_format);
+      stringutils::ToLower(call_graph_format);
       std::string call_graph_filename =
           amx_name_ + "-calls." + call_graph_format;
       std::ofstream call_graph_stream(call_graph_filename.c_str());

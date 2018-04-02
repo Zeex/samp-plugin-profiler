@@ -50,6 +50,8 @@ void GetDirectoryFiles(const std::string &directory,
 
 bool SameFile(const std::string &path1, const std::string &path2);
 
+std::string ToUnixPath(std::string path);
+
 } // namespace fileutils
 
 #endif // !FILEUTILS_H

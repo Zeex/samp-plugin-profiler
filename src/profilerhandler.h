@@ -1,4 +1,4 @@
-// Copyright (C) 2014-2015 Zeex
+// Copyright (c) 2011-2015 Zeex
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -22,37 +22,58 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include "natives.h"
-#include "profilerhandler.h"
+#ifndef PROFILER_H
+#define PROFILER_H
 
-namespace {
+#include <configreader.h>
+#include <amxprof/debug_info.h>
+#include <amxprof/profiler.h>
+#include "amxhandler.h"
 
-cell AMX_NATIVE_CALL Profiler_GetState(AMX *amx, cell *params) {
-  return static_cast<cell>(ProfilerHandler::GetHandler(amx)->GetState());
-}
+typedef amxprof::AMX_EXEC AMX_EXEC;
 
-cell AMX_NATIVE_CALL Profiler_Start(AMX *amx, cell *params) {
-  return ProfilerHandler::GetHandler(amx)->Start();
-}
-
-cell AMX_NATIVE_CALL Profiler_Stop(AMX *amx, cell *params) {
-  return ProfilerHandler::GetHandler(amx)->Stop();
-}
-
-cell AMX_NATIVE_CALL Profiler_Dump(AMX *amx, cell *params) {
-  return ProfilerHandler::GetHandler(amx)->Dump();
-}
-
-const AMX_NATIVE_INFO natives[] = {
-  { "Profiler_GetState", Profiler_GetState },
-  { "Profiler_Start",    Profiler_Start },
-  { "Profiler_Stop",     Profiler_Stop },
-  { "Profiler_Dump",     Profiler_Dump }
+enum ProfilerState {
+  PROFILER_DISABLED,
+  PROFILER_ATTACHING,
+  PROFILER_ATTACHED,
+  PROFILER_STARTING,
+  PROFILER_STARTED,
+  PROFILER_STOPPING,
+  PROFILER_STOPPED
 };
 
-} // anonymous namespace
+class ProfilerHandler : public AMXHandler<ProfilerHandler> {
+ friend class AMXHandler<ProfilerHandler>;
 
-int RegisterNatives(AMX *amx) {
-  std::size_t num_natives = sizeof(natives) / sizeof(AMX_NATIVE_INFO);
-  return amx_Register(amx, natives, static_cast<int>(num_natives));
-}
+ public:
+  int Load();
+  int Unload();
+
+  int Debug();
+  int Callback(cell index, cell *result, cell *params);
+  int Exec(cell *retval, int index);
+
+ public:
+  ProfilerState GetState() const;
+  bool Attach();
+  bool Start();
+  bool Stop();
+  bool Dump() const;
+
+ private:
+  ProfilerHandler(AMX *amx);
+
+  void CompleteStart();
+  void CompleteStop();
+
+ private:
+  std::string amx_path_;
+  std::string amx_name_;
+  AMX_DEBUG prev_debug_;
+  AMX_CALLBACK prev_callback_;
+  amxprof::Profiler profiler_;
+  amxprof::DebugInfo debug_info_;
+  ProfilerState state_;
+};
+
+#endif // !PROFILER_H

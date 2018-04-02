@@ -18,10 +18,10 @@ configure_file(plugin.rc.in plugin.rc @ONLY)
 configure_file(pluginversion.h.in pluginversion.h @ONLY)
 
 set(PROFILER_SOURCES
+  amxhandler.h
   amxpath.cpp
   amxpath.h
   amxplugin.cpp
-  amxservice.h
   fileutils.cpp
   fileutils.h
   logprintf.cpp
@@ -34,8 +34,10 @@ set(PROFILER_SOURCES
   plugin.def
   ${CMAKE_CURRENT_BINARY_DIR}/plugin.rc
   ${CMAKE_CURRENT_BINARY_DIR}/pluginversion.h
-  profiler.cpp
-  profiler.h
+  profilerhandler.cpp
+  profilerhandler.h
+  stringutils.cpp
+  stringutils.h
 )
 
 if(WIN32)

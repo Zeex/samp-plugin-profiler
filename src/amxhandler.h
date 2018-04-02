@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2015 Zeex
+// Copyright (c) 2012-2015 Zeex
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -22,58 +22,62 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef PROFILER_H
-#define PROFILER_H
+#ifndef AMXHANDLER_H
+#define AMXHANDLER_H
 
-#include <configreader.h>
-#include <amxprof/debug_info.h>
-#include <amxprof/profiler.h>
-#include "amxservice.h"
+#include <map>
+#include <amx/amx.h>
 
-typedef amxprof::AMX_EXEC AMX_EXEC;
+template<typename T>
+class AMXHandler {
+ public:
+  AMXHandler(AMX *amx) : amx_(amx) {}
 
-enum ProfilerState {
-  PROFILER_DISABLED,
-  PROFILER_ATTACHING,
-  PROFILER_ATTACHED,
-  PROFILER_STARTING,
-  PROFILER_STARTED,
-  PROFILER_STOPPING,
-  PROFILER_STOPPED
-};
-
-class Profiler : public AMXService<Profiler> {
- friend class AMXService<Profiler>;
+  AMX *amx() const { return amx_; }
 
  public:
-  int Load();
-  int Unload();
-
-  int Debug();
-  int Callback(cell index, cell *result, cell *params);
-  int Exec(cell *retval, int index);
-
- public:
-  ProfilerState GetState() const;
-  bool Attach();
-  bool Start();
-  bool Stop();
-  bool Dump() const;
+  static T *CreateHandler(AMX *amx);
+  static T *GetHandler(AMX *amx);
+  static void DestroyHandler(AMX *amx);
 
  private:
-  Profiler(AMX *amx);
-
-  void CompleteStart();
-  void CompleteStop();
+  AMX *amx_;
 
  private:
-  std::string amx_path_;
-  std::string amx_name_;
-  AMX_DEBUG prev_debug_;
-  AMX_CALLBACK prev_callback_;
-  amxprof::Profiler profiler_;
-  amxprof::DebugInfo debug_info_;
-  ProfilerState state_;
+  typedef std::map<AMX*, T*> HandlerMap;
+  static HandlerMap handlers_;
 };
 
-#endif // !PROFILER_H
+template<typename T>
+typename AMXHandler<T>::HandlerMap AMXHandler<T>::handlers_;
+
+// static
+template<typename T>
+T *AMXHandler<T>::CreateHandler(AMX *amx) {
+  T *handler = new T(amx);
+  handlers_.insert(std::make_pair(amx, handler));
+  return handler;
+}
+
+// static
+template<typename T>
+T *AMXHandler<T>::GetHandler(AMX *amx) {
+  typename HandlerMap::const_iterator iterator = handlers_.find(amx);
+  if (iterator != handlers_.end()) {
+    return iterator->second;
+  }
+  return 0;
+}
+
+// static
+template<typename T>
+void AMXHandler<T>::DestroyHandler(AMX *amx) {
+  typename HandlerMap::iterator iterator = handlers_.find(amx);
+  if (iterator != handlers_.end()) {
+    T *handler = iterator->second;
+    handlers_.erase(iterator);
+    delete handler;
+  }
+}
+
+#endif // !AMXHANDLER_H

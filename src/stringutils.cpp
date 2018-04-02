@@ -1,4 +1,4 @@
-// Copyright (c) 2012-2015 Zeex
+// Copyright (c) 2018 Zeex
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -22,63 +22,43 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef AMXSERVICE_H
-#define AMXSERVICE_H
+#include <algorithm>
+#include <cctype>
+#include "stringutils.h"
 
-#include <map>
+namespace stringutils {
 
-#include <amx/amx.h>
+void SplitString(const std::string &s,
+                 char delim,
+                 std::vector<std::string> &parts) {
+  std::string::size_type begin = 0;
+  std::string::size_type end;
 
-template<typename T>
-class AMXService {
- public:
-  AMXService(AMX *amx) : amx_(amx) {}
-
-  AMX *amx() const { return amx_; }
-
- public:
-  static T *CreateInstance(AMX *amx);
-  static T *GetInstance(AMX *amx);
-  static void DestroyInstance(AMX *amx);
-
- private:
-  AMX *amx_;
-
- private:
-  typedef std::map<AMX*, T*> ServiceMap;
-  static ServiceMap service_map_;
-};
-
-template<typename T>
-typename AMXService<T>::ServiceMap AMXService<T>::service_map_;
-
-// static
-template<typename T>
-T *AMXService<T>::CreateInstance(AMX *amx) {
-  T *service = new T(amx);
-  service_map_.insert(std::make_pair(amx, service));
-  return service;
-}
-
-// static
-template<typename T>
-T *AMXService<T>::GetInstance(AMX *amx) {
-  typename ServiceMap::const_iterator iterator = service_map_.find(amx);
-  if (iterator != service_map_.end()) {
-    return iterator->second;
-  }
-  return CreateInstance(amx);
-}
-
-// static
-template<typename T>
-void AMXService<T>::DestroyInstance(AMX *amx) {
-  typename ServiceMap::iterator iterator = service_map_.find(amx);
-  if (iterator != service_map_.end()) {
-    T *service = iterator->second;
-    service_map_.erase(iterator);
-    delete service;
+  while (begin < s.length()) {
+    end = s.find(delim, begin);
+    end = (end == std::string::npos) ? s.length() : end;
+    parts.push_back(std::string(s.begin() + begin, s.begin() + end));
+    begin = end + 1;
   }
 }
 
-#endif // !AMXSERVICE_H
+template<typename CharTransformer>
+std::string TransformString(const std::string &s, 
+                            CharTransformer transformer) {
+  std::string t;
+  t.reserve(s.length());
+  for (std::string::const_iterator it = s.begin(); it != s.end(); it++) {
+    t.push_back(transformer(*it));
+  }
+  return t;
+}
+
+std::string ToLower(const std::string &s) {
+  return TransformString(s, ::tolower);
+}
+
+std::string ToUpper(const std::string &s) {
+  return TransformString(s, ::toupper);
+}
+
+} // namespace stringutils

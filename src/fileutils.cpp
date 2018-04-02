@@ -22,6 +22,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#include <algorithm>
 #include <ctime>
 #include <string>
 #include <vector>
@@ -71,6 +72,11 @@ std::time_t GetModificationTime(const std::string &path) {
     return attrib.st_mtime;
   }
   return 0;
+}
+
+std::string ToUnixPath(std::string path) {
+  std::replace(path.begin(), path.end(), '\\', '/');
+  return path;
 }
 
 } // namespace fileutils
