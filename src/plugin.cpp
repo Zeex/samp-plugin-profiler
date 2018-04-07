@@ -49,7 +49,7 @@ namespace {
 void *exports[PLUGIN_AMX_EXPORT_UTF8Put + 1];
 
 // amx_Exec() hook. This hook is used to intercept calls to public functions.
-SubHook exec_hook;
+subhook::Hook exec_hook;
 
 // Path to the last loaded AMX file. This is used to make a connection between
 // *.amx files and their corresponding AMX instances.
@@ -60,7 +60,7 @@ std::string last_amx_path;
 AMXPathFinder amx_path_finder;
 
 #ifdef _WIN32
-  SubHook create_file_hook;
+  subhook::Hook create_file_hook;
 
   HANDLE
   WINAPI
@@ -73,7 +73,7 @@ AMXPathFinder amx_path_finder;
       _In_ DWORD dwFlagsAndAttributes,
       _In_opt_ HANDLE hTemplateFile)
   {
-    SubHook::ScopedRemove _(&create_file_hook);
+    subhook::ScopedHookRemove _(&create_file_hook);
 
     std::string file_ext(fileutils::GetExtenstion(lpFileName));
     if (stringutils::ToLower(file_ext) == "amx") {
@@ -90,10 +90,10 @@ AMXPathFinder amx_path_finder;
       hTemplateFile);
   }
 #else
-  SubHook fopen_hook;
+  subhook::Hook fopen_hook;
 
   FILE *FopenHook(const char *filename, const char *mode) {
-    SubHook::ScopedRemove _(&fopen_hook);
+    subhook::ScopedHookRemove _(&fopen_hook);
 
     std::string file_ext(fileutils::GetExtenstion(filename));
     if (stringutils::ToLower(file_ext) == "amx") {
