@@ -6,15 +6,15 @@
             "name": "^profiler-(.*)-linux.tar.gz$",
             "platform": "linux",
             "archive": true,
-            "includes": ["."],
-            "plugins": ["profiler.so"]
+            "includes": ["profiler-.+"],
+            "plugins": ["profiler-.+\\/profiler.so"]
         },
         {
             "name": "^profiler-(.*)-win32.zip$",
             "platform": "windows",
             "archive": true,
-            "includes": ["."],
-            "plugins": ["profiler.dll"]
+            "includes": ["profiler-.+"],
+            "plugins": ["profiler-.+\\/profiler.dll"]
         }
     ],
     "contributors": ["Zeex"],
