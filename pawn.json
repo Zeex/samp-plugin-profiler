@@ -1,0 +1,24 @@
+{
+    "user": "Zeex",
+    "repo": "samp-plugin-profiler",
+    "resources": [
+        {
+            "name": "^profiler-(.*)-linux.tar.gz$",
+            "platform": "linux",
+            "archive": true,
+            "includes": ["profiler-.+"],
+            "plugins": ["profiler-.+\\/profiler.so"]
+        },
+        {
+            "name": "^profiler-(.*)-win32.zip$",
+            "platform": "windows",
+            "archive": true,
+            "includes": ["profiler-.+"],
+            "plugins": ["profiler-.+\\/profiler.dll"]
+        }
+    ],
+    "contributors": ["Zeex"],
+    "runtime": {
+        "plugins": ["Zeex/profiler"]
+    }
+}
