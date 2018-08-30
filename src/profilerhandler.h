@@ -22,8 +22,8 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef PROFILER_H
-#define PROFILER_H
+#ifndef PROFILERHANDLER_H
+#define PROFILERHANDLER_H
 
 #include <configreader.h>
 #include <amxprof/debug_info.h>
@@ -83,4 +83,4 @@ class ProfilerHandler : public AMXHandler<ProfilerHandler> {
   ProfilerState state_;
 };
 
-#endif // !PROFILER_H
+#endif // !PROFILERHANDLER_H
