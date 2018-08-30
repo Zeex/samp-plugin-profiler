@@ -24,11 +24,9 @@
 
 #include <string>
 #include <vector>
-
 #include <dirent.h>
 #include <fnmatch.h>
 #include <sys/stat.h>
-
 #include "fileutils.h"
 
 namespace fileutils {

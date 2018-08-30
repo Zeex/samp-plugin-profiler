@@ -24,9 +24,7 @@
 
 #include <string>
 #include <vector>
-
 #include <windows.h>
-
 #include "fileutils.h"
 
 namespace fileutils {

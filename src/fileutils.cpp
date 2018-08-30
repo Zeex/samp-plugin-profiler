@@ -24,10 +24,11 @@
 
 #include <algorithm>
 #include <ctime>
+#include <cstring>
 #include <string>
 #include <vector>
-
 #include <sys/stat.h>
+#include "fileutils.h"
 
 namespace fileutils {
 
