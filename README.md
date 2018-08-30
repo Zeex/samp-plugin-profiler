@@ -12,13 +12,17 @@ graph based on the collected information.
 Installation
 ------------
 
-1. Download a compiled plugin form the [Releases][download] page on Github or
-build it yourself from source code (see below).
+1. Download a binary package n form the [Releases][download] page on Github
+   or build it yourself from source code (see below).
 2. Extract/copy `profiler.so` or `profiler.dll` to `<sever>/plugins/`.
 3. Add `profiler` (Windows) or `profiler.so` (Linux) to the `plugins` line of
    your server.cfg.
 4. Enable profiling of your gamemode or filterscripts via server.cfg
    (see [Configuration](#configuration)).
+   
+Binary archives come with an include file (`profiler.inc`) that contains
+some helper functions that you may find useful. But **you don't need to
+include** it to be able to use the plugin, it's not required.
 
 Configuration
 -------------
