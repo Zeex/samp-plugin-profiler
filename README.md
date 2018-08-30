@@ -75,11 +75,12 @@ the list of available settings:
 
 	Same as `profiler_callgraphformat`.
 
-Build instructions
-------------------
+Building from source code
+-------------------------
 
-If you want to compile profiler from source code, e.g. to fix a bug and
-submit a pull request, simply follow the steps below.
+If you want to build the plugin from source code, e.g. to fix a bug and 
+submit a pull request, simply follow the steps below. You will need a C++ 
+compiler and CMake.
 
 ### Linux
 
