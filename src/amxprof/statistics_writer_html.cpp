@@ -45,7 +45,7 @@ void StatisticsWriterHtml::Write(const Statistics *stats)
   "          src=\"http://code.jquery.com/jquery-latest.min.js\">\n"
   "  </script>\n"
   "  <script type=\"text/javascript\"\n"
-  "          src=\"http://tablesorter.com/__jquery.tablesorter.min.js\">\n"
+  "          src=\"https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.1/js/jquery.tablesorter.min.js\">\n"
   "  </script>\n"
   "  <script type=\"text/javascript\">\n"
   "    $(document).ready(function() {\n"
