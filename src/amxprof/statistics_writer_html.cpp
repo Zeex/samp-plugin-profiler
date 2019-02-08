@@ -36,113 +36,172 @@ namespace amxprof {
 
 void StatisticsWriterHtml::Write(const Statistics *stats)
 {
-  *stream() <<
-  "<!DOCTYPE html>\n"
-  "<html>\n"
-  "<head>\n"
-  "  <title>" << "Profile of '" << script_name() << "'</title>\n"
-  "  <script type=\"text/javascript\"\n"
-  "          src=\"http://code.jquery.com/jquery-latest.min.js\">\n"
-  "  </script>\n"
-  "  <script type=\"text/javascript\"\n"
-  "          src=\"https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.1/js/jquery.tablesorter.min.js\">\n"
-  "  </script>\n"
-  "  <script type=\"text/javascript\">\n"
-  "    $(document).ready(function() {\n"
-  "      $('#data').tablesorter();\n"
-  "      $('#data th').hover(function () {\n"
-  "        $(this).css({ cursor: 'pointer' });\n"
-  "      });\n"
-  "    });\n"
-  "  </script>\n"
-  "</head>\n"
-  "<body>\n"
-  ;
-
-  *stream() <<
-  "  <style type=\"text/css\">\n"
-  "    table {\n"
-  "      margin: 0 auto;\n"
-  "    }\n"
-  "    table, th, td {\n"
-  "      border: thin solid #555;\n"
-  "      border-collapse: collapse;\n"
-  "      padding: 7px 10px;\n"
-  "    }\n"
-  "    th, td {\n"
-  "      border: none;\n"
-  "    }\n"
-  "    th {\n"
-  "      color: white;\n"
-  "      background-color: #555;\n"
-  "    }\n"
-  "    td {\n"
-  "      font-family: Consolas, \"DejaVu Sans Mono\", "
-  "\"Courier New\", Monospace;\n"
-  "    }\n"
-  "    td.numeric {\n"
-  "      text-align: right;\n"
-  "    }\n"
-  "    tbody tr:nth-child(odd) {\n"
-  "      background-color: #eee;\n"
-  "    }\n"
-  "    tbody tr:hover {\n"
-  "      background-color: #c0e3eb;\n"
-  "    }\n"
-  "  </style>\n"
-  "  <table id=\"meta\">\n"
-  "    <thead>\n"
-  "      <tr>\n"
-  "        <th colspan=\"2\">Meta</th>\n"
-  "      </tr>\n"
-  "    </thead>\n"
-  "    <tbody>\n"
-  ;
+  *stream() << "\
+<!DOCTYPE html>\n\
+<html>\n\
+<head>\n\
+  <title>Profile of 'gamemodes/grandlarc.amx'</title>\n\
+  <meta charset=\"UTF-8\">\n\
+\n\
+  <script type=\"text/javascript\">\n\
+    var intComparator = function(a, b) { \n\
+      return parseInt(a) - parseInt(b); \n\
+    };\n\
+    var floatComparator = function(a, b) { \n\
+      return parseFloat(a) - parseFloat(b); \n\
+    };\n\
+    var stringComparator = function(a, b) {\n\
+      return String(a).localeCompare(b);\n\
+    };\n\
+\n\
+    function sort(table, colIndex, reverseOrder) {\n\
+      var tbody = table.tBodies[0];\n\
+      var rows = Array.prototype.slice.call(tbody.getElementsByTagName('tr'));\n\
+\n\
+      for (var i = 0; i < rows.length; i++) {\n\
+        var row = rows[i];\n\
+        var value = row.cells[colIndex].innerHTML;\n\
+        var comparator;\n\
+        if (/^[0-9]+/.test(value)) {\n\
+          comparator = intComparator;\n\
+        } else if (/^[0-9.]+/.test(value)) {\n\
+          comparator = floatComparator;\n\
+        } else {\n\
+          comparator = stringComparator;\n\
+        }\n\
+        var sign = reverseOrder ? -1 : 1;\n\
+        for (var j = 0; j < i; j++) {\n\
+          var otherRow = rows[j];\n\
+          var otherValue = otherRow.cells[colIndex].innerHTML;\n\
+          if (sign * comparator(value, otherValue) < 0) {\n\
+            tbody.removeChild(row);\n\
+            rows.splice(i, 1);\n\
+            tbody.insertBefore(row, otherRow);\n\
+            rows.splice(j, 0, row);\n\
+            break;\n\
+          }\n\
+        }\n\
+      }\n\
+    }\n\
+\n\
+    document.addEventListener('DOMContentLoaded', function() {\n\
+      var asc = {};\n\
+      var table = document.getElementById('data');\n\
+      var headRows = table.tHead.getElementsByTagName('tr');\n\
+\n\
+      for (var i = 0; i < headRows.length; i++) {\n\
+        var row = headRows[i];\n\
+        for (var j = 0; j < row.cells.length; j++) {\n\
+          var cell = row.cells[j];\n\
+          var arrow = document.createElement('span');\n\
+          arrow.className = 'sort-direction';\n\
+          cell.appendChild(arrow);\n\
+          cell.style.cursor = 'pointer';\n\
+          (function(cell, arrow) {\n\
+            var colIndex = cell.dataset.sortIndex;\n\
+            cell.addEventListener('click', function() {\n\
+              sort(table, colIndex, !!asc[colIndex]);\n\
+              for (var i = 0; i < headRows.length; i++) {\n\
+                var row = headRows[i];\n\
+                for (var j = 0; j < row.cells.length; j++) {\n\
+                  var arrows = \n\
+                    row.cells[j].getElementsByClassName('sort-direction');\n\
+                  for (var k = 0; k < arrows.length; k++) {\n\
+                    arrows[k].style.display = 'none';\n\
+                  }\n\
+                }\n\
+              }\n\
+              arrow.innerHTML = asc[colIndex] ? '&#9660;' : '&#9650;';\n\
+              arrow.style.display = 'inline';\n\
+              asc[colIndex] = !asc[colIndex];\n\
+            });\n\
+          })(cell, arrow);\n\
+        }\n\
+      }\n\
+    });\n\
+  </script>\n\
+  <style type=\"text/css\">\n\
+    * {\n\
+      font-family: sans-serif;\n\
+    }\n\
+    table {\n\
+      margin: 30px auto;\n\
+    }\n\
+    table, th, td {\n\
+      border: 1px solid #505050;\n\
+      border-collapse: collapse;\n\
+      padding: 7px 10px;\n\
+    }\n\
+    th {\n\
+      color: white;\n\
+      background-color: #505050;\n\
+      border: 1px solid #707070;\n\
+    }\n\
+    td {\n\
+      border: 1px solid #d8d8d8;\n\
+      font-family: 'Source Code Pro', Consolas, \"DejaVu Sans Mono\", \"Courier New\", Monospace;\n\
+    }\n\
+    td.numeric {\n\
+      text-align: right;\n\
+    }\n\
+    tbody tr:nth-child(odd) {\n\
+      background-color: #f0f0f0;\n\
+    }\n\
+    tbody tr:hover {\n\
+      background-color: #c0e3eb;\n\
+    }\n\
+  </style>\n\
+</head>\n\
+\n\
+<body>\n\
+  <table id=\"meta\">\n\
+    <thead>\n\
+      <tr>\n\
+        <th colspan=\"2\">Meta</th>\n\
+      </tr>\n\
+    </thead>\n\
+    <tbody>";
 
   if (print_date()) {
-    *stream() <<
-    "      <tr>\n"
-    "        <td>Date</td>\n"
-    "        <td>" << CTime() << "</td>\n"
-    "      </tr>\n"
-    ;
+    *stream() << "\
+      <tr>\n\
+        <td>Date</td>\n\
+        <td>" << CTime() << "</td>\n\
+      </tr>\n";
   }
 
   if (print_run_time()) {
-    *stream() <<
-    "      <tr>\n"
-    "        <td>Duration</td>\n"
-    "        <td>" << TimeSpan(stats->GetTotalRunTime()) << "</td>\n"
-    "      </tr>\n"
-    ;
+    *stream() << "\
+      <tr>\n\
+        <td>Duration</td>\n\
+        <td>" << TimeSpan(stats->GetTotalRunTime()) << "</td>\n\
+      </tr>\n";
   }
 
-  *stream() <<
-  "    </tbody>\n"
-  "  </table>\n"
-  "  <br/>\n"
-  "  <table id=\"data\" class=\"tablesorter\">\n"
-  "    <thead>\n"
-  "      <tr>\n"
-  "        <th rowspan=\"2\">Type</th>\n"
-  "        <th rowspan=\"2\">Name</th>\n"
-  "        <th rowspan=\"2\">Calls</th>\n"
-  "        <th colspan=\"4\" class=\"group\">Self Time</th>\n"
-  "        <th colspan=\"4\" class=\"group\">Total Time</th>\n"
-  "      </tr>\n"
-  "      <tr>\n"
-  "        <th>%</th>\n"
-  "        <th>Overall</th>\n"
-  "        <th>Average</th>\n"
-  "        <th>Worst</th>\n"
-  "        <th>%</th>\n"
-  "        <th>Overall</th>\n"
-  "        <th>Average</th>\n"
-  "        <th>Worst</th>\n"
-  "      </tr>\n"
-  "    </thead>\n"
-  "    <tbody>\n"
-  ;
+  *stream() << "\
+</tbody>\n\
+  </table>\n\
+  <table id=\"data\" class=\"tablesorter\">\n\
+    <thead>\n\
+      <tr>\n\
+        <th rowspan=\"2\" data-sort-index=\"0\">Type</th>\n\
+        <th rowspan=\"2\" data-sort-index=\"1\">Name</th>\n\
+        <th rowspan=\"2\" data-sort-index=\"2\">Calls</th>\n\
+        <th colspan=\"4\" data-sort-index=\"3\" class=\"group\">Self Time</th>\n\
+        <th colspan=\"4\" data-sort-index=\"7\" class=\"group\">Total Time</th>\n\
+      </tr>\n\
+      <tr>\n\
+        <th data-sort-index=\"3\">%</th>\n\
+        <th data-sort-index=\"4\">Overall</th>\n\
+        <th data-sort-index=\"5\">Average</th>\n\
+        <th data-sort-index=\"6\">Worst</th>\n\
+        <th data-sort-index=\"7\">%</th>\n\
+        <th data-sort-index=\"8\">Overall</th>\n\
+        <th data-sort-index=\"9\">Average</th>\n\
+        <th data-sort-index=\"10\">Worst</th>\n\
+      </tr>\n\
+    </thead>\n\
+    <tbody>\n";
 
   std::vector<FunctionStatistics*> all_fn_stats;
   stats->GetStatistics(all_fn_stats);
@@ -211,12 +270,11 @@ void StatisticsWriterHtml::Write(const Statistics *stats)
 
   stream()->flags(flags);
 
-  *stream() <<
-  "    </tbody>\n"
-  "  </table>\n"
-  "</body>\n"
-  "</html>\n"
-  ;
+  *stream() << "\
+    </tbody>\n\
+  </table>\n\
+</body>\n\
+</html>\n";
 }
 
 } // namespace amxprof
