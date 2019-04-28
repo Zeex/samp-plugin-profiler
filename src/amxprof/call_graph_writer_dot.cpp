@@ -53,40 +53,23 @@ void CallGraphWriterDot::Write(const CallGraph *graph) {
   *stream() << "}\n";
 }
 
-class WriteNode : public CallGraph::Visitor {
- public:
-  virtual void Visit(const CallGraphNode *node);
-};
-
-class WriteNodeColor : public CallGraph::Visitor {
- public:
-  virtual void Visit(const CallGraphNode *node);
-};
-
-class ComputeMaxTime : public CallGraph::Visitor {
- public:
-  virtual void Visit(const CallGraphNode *node);
- private:
-  Nanoseconds max_time_;
-};
-
 void CallGraphWriterDot::WriteNode::Visit(const CallGraphNode *node) {
   if (node->callees().empty()) {
     return;
   }
 
   std::string caller_name;
-  if (node->stats()) {
+  if (node->stats() != 0) {
     caller_name = node->stats()->function()->name();
   } else {
     caller_name = writer_->root_node_name();
   }
 
   std::ostream *stream = writer_->stream();
+  std::set<CallGraphNode*>::const_iterator iterator =
+    node->callees().cbegin();
 
-  for (CallGraphNode::Callees::const_iterator iterator = node->callees().begin();
-       iterator != node->callees().end(); ++iterator)
-  {
+  for (; iterator != node->callees().cend(); ++iterator) {
     const CallGraphNode *callee = *iterator;
 
     *stream << "  \"" << caller_name << "\" -> \""

@@ -27,6 +27,7 @@
 
 #include <map>
 #include <set>
+#include <stack>
 #include "macros.h"
 
 namespace amxprof {
@@ -49,24 +50,23 @@ class CallGraph {
                      const FunctionStatistics *rhs) const;
   };
 
-  typedef std::map<FunctionStatistics*, CallGraphNode*, CompareStats> Nodes;
+  typedef std::map<FunctionStatistics*, CallGraphNode*, CompareStats> NodeMap;
+  typedef std::stack<CallGraphNode*> NodeStack;
 
-  CallGraph(CallGraphNode *root = 0);
+  CallGraph();
   ~CallGraph();
-
-  CallGraphNode *root() const { return root_; }
-  void set_root(CallGraphNode *root) { root_ = root;}
 
   CallGraphNode *sentinel() const { return sentinel_; }
 
-  CallGraphNode *AddCallee(FunctionStatistics *stats);
+  CallGraphNode *PushCall(FunctionStatistics *stats);
+  CallGraphNode *PopCall();
 
   void Traverse(Visitor *visitor) const;
 
  private:
-  CallGraphNode *root_;
   CallGraphNode *sentinel_;
-  Nodes nodes_;
+  NodeMap nodes_;
+  NodeStack call_stack_;
 
  private:
   AMXPROF_DISALLOW_COPY_AND_ASSIGN(CallGraph);
@@ -74,8 +74,6 @@ class CallGraph {
 
 class CallGraphNode {
  public:
-  typedef std::set<CallGraphNode*> Callees;
-
   class CompareNodes {
    public:
      bool operator()(const CallGraphNode *lhs,
@@ -84,24 +82,18 @@ class CallGraphNode {
      }
   };
 
-  CallGraphNode(CallGraph *graph, FunctionStatistics *stats,
-                CallGraphNode *caller = 0);
-
-  void MakeRoot() { graph_->set_root(this); }
+  CallGraphNode(CallGraph *graph, FunctionStatistics *stats);
 
   CallGraph *graph() const { return graph_; }
   FunctionStatistics *stats() const { return stats_; }
 
-  CallGraphNode *caller() const { return caller_; }
-  const Callees &callees() const { return callees_; }
-
+  const std::set<CallGraphNode*> &callees() const { return callees_; }
   CallGraphNode *AddCallee(CallGraphNode *node);
 
  private:
   CallGraph *graph_;
   FunctionStatistics *stats_;
-  CallGraphNode *caller_;
-  Callees callees_;
+  std::set<CallGraphNode*> callees_;
 
  private:
   AMXPROF_DISALLOW_COPY_AND_ASSIGN(CallGraphNode);

@@ -44,13 +44,9 @@ bool CallGraph::CompareStats::operator()(const FunctionStatistics *lhs,
   return lhs->function()->address() < rhs->function()->address();
 }
 
-CallGraph::CallGraph(CallGraphNode *root)
- : root_(root),
-   sentinel_(new CallGraphNode(this, 0))
+CallGraph::CallGraph()
+ : sentinel_(new CallGraphNode(this, 0))
 {
-  if (!root) {
-    root_ = sentinel_;
-  }
 }
 
 CallGraph::~CallGraph() {
@@ -58,32 +54,45 @@ CallGraph::~CallGraph() {
   Traverse(&deleter);
 }
 
-CallGraphNode *CallGraph::AddCallee(FunctionStatistics *stats) {
+CallGraphNode *CallGraph::PushCall(FunctionStatistics *stats) {
   CallGraphNode *node = 0;
-  Nodes::iterator iterator = nodes_.find(stats);
+  NodeMap::iterator iterator = nodes_.find(stats);
   if (iterator == nodes_.end()) {
-    node = new CallGraphNode(this, stats, root_);
+    node = new CallGraphNode(this, stats);
     nodes_.insert(std::make_pair(stats, node));
   } else {
     node = iterator->second;
   }
-  return root_ != 0 ? root_->AddCallee(node) : node;
+  if (call_stack_.empty()) {
+    sentinel_->AddCallee(node);
+  } else {
+    call_stack_.top()->AddCallee(node);
+  }
+  call_stack_.push(node);
+  return node;
+}
+
+CallGraphNode *CallGraph::PopCall() {
+  CallGraphNode *node = 0;
+  if (!call_stack_.empty()) {
+    node = call_stack_.top();
+    call_stack_.pop();
+  }
+  return node;
 }
 
 void CallGraph::Traverse(Visitor *visitor) const {
   visitor->Visit(sentinel_);
-  for (Nodes::const_iterator iterator = nodes_.begin();
+  for (NodeMap::const_iterator iterator = nodes_.begin();
        iterator != nodes_.end(); ++iterator) {
     visitor->Visit(iterator->second);
   }
 }
 
 CallGraphNode::CallGraphNode(CallGraph *graph,
-                             FunctionStatistics *stats,
-                             CallGraphNode *caller)
+                             FunctionStatistics *stats)
  : graph_(graph),
-   stats_(stats),
-   caller_(caller)
+   stats_(stats)
 {
 }
 

@@ -46,14 +46,12 @@ Profiler::~Profiler() {
 }
 
 int Profiler::DebugHook(AMX_DEBUG debug) {
-  Address prev_frame = amx_->stp;
-
-  if (!call_stack_.is_empty()) {
-    prev_frame = call_stack_.top()->frame();
-  }
+  Address prev_frame = call_stack_.is_empty()
+    ? amx_->stp
+    : prev_frame = call_stack_.top()->frame();
 
   if (amx_->frm < prev_frame) {
-    if (call_stack_.top()->frame() != amx_->frm) {
+    if (prev_frame != amx_->frm) {
       Address address = GetCalleeAddress(amx_, amx_->frm);
       if (address != 0) {
         Function *fn = stats_.GetFunction(address);
@@ -67,7 +65,7 @@ int Profiler::DebugHook(AMX_DEBUG debug) {
     }
   } else if (amx_->frm > prev_frame) {
     if (call_stack_.top()->function()->type() == Function::NORMAL) {
-      LeaveFunction();
+      LeaveFunction(0, amx_->frm);
     }
   }
 
@@ -96,7 +94,7 @@ int Profiler::CallbackHook(cell index, cell *result, cell *params, AMX_CALLBACK 
     }
     int error = callback(amx_, index, result, params);
     if (address != 0) {
-      LeaveFunction(address);
+      LeaveFunction(address, 0);
     }
     return error;
   }
@@ -122,7 +120,7 @@ int Profiler::ExecHook(cell *retval, int index, AMX_EXEC exec) {
     }
     int error = exec(amx_, retval, index);
     if (address != 0) {
-      LeaveFunction(address);
+      LeaveFunction(address, 0);
     }
     return error;
   }
@@ -130,49 +128,53 @@ int Profiler::ExecHook(cell *retval, int index, AMX_EXEC exec) {
   return exec(amx_, retval, index);
 }
 
-void Profiler::EnterFunction(Address address, Address frm) {
+void Profiler::EnterFunction(Address address, Address frame) {
   assert(address != 0);
-  FunctionStatistics *fn_stats = stats_.GetFunctionStatistics(address);
 
+  FunctionStatistics *fn_stats = stats_.GetFunctionStatistics(address);
   assert(fn_stats != 0);
+  printf("Entering %s\n", fn_stats->function()->name().c_str());
+
   fn_stats->AdjustNumCalls(1);
 
-  call_stack_.Push(fn_stats->function(), frm);
+  call_stack_.Push(fn_stats->function(), frame);
   if (call_graph_enabled_) {
-    call_graph_.AddCallee(fn_stats)->MakeRoot();
+    call_graph_.PushCall(fn_stats);
   }
 }
 
-void Profiler::LeaveFunction(Address address) {
+void Profiler::LeaveFunction(Address address, Address frame) {
   assert(!call_stack_.is_empty());
   assert(address == 0 || stats_.GetFunction(address) != 0);
 
-  while (true) {
-    FunctionCall fn_call = call_stack_.Pop();
+  while (!call_stack_.is_empty()) {
+    FunctionCall call = call_stack_.Pop();
+    FunctionCall *next_call = call_stack_.is_empty() ? 0 : call_stack_.top();
 
     FunctionStatistics *fn_stats =
-      stats_.GetFunctionStatistics(fn_call.function()->address());
+      stats_.GetFunctionStatistics(call.function()->address());
     assert(fn_stats != 0);
+    printf("Leaving %s\n", fn_stats->function()->name().c_str());
 
-    fn_stats->AdjustSelfTime(fn_call.timer()->self_time());
-    fn_stats->AdjustTotalTime(fn_call.timer()->total_time());
+    fn_stats->AdjustSelfTime(call.timer()->self_time());
+    fn_stats->AdjustTotalTime(call.timer()->total_time());
 
-    Nanoseconds total_time = fn_call.timer()->latest_total_time();
+    Nanoseconds total_time = call.timer()->latest_total_time();
     if (total_time > fn_stats->worst_total_time()) {
       fn_stats->set_worst_total_time(total_time);
     }
 
-    Nanoseconds self_time = fn_call.timer()->latest_self_time();
+    Nanoseconds self_time = call.timer()->latest_self_time();
     if (self_time > fn_stats->worst_self_time()) {
       fn_stats->set_worst_self_time(self_time);
     }
 
     if (call_graph_enabled_) {
-      assert(call_graph_.root() != call_graph_.sentinel());
-      call_graph_.set_root(call_graph_.root()->caller());
+      call_graph_.PopCall();
     }
 
-    if (address == 0 || fn_call.function()->address() == address) {
+    if (call.function()->address() == address
+        || (frame != 0 && next_call != 0 && next_call->frame() >= frame)) {
       break;
     }
   }
