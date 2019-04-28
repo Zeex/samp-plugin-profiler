@@ -52,8 +52,8 @@ the list of available settings:
 
 *   `profiler_callgraphformat <format>`
 
-    Set call graph format. Currently only `dot` is supported (can be viewed
-    in [GraphViz][graphviz]).
+    Set call graph format. Currently only the `dot` format is supported, you can
+    view such files in in [Graphviz][graphviz] or [WebGraphviz][webgraphviz].
 
 ### Old (deprecated) config variables
 
@@ -153,3 +153,4 @@ Licensed under the 2-clause BSD license. See [LICENSE.txt](LICENSE.txt).
 [build_status_win]: https://ci.appveyor.com/api/projects/status/kmv39b0awryjvykq/branch/master?svg=true
 [download]: https://github.com/Zeex/samp-plugin-profiler/releases
 [graphviz]: http://www.graphviz.org
+[webgraphviz]: http://www.webgraphviz.com
