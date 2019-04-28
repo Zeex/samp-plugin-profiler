@@ -133,7 +133,6 @@ void Profiler::EnterFunction(Address address, Address frame) {
 
   FunctionStatistics *fn_stats = stats_.GetFunctionStatistics(address);
   assert(fn_stats != 0);
-  printf("Entering %s\n", fn_stats->function()->name().c_str());
 
   fn_stats->AdjustNumCalls(1);
 
@@ -154,7 +153,6 @@ void Profiler::LeaveFunction(Address address, Address frame) {
     FunctionStatistics *fn_stats =
       stats_.GetFunctionStatistics(call.function()->address());
     assert(fn_stats != 0);
-    printf("Leaving %s\n", fn_stats->function()->name().c_str());
 
     fn_stats->AdjustSelfTime(call.timer()->self_time());
     fn_stats->AdjustTotalTime(call.timer()->total_time());
