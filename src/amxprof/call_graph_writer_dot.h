@@ -66,9 +66,6 @@ class CallGraphWriterDot : public CallGraphWriter {
    private:
     Nanoseconds max_time_;
   };
-
-  void CallGraphWriterDot::WriteCall(const std::string &caller,
-                                     const CallGraphNode *callee);
 };
 
 } // namespace amxprof

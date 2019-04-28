@@ -67,9 +67,9 @@ void CallGraphWriterDot::WriteNode::Visit(const CallGraphNode *node) {
 
   std::ostream *stream = writer_->stream();
   std::set<CallGraphNode*>::const_iterator iterator =
-    node->callees().cbegin();
+    node->callees().begin();
 
-  for (; iterator != node->callees().cend(); ++iterator) {
+  for (; iterator != node->callees().end(); ++iterator) {
     const CallGraphNode *callee = *iterator;
 
     *stream << "  \"" << caller_name << "\" -> \""
