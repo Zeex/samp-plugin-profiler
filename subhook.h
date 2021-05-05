@@ -27,6 +27,8 @@
 #ifndef SUBHOOK_H
 #define SUBHOOK_H
 
+#include <stddef.h>
+
 #if defined _M_IX86 || defined __i386__
   #define SUBHOOK_X86
   #define SUBHOOK_BITS 32
@@ -39,17 +41,14 @@
 
 #if defined _WIN32 || defined __CYGWIN__
   #define SUBHOOK_WINDOWS
-#elif defined __linux__
-  #define SUBHOOK_LINUX
-  #define SUBHOOK_UNIX
-#elif defined __APPLE__
-  #define SUBHOOK_MACOS
+#elif defined __linux__ || defined __APPLE__ \
+   || defined __FreeBSD__ || defined __OpenBSD__ || defined __NetBSD__
   #define SUBHOOK_UNIX
 #else
   #error Unsupported operating system
 #endif
 
-#if !defined SUHOOK_EXTERN
+#if !defined SUBHOOK_EXTERN
   #if defined __cplusplus
     #define SUBHOOK_EXTERN extern "C"
   #else
@@ -125,12 +124,18 @@ SUBHOOK_EXPORT int SUBHOOK_API subhook_remove(subhook_t hook);
 SUBHOOK_EXPORT void *SUBHOOK_API subhook_read_dst(void *src);
 
 /*
+ * Returns the length of the first instruction in src. You can replace it with
+ * a custom function via subhook_set_disasm_handler.
+ */
+SUBHOOK_EXPORT int SUBHOOK_API subhook_disasm(void *src, int *reloc_op_offset);
+
+/*
  * Sets a custom disassmbler function to use in place of the default one
  * (subhook_disasm).
  *
- * The default function recognized a small st of x86 instructiosn commonly
- * in prologues. If it fails in your situation you might want to use a more
- * advanced disassembler library.
+ * The default function can recognize only a small subset of x86 instructions
+ * commonly used in prologues. If it fails in your situation, you might want
+ * to use a more advanced disassembler library.
  */
 SUBHOOK_EXPORT void SUBHOOK_API subhook_set_disasm_handler(
   subhook_disasm_handler_t handler);
@@ -164,7 +169,7 @@ inline void SetDisasmHandler(subhook_disasm_handler_t handler) {
 
 class Hook {
  public:
-  Hook() : hook_(0) {}
+  Hook() : hook_(NULL) {}
   Hook(void *src, void *dst, HookFlags flags = HookNoFlags)
     : hook_(subhook_new(src, dst, (subhook_flags_t)flags))
   {
@@ -180,20 +185,25 @@ class Hook {
   void *GetTrampoline() const { return subhook_get_trampoline(hook_); }
 
   bool Install() {
-    return subhook_install(hook_) >= 0;
+    return subhook_install(hook_) == 0;
   }
 
   bool Install(void *src,
                void *dst,
                HookFlags flags = HookNoFlags) {
-    if (hook_ == 0) {
-      hook_ = subhook_new(src, dst, (subhook_flags_t)flags);
+    if (hook_ != NULL) {
+      subhook_remove(hook_);
+      subhook_free(hook_);
+    }
+    hook_ = subhook_new(src, dst, (subhook_flags_t)flags);
+    if (hook_ == NULL) {
+      return false;
     }
     return Install();
   }
 
   bool Remove() {
-    return subhook_remove(hook_) >= 0;
+    return subhook_remove(hook_) == 0;
   }
 
   bool IsInstalled() const {
@@ -211,8 +221,8 @@ class Hook {
 class ScopedHookRemove {
  public:
   ScopedHookRemove(Hook *hook)
-    : hook_(hook)
-    , removed_(hook_->Remove())
+    : hook_(hook),
+      removed_(hook_->Remove())
   {
   }
 
@@ -234,8 +244,8 @@ class ScopedHookRemove {
 class ScopedHookInstall {
  public:
   ScopedHookInstall(Hook *hook)
-    : hook_(hook)
-    , installed_(hook_->Install())
+    : hook_(hook),
+      installed_(hook_->Install())
   {
   }
 
@@ -243,8 +253,8 @@ class ScopedHookInstall {
                     void *src,
                     void *dst,
                     HookFlags flags = HookNoFlags)
-    : hook_(hook)
-    , installed_(hook_->Install(src, dst, flags))
+    : hook_(hook),
+      installed_(hook_->Install(src, dst, flags))
   {
   }
 
