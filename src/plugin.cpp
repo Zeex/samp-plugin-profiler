@@ -164,7 +164,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
                    &amx_path_finder));
   }
 
-  logprintf("  Profiler plugin " PROJECT_VERSION_STRING);
+  logprintf("  Profiler plugin " PLUGIN_VERSION_STRING);
   return true;
 }
 
