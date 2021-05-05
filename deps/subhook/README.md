@@ -7,12 +7,28 @@ Linux and macOS. It supports x86 only (32-bit and 64-bit).
 Installation
 ------------
 
-Simply copy the files to your project and include subhook.c in your build.
-The other source files wil be `#included` by the main C file automatically
-depending on the OS and achitecture.
+Easy method:
 
-Use of CMake is not mandatory, the library can be built wihtout it (no extra
-build configuration required).
+1. Copy the source and header files to your project and include
+   [`subhook.c`](subhook.c) in your build.
+2. On Windows only: Define `SUBHOOK_STATIC` before including `subhook.h`.
+
+With CMake:
+
+1. Copy the subhook repo to your project tree.
+2. Call `add_subdirectory(path/to/subhook)` in your CMakeLists.txt.
+3. Optional: configure how the library is built by setting these varaible prior
+   to `add_subdirectory(...)`:
+
+   * `SUBHOOK_STATIC` - Build as static library (`OFF` by default)
+   * `SUBHOOK_INSTALL` - Enable installation and packaging of targets/files
+     with CPack (`OFF` by default)
+   * `SUBHOOK_TESTS` - Enable tests (`ON` by default)
+   * `SUBHOOK_FORCE_32BIT` - Configure for compiling 32-bit binaries on 64-bit
+     systems (default is `OFF`)
+
+Use of CMake is not mandatory, the library can be built without it (no extra
+build configuration is required).
 
 Examples
 --------
@@ -118,7 +134,7 @@ Known issues
 ------------
 
 * `subhook_get_trampoline()` may return NULL because only a small subset of
-  x86 instructions is supported by the disassembler in this library (just 
+  x86 instructions is supported by the disassembler in this library (just
   common prologue instructions). As a workaround you can plug in a more
   advanced instruction length decoder using `subhook_set_disasm_handler()`.
 
@@ -127,8 +143,8 @@ Known issues
   (sometimes compilers generate code like this), then you will not be able
   to hook it.
 
-  N is 5 by default: 1 byte for jmp opcode + 4 bytes for offset. But if you 
-  enable the use of 64-bit offsets in 64-bit mode N becomes 14 (see the 
+  N is 5 by default: 1 byte for jmp opcode + 4 bytes for offset. But if you
+  enable the use of 64-bit offsets in 64-bit mode N becomes 14 (see the
   definition of `subhook_jmp64`).
 
 * Some systems protect executable code form being modified at runtime, which
@@ -136,7 +152,9 @@ Known issues
   memory as executable, which prevents the use of trampolines.
 
   For example, on Fedora you can have such problems because of SELinux (though
-  you can disable it or exclude your files).
+  you can disable it or exclude your files). On macOS Catalina the
+  `mprotect()` call inside `subhook_new` will fail with "Permission denied"
+  (see https://github.com/Zeex/subhook/issues/45).
 
 License
 -------
